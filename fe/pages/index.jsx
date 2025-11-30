@@ -7,10 +7,12 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/Badge';
+import InteractiveBackground from '@/components/ui/InteractiveBackground';
 
 export default function Home() {
   const [recentBlogs, setRecentBlogs] = useState([]);
-  const [recentProjects, setRecentProjects] = useState([]);
+  const [featuredProjects, setFeaturedProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -20,14 +22,19 @@ export default function Home() {
           fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects`)
         ]);
 
-        const blogs = await blogsRes.json();
-        const projects = await projectsRes.json();
+        if (blogsRes.ok) {
+          const blogs = await blogsRes.json();
+          setRecentBlogs(blogs.filter(b => b.status === 'PUBLISHED').slice(0, 3));
+        }
 
-        // Filter published blogs and take top 3
-        setRecentBlogs(blogs.filter(b => b.status === 'PUBLISHED').slice(0, 3));
-        setRecentProjects(projects.slice(0, 3));
+        if (projectsRes.ok) {
+          const projects = await projectsRes.json();
+          setFeaturedProjects(projects.slice(0, 3));
+        }
       } catch (error) {
-        console.error("Failed to fetch home data", error);
+        console.error(error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -35,17 +42,23 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="flex flex-col min-h-screen font-sans bg-background text-foreground">
+    <div className="flex flex-col min-h-screen font-sans bg-background text-foreground relative">
       <Metadata
-        title="Khoa Nguyễn - Portfolio"
-        description="Graphic Designer / Software Engineer"
+        title="Khoa Nguyễn - Graphic Designer / Software Engineer"
+        description="Portfolio of Khoa Nguyễn (yun.khngn)"
       />
+
+      <div className="absolute top-0 left-0 w-full h-screen overflow-hidden z-0">
+        <InteractiveBackground />
+      </div>
+
       <DefaultNavbar />
       <CommandMenu />
 
-      <main className="flex-1 container mx-auto px-4 py-12 md:py-24 max-w-5xl space-y-24">
+      <main className="flex-1 container mx-auto px-4 py-12 md:py-24 max-w-5xl space-y-24 relative z-10">
         {/* Hero Section */}
         <section className="flex flex-col items-center text-center justify-center space-y-8 py-20 md:py-32 max-w-4xl mx-auto">
+
           <div className="space-y-6">
             <h1 className="text-6xl md:text-8xl font-bold tracking-tighter font-serif">
               Khoa Nguyễn
@@ -119,7 +132,7 @@ export default function Home() {
           </div>
 
           <div className="grid gap-6 md:grid-cols-2">
-            {recentProjects.map((project) => (
+            {featuredProjects.map((project) => (
               <Link href={`/project/${project.id}`} key={project.id} className="group flex gap-4 items-start p-4 rounded-xl hover:bg-muted/50 transition-colors border border-transparent hover:border-border">
                 <div className="h-16 w-16 rounded-lg bg-muted overflow-hidden relative flex-shrink-0">
                   {project.cover && (

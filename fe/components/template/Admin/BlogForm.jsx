@@ -32,7 +32,7 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
                 slug: initialData.slug || '',
                 thumbnail: initialData.thumbnail || '',
                 tags: initialData.tags ? (typeof initialData.tags === 'string' ? initialData.tags.split(',').map(t => t.trim()).filter(Boolean) : initialData.tags) : [],
-                contentJSON: initialData.contentJSON || '',
+                contentJSON: initialData.content || initialData.contentJSON || '',
                 status: initialData.status || 'DRAFT'
             });
         }
@@ -45,7 +45,7 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
                 slug: initialData.slug || '',
                 thumbnail: initialData.thumbnail || '',
                 tags: initialData.tags ? (typeof initialData.tags === 'string' ? initialData.tags.split(',').map(t => t.trim()).filter(Boolean) : initialData.tags) : [],
-                contentJSON: initialData.contentJSON || '',
+                contentJSON: initialData.content || initialData.contentJSON || '',
                 status: initialData.status || 'DRAFT'
             });
         } else {
@@ -177,6 +177,7 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
             const payload = {
                 ...(initialData || {}),
                 ...formData,
+                content: formData.contentJSON,
                 tags: Array.isArray(formData.tags) ? formData.tags.join(', ') : formData.tags,
             };
             await onSubmit(payload);
@@ -210,11 +211,22 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
                     </div>
                     <div className="space-y-2">
                         <label className="text-sm font-medium">Slug</label>
-                        <Input
-                            value={formData.slug}
-                            onChange={handleSlugChange}
-                            placeholder="blog-slug"
-                        />
+                        <div className="flex gap-2">
+                            <Input
+                                value={formData.slug}
+                                onChange={handleSlugChange}
+                                placeholder="blog-slug"
+                            />
+                            <Button
+                                type="button"
+                                variant="outline"
+                                size="icon"
+                                onClick={() => setFormData(prev => ({ ...prev, slug: generateSlug(prev.title) }))}
+                                title="Regenerate Slug from Title"
+                            >
+                                <RotateCcw className="h-4 w-4" />
+                            </Button>
+                        </div>
                     </div>
                 </div>
 
