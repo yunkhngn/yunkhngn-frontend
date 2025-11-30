@@ -20,6 +20,7 @@ export class UserController {
     @UseGuards(AuthGuard('firebase'))
     @Patch('me')
     async updateProfile(@Request() req, @Body() body: { name?: string; avatarUrl?: string }) {
+        console.log('Update Profile Body:', body);
         const uid = req.user.uid;
         const email = req.user.email;
         return this.userService.createOrUpdate(uid, email, body.avatarUrl, body.name);
