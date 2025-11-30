@@ -11,6 +11,7 @@ import { BlogModule } from './blog/blog.module';
 import { ProjectModule } from './project/project.module';
 import { GalleryModule } from './gallery/gallery.module';
 import { CommentModule } from './comment/comment.module';
+import { SettingsModule } from './settings/settings.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { CommentModule } from './comment/comment.module';
     ProjectModule,
     GalleryModule,
     CommentModule,
+    SettingsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
