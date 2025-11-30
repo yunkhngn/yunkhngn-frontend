@@ -14,7 +14,7 @@ model Blog {
   slug        String    @unique
   thumbnail   String?
   tags        String?   // Stored as JSON string or comma-separated
-  contentJSON String    @db.Text // TipTap JSON content
+  contentJSON String    @db.NVarChar(Max) // TipTap JSON content
   status      String    @default("DRAFT") // DRAFT, PUBLISHED
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
@@ -24,19 +24,19 @@ model Blog {
 model Project {
   id          String   @id @default(uuid())
   title       String
-  description String   @db.Text
+  description String   @db.NVarChar(Max)
   techStack   String?  // Stored as JSON string
   tags        String?
   repoLink    String?
   demoLink    String?
   cover       String?
-  contentJSON String?  @db.Text
+  contentJSON String?  @db.NVarChar(Max)
   createdAt   DateTime @default(now())
 }
 
 model Comment {
   id          String   @id @default(uuid())
-  content     String   @db.Text
+  content     String   @db.NVarChar(Max)
   uid         String   // Firebase UID
   displayName String?
   hidden      Boolean  @default(false)
@@ -57,7 +57,7 @@ model Gallery {
 model Settings {
   id           Int     @id @default(1)
   siteTitle    String?
-  bio          String? @db.Text
+  bio          String? @db.NVarChar(Max)
   avatarUrl    String?
   socialLinks  String? // Stored as JSON string
   designTokens String? // Stored as JSON string

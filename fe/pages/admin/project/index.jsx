@@ -7,9 +7,11 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { cn } from "@/lib/utils";
 import { toast } from 'sonner';
+import { useRouter } from 'next/router';
 
 export default function ProjectList() {
     const { user } = useAuth();
+    const router = useRouter();
     const [projects, setProjects] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -71,7 +73,8 @@ export default function ProjectList() {
                         {projects.map((project) => (
                             <div
                                 key={project.id}
-                                className="bg-card border rounded-xl overflow-hidden shadow-sm flex flex-col transition-all hover:shadow-md group"
+                                onClick={() => router.push(`/admin/project/${project.id}`)}
+                                className="bg-card border rounded-xl overflow-hidden shadow-sm flex flex-col transition-all hover:shadow-md group cursor-pointer"
                             >
                                 <div className="aspect-video relative bg-muted">
                                     {project.cover ? (
@@ -88,12 +91,26 @@ export default function ProjectList() {
                                         </div>
                                     )}
                                     <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <Link href={`/admin/project/edit-project/${project.id}`}>
-                                            <Button size="icon" variant="secondary" className="h-8 w-8">
-                                                <Pencil className="h-4 w-4" />
-                                            </Button>
-                                        </Link>
-                                        <Button size="icon" variant="destructive" className="h-8 w-8" onClick={() => handleDelete(project.id)}>
+                                        <Button
+                                            size="icon"
+                                            variant="secondary"
+                                            className="h-8 w-8"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                router.push(`/admin/project/edit-project/${project.id}`);
+                                            }}
+                                        >
+                                            <Pencil className="h-4 w-4" />
+                                        </Button>
+                                        <Button
+                                            size="icon"
+                                            variant="destructive"
+                                            className="h-8 w-8"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleDelete(project.id);
+                                            }}
+                                        >
                                             <Trash2 className="h-4 w-4" />
                                         </Button>
                                     </div>
@@ -123,6 +140,7 @@ export default function ProjectList() {
                                                 rel="noopener noreferrer"
                                                 className="text-muted-foreground hover:text-primary transition-colors"
                                                 title="Repository"
+                                                onClick={(e) => e.stopPropagation()}
                                             >
                                                 <Github className="h-4 w-4" />
                                             </a>
@@ -134,6 +152,7 @@ export default function ProjectList() {
                                                 rel="noopener noreferrer"
                                                 className="text-muted-foreground hover:text-primary transition-colors"
                                                 title="Live Demo"
+                                                onClick={(e) => e.stopPropagation()}
                                             >
                                                 <ExternalLink className="h-4 w-4" />
                                             </a>
