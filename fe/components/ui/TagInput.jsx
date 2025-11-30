@@ -7,8 +7,11 @@ export function TagInput({ value = [], onChange, placeholder }) {
     const [inputValue, setInputValue] = useState('');
 
     const handleKeyDown = (e) => {
+        if (e.nativeEvent.isComposing) return;
+
         if (e.key === 'Enter' || e.key === ',') {
             e.preventDefault();
+            e.stopPropagation();
             const newTag = inputValue.trim();
             if (newTag && !value.includes(newTag)) {
                 onChange([...value, newTag]);

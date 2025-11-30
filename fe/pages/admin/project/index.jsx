@@ -2,18 +2,20 @@ import AdminLayout from "@/components/template/Admin/Layout";
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/Button';
-import { Plus, Pencil, Trash2, Image as ImageIcon, Github, ExternalLink } from 'lucide-react';
+import { Plus, Pencil, Trash2, Image as ImageIcon, Github, ExternalLink, Search } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { cn } from "@/lib/utils";
 import { toast } from 'sonner';
 import { useRouter } from 'next/router';
+import { Input } from '@/components/ui/Input';
 
 export default function ProjectList() {
     const { user } = useAuth();
     const router = useRouter();
     const [projects, setProjects] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [search, setSearch] = useState('');
 
     const fetchProjects = async () => {
         try {
@@ -54,23 +56,42 @@ export default function ProjectList() {
         }
     };
 
+    const filteredProjects = projects.filter(project =>
+        project.title.toLowerCase().includes(search.toLowerCase())
+    );
+
     return (
         <AdminLayout title="Projects">
-            <div className="h-full flex flex-col">
-                <div className="flex items-center justify-between mb-6">
-                    <h1 className="text-2xl font-bold">All Projects ({projects.length})</h1>
+            <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                    <div>
+                        <h1 className="text-3xl font-bold tracking-tight">Projects</h1>
+                        <p className="text-muted-foreground">Manage your projects</p>
+                    </div>
                     <Link href="/admin/project/add-project">
                         <Button>
-                            <Plus className="h-4 w-4 mr-2" /> Add Project
+                            <Plus className="h-4 w-4 mr-2" /> New Project
                         </Button>
                     </Link>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                    <div className="relative flex-1 max-w-sm">
+                        <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                        <Input
+                            placeholder="Search projects..."
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            className="pl-8"
+                        />
+                    </div>
                 </div>
 
                 {loading ? (
                     <div className="text-center py-12">Loading...</div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-8">
-                        {projects.map((project) => (
+                        {filteredProjects.map((project) => (
                             <div
                                 key={project.id}
                                 onClick={() => router.push(`/admin/project/${project.id}`)}
