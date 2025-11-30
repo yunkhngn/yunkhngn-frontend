@@ -4,7 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
-import { Loader2, Upload, Trash2, Pencil, X, Save, Image as ImageIcon, Crop as CropIcon } from 'lucide-react';
+import { Loader2, Upload, Trash2, Pencil, X, Save, Image as ImageIcon, Crop as CropIcon, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/Dialog';
 import Cropper from 'react-easy-crop';
 import getCroppedImg from '@/lib/cropImage';
@@ -19,12 +19,19 @@ export default function PhotoManager() {
     const [previewUrl, setPreviewUrl] = useState('');
     const [viewingPhoto, setViewingPhoto] = useState(null);
 
+    // Pagination state
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 9;
+
     // Crop state
     const [crop, setCrop] = useState({ x: 0, y: 0 });
     const [zoom, setZoom] = useState(1);
     const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
     const [isCropOpen, setIsCropOpen] = useState(false);
     const [tempImgUrl, setTempImgUrl] = useState('');
+
+    // Drag state
+    const [isDragging, setIsDragging] = useState(false);
 
     // Edit state
     const [editingPhoto, setEditingPhoto] = useState(null);
@@ -50,18 +57,47 @@ export default function PhotoManager() {
         fetchPhotos();
     }, []);
 
-    const handleFileSelect = (e) => {
-        const file = e.target.files[0];
-        if (file) {
+    // Reset to page 1 when photos change (optional, but good practice if filtering)
+    useEffect(() => setCurrentPage(1), [photos]);
+
+    // Calculate pagination
+    const indexOfLastPhoto = currentPage * itemsPerPage;
+    const indexOfFirstPhoto = indexOfLastPhoto - itemsPerPage;
+    const currentPhotos = photos.slice(indexOfFirstPhoto, indexOfLastPhoto);
+    const totalPages = Math.ceil(photos.length / itemsPerPage);
+
+    const processFile = (file) => {
+        if (file && file.type.startsWith('image/')) {
             const url = URL.createObjectURL(file);
             setTempImgUrl(url);
             setSelectedFile(file);
             setPreviewUrl(url);
             setCrop({ x: 0, y: 0 });
             setZoom(1);
-            // Reset file input so same file can be selected again if needed
-            e.target.value = '';
         }
+    };
+
+    const handleFileSelect = (e) => {
+        const file = e.target.files[0];
+        processFile(file);
+        e.target.value = '';
+    };
+
+    const handleDragOver = (e) => {
+        e.preventDefault();
+        setIsDragging(true);
+    };
+
+    const handleDragLeave = (e) => {
+        e.preventDefault();
+        setIsDragging(false);
+    };
+
+    const handleDrop = (e) => {
+        e.preventDefault();
+        setIsDragging(false);
+        const file = e.dataTransfer.files[0];
+        processFile(file);
     };
 
     const onCropComplete = (croppedArea, croppedAreaPixels) => {
@@ -133,6 +169,8 @@ export default function PhotoManager() {
             setPreviewUrl('');
             setCaption('');
             fetchPhotos();
+            // Optional: Go to page 1 after upload
+            setCurrentPage(1);
 
         } catch (error) {
             console.error(error);
@@ -211,8 +249,11 @@ export default function PhotoManager() {
                             <h2 className="text-lg font-semibold mb-4">Locket</h2>
                             <div className="space-y-4">
                                 <div
-                                    className="w-full aspect-square border-2 border-dashed rounded-xl flex flex-col items-center justify-center cursor-pointer hover:bg-muted/50 transition-colors relative overflow-hidden group bg-muted/20"
+                                    className={`w-full aspect-square border-2 border-dashed rounded-xl flex flex-col items-center justify-center cursor-pointer hover:bg-muted/50 transition-colors relative overflow-hidden group bg-muted/20 ${isDragging ? 'border-primary bg-primary/10' : 'border-border'}`}
                                     onClick={() => !previewUrl && fileInputRef.current?.click()}
+                                    onDragOver={handleDragOver}
+                                    onDragLeave={handleDragLeave}
+                                    onDrop={handleDrop}
                                 >
                                     {previewUrl ? (
                                         <div className="relative w-full h-full">
@@ -237,7 +278,7 @@ export default function PhotoManager() {
                                     ) : (
                                         <>
                                             <ImageIcon className="h-12 w-12 text-muted-foreground/50 mb-2" />
-                                            <span className="text-sm text-muted-foreground">Tap to upload</span>
+                                            <span className="text-sm text-muted-foreground text-center px-4">Tap to upload or drag and drop</span>
                                         </>
                                     )}
                                     <input
@@ -274,7 +315,7 @@ export default function PhotoManager() {
                     {/* Right Column: Gallery (70% approx - 8/12) */}
                     <div className="lg:col-span-8">
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                            {photos.map((photo) => (
+                            {currentPhotos.map((photo) => (
                                 <div
                                     key={photo.id}
                                     className="aspect-square relative rounded-xl overflow-hidden cursor-pointer group bg-muted"
@@ -289,6 +330,31 @@ export default function PhotoManager() {
                                 </div>
                             ))}
                         </div>
+
+                        {/* Pagination Controls */}
+                        {photos.length > 0 && (
+                            <div className="flex justify-center items-center gap-4 mt-8">
+                                <Button
+                                    variant="outline"
+                                    size="icon"
+                                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                                    disabled={currentPage === 1}
+                                >
+                                    <ChevronLeft className="h-4 w-4" />
+                                </Button>
+                                <span className="text-sm font-medium">
+                                    Page {currentPage} of {totalPages}
+                                </span>
+                                <Button
+                                    variant="outline"
+                                    size="icon"
+                                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                                    disabled={currentPage === totalPages}
+                                >
+                                    <ChevronRight className="h-4 w-4" />
+                                </Button>
+                            </div>
+                        )}
 
                         {loading && <div className="text-center py-12 text-muted-foreground">Loading moments...</div>}
                         {!loading && photos.length === 0 && (
