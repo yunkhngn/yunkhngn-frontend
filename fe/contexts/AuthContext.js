@@ -78,11 +78,11 @@ export const AuthProvider = ({ children }) => {
     };
 
     // Auto sign-in anonymously if not logged in (for visitors)
-    useEffect(() => {
-        if (!loading && !user) {
-            signInAnon();
-        }
-    }, [loading, user]);
+    // useEffect(() => {
+    //     if (!loading && !user) {
+    //         signInAnon();
+    //     }
+    // }, [loading, user]);
 
     return (
         <AuthContext.Provider value={{ 
