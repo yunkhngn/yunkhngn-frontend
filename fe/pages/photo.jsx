@@ -14,7 +14,7 @@ export default function Photo() {
     useEffect(() => {
         const fetchPhotos = async () => {
             try {
-                const res = await fetch('http://localhost:3001/gallery');
+                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/gallery`);
                 if (!res.ok) throw new Error('Failed to fetch photos');
                 const data = await res.json();
                 setPhotos(data);

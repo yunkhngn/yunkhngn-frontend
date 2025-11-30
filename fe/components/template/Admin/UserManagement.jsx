@@ -19,7 +19,7 @@ export default function UserManagement() {
     const fetchUsers = async () => {
         try {
             const token = await user.getIdToken();
-            const res = await fetch('http://localhost:3001/user', {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             if (!res.ok) throw new Error('Failed to fetch users');
@@ -45,8 +45,8 @@ export default function UserManagement() {
         try {
             const token = await user.getIdToken();
             const url = editingUser
-                ? `http://localhost:3001/user/${editingUser.uid}`
-                : 'http://localhost:3001/user';
+                ? `${process.env.NEXT_PUBLIC_API_URL}/user/${editingUser.uid}`
+                : `${process.env.NEXT_PUBLIC_API_URL}/user`;
 
             const method = editingUser ? 'PATCH' : 'POST';
 
@@ -83,7 +83,7 @@ export default function UserManagement() {
 
         try {
             const token = await user.getIdToken();
-            const res = await fetch(`http://localhost:3001/user/${uid}`, {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/${uid}`, {
                 method: 'DELETE',
                 headers: { Authorization: `Bearer ${token}` }
             });

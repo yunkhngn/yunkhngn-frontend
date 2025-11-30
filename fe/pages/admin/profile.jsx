@@ -36,7 +36,7 @@ export default function Profile() {
     try {
       // 1. Get signature
       const token = await user.getIdToken();
-      const sigRes = await fetch('http://localhost:3001/gallery/signature', {
+      const sigRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/gallery/signature`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (!sigRes.ok) throw new Error('Failed to get upload signature');
@@ -82,7 +82,7 @@ export default function Profile() {
       const token = await user.getIdToken();
 
       // Update Profile (Name & Avatar)
-      const res = await fetch('http://localhost:3001/user/me', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/me`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

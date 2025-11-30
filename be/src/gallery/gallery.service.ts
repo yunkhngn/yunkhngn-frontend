@@ -35,9 +35,9 @@ export class GalleryService {
         });
     }
 
-    getUploadSignature() {
+    getUploadSignature(folder?: string) {
         return this.cloudinaryService.generateUploadSignature({
-            folder: 'blog-portfolio/gallery',
+            folder: folder || 'blog-portfolio/gallery',
         });
     }
 }

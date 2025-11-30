@@ -33,7 +33,7 @@ export const AuthProvider = ({ children }) => {
             if (user) {
                 try {
                     const token = await user.getIdToken();
-                    const res = await fetch('http://localhost:3001/user/me', {
+                    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/me`, {
                         headers: {
                             Authorization: `Bearer ${token}`
                         }

@@ -7,7 +7,7 @@ export default function Footer() {
             <div className="container mx-auto px-4">
                 <div className="flex flex-col lg:flex-row gap-8 mb-12">
                     {/* Brand Column */}
-                    <div className="lg:w-1/3 flex flex-col justify-between">
+                    <div className="lg:w-1/2 flex flex-col justify-between">
                         <div>
                             <Link href="/" className="font-mono text-2xl font-bold flex items-center gap-1 mb-4 hover:opacity-80 transition-opacity">
                                 <span className="text-primary">&gt;</span>
@@ -31,30 +31,19 @@ export default function Footer() {
                     <div className="hidden lg:block w-px bg-border mx-4 h-auto min-h-full"></div>
 
                     {/* Links Columns */}
-                    <div className="lg:w-2/3 grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div className="lg:w-1/2 grid grid-cols-1 md:grid-cols-2 gap-8">
                         {/* Links Column 1 */}
                         <div>
                             <h3 className="font-semibold text-foreground mb-4">Explore</h3>
                             <ul className="space-y-3">
+                                <FooterLink href="/project">Project</FooterLink>
                                 <FooterLink href="/blog">Blog</FooterLink>
-                                <FooterLink href="/projects">Projects</FooterLink>
-                                <FooterLink href="/about">About Me</FooterLink>
-                                <FooterLink href="/gallery">Gallery</FooterLink>
+                                <FooterLink href="/photo">Photo</FooterLink>
+                                <FooterLink href="/aboutme">About Me</FooterLink>
                             </ul>
                         </div>
 
                         {/* Links Column 2 */}
-                        <div>
-                            <h3 className="font-semibold text-foreground mb-4">Resources</h3>
-                            <ul className="space-y-3">
-                                <FooterLink href="/snippets">Code Snippets</FooterLink>
-                                <FooterLink href="/tags">Tags</FooterLink>
-                                <FooterLink href="/tools">Tools I Use</FooterLink>
-                                <FooterLink href="/rss.xml">RSS Feed</FooterLink>
-                            </ul>
-                        </div>
-
-                        {/* Links Column 3 */}
                         <div>
                             <h3 className="font-semibold text-foreground mb-4">Connect</h3>
                             <ul className="space-y-3">

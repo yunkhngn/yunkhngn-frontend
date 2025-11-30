@@ -43,7 +43,7 @@ export default function PhotoManager() {
 
     const fetchPhotos = async () => {
         try {
-            const res = await fetch('http://localhost:3001/gallery');
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/gallery`);
             if (!res.ok) throw new Error('Failed to fetch photos');
             const data = await res.json();
             setPhotos(data);
@@ -127,7 +127,7 @@ export default function PhotoManager() {
             const token = await user.getIdToken();
 
             // 1. Get signature
-            const sigRes = await fetch('http://localhost:3001/gallery/signature', {
+            const sigRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/gallery/signature`, {
                 headers: { Authorization: `Bearer ${token} ` }
             });
             if (!sigRes.ok) throw new Error('Failed to get signature');
@@ -151,7 +151,7 @@ export default function PhotoManager() {
             const uploadData = await uploadRes.json();
 
             // 3. Save to Backend
-            const saveRes = await fetch('http://localhost:3001/gallery', {
+            const saveRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/gallery`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -185,7 +185,7 @@ export default function PhotoManager() {
         if (!confirm('Are you sure you want to delete this photo?')) return;
         try {
             const token = await user.getIdToken();
-            const res = await fetch(`http://localhost:3001/gallery/${id}`, {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/gallery/${id}`, {
                 method: 'DELETE',
                 headers: { Authorization: `Bearer ${token}` }
             });
@@ -207,7 +207,7 @@ export default function PhotoManager() {
         if (!editingPhoto) return;
         try {
             const token = await user.getIdToken();
-            const res = await fetch(`http://localhost:3001/gallery/${editingPhoto.id}`, {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/gallery/${editingPhoto.id}`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',

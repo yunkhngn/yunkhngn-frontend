@@ -4,6 +4,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
+import { TagInput } from '@/components/ui/TagInput';
+import TipTapEditor from '@/components/ui/TipTapEditor';
 import { Loader2, Plus, Pencil, Trash2, X, Upload, Image as ImageIcon, Save, RotateCcw, Github, ExternalLink } from 'lucide-react';
 import Image from 'next/image';
 import { cn } from "@/lib/utils";
@@ -19,11 +21,12 @@ export default function ProjectManager() {
     const [formData, setFormData] = useState({
         title: '',
         description: '',
-        techStack: '',
-        tags: '',
+        techStack: [],
+        tags: [],
         repoLink: '',
         demoLink: '',
-        images: []
+        cover: '',
+        contentJSON: ''
     });
 
     const fileInputRef = useRef(null);
@@ -31,14 +34,13 @@ export default function ProjectManager() {
 
     const fetchProjects = async () => {
         try {
-            const res = await fetch('http://localhost:3001/projects');
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects`);
             if (!res.ok) throw new Error('Failed to fetch projects');
             const data = await res.json();
             // Parse JSON strings if necessary (backend might return them as strings)
             const parsedData = data.map(p => ({
                 ...p,
                 techStack: typeof p.techStack === 'string' ? JSON.parse(p.techStack || '[]') : p.techStack,
-                images: typeof p.images === 'string' ? JSON.parse(p.images || '[]') : p.images,
             }));
             setProjects(parsedData);
         } catch (error) {
@@ -56,11 +58,12 @@ export default function ProjectManager() {
         setFormData({
             title: '',
             description: '',
-            techStack: '',
-            tags: '',
+            techStack: [],
+            tags: [],
             repoLink: '',
             demoLink: '',
-            images: []
+            cover: '',
+            contentJSON: ''
         });
         setEditingProject(null);
     };
@@ -70,11 +73,12 @@ export default function ProjectManager() {
         setFormData({
             title: project.title,
             description: project.description,
-            techStack: Array.isArray(project.techStack) ? project.techStack.join(', ') : '',
-            tags: project.tags || '',
+            techStack: Array.isArray(project.techStack) ? project.techStack : [],
+            tags: project.tags ? project.tags.split(',').map(t => t.trim()).filter(Boolean) : [],
             repoLink: project.repoLink || '',
             demoLink: project.demoLink || '',
-            images: Array.isArray(project.images) ? project.images : []
+            cover: project.cover || '',
+            contentJSON: project.contentJSON || ''
         });
         // Scroll to top on mobile
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -89,8 +93,8 @@ export default function ProjectManager() {
             const token = await user.getIdToken();
 
             // Get signature
-            const sigRes = await fetch('http://localhost:3001/gallery/signature', {
-                headers: { Authorization: `Bearer ${token} ` }
+            const sigRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/gallery/signature?folder=blog-portfolio/projects`, {
+                headers: { Authorization: `Bearer ${token}` }
             });
             const { signature, timestamp } = await sigRes.json();
 
@@ -113,7 +117,7 @@ export default function ProjectManager() {
 
             setFormData(prev => ({
                 ...prev,
-                images: [...prev.images, uploadData.secure_url]
+                cover: uploadData.secure_url
             }));
 
         } catch (error) {
@@ -125,11 +129,35 @@ export default function ProjectManager() {
         }
     };
 
-    const removeImage = (index) => {
-        setFormData(prev => ({
-            ...prev,
-            images: prev.images.filter((_, i) => i !== index)
-        }));
+    const handleEditorImageUpload = async (file) => {
+        try {
+            const token = await user.getIdToken();
+            const sigRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/gallery/signature?folder=blog-portfolio/content`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            const { signature, timestamp } = await sigRes.json();
+
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('api_key', process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY);
+            formData.append('timestamp', timestamp);
+            formData.append('signature', signature);
+            formData.append('folder', 'blog-portfolio/content');
+
+            const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+            const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!uploadRes.ok) throw new Error('Upload failed');
+            const uploadData = await uploadRes.json();
+            return uploadData.secure_url;
+        } catch (error) {
+            console.error(error);
+            alert('Failed to upload image');
+            return null;
+        }
     };
 
     const handleSubmit = async () => {
@@ -143,13 +171,13 @@ export default function ProjectManager() {
             const token = await user.getIdToken();
             const payload = {
                 ...formData,
-                techStack: JSON.stringify(formData.techStack.split(',').map(s => s.trim()).filter(Boolean)),
-                images: JSON.stringify(formData.images)
+                techStack: JSON.stringify(formData.techStack),
+                tags: formData.tags.join(', '),
             };
 
             const url = editingProject
-                ? `http://localhost:3001/projects/${editingProject.id}`
-                : 'http://localhost:3001/projects';
+                ? `${process.env.NEXT_PUBLIC_API_URL}/projects/${editingProject.id}`
+                : `${process.env.NEXT_PUBLIC_API_URL}/projects`;
 
             const method = editingProject ? 'PATCH' : 'POST';
 
@@ -178,7 +206,7 @@ export default function ProjectManager() {
         if (!confirm('Are you sure you want to delete this project?')) return;
         try {
             const token = await user.getIdToken();
-            const res = await fetch(`http://localhost:3001/projects/${id}`, {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/${id}`, {
                 method: 'DELETE',
                 headers: { Authorization: `Bearer ${token}` }
             });
@@ -221,25 +249,25 @@ export default function ProjectManager() {
                                 value={formData.description}
                                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                                 placeholder="Project Description"
-                                rows={5}
+                                rows={3}
                             />
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <label className="text-sm font-medium">Tech Stack (comma separated)</label>
-                                <Input
+                                <label className="text-sm font-medium">Tech Stack</label>
+                                <TagInput
                                     value={formData.techStack}
-                                    onChange={(e) => setFormData({ ...formData, techStack: e.target.value })}
-                                    placeholder="React, Node.js, MongoDB"
+                                    onChange={(newTags) => setFormData({ ...formData, techStack: newTags })}
+                                    placeholder="React, Node.js..."
                                 />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-sm font-medium">Tags (comma separated)</label>
-                                <Input
+                                <label className="text-sm font-medium">Tags</label>
+                                <TagInput
                                     value={formData.tags}
-                                    onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
-                                    placeholder="Web, Mobile, Design"
+                                    onChange={(newTags) => setFormData({ ...formData, tags: newTags })}
+                                    placeholder="Web, Mobile..."
                                 />
                             </div>
                         </div>
@@ -264,30 +292,24 @@ export default function ProjectManager() {
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-sm font-medium">Images</label>
-                            <div className="grid grid-cols-4 gap-2">
-                                {formData.images.map((url, index) => (
-                                    <div key={index} className="aspect-square relative rounded-lg overflow-hidden group border">
-                                        <Image src={url} alt="Project" fill className="object-cover" />
-                                        <button
-                                            onClick={() => removeImage(index)}
-                                            className="absolute top-1 right-1 bg-black/50 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                                        >
-                                            <X className="h-3 w-3" />
-                                        </button>
+                            <label className="text-sm font-medium">Cover Image</label>
+                            <div
+                                className="aspect-video relative rounded-lg overflow-hidden group border border-dashed flex items-center justify-center cursor-pointer hover:bg-muted/50 transition-colors"
+                                onClick={() => fileInputRef.current?.click()}
+                            >
+                                {formData.cover ? (
+                                    <>
+                                        <Image src={formData.cover} alt="Cover" fill className="object-cover" />
+                                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white font-medium">
+                                            Change Cover
+                                        </div>
+                                    </>
+                                ) : (
+                                    <div className="flex flex-col items-center text-muted-foreground">
+                                        {uploading ? <Loader2 className="h-8 w-8 animate-spin" /> : <ImageIcon className="h-8 w-8 mb-2" />}
+                                        <span>Upload Cover Image</span>
                                     </div>
-                                ))}
-                                <div
-                                    className="aspect-square border-2 border-dashed rounded-lg flex flex-col items-center justify-center cursor-pointer hover:bg-muted/50 transition-colors"
-                                    onClick={() => fileInputRef.current?.click()}
-                                >
-                                    {uploading ? (
-                                        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-                                    ) : (
-                                        <Plus className="h-6 w-6 text-muted-foreground" />
-                                    )}
-                                    <span className="text-xs text-muted-foreground mt-1">Add Image</span>
-                                </div>
+                                )}
                             </div>
                             <input
                                 type="file"
@@ -295,6 +317,16 @@ export default function ProjectManager() {
                                 className="hidden"
                                 accept="image/*"
                                 onChange={handleUpload}
+                            />
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium">Content</label>
+                            <TipTapEditor
+                                key={editingProject ? editingProject.id : 'new'} // Force remount on project switch
+                                content={formData.contentJSON}
+                                onChange={(json) => setFormData({ ...formData, contentJSON: json })}
+                                onImageUpload={handleEditorImageUpload}
                             />
                         </div>
 
@@ -332,9 +364,9 @@ export default function ProjectManager() {
                                     )}
                                 >
                                     <div className="aspect-video relative bg-muted">
-                                        {project.images && project.images.length > 0 ? (
+                                        {project.cover ? (
                                             <Image
-                                                src={project.images[0]}
+                                                src={project.cover}
                                                 alt={project.title}
                                                 fill
                                                 className="object-cover"

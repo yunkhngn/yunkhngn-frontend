@@ -26,10 +26,11 @@ model Project {
   title       String
   description String   @db.Text
   techStack   String?  // Stored as JSON string
-  images      String?  // Stored as JSON string (array of URLs)
   tags        String?
   repoLink    String?
   demoLink    String?
+  cover       String?
+  contentJSON String?  @db.Text
   createdAt   DateTime @default(now())
 }
 
