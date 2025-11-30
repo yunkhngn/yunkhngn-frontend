@@ -55,7 +55,10 @@ export default function PhotoManager() {
         if (file) {
             const url = URL.createObjectURL(file);
             setTempImgUrl(url);
-            setIsCropOpen(true);
+            setSelectedFile(file);
+            setPreviewUrl(url);
+            setCrop({ x: 0, y: 0 });
+            setZoom(1);
             // Reset file input so same file can be selected again if needed
             e.target.value = '';
         }
@@ -192,7 +195,6 @@ export default function PhotoManager() {
 
     const openCropForCurrent = () => {
         if (previewUrl) {
-            setTempImgUrl(previewUrl);
             setIsCropOpen(true);
         }
     };
