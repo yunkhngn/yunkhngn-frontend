@@ -1,8 +1,8 @@
 import Head from 'next/head';
 
 export default function Metadata({
-    title = "Yunkhngn - Full Stack Developer",
-    description = "Full Stack Developer building beautiful web experiences. Welcome to my digital garden.",
+    title = "Khoa Nguyễn - Software Developer",
+    description = "Software Developer building beautiful web experiences. Welcome to my digital garden.",
     image = "/image/thumbnail.jpg",
     url = "https://yunkhngn.dev",
 }) {

@@ -1,11 +1,26 @@
 import { createContext, useContext, useEffect, useState } from 'react';
-import { onAuthStateChanged, signInAnonymously, signOut as firebaseSignOut } from 'firebase/auth';
+import { 
+    onAuthStateChanged, 
+    signInAnonymously, 
+    signOut as firebaseSignOut,
+    signInWithEmailAndPassword,
+    signInWithPopup,
+    GoogleAuthProvider,
+    GithubAuthProvider,
+    FacebookAuthProvider,
+    TwitterAuthProvider
+} from 'firebase/auth';
 import { auth } from '../lib/firebase/config';
 
 const AuthContext = createContext({
     user: null,
     loading: true,
     signInAnonymously: async () => { },
+    login: async (email, password) => { },
+    loginWithGoogle: async () => { },
+    loginWithGithub: async () => { },
+    loginWithFacebook: async () => { },
+    loginWithTwitter: async () => { },
     signOut: async () => { },
 });
 
@@ -30,6 +45,30 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    const login = (email, password) => {
+        return signInWithEmailAndPassword(auth, email, password);
+    };
+
+    const loginWithGoogle = () => {
+        const provider = new GoogleAuthProvider();
+        return signInWithPopup(auth, provider);
+    };
+
+    const loginWithGithub = () => {
+        const provider = new GithubAuthProvider();
+        return signInWithPopup(auth, provider);
+    };
+
+    const loginWithFacebook = () => {
+        const provider = new FacebookAuthProvider();
+        return signInWithPopup(auth, provider);
+    };
+
+    const loginWithTwitter = () => {
+        const provider = new TwitterAuthProvider();
+        return signInWithPopup(auth, provider);
+    };
+
     const signOut = async () => {
         try {
             await firebaseSignOut(auth);
@@ -46,7 +85,17 @@ export const AuthProvider = ({ children }) => {
     }, [loading, user]);
 
     return (
-        <AuthContext.Provider value={{ user, loading, signInAnonymously: signInAnon, signOut }}>
+        <AuthContext.Provider value={{ 
+            user, 
+            loading, 
+            signInAnonymously: signInAnon, 
+            login,
+            loginWithGoogle,
+            loginWithGithub,
+            loginWithFacebook,
+            loginWithTwitter,
+            signOut 
+        }}>
             {children}
         </AuthContext.Provider>
     );
