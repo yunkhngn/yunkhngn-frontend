@@ -64,4 +64,5 @@ model User {
   uid       String   @unique // Firebase UID
   email     String   @unique
   role      String   @default("ADMIN")
+  createdAt DateTime @default(now())
 }

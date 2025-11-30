@@ -1,5 +1,6 @@
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -7,11 +8,18 @@ import { Input } from '@/components/ui/Input';
 import { DefaultNavbar, DefaultFooter, Metadata } from '@/components/template';
 
 export default function Login() {
-    const { login } = useAuth();
+    const { login, user } = useAuth();
+    const router = useRouter();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        if (user) {
+            router.push('/');
+        }
+    }, [user, router]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
