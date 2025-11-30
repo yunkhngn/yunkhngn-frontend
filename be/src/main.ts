@@ -1,4 +1,5 @@
 import { NestFactory } from '@nestjs/core';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import * as admin from 'firebase-admin';
 import * as dotenv from 'dotenv';
@@ -9,14 +10,22 @@ dotenv.config();
 async function bootstrap() {
   // Initialize Firebase Admin
   if (admin.apps.length === 0) {
-    const serviceAccountPath = process.env.FIREBASE_CREDENTIALS;
-    if (serviceAccountPath && fs.existsSync(serviceAccountPath)) {
+    const credentials = process.env.FIREBASE_CREDENTIALS;
+    if (credentials) {
       try {
-        const serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, 'utf8'));
-        admin.initializeApp({
-          credential: admin.credential.cert(serviceAccount),
-        });
-        console.log('Firebase Admin initialized with service account.');
+        let serviceAccount;
+        if (credentials.startsWith('{')) {
+          serviceAccount = JSON.parse(credentials);
+        } else if (fs.existsSync(credentials)) {
+          serviceAccount = JSON.parse(fs.readFileSync(credentials, 'utf8'));
+        }
+
+        if (serviceAccount) {
+          admin.initializeApp({
+            credential: admin.credential.cert(serviceAccount),
+          });
+          console.log('Firebase Admin initialized.');
+        }
       } catch (e) {
         console.error('Failed to parse Firebase credentials:', e);
       }
@@ -33,6 +42,16 @@ async function bootstrap() {
 
   const app = await NestFactory.create(AppModule);
   app.enableCors(); // Enable CORS for frontend
+
+  const config = new DocumentBuilder()
+    .setTitle('Blog Portfolio API')
+    .setDescription('The Blog Portfolio API description')
+    .setVersion('1.0')
+    .addBearerAuth()
+    .build();
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api/docs', app, document);
+
   await app.listen(process.env.PORT ?? 3001);
 }
 bootstrap();
