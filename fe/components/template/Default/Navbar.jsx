@@ -131,9 +131,28 @@ export default function Navbar() {
                         </Button>
                     )}
 
-                    {/* Theme Toggle Button (Purple) */}
+                    {/* Buy Me a Coffee */}
+                    <a
+                        href="https://www.buymeacoffee.com/yunkhngn"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="hidden sm:flex hover:scale-105 transition-transform"
+                    >
+                        <img
+                            src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png"
+                            alt="Buy Me A Coffee"
+                            className="h-9 w-auto"
+                        />
+                    </a>
 
-
+                    {/* Theme Toggle Button */}
+                    <button
+                        onClick={toggleTheme}
+                        className="p-2 hover:bg-accent rounded-full text-muted-foreground transition-colors"
+                        aria-label="Toggle theme"
+                    >
+                        {mounted && theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+                    </button>
 
                     {/* Mobile Menu Trigger */}
                     <button

@@ -1,16 +1,124 @@
 import { DefaultFooter, DefaultNavbar, Metadata } from "@/components/template";
+import { useState, useEffect } from 'react';
+import Image from 'next/image';
+import { Dialog, DialogContent } from '@/components/ui/Dialog';
+import { X } from 'lucide-react';
+import { Button } from '@/components/ui/Button';
+import { Skeleton } from "@/components/ui/Skeleton";
 
-export default function photo() {
+export default function Photo() {
+    const [photos, setPhotos] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [viewingPhoto, setViewingPhoto] = useState(null);
+
+    useEffect(() => {
+        const fetchPhotos = async () => {
+            try {
+                const res = await fetch('http://localhost:3001/gallery');
+                if (!res.ok) throw new Error('Failed to fetch photos');
+                const data = await res.json();
+                setPhotos(data);
+            } catch (error) {
+                console.error(error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchPhotos();
+    }, []);
+
     return (
-        <div className="flex flex-col min-h-screen font-sans">
+        <div className="flex flex-col min-h-screen font-sans bg-background text-foreground">
             <Metadata
-                title="Photo"
-                description="Photo"
+                title="Photo Gallery"
+                description="A collection of moments."
             />
             <DefaultNavbar />
-            <main className="flex-1 flex flex-col items-center justify-center p-8 sm:p-20">
 
+            <main className="flex-1 w-full max-w-7xl mx-auto p-4 sm:p-8">
+                <div className="mb-8">
+                    <h1 className="text-3xl font-bold mb-2">Moments</h1>
+                    <p className="text-muted-foreground">Captured memories and little things.</p>
+                </div>
+
+                {loading ? (
+                    <div className="columns-1 sm:columns-2 md:columns-3 gap-4 space-y-4">
+                        {Array.from({ length: 9 }).map((_, i) => (
+                            <div key={i} className="break-inside-avoid">
+                                <Skeleton className={`w-full rounded-xl ${i % 3 === 0 ? 'aspect-[3/4]' : i % 2 === 0 ? 'aspect-video' : 'aspect-square'}`} />
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <div className="columns-1 sm:columns-2 md:columns-3 gap-4 space-y-4">
+                        {photos.map((photo) => (
+                            <div
+                                key={photo.id}
+                                className="break-inside-avoid relative group cursor-pointer rounded-xl overflow-hidden bg-muted"
+                                onClick={() => setViewingPhoto(photo)}
+                            >
+                                <Image
+                                    src={photo.imageUrl}
+                                    alt={photo.caption || 'Gallery Photo'}
+                                    width={0}
+                                    height={0}
+                                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                    className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105"
+                                    unoptimized
+                                />
+                                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
+
+                                {/* Caption Overlay for Grid */}
+                                {photo.caption && (
+                                    <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/70 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                        <p className="text-white text-sm font-medium line-clamp-2">{photo.caption}</p>
+                                    </div>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                )}
+
+                {!loading && photos.length === 0 && (
+                    <div className="text-center py-20 text-muted-foreground">No photos yet.</div>
+                )}
+
+                {/* View Photo Modal */}
+                <Dialog open={!!viewingPhoto} onOpenChange={(open) => !open && setViewingPhoto(null)}>
+                    <DialogContent className="max-w-4xl p-0 overflow-hidden border-none bg-transparent shadow-none sm:bg-transparent">
+                        {viewingPhoto && (
+                            <div className="relative flex flex-col items-center justify-center min-h-[50vh] max-h-[90vh] pointer-events-none">
+                                {/* Wrapper to constrain caption to image width */}
+                                <div className="relative max-w-full max-h-[80vh] pointer-events-auto">
+                                    {/* Close button */}
+                                    <Button
+                                        variant="secondary"
+                                        size="icon"
+                                        className="absolute top-2 right-2 z-50 rounded-full opacity-80 hover:opacity-100 bg-black/50 hover:bg-black/70 text-white border-none"
+                                        onClick={() => setViewingPhoto(null)}
+                                    >
+                                        <X className="h-4 w-4" />
+                                    </Button>
+
+                                    <img
+                                        src={viewingPhoto.imageUrl}
+                                        alt={viewingPhoto.caption}
+                                        className="w-auto h-auto max-w-full max-h-[80vh] object-contain rounded-lg shadow-2xl"
+                                    />
+
+                                    {/* Caption Overlay for Modal */}
+                                    {viewingPhoto.caption && (
+                                        <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/90 via-black/50 to-transparent rounded-b-lg text-left">
+                                            <p className="text-white text-base sm:text-lg font-medium leading-relaxed">{viewingPhoto.caption}</p>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+                    </DialogContent>
+                </Dialog>
             </main>
+
             <DefaultFooter />
         </div>
     );

@@ -6,7 +6,6 @@ export default function Home() {
       <Metadata />
       <DefaultNavbar />
       <main className="flex-1 flex flex-col items-center justify-center p-8 sm:p-20">
-        
       </main>
       <DefaultFooter />
     </div>
