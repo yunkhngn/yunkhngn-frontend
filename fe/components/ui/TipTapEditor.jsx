@@ -130,6 +130,7 @@ export default function TipTapEditor({ content, onChange, onImageUpload }) {
                 class: 'prose dark:prose-invert max-w-none p-4 min-h-[300px] outline-none',
             },
         },
+        immediatelyRender: false,
     });
 
     // Update content if it changes externally (e.g. loading a project)
