@@ -32,6 +32,7 @@ export function CommandMenu() {
                 { icon: <Home className="mr-2 h-4 w-4" />, label: 'Home', action: () => router.push('/') },
                 { icon: <FileText className="mr-2 h-4 w-4" />, label: 'Blog', action: () => router.push('/blog') },
                 { icon: <Folder className="mr-2 h-4 w-4" />, label: 'Projects', action: () => router.push('/project') },
+                { icon: <FileText className="mr-2 h-4 w-4" />, label: 'Resume', action: () => router.push('/resume') },
                 { icon: <User className="mr-2 h-4 w-4" />, label: 'About', action: () => router.push('/about') },
             ]
         },

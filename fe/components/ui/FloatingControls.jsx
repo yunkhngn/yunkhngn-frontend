@@ -34,7 +34,7 @@ export default function FloatingControls() {
         <div className="fixed bottom-8 right-8 flex flex-col gap-4 z-50 items-end">
             {/* Scroll to Top Button */}
             <Button onClick={scrollToTop}
-                className={`w-14 h-14 rounded-full bg-primary text-white flex items-center justify-center shadow-lg hover:bg-primary/90 transition-all duration-300 transform ${showScrollTop ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'
+                className={`w-14 h-14 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg hover:bg-primary/90 transition-all duration-300 transform ${showScrollTop ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'
                     }`}
                 aria-label="Scroll to top"
             >

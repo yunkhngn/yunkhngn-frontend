@@ -129,7 +129,7 @@ export default function BlogDetail() {
                 {/* Content Section */}
                 <article className="container mx-auto px-4 py-12 max-w-3xl">
                     <div className="prose prose-lg dark:prose-invert max-w-none">
-                        <TipTapViewer content={blog.content} />
+                        <TipTapViewer content={blog.contentJSON || blog.content} />
                     </div>
 
                     <div className="mt-12 pt-8 border-t flex justify-between items-center">

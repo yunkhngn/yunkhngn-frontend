@@ -140,9 +140,9 @@ export default function ProjectDetail() {
                                 </p>
                             </div>
 
-                            {project.content && (
+                            {(project.contentJSON || project.content) && (
                                 <div className="prose dark:prose-invert max-w-none pt-6 border-t">
-                                    <TipTapViewer content={project.content} />
+                                    <TipTapViewer content={project.contentJSON || project.content} />
                                 </div>
                             )}
                         </div>

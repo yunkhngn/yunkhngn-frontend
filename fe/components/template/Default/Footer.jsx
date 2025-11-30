@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Github, Facebook, Instagram } from 'lucide-react';
+import { Github, Facebook, Instagram, Linkedin } from 'lucide-react';
 
 export default function Footer() {
     return (
@@ -23,7 +23,7 @@ export default function Footer() {
                             <SocialLink href="https://facebook.com/yunkhngn" icon={<Facebook size={20} />} label="Facebook" />
                             <SocialLink href="https://instagram.com/yunkhngn" icon={<Instagram size={20} />} label="Instagram" />
                             <SocialLink href="https://github.com/yunkhngn" icon={<Github size={20} />} label="Github" />
-
+                            <SocialLink href="https://linkedin.com/in/yunkhngn" icon={<Linkedin size={20} />} label="Linkedin" />
                         </div>
                     </div>
 
@@ -48,6 +48,7 @@ export default function Footer() {
                             <h3 className="font-semibold text-foreground mb-4">Connect</h3>
                             <ul className="space-y-3">
                                 <FooterLink href="/contact">Contact</FooterLink>
+                                <FooterLink href="/resume">Resume</FooterLink>
                                 <FooterLink href="mailto:yunkhngn.mail@gmail.com">Email Me</FooterLink>
                             </ul>
                         </div>

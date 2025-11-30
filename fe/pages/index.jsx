@@ -73,16 +73,18 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center justify-center gap-6 pt-8">
-            <Button className="rounded-full px-8 h-12 text-base">
-              Resume
-            </Button>
+          <div className="flex flex-wrap items-center justify-center gap-6 pt-8 relative z-10">
+            <Link href="/resume">
+              <Button className="rounded-full px-8 h-12 text-base">
+                Resume
+              </Button>
+            </Link>
 
             <div className="flex gap-6">
               <SocialLink href="https://facebook.com/yunkhngn" icon={<Facebook size={24} />} />
               <SocialLink href="https://instagram.com/yunkhngn" icon={<Instagram size={24} />} />
               <SocialLink href="https://github.com/yunkhngn" icon={<Github size={24} />} />
-              <SocialLink href="#" icon={<span className="font-bold text-xl leading-none">Be</span>} />
+              <SocialLink href="https://linkedin.com/in/yunkhngn" icon={<Linkedin size={24} />} />
             </div>
           </div>
         </section>
