@@ -13,6 +13,7 @@ export default function ProjectForm({ initialData, onSubmit, isEditing = false }
     const { user } = useAuth();
     const [formData, setFormData] = useState({
         title: '',
+        slug: '',
         description: '',
         techStack: [],
         tags: [],
@@ -23,12 +24,14 @@ export default function ProjectForm({ initialData, onSubmit, isEditing = false }
     });
     const [submitting, setSubmitting] = useState(false);
     const [uploading, setUploading] = useState(false);
+    const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
     const fileInputRef = useRef(null);
 
     useEffect(() => {
         if (initialData) {
             setFormData({
                 title: initialData.title || '',
+                slug: initialData.slug || '',
                 description: initialData.description || '',
                 techStack: Array.isArray(initialData.techStack) ? initialData.techStack : [],
                 tags: initialData.tags ? initialData.tags.split(',').map(t => t.trim()).filter(Boolean) : [],
@@ -44,6 +47,7 @@ export default function ProjectForm({ initialData, onSubmit, isEditing = false }
         if (initialData) {
             setFormData({
                 title: initialData.title || '',
+                slug: initialData.slug || '',
                 description: initialData.description || '',
                 techStack: Array.isArray(initialData.techStack) ? initialData.techStack : [],
                 tags: initialData.tags ? initialData.tags.split(',').map(t => t.trim()).filter(Boolean) : [],
@@ -55,6 +59,7 @@ export default function ProjectForm({ initialData, onSubmit, isEditing = false }
         } else {
             setFormData({
                 title: '',
+                slug: '',
                 description: '',
                 techStack: [],
                 tags: [],
@@ -63,7 +68,29 @@ export default function ProjectForm({ initialData, onSubmit, isEditing = false }
                 cover: '',
                 contentJSON: ''
             });
+            setSlugManuallyEdited(false);
         }
+    };
+
+    const generateSlug = (text) => {
+        return text
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/(^-|-$)+/g, '');
+    };
+
+    const handleTitleChange = (e) => {
+        const title = e.target.value;
+        setFormData(prev => ({
+            ...prev,
+            title,
+            slug: !slugManuallyEdited ? generateSlug(title) : prev.slug
+        }));
+    };
+
+    const handleSlugChange = (e) => {
+        setFormData(prev => ({ ...prev, slug: e.target.value }));
+        setSlugManuallyEdited(true);
     };
 
     const handleUpload = async (e) => {
@@ -144,8 +171,8 @@ export default function ProjectForm({ initialData, onSubmit, isEditing = false }
     };
 
     const handleSubmit = async () => {
-        if (!formData.title || !formData.description) {
-            toast.error('Title and Description are required');
+        if (!formData.title || !formData.description || !formData.slug) {
+            toast.error('Title, Slug, and Description are required');
             return;
         }
 
@@ -177,13 +204,23 @@ export default function ProjectForm({ initialData, onSubmit, isEditing = false }
             </div>
 
             <div className="space-y-4 pb-8">
-                <div className="space-y-2">
-                    <label className="text-sm font-medium">Title</label>
-                    <Input
-                        value={formData.title}
-                        onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                        placeholder="Project Title"
-                    />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium">Title</label>
+                        <Input
+                            value={formData.title}
+                            onChange={handleTitleChange}
+                            placeholder="Project Title"
+                        />
+                    </div>
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium">Slug</label>
+                        <Input
+                            value={formData.slug}
+                            onChange={handleSlugChange}
+                            placeholder="project-slug"
+                        />
+                    </div>
                 </div>
 
                 <div className="space-y-2">

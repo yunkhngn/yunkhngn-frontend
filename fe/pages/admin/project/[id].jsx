@@ -163,7 +163,7 @@ export default function ViewProject() {
                 {project.contentJSON && (
                     <div className="space-y-4">
                         <h2 className="text-xl font-bold border-b pb-2">Project Details</h2>
-                        <div className="bg-card border rounded-xl overflow-hidden">
+                        <div className="bg-card border rounded-xl p-3 overflow-hidden">
                             <TipTapViewer content={project.contentJSON} />
                         </div>
                     </div>

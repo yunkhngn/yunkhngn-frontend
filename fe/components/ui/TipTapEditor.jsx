@@ -1,4 +1,4 @@
-import { useEditor, EditorContent } from '@tiptap/react';
+import { useEditor, EditorContent, BubbleMenu } from '@tiptap/react';
 import { useEffect } from 'react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
@@ -8,7 +8,7 @@ import { common, createLowlight } from 'lowlight';
 import { Button } from '@/components/ui/Button';
 import {
     Bold, Italic, Strikethrough, Code, List, ListOrdered, Quote,
-    Undo, Redo, Image as ImageIcon, Link as LinkIcon, Heading1, Heading2
+    Undo, Redo, Image as ImageIcon, Link as LinkIcon, Heading1, Heading2, Trash2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -28,17 +28,13 @@ const MenuBar = ({ editor, addImage }) => {
         editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
     };
 
-    const handleAction = (e, action) => {
-        e.preventDefault();
-        action();
-    };
-
     return (
         <div className="border-b p-2 flex flex-wrap gap-1 sticky top-0 bg-background z-10">
             <Button
                 type="button"
                 variant="ghost" size="sm"
-                onClick={(e) => handleAction(e, () => editor.chain().focus().toggleBold().run())}
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => editor.chain().focus().toggleBold().run()}
                 className={cn(editor.isActive('bold') && 'bg-muted')}
             >
                 <Bold className="h-4 w-4" />
@@ -46,7 +42,8 @@ const MenuBar = ({ editor, addImage }) => {
             <Button
                 type="button"
                 variant="ghost" size="sm"
-                onClick={(e) => handleAction(e, () => editor.chain().focus().toggleItalic().run())}
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => editor.chain().focus().toggleItalic().run()}
                 className={cn(editor.isActive('italic') && 'bg-muted')}
             >
                 <Italic className="h-4 w-4" />
@@ -54,7 +51,8 @@ const MenuBar = ({ editor, addImage }) => {
             <Button
                 type="button"
                 variant="ghost" size="sm"
-                onClick={(e) => handleAction(e, () => editor.chain().focus().toggleStrike().run())}
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => editor.chain().focus().toggleStrike().run()}
                 className={cn(editor.isActive('strike') && 'bg-muted')}
             >
                 <Strikethrough className="h-4 w-4" />
@@ -63,7 +61,8 @@ const MenuBar = ({ editor, addImage }) => {
             <Button
                 type="button"
                 variant="ghost" size="sm"
-                onClick={(e) => handleAction(e, () => editor.chain().focus().toggleHeading({ level: 1 }).run())}
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
                 className={cn(editor.isActive('heading', { level: 1 }) && 'bg-muted')}
             >
                 <Heading1 className="h-4 w-4" />
@@ -71,7 +70,8 @@ const MenuBar = ({ editor, addImage }) => {
             <Button
                 type="button"
                 variant="ghost" size="sm"
-                onClick={(e) => handleAction(e, () => editor.chain().focus().toggleHeading({ level: 2 }).run())}
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
                 className={cn(editor.isActive('heading', { level: 2 }) && 'bg-muted')}
             >
                 <Heading2 className="h-4 w-4" />
@@ -80,7 +80,8 @@ const MenuBar = ({ editor, addImage }) => {
             <Button
                 type="button"
                 variant="ghost" size="sm"
-                onClick={(e) => handleAction(e, () => editor.chain().focus().toggleBulletList().run())}
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => editor.chain().focus().toggleBulletList().run()}
                 className={cn(editor.isActive('bulletList') && 'bg-muted')}
             >
                 <List className="h-4 w-4" />
@@ -88,7 +89,8 @@ const MenuBar = ({ editor, addImage }) => {
             <Button
                 type="button"
                 variant="ghost" size="sm"
-                onClick={(e) => handleAction(e, () => editor.chain().focus().toggleOrderedList().run())}
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => editor.chain().focus().toggleOrderedList().run()}
                 className={cn(editor.isActive('orderedList') && 'bg-muted')}
             >
                 <ListOrdered className="h-4 w-4" />
@@ -97,7 +99,8 @@ const MenuBar = ({ editor, addImage }) => {
             <Button
                 type="button"
                 variant="ghost" size="sm"
-                onClick={(e) => handleAction(e, () => editor.chain().focus().toggleCodeBlock().run())}
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => editor.chain().focus().toggleCodeBlock().run()}
                 className={cn(editor.isActive('codeBlock') && 'bg-muted')}
             >
                 <Code className="h-4 w-4" />
@@ -105,16 +108,30 @@ const MenuBar = ({ editor, addImage }) => {
             <Button
                 type="button"
                 variant="ghost" size="sm"
-                onClick={(e) => handleAction(e, () => editor.chain().focus().toggleBlockquote().run())}
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => editor.chain().focus().toggleBlockquote().run()}
                 className={cn(editor.isActive('blockquote') && 'bg-muted')}
             >
                 <Quote className="h-4 w-4" />
             </Button>
             <div className="w-px h-6 bg-border mx-1 my-auto" />
-            <Button type="button" variant="ghost" size="sm" onClick={setLink} className={cn(editor.isActive('link') && 'bg-muted')}>
+            <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={setLink}
+                className={cn(editor.isActive('link') && 'bg-muted')}
+            >
                 <LinkIcon className="h-4 w-4" />
             </Button>
-            <Button type="button" variant="ghost" size="sm" onClick={addImage}>
+            <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={addImage}
+            >
                 <ImageIcon className="h-4 w-4" />
             </Button>
             <div className="flex-1" />
@@ -122,7 +139,8 @@ const MenuBar = ({ editor, addImage }) => {
                 type="button"
                 variant="ghost"
                 size="sm"
-                onClick={(e) => handleAction(e, () => editor.chain().focus().undo().run())}
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => editor.chain().focus().undo().run()}
                 disabled={!editor.can().undo()}
             >
                 <Undo className="h-4 w-4" />
@@ -131,7 +149,8 @@ const MenuBar = ({ editor, addImage }) => {
                 type="button"
                 variant="ghost"
                 size="sm"
-                onClick={(e) => handleAction(e, () => editor.chain().focus().redo().run())}
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => editor.chain().focus().redo().run()}
                 disabled={!editor.can().redo()}
             >
                 <Redo className="h-4 w-4" />
@@ -159,7 +178,9 @@ const parseContent = (content) => {
 export default function TipTapEditor({ content, onChange, onImageUpload }) {
     const editor = useEditor({
         extensions: [
-            StarterKit,
+            StarterKit.configure({
+                codeBlock: false, // Disable StarterKit's codeBlock to use CodeBlockLowlight
+            }),
             Image,
             Link.configure({ openOnClick: false }),
             CodeBlockLowlight.configure({ lowlight }),

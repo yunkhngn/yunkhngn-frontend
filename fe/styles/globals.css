@@ -68,3 +68,54 @@
         @apply bg-background text-foreground;
     }
 }
+
+@layer components {
+    .ProseMirror pre {
+        @apply bg-muted p-4 rounded-lg overflow-x-auto font-mono text-sm my-4 border border-border;
+    }
+
+    .ProseMirror code {
+        @apply font-mono text-sm bg-muted px-1.5 py-0.5 rounded-md;
+    }
+
+    .ProseMirror pre code {
+        @apply bg-transparent p-0 text-inherit rounded-none;
+    }
+
+    /* Lowlight/Highlight.js styles */
+    .hljs-comment,
+    .hljs-quote {
+        @apply text-muted-foreground italic;
+    }
+
+    .hljs-doctag,
+    .hljs-keyword,
+    .hljs-formula {
+        @apply text-purple-500;
+    }
+
+    .hljs-section,
+    .hljs-name,
+    .hljs-selector-tag,
+    .hljs-deletion,
+    .hljs-subst {
+        @apply text-red-500;
+    }
+
+    .hljs-literal {
+        @apply text-blue-500;
+    }
+
+    .hljs-string,
+    .hljs-regexp,
+    .hljs-addition,
+    .hljs-attribute,
+    .hljs-meta-string {
+        @apply text-green-500;
+    }
+
+    .hljs-built_in,
+    .hljs-class .hljs-title {
+        @apply text-yellow-600;
+    }
+}
