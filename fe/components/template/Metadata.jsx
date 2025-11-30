@@ -6,7 +6,7 @@ export default function Metadata({
     image = "/image/thumbnail.jpg",
     url = "https://yunkhngn.dev",
 }) {
-    const fullTitle = title.includes("Yunkhngn") ? title : `${title} | Yunkhngn`;
+    const fullTitle = title.includes("Khoa Nguyễn") ? title : `${title} - Khoa Nguyễn`;
 
     return (
         <Head>

@@ -11,11 +11,14 @@ import Image from 'next/image';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/Badge';
 import { useRouter } from 'next/router';
+import { Pagination } from '@/components/ui/Pagination';
 
 export default function BlogList() {
     const [blogs, setBlogs] = useState([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 6;
     const { user } = useAuth();
     const router = useRouter();
 
@@ -60,6 +63,16 @@ export default function BlogList() {
         blog.title.toLowerCase().includes(search.toLowerCase())
     );
 
+    const totalPages = Math.ceil(filteredBlogs.length / itemsPerPage);
+    const paginatedBlogs = filteredBlogs.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+    );
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [search]);
+
     return (
         <AdminLayout>
             <div className="space-y-6">
@@ -90,66 +103,73 @@ export default function BlogList() {
                 {loading ? (
                     <div className="text-center py-10">Loading...</div>
                 ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {filteredBlogs.map((blog) => (
-                            <div
-                                key={blog.id}
-                                className="group relative bg-card border rounded-xl overflow-hidden hover:shadow-lg transition-all cursor-pointer"
-                                onClick={() => router.push(`/admin/blog/${blog.id}`)}
-                            >
-                                <div className="aspect-video relative bg-muted">
-                                    {blog.thumbnail ? (
-                                        <Image
-                                            src={blog.thumbnail}
-                                            alt={blog.title}
-                                            fill
-                                            className="object-cover transition-transform group-hover:scale-105"
-                                        />
-                                    ) : (
-                                        <div className="flex items-center justify-center h-full text-muted-foreground">
-                                            No Thumbnail
-                                        </div>
-                                    )}
-                                    <div className="absolute top-2 right-2">
-                                        <Badge variant={blog.status === 'PUBLISHED' ? 'default' : 'secondary'}>
-                                            {blog.status}
-                                        </Badge>
-                                    </div>
-                                </div>
-                                <div className="p-4 space-y-3">
-                                    <h3 className="font-semibold text-lg line-clamp-1 group-hover:text-primary transition-colors">
-                                        {blog.title}
-                                    </h3>
-                                    <div className="flex items-center text-xs text-muted-foreground">
-                                        <Calendar className="mr-1 h-3 w-3" />
-                                        {format(new Date(blog.createdAt), 'MMM d, yyyy')}
-                                    </div>
-                                    <div className="flex flex-wrap gap-1">
-                                        {blog.tags && blog.tags.split(',').slice(0, 3).map((tag, i) => (
-                                            <Badge key={i} variant="outline" className="text-xs">
-                                                {tag.trim()}
+                    <>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {paginatedBlogs.map((blog) => (
+                                <div
+                                    key={blog.id}
+                                    className="group relative bg-card border rounded-xl overflow-hidden hover:shadow-lg transition-all cursor-pointer"
+                                    onClick={() => router.push(`/admin/blog/${blog.id}`)}
+                                >
+                                    <div className="aspect-video relative bg-muted">
+                                        {blog.thumbnail ? (
+                                            <Image
+                                                src={blog.thumbnail}
+                                                alt={blog.title}
+                                                fill
+                                                className="object-cover transition-transform group-hover:scale-105"
+                                            />
+                                        ) : (
+                                            <div className="flex items-center justify-center h-full text-muted-foreground">
+                                                No Thumbnail
+                                            </div>
+                                        )}
+                                        <div className="absolute top-2 right-2">
+                                            <Badge variant={blog.status === 'PUBLISHED' ? 'default' : 'secondary'}>
+                                                {blog.status}
                                             </Badge>
-                                        ))}
+                                        </div>
                                     </div>
-                                    <div className="pt-2 flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <Link href={`/admin/blog/${blog.id}/edit`} onClick={(e) => e.stopPropagation()}>
-                                            <Button variant="ghost" size="icon" className="h-8 w-8">
-                                                <Edit className="h-4 w-4" />
+                                    <div className="p-4 space-y-3">
+                                        <h3 className="font-semibold text-lg line-clamp-1 group-hover:text-primary transition-colors">
+                                            {blog.title}
+                                        </h3>
+                                        <div className="flex items-center text-xs text-muted-foreground">
+                                            <Calendar className="mr-1 h-3 w-3" />
+                                            {format(new Date(blog.createdAt), 'MMM d, yyyy')}
+                                        </div>
+                                        <div className="flex flex-wrap gap-1">
+                                            {blog.tags && blog.tags.split(',').slice(0, 3).map((tag, i) => (
+                                                <Badge key={i} variant="outline" className="text-xs">
+                                                    {tag.trim()}
+                                                </Badge>
+                                            ))}
+                                        </div>
+                                        <div className="pt-2 flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <Link href={`/admin/blog/${blog.id}/edit`} onClick={(e) => e.stopPropagation()}>
+                                                <Button variant="ghost" size="icon" className="h-8 w-8">
+                                                    <Edit className="h-4 w-4" />
+                                                </Button>
+                                            </Link>
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-8 w-8 text-destructive hover:text-destructive"
+                                                onClick={(e) => handleDelete(blog.id, e)}
+                                            >
+                                                <Trash2 className="h-4 w-4" />
                                             </Button>
-                                        </Link>
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            className="h-8 w-8 text-destructive hover:text-destructive"
-                                            onClick={(e) => handleDelete(blog.id, e)}
-                                        >
-                                            <Trash2 className="h-4 w-4" />
-                                        </Button>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
-                    </div>
+                            ))}
+                        </div>
+                        <Pagination
+                            currentPage={currentPage}
+                            totalPages={totalPages}
+                            onPageChange={setCurrentPage}
+                        />
+                    </>
                 )}
             </div>
         </AdminLayout>

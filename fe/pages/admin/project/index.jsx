@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import { toast } from 'sonner';
 import { useRouter } from 'next/router';
 import { Input } from '@/components/ui/Input';
+import { Pagination } from '@/components/ui/Pagination';
 
 export default function ProjectList() {
     const { user } = useAuth();
@@ -16,6 +17,8 @@ export default function ProjectList() {
     const [projects, setProjects] = useState([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 6;
 
     const fetchProjects = async () => {
         try {
@@ -60,6 +63,16 @@ export default function ProjectList() {
         project.title.toLowerCase().includes(search.toLowerCase())
     );
 
+    const totalPages = Math.ceil(filteredProjects.length / itemsPerPage);
+    const paginatedProjects = filteredProjects.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+    );
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [search]);
+
     return (
         <AdminLayout title="Projects">
             <div className="space-y-6">
@@ -90,99 +103,106 @@ export default function ProjectList() {
                 {loading ? (
                     <div className="text-center py-12">Loading...</div>
                 ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-8">
-                        {filteredProjects.map((project) => (
-                            <div
-                                key={project.id}
-                                onClick={() => router.push(`/admin/project/${project.id}`)}
-                                className="bg-card border rounded-xl overflow-hidden shadow-sm flex flex-col transition-all hover:shadow-md group cursor-pointer"
-                            >
-                                <div className="aspect-video relative bg-muted">
-                                    {project.cover ? (
-                                        <Image
-                                            src={project.cover}
-                                            alt={project.title}
-                                            fill
-                                            className="object-cover"
-                                            sizes="(max-width: 768px) 100vw, 300px"
-                                        />
-                                    ) : (
-                                        <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                                            <ImageIcon className="h-8 w-8 opacity-20" />
+                    <>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-8">
+                            {paginatedProjects.map((project) => (
+                                <div
+                                    key={project.id}
+                                    onClick={() => router.push(`/admin/project/${project.id}`)}
+                                    className="bg-card border rounded-xl overflow-hidden shadow-sm flex flex-col transition-all hover:shadow-md group cursor-pointer"
+                                >
+                                    <div className="aspect-video relative bg-muted">
+                                        {project.cover ? (
+                                            <Image
+                                                src={project.cover}
+                                                alt={project.title}
+                                                fill
+                                                className="object-cover"
+                                                sizes="(max-width: 768px) 100vw, 300px"
+                                            />
+                                        ) : (
+                                            <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                                                <ImageIcon className="h-8 w-8 opacity-20" />
+                                            </div>
+                                        )}
+                                        <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <Button
+                                                size="icon"
+                                                variant="secondary"
+                                                className="h-8 w-8"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    router.push(`/admin/project/edit-project/${project.id}`);
+                                                }}
+                                            >
+                                                <Pencil className="h-4 w-4" />
+                                            </Button>
+                                            <Button
+                                                size="icon"
+                                                variant="destructive"
+                                                className="h-8 w-8"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleDelete(project.id);
+                                                }}
+                                            >
+                                                <Trash2 className="h-4 w-4" />
+                                            </Button>
                                         </div>
-                                    )}
-                                    <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <Button
-                                            size="icon"
-                                            variant="secondary"
-                                            className="h-8 w-8"
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                router.push(`/admin/project/edit-project/${project.id}`);
-                                            }}
-                                        >
-                                            <Pencil className="h-4 w-4" />
-                                        </Button>
-                                        <Button
-                                            size="icon"
-                                            variant="destructive"
-                                            className="h-8 w-8"
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                handleDelete(project.id);
-                                            }}
-                                        >
-                                            <Trash2 className="h-4 w-4" />
-                                        </Button>
+                                    </div>
+                                    <div className="p-4 flex-1 flex flex-col">
+                                        <h3 className="font-semibold text-lg mb-2 line-clamp-1">{project.title}</h3>
+                                        <p className="text-sm text-muted-foreground line-clamp-2 mb-4 flex-1">
+                                            {project.description}
+                                        </p>
+                                        <div className="flex flex-wrap gap-1 mb-4">
+                                            {Array.isArray(project.techStack) && project.techStack.slice(0, 3).map((tech, i) => (
+                                                <span key={i} className="text-xs bg-secondary px-2 py-0.5 rounded">
+                                                    {tech}
+                                                </span>
+                                            ))}
+                                            {Array.isArray(project.techStack) && project.techStack.length > 3 && (
+                                                <span className="text-xs text-muted-foreground px-1">
+                                                    +{project.techStack.length - 3}
+                                                </span>
+                                            )}
+                                        </div>
+                                        <div className="flex justify-end gap-3 pt-3 border-t mt-auto items-center">
+                                            {project.repoLink && (
+                                                <a
+                                                    href={project.repoLink}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="text-muted-foreground hover:text-primary transition-colors"
+                                                    title="Repository"
+                                                    onClick={(e) => e.stopPropagation()}
+                                                >
+                                                    <Github className="h-4 w-4" />
+                                                </a>
+                                            )}
+                                            {project.demoLink && (
+                                                <a
+                                                    href={project.demoLink}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="text-muted-foreground hover:text-primary transition-colors"
+                                                    title="Live Demo"
+                                                    onClick={(e) => e.stopPropagation()}
+                                                >
+                                                    <ExternalLink className="h-4 w-4" />
+                                                </a>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
-                                <div className="p-4 flex-1 flex flex-col">
-                                    <h3 className="font-semibold text-lg mb-2 line-clamp-1">{project.title}</h3>
-                                    <p className="text-sm text-muted-foreground line-clamp-2 mb-4 flex-1">
-                                        {project.description}
-                                    </p>
-                                    <div className="flex flex-wrap gap-1 mb-4">
-                                        {Array.isArray(project.techStack) && project.techStack.slice(0, 3).map((tech, i) => (
-                                            <span key={i} className="text-xs bg-secondary px-2 py-0.5 rounded">
-                                                {tech}
-                                            </span>
-                                        ))}
-                                        {Array.isArray(project.techStack) && project.techStack.length > 3 && (
-                                            <span className="text-xs text-muted-foreground px-1">
-                                                +{project.techStack.length - 3}
-                                            </span>
-                                        )}
-                                    </div>
-                                    <div className="flex justify-end gap-3 pt-3 border-t mt-auto items-center">
-                                        {project.repoLink && (
-                                            <a
-                                                href={project.repoLink}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="text-muted-foreground hover:text-primary transition-colors"
-                                                title="Repository"
-                                                onClick={(e) => e.stopPropagation()}
-                                            >
-                                                <Github className="h-4 w-4" />
-                                            </a>
-                                        )}
-                                        {project.demoLink && (
-                                            <a
-                                                href={project.demoLink}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="text-muted-foreground hover:text-primary transition-colors"
-                                                title="Live Demo"
-                                                onClick={(e) => e.stopPropagation()}
-                                            >
-                                                <ExternalLink className="h-4 w-4" />
-                                            </a>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
+                            ))}
+                        </div>
+                        <Pagination
+                            currentPage={currentPage}
+                            totalPages={totalPages}
+                            onPageChange={setCurrentPage}
+                        />
+                    </>
                 )}
             </div>
         </AdminLayout>

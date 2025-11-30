@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Github, Linkedin, Facebook, Twitter, Instagram } from 'lucide-react';
+import { Github, Facebook, Instagram } from 'lucide-react';
 
 export default function Footer() {
     return (
@@ -20,10 +20,10 @@ export default function Footer() {
                             </p>
                         </div>
                         <div className="flex gap-4 mt-auto">
-                            <SocialLink href="https://github.com/yunkhngn" icon={<Github size={20} />} label="Github" />
-                            <SocialLink href="https://linkedin.com/in/yunkhngn" icon={<Linkedin size={20} />} label="LinkedIn" />
                             <SocialLink href="https://facebook.com/yunkhngn" icon={<Facebook size={20} />} label="Facebook" />
-                            <SocialLink href="https://twitter.com/yunkhngn" icon={<Twitter size={20} />} label="Twitter" />
+                            <SocialLink href="https://instagram.com/yunkhngn" icon={<Instagram size={20} />} label="Instagram" />
+                            <SocialLink href="https://github.com/yunkhngn" icon={<Github size={20} />} label="Github" />
+
                         </div>
                     </div>
 
