@@ -10,7 +10,7 @@ export default function AdminLayout({ children, title = "Admin Dashboard" }) {
                 robots="noindex, nofollow"
             />
             <AdminNavbar />
-            <main className="flex-1 p-1 md:p-8 mt-4">
+            <main className="flex-1 p-1 md:p-8 mt-4 mb-12">
                 <div className="container mx-auto">
                     {children}
                 </div>

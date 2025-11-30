@@ -17,6 +17,7 @@ export default function PhotoManager() {
     const [caption, setCaption] = useState('');
     const [selectedFile, setSelectedFile] = useState(null);
     const [previewUrl, setPreviewUrl] = useState('');
+    const [viewingPhoto, setViewingPhoto] = useState(null);
 
     // Crop state
     const [crop, setCrop] = useState({ x: 0, y: 0 });
@@ -198,122 +199,137 @@ export default function PhotoManager() {
 
     return (
         <AdminLayout title="Photo Gallery">
-            <div className="space-y-8">
-                <div className="flex justify-between items-center">
-                    <h1 className="text-2xl font-bold">Photo Gallery</h1>
-                </div>
+            <div className="space-y-6">
+                <h1 className="text-2xl font-bold">Photo Gallery</h1>
 
-                {/* Upload Section */}
-                <div className="bg-card text-card-foreground rounded-xl border shadow-sm p-6">
-                    <h2 className="text-lg font-semibold mb-4">Upload New Photo</h2>
-                    <div className="space-y-4">
-                        <div className="flex flex-col sm:flex-row gap-6 items-start">
-                            <div
-                                className="w-full sm:w-64 aspect-square border-2 border-dashed rounded-lg flex flex-col items-center justify-center cursor-pointer hover:bg-muted/50 transition-colors relative overflow-hidden shrink-0 group"
-                                onClick={() => !previewUrl && fileInputRef.current?.click()}
-                            >
-                                {previewUrl ? (
-                                    <div className="relative w-full h-full">
-                                        <img src={previewUrl} alt="Preview" className="w-full h-full object-cover" />
-                                        <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity gap-3">
-                                            <Button
-                                                size="sm"
-                                                variant="secondary"
-                                                onClick={(e) => { e.stopPropagation(); openCropForCurrent(); }}
-                                            >
-                                                <CropIcon className="h-4 w-4 mr-2" /> Crop
-                                            </Button>
-                                            <Button
-                                                size="sm"
-                                                variant="destructive"
-                                                onClick={(e) => { e.stopPropagation(); clearPreview(); }}
-                                            >
-                                                <Trash2 className="h-4 w-4 mr-2" /> Delete
-                                            </Button>
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                    {/* Left Column: Upload (30% approx - 4/12) */}
+                    <div className="lg:col-span-4 space-y-6">
+                        <div className="bg-card text-card-foreground rounded-xl border shadow-sm p-6 sticky top-4">
+                            <h2 className="text-lg font-semibold mb-4">Locket</h2>
+                            <div className="space-y-4">
+                                <div
+                                    className="w-full aspect-square border-2 border-dashed rounded-xl flex flex-col items-center justify-center cursor-pointer hover:bg-muted/50 transition-colors relative overflow-hidden group bg-muted/20"
+                                    onClick={() => !previewUrl && fileInputRef.current?.click()}
+                                >
+                                    {previewUrl ? (
+                                        <div className="relative w-full h-full">
+                                            <img src={previewUrl} alt="Preview" className="w-full h-full object-cover" />
+                                            <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity gap-3">
+                                                <Button
+                                                    size="sm"
+                                                    variant="secondary"
+                                                    onClick={(e) => { e.stopPropagation(); openCropForCurrent(); }}
+                                                >
+                                                    <CropIcon className="h-4 w-4 mr-2" /> Crop
+                                                </Button>
+                                                <Button
+                                                    size="sm"
+                                                    variant="destructive"
+                                                    onClick={(e) => { e.stopPropagation(); clearPreview(); }}
+                                                >
+                                                    <Trash2 className="h-4 w-4 mr-2" /> Delete
+                                                </Button>
+                                            </div>
                                         </div>
-                                    </div>
-                                ) : (
-                                    <>
-                                        <ImageIcon className="h-10 w-10 text-muted-foreground mb-2" />
-                                        <span className="text-sm text-muted-foreground">Select Image</span>
-                                    </>
-                                )}
-                                <input
-                                    type="file"
-                                    ref={fileInputRef}
-                                    className="hidden"
-                                    accept="image/*"
-                                    onChange={handleFileSelect}
-                                />
-                            </div>
+                                    ) : (
+                                        <>
+                                            <ImageIcon className="h-12 w-12 text-muted-foreground/50 mb-2" />
+                                            <span className="text-sm text-muted-foreground">Tap to upload</span>
+                                        </>
+                                    )}
+                                    <input
+                                        type="file"
+                                        ref={fileInputRef}
+                                        className="hidden"
+                                        accept="image/*"
+                                        onChange={handleFileSelect}
+                                    />
+                                </div>
 
-                            <div className="flex-1 space-y-4 w-full">
                                 <div className="space-y-2">
-                                    <label className="text-sm font-medium">Caption <span className="text-muted-foreground font-normal">(Max 150 chars)</span></label>
                                     <Textarea
-                                        placeholder="Write a short caption..."
+                                        placeholder="Write a caption..."
                                         value={caption}
                                         onChange={(e) => setCaption(e.target.value)}
                                         rows={3}
                                         maxLength={150}
+                                        className="resize-none bg-muted/30"
                                     />
-                                    <div className="text-xs text-right text-muted-foreground">
-                                        {caption.length}/150
-                                    </div>
-                                </div>
-                                <div className="flex justify-end gap-2">
-                                    {selectedFile && (
-                                        <Button variant="outline" onClick={clearPreview}>
-                                            Cancel
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-xs text-muted-foreground">{caption.length}/150</span>
+                                        <Button onClick={handleUpload} disabled={!selectedFile || uploading} size="sm">
+                                            {uploading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                            {!uploading && <Upload className="mr-2 h-4 w-4" />}
+                                            Post
                                         </Button>
-                                    )}
-                                    <Button onClick={handleUpload} disabled={!selectedFile || uploading}>
-                                        {uploading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                        <Upload className="mr-2 h-4 w-4" />
-                                        Upload Photo
-                                    </Button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                {/* Gallery Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                    {photos.map((photo) => (
-                        <div key={photo.id} className="bg-card text-card-foreground rounded-xl border shadow-sm overflow-hidden group">
-                            <div className="aspect-square relative">
+                    {/* Right Column: Gallery (70% approx - 8/12) */}
+                    <div className="lg:col-span-8">
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                            {photos.map((photo) => (
+                                <div
+                                    key={photo.id}
+                                    className="aspect-square relative rounded-xl overflow-hidden cursor-pointer group bg-muted"
+                                    onClick={() => setViewingPhoto(photo)}
+                                >
+                                    <img
+                                        src={photo.imageUrl}
+                                        alt={photo.caption}
+                                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                    />
+                                    <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                </div>
+                            ))}
+                        </div>
+
+                        {loading && <div className="text-center py-12 text-muted-foreground">Loading moments...</div>}
+                        {!loading && photos.length === 0 && (
+                            <div className="text-center py-12 text-muted-foreground">No moments yet.</div>
+                        )}
+                    </div>
+                </div>
+            </div>
+
+            {/* View Photo Modal */}
+            <Dialog open={!!viewingPhoto} onOpenChange={(open) => !open && setViewingPhoto(null)}>
+                <DialogContent className="max-w-md p-0 overflow-hidden border-none bg-transparent shadow-none sm:bg-background sm:shadow-lg sm:border">
+                    {viewingPhoto && (
+                        <div className="flex flex-col bg-card rounded-lg overflow-hidden">
+                            <div className="relative aspect-square w-full bg-black">
                                 <img
-                                    src={photo.imageUrl}
-                                    alt={photo.caption}
-                                    className="w-full h-full object-cover"
+                                    src={viewingPhoto.imageUrl}
+                                    alt="Detail"
+                                    className="w-full h-full object-contain"
                                 />
-                                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                                    <Button size="icon-sm" variant="secondary" onClick={() => openEdit(photo)}>
-                                        <Pencil className="h-4 w-4" />
-                                    </Button>
-                                    <Button size="icon-sm" variant="destructive" onClick={() => handleDelete(photo.id)}>
-                                        <Trash2 className="h-4 w-4" />
-                                    </Button>
+                            </div>
+                            <div className="p-4 space-y-4">
+                                <p className="text-sm leading-relaxed">
+                                    {viewingPhoto.caption || <span className="italic text-muted-foreground">No caption</span>}
+                                </p>
+                                <div className="flex justify-between items-center pt-2 border-t">
+                                    <span className="text-xs text-muted-foreground">
+                                        {new Date(viewingPhoto.createdAt).toLocaleDateString()}
+                                    </span>
+                                    <div className="flex gap-2">
+                                        <Button size="icon-sm" variant="ghost" onClick={() => { setViewingPhoto(null); openEdit(viewingPhoto); }}>
+                                            <Pencil className="h-4 w-4" />
+                                        </Button>
+                                        <Button size="icon-sm" variant="ghost" className="text-destructive hover:text-destructive" onClick={() => { setViewingPhoto(null); handleDelete(viewingPhoto.id); }}>
+                                            <Trash2 className="h-4 w-4" />
+                                        </Button>
+                                    </div>
                                 </div>
                             </div>
-                            <div className="p-4">
-                                <p className="text-sm text-muted-foreground line-clamp-2">
-                                    {photo.caption || <span className="italic">No caption</span>}
-                                </p>
-                                <p className="text-xs text-muted-foreground mt-2">
-                                    {new Date(photo.createdAt).toLocaleDateString()}
-                                </p>
-                            </div>
                         </div>
-                    ))}
-                </div>
-
-                {loading && <div className="text-center py-8">Loading photos...</div>}
-                {!loading && photos.length === 0 && (
-                    <div className="text-center py-8 text-muted-foreground">No photos yet.</div>
-                )}
-            </div>
+                    )}
+                </DialogContent>
+            </Dialog>
 
             {/* Edit Dialog */}
             <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
