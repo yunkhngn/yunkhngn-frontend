@@ -15,7 +15,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/Avatar";
 
 const NAV_ITEMS = [
-    { label: "Projects", href: "/projects" },
+    { label: "Project", href: "/project" },
     { label: "Blog", href: "/blog" },
     { label: "Photo", href: "/photo" },
     { label: "About", href: "/about" },
@@ -104,7 +104,7 @@ export default function Navbar() {
                                 </DropdownMenuLabel>
                                 <DropdownMenuSeparator className="my-1" />
                                 <DropdownMenuItem asChild className="p-3 cursor-pointer focus:ring-0 focus:outline-none">
-                                    <Link href="/dashboard" className="flex items-center gap-3">
+                                    <Link href="/admin/dashboard" className="flex items-center gap-3">
                                         <LayoutDashboard className="h-4 w-4 text-muted-foreground" />
                                         <span className="font-medium">Dashboard</span>
                                     </Link>

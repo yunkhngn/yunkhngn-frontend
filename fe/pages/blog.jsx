@@ -1,9 +1,17 @@
-import React from 'react'
+import { DefaultFooter, DefaultNavbar, Metadata } from "@/components/template";
 
-const blog = () => {
-  return (
-    <div>blog</div>
-  )
+export default function blog() {
+    return (
+        <div className="flex flex-col min-h-screen font-sans">
+            <Metadata
+                title="Blog"
+                description="Blog"
+            />
+            <DefaultNavbar />
+            <main className="flex-1 flex flex-col items-center justify-center p-8 sm:p-20">
+
+            </main>
+            <DefaultFooter />
+        </div>
+    );
 }
-
-export default blog

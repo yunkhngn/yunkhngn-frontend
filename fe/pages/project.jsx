@@ -1,9 +1,17 @@
-import React from 'react'
+import { DefaultFooter, DefaultNavbar, Metadata } from "@/components/template";
 
-const project = () => {
+export default function project() {
   return (
-    <div>project</div>
-  )
-}
+    <div className="flex flex-col min-h-screen font-sans">
+      <Metadata
+        title="Project"
+        description="Project"
+      />
+      <DefaultNavbar />
+      <main className="flex-1 flex flex-col items-center justify-center p-8 sm:p-20">
 
-export default project
+      </main>
+      <DefaultFooter />
+    </div>
+  );
+}

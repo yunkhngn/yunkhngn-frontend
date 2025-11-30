@@ -88,12 +88,6 @@ export default function Login() {
                             />
                         </div>
 
-                        <div className="flex items-center justify-between">
-                            <Link href="/forgot-password" className="text-sm text-primary hover:underline font-medium">
-                                I forgot my password
-                            </Link>
-                        </div>
-
                         <Button
                             type="submit"
                             className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-2"

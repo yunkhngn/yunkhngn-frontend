@@ -1,9 +1,17 @@
-import React from 'react'
+import { DefaultFooter, DefaultNavbar, Metadata } from "@/components/template";
 
-const contact = () => {
-  return (
-    <div>contact</div>
-  )
+export default function contact() {
+    return (
+        <div className="flex flex-col min-h-screen font-sans">
+            <Metadata
+                title="Contact"
+                description="Contact"
+            />
+            <DefaultNavbar />
+            <main className="flex-1 flex flex-col items-center justify-center p-8 sm:p-20">
+
+            </main>
+            <DefaultFooter />
+        </div>
+    );
 }
-
-export default contact

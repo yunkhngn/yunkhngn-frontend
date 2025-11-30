@@ -42,6 +42,9 @@ export const AuthProvider = ({ children }) => {
                         const profile = await res.json();
                         // Merge profile data
                         user.avatarUrl = profile.avatarUrl;
+                        if (profile.name) {
+                            user.displayName = profile.name;
+                        }
                     }
                 } catch (error) {
                     console.error('Failed to fetch user profile:', error);
