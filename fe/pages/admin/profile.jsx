@@ -1,4 +1,5 @@
 import AdminLayout from "@/components/template/Admin/Layout";
+import UserManagement from "@/components/template/Admin/UserManagement";
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/Button';
@@ -135,6 +136,7 @@ export default function Profile() {
                 <AvatarImage src={avatarUrl} />
                 <AvatarFallback>{name?.charAt(0)?.toUpperCase() || 'U'}</AvatarFallback>
               </Avatar>
+              {name && <h2 className="text-xl font-semibold">{name}</h2>}
               <div className="flex items-center gap-2">
                 <Button
                   type="button"
@@ -170,7 +172,7 @@ export default function Profile() {
             {isPasswordUser && (
               <div className="space-y-4 pt-4 border-t">
                 <h3 className="text-lg font-medium">Change Password</h3>
-                <div className="grid gap-4 md:grid-cols-2">
+                <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
                   <div className="space-y-2">
                     <label className="text-sm font-medium">New Password</label>
                     <Input
@@ -208,6 +210,10 @@ export default function Profile() {
               </Button>
             </div>
           </form>
+        </div>
+
+        <div className="mt-8 bg-card text-card-foreground rounded-xl border shadow-sm p-6">
+          <UserManagement />
         </div>
       </div>
     </AdminLayout>

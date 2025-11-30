@@ -1,4 +1,4 @@
-import { Controller, Get, Patch, Body, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Patch, Post, Delete, Body, Param, UseGuards, Request } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { UserService } from './user.service';
 
@@ -24,5 +24,29 @@ export class UserController {
         const uid = req.user.uid;
         const email = req.user.email;
         return this.userService.createOrUpdate(uid, email, body.avatarUrl, body.name);
+    }
+
+    @UseGuards(AuthGuard('firebase'))
+    @Get()
+    findAll() {
+        return this.userService.findAll();
+    }
+
+    @UseGuards(AuthGuard('firebase'))
+    @Post()
+    create(@Body() body: { email: string; password?: string; name?: string; role?: string }) {
+        return this.userService.create(body.email, body.password, body.name, body.role);
+    }
+
+    @UseGuards(AuthGuard('firebase'))
+    @Patch(':uid')
+    update(@Param('uid') uid: string, @Body() body: { name?: string; role?: string; password?: string }) {
+        return this.userService.update(uid, body);
+    }
+
+    @UseGuards(AuthGuard('firebase'))
+    @Delete(':uid')
+    remove(@Param('uid') uid: string) {
+        return this.userService.delete(uid);
     }
 }
