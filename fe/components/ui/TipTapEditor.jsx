@@ -17,8 +17,7 @@ const lowlight = createLowlight(common);
 const MenuBar = ({ editor, addImage }) => {
     if (!editor) return null;
 
-    const setLink = (e) => {
-        e.preventDefault();
+    const setLink = () => {
         const previousUrl = editor.getAttributes('link').href;
         const url = window.prompt('URL', previousUrl);
         if (url === null) return;
@@ -115,14 +114,26 @@ const MenuBar = ({ editor, addImage }) => {
             <Button type="button" variant="ghost" size="sm" onClick={setLink} className={cn(editor.isActive('link') && 'bg-muted')}>
                 <LinkIcon className="h-4 w-4" />
             </Button>
-            <Button type="button" variant="ghost" size="sm" onClick={(e) => handleAction(e, addImage)}>
+            <Button type="button" variant="ghost" size="sm" onClick={addImage}>
                 <ImageIcon className="h-4 w-4" />
             </Button>
             <div className="flex-1" />
-            <Button type="button" variant="ghost" size="sm" onClick={(e) => handleAction(e, () => editor.chain().focus().undo().run())}>
+            <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={(e) => handleAction(e, () => editor.chain().focus().undo().run())}
+                disabled={!editor.can().undo()}
+            >
                 <Undo className="h-4 w-4" />
             </Button>
-            <Button type="button" variant="ghost" size="sm" onClick={(e) => handleAction(e, () => editor.chain().focus().redo().run())}>
+            <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={(e) => handleAction(e, () => editor.chain().focus().redo().run())}
+                disabled={!editor.can().redo()}
+            >
                 <Redo className="h-4 w-4" />
             </Button>
         </div>
