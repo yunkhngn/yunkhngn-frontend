@@ -8,6 +8,7 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { BlogModule } from './blog/blog.module';
 import { ProjectModule } from './project/project.module';
+import { GalleryModule } from './gallery/gallery.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { ProjectModule } from './project/project.module';
     PrismaModule,
     BlogModule,
     ProjectModule,
+    GalleryModule,
   ],
   controllers: [AppController],
   providers: [AppService],
