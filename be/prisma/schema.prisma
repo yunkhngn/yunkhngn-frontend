@@ -28,6 +28,8 @@ model Project {
   techStack   String?  // Stored as JSON string
   images      String?  // Stored as JSON string (array of URLs)
   tags        String?
+  repoLink    String?
+  demoLink    String?
   createdAt   DateTime @default(now())
 }
 

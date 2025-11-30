@@ -4,4 +4,6 @@ export class CreateProjectDto {
     techStack?: string; // JSON string
     images?: string; // JSON string
     tags?: string;
+    repoLink?: string;
+    demoLink?: string;
 }
