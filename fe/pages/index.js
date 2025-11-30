@@ -1,11 +1,10 @@
-import { Button } from "@/components/ui";
-import { DefaultFooter } from "@/components/template";
+import { DefaultFooter, DefaultNavbar } from "@/components/template";
 
 export default function Home() {
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen py-2">
-      <main className="flex flex-col items-center justify-center w-full flex-1 px-20 text-center">
-        
+    <div className="flex flex-col min-h-screen font-sans">
+      <DefaultNavbar />
+      <main className="flex-1 flex flex-col items-center justify-center p-8 sm:p-20">
       </main>
       <DefaultFooter />
     </div>
