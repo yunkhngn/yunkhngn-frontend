@@ -4,6 +4,12 @@ import { ThemeProvider } from "next-themes";
 import FloatingControls from "@/components/ui/FloatingControls";
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
+import { Playfair_Display } from 'next/font/google';
+
+const playfair = Playfair_Display({
+  subsets: ['latin'],
+  variable: '--font-playfair',
+});
 
 function AuthGuard({ children }) {
   const { user, loading } = useAuth();
@@ -32,8 +38,10 @@ export default function App({ Component, pageProps }) {
     <AuthProvider>
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
         <AuthGuard>
-          <Component {...pageProps} />
-          <FloatingControls />
+          <main className={playfair.variable}>
+            <Component {...pageProps} />
+            <FloatingControls />
+          </main>
         </AuthGuard>
       </ThemeProvider>
     </AuthProvider>

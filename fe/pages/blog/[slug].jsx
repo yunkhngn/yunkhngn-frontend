@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { DefaultFooter, DefaultNavbar, Metadata } from "@/components/template";
-import { Calendar, Clock, ChevronLeft, Tag } from 'lucide-react';
+import { Calendar, Clock, ChevronLeft, Tag, Facebook, Twitter, Linkedin, Link as LinkIcon } from 'lucide-react';
 import Image from 'next/image';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/Badge';
@@ -14,6 +14,7 @@ export default function BlogDetail() {
     const { slug } = router.query;
     const [blog, setBlog] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [scrollProgress, setScrollProgress] = useState(0);
 
     useEffect(() => {
         if (!slug) return;
@@ -44,6 +45,18 @@ export default function BlogDetail() {
         fetchBlog();
     }, [slug]);
 
+    useEffect(() => {
+        const handleScroll = () => {
+            const totalScroll = document.documentElement.scrollTop;
+            const windowHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scroll = `${totalScroll / windowHeight}`;
+            setScrollProgress(Number(scroll));
+        };
+
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
+
     if (loading) {
         return (
             <div className="flex flex-col min-h-screen font-sans">
@@ -73,6 +86,12 @@ export default function BlogDetail() {
 
     return (
         <div className="flex flex-col min-h-screen font-sans bg-background text-foreground">
+            <div className="fixed top-0 left-0 w-full h-1.5 z-[100] bg-transparent">
+                <div
+                    className="h-full bg-primary transition-all duration-100 ease-out"
+                    style={{ width: `${scrollProgress * 100}%` }}
+                />
+            </div>
             <Metadata
                 title={blog.title}
                 description={blog.description || `Read ${blog.title} on Yunkhngn`}
@@ -80,66 +99,92 @@ export default function BlogDetail() {
             />
             <DefaultNavbar />
 
-            <main className="flex-1">
-                {/* Hero Section */}
-                <div className="relative w-full h-[40vh] md:h-[50vh] bg-muted">
-                    {blog.thumbnail ? (
-                        <Image
-                            src={blog.thumbnail}
-                            alt={blog.title}
-                            fill
-                            className="object-cover brightness-50"
-                            priority
-                        />
-                    ) : (
-                        <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary/20" />
-                    )}
+            <main className="flex-1 container mx-auto px-4 py-12 md:py-20 relative">
+                {/* Back Button */}
+                <div className="absolute top-8 left-4 md:left-8">
+                    <Link href="/blog">
+                        <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
+                            <ChevronLeft className="mr-2 h-4 w-4" /> Back
+                        </Button>
+                    </Link>
+                </div>
 
-                    <div className="absolute inset-0 flex flex-col justify-end p-6 md:p-12 container mx-auto max-w-4xl">
-                        <Link href="/blog" className="mb-6 inline-block">
-                            <Button variant="secondary" size="sm" className="gap-2">
-                                <ChevronLeft className="h-4 w-4" /> Back to Blog
-                            </Button>
-                        </Link>
+                <div className="flex flex-col lg:flex-row gap-12 max-w-6xl mx-auto">
+                    {/* Social Sidebar (Desktop) */}
+                    <aside className="hidden lg:flex flex-col gap-4 sticky top-32 h-fit w-12 items-center pt-8">
+                        <div className="text-xs font-medium text-muted-foreground mb-2" style={{ writingMode: 'vertical-rl' }}>SHARE</div>
+                        <Button variant="ghost" size="icon" className="rounded-full hover:bg-muted">
+                            <Facebook className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon" className="rounded-full hover:bg-muted">
+                            <Twitter className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon" className="rounded-full hover:bg-muted">
+                            <Linkedin className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon" className="rounded-full hover:bg-muted">
+                            <LinkIcon className="h-4 w-4" />
+                        </Button>
+                    </aside>
 
-                        <div className="space-y-4 text-white">
-                            <div className="flex flex-wrap gap-2">
-                                {blog.tags && blog.tags.split(',').map((tag, i) => (
-                                    <Badge key={i} className="bg-primary/80 hover:bg-primary border-none text-white">
-                                        {tag.trim()}
-                                    </Badge>
-                                ))}
+                    {/* Main Content */}
+                    <div className="flex-1 max-w-3xl mx-auto">
+                        <header className="text-center mb-16 pt-12">
+                            <div className="text-sm text-muted-foreground uppercase tracking-widest mb-6">
+                                {format(new Date(blog.createdAt), 'MMMM d, yyyy')}
                             </div>
 
-                            <h1 className="text-3xl md:text-5xl font-bold leading-tight text-white">
+                            <h1 className="text-4xl md:text-6xl font-bold mb-8 leading-tight text-foreground" style={{ fontFamily: 'var(--font-playfair)' }}>
                                 {blog.title}
                             </h1>
 
-                            <div className="flex items-center gap-4 text-sm md:text-base text-white/80">
-                                <div className="flex items-center gap-1">
-                                    <Calendar className="h-4 w-4" />
-                                    {format(new Date(blog.createdAt), 'MMMM d, yyyy')}
+                            {blog.description && (
+                                <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
+                                    {blog.description}
+                                </p>
+                            )}
+
+                            <div className="flex items-center justify-center gap-4">
+                                <div className="relative w-10 h-10 rounded-full overflow-hidden bg-muted">
+                                    <Image src="https://github.com/yunkhngn.png" alt="Author" fill className="object-cover" />
                                 </div>
-                                {/* Add read time if available */}
+                                <div className="text-left">
+                                    <div className="font-medium text-sm">Khoa Nguyễn</div>
+                                    <div className="text-xs text-muted-foreground">Author & Developer</div>
+                                </div>
                             </div>
+                        </header>
+
+                        {blog.thumbnail && (
+                            <div className="relative aspect-video w-full rounded-xl overflow-hidden mb-12 shadow-sm bg-muted">
+                                <Image
+                                    src={blog.thumbnail}
+                                    alt={blog.title}
+                                    fill
+                                    className="object-cover"
+                                    priority
+                                />
+                            </div>
+                        )}
+
+                        <article className="prose prose-lg dark:prose-invert max-w-none prose-headings:font-serif prose-p:leading-relaxed prose-img:rounded-xl">
+                            <TipTapViewer content={blog.contentJSON || blog.content} />
+                        </article>
+
+                        {/* Tags & Footer */}
+                        <div className="mt-16 pt-8 border-t">
+                            {blog.tags && (
+                                <div className="flex flex-wrap gap-2 mb-8 justify-center">
+                                    {blog.tags.split(',').map((tag, i) => (
+                                        <Badge key={i} variant="secondary" className="rounded-full px-4 py-1">
+                                            {tag.trim()}
+                                        </Badge>
+                                    ))}
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
-
-                {/* Content Section */}
-                <article className="container mx-auto px-4 py-12 max-w-3xl">
-                    <div className="prose prose-lg dark:prose-invert max-w-none">
-                        <TipTapViewer content={blog.contentJSON || blog.content} />
-                    </div>
-
-                    <div className="mt-12 pt-8 border-t flex justify-between items-center">
-                        <Link href="/blog">
-                            <Button variant="outline">
-                                <ChevronLeft className="mr-2 h-4 w-4" /> Back to All Articles
-                            </Button>
-                        </Link>
-                    </div>
-                </article>
             </main>
 
             <DefaultFooter />

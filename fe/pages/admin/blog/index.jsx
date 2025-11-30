@@ -109,7 +109,7 @@ export default function BlogList() {
                                 <div
                                     key={blog.id}
                                     className="group relative bg-card border rounded-xl overflow-hidden hover:shadow-lg transition-all cursor-pointer"
-                                    onClick={() => router.push(`/admin/blog/${blog.id}`)}
+                                    onClick={() => router.push(`/admin/blog/${blog.slug}`)}
                                 >
                                     <div className="aspect-video relative bg-muted">
                                         {blog.thumbnail ? (
@@ -146,7 +146,7 @@ export default function BlogList() {
                                             ))}
                                         </div>
                                         <div className="pt-2 flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <Link href={`/admin/blog/${blog.id}/edit`} onClick={(e) => e.stopPropagation()}>
+                                            <Link href={`/admin/blog/${blog.slug}/edit`} onClick={(e) => e.stopPropagation()}>
                                                 <Button variant="ghost" size="icon" className="h-8 w-8">
                                                     <Edit className="h-4 w-4" />
                                                 </Button>
