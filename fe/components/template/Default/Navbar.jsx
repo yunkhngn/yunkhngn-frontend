@@ -1,22 +1,39 @@
 import Link from 'next/link';
 import { useTheme } from 'next-themes';
-import { Search, Moon, Sun, Menu } from 'lucide-react';
+import { Search, Moon, Sun, Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from '@/components/ui/DropdownMenu';
 import { useState, useEffect } from 'react';
+
+const NAV_ITEMS = [
+    { label: "Projects", href: "/projects" },
+    { label: "Blog", href: "/blog" },
+    { label: "Photo", href: "/photo" },
+    { label: "About", href: "/about" },
+    { label: "Contact", href: "/contact" },
+];
 
 export default function Navbar() {
     const { theme, setTheme } = useTheme();
     const [mounted, setMounted] = useState(false);
+    const [text, setText] = useState('');
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const fullText = 'yun.khngn';
 
-    // Avoid hydration mismatch
+    // Avoid hydration mismatch & Start typing effect
     useEffect(() => {
         setMounted(true);
+
+        let i = 0;
+        const typingInterval = setInterval(() => {
+            if (i < fullText.length) {
+                setText(fullText.slice(0, i + 1));
+                i++;
+            } else {
+                clearInterval(typingInterval);
+            }
+        }, 50); // Typing speed
+
+        return () => clearInterval(typingInterval);
     }, []);
 
     const toggleTheme = () => {
@@ -29,46 +46,23 @@ export default function Navbar() {
                 {/* Left: Logo & Navigation */}
                 <div className="flex items-center gap-8">
                     {/* Logo */}
-                    <Link href="/" className="text-xl font-bold font-heading text-primary flex items-center gap-2">
-                        <span className="border-2 border-primary px-1 rounded-sm">code</span>
-                        <span>yunkhngn</span>
+                    <Link href="/" className="font-mono text-lg font-bold flex items-center gap-1 hover:opacity-80 transition-opacity">
+                        <span className="text-primary">&gt;</span>
+                        <span className="text-foreground min-w-[100px]">{text}</span>
+                        <span className="text-primary animate-pulse">_</span>
                     </Link>
 
                     {/* Desktop Navigation */}
                     <div className="hidden md:flex items-center gap-6">
-                        <NavDropdown title="Catalog">
-                            <DropdownMenuItem asChild>
-                                <Link href="/projects" className="cursor-pointer w-full">Projects</Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem asChild>
-                                <Link href="/gallery" className="cursor-pointer w-full">Gallery</Link>
-                            </DropdownMenuItem>
-                        </NavDropdown>
-
-                        <NavDropdown title="Resources">
-                            <DropdownMenuItem asChild>
-                                <Link href="/blog" className="cursor-pointer w-full">Blog</Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem asChild>
-                                <Link href="/snippets" className="cursor-pointer w-full">Snippets</Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem asChild>
-                                <Link href="/tags" className="cursor-pointer w-full">Tags</Link>
-                            </DropdownMenuItem>
-                        </NavDropdown>
-
-                        <NavDropdown title="Community">
-                            <DropdownMenuItem asChild>
-                                <Link href="/about" className="cursor-pointer w-full">About Me</Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem asChild>
-                                <Link href="/contact" className="cursor-pointer w-full">Contact</Link>
-                            </DropdownMenuItem>
-                        </NavDropdown>
-
-                        <Link href="/pricing" className="text-sm font-medium hover:text-primary transition-colors">
-                            Pricing
-                        </Link>
+                        {NAV_ITEMS.map((item) => (
+                            <Link
+                                key={item.href}
+                                href={item.href}
+                                className="text-sm font-medium hover:text-primary transition-colors"
+                            >
+                                {item.label}
+                            </Link>
+                        ))}
                     </div>
                 </div>
 
@@ -78,9 +72,9 @@ export default function Navbar() {
                         <Search size={20} />
                     </button>
 
-                    <Link href="/login" className="hidden sm:block text-sm font-medium hover:text-primary transition-colors">
-                        Log In
-                    </Link>
+                    <Button asChild variant="ghost" className="hidden sm:flex">
+                        <Link href="/login">Log In</Link>
+                    </Button>
 
                     {/* Theme Toggle Button (Purple) */}
                     <Button
@@ -100,25 +94,40 @@ export default function Navbar() {
                         )}
                     </Button>
 
+
                     {/* Mobile Menu Trigger */}
-                    <button className="md:hidden p-2 hover:bg-accent rounded-md">
-                        <Menu size={24} />
+                    <button
+                        className="md:hidden p-2 hover:bg-accent rounded-md"
+                        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                    >
+                        {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
                     </button>
                 </div>
             </div>
-        </nav>
-    );
-}
 
-function NavDropdown({ title, children }) {
-    return (
-        <DropdownMenu>
-            <DropdownMenuTrigger className="flex items-center gap-1 text-sm font-medium hover:text-primary transition-colors outline-none">
-                {title}
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="w-48">
-                {children}
-            </DropdownMenuContent>
-        </DropdownMenu>
+            {/* Mobile Menu Overlay */}
+            {isMobileMenuOpen && (
+                <div className="md:hidden absolute top-16 left-0 w-full bg-background border-b border-border p-4 flex flex-col gap-4 shadow-lg animate-in slide-in-from-top-5">
+                    {NAV_ITEMS.map((item) => (
+                        <Link
+                            key={item.href}
+                            href={item.href}
+                            className="text-sm font-medium hover:text-primary transition-colors py-2"
+                            onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                            {item.label}
+                        </Link>
+                    ))}
+                    <hr className="border-border" />
+                    <Link
+                        href="/login"
+                        className="text-sm font-medium hover:text-primary transition-colors py-2"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                        Log In
+                    </Link>
+                </div>
+            )}
+        </nav>
     );
 }

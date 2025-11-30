@@ -9,8 +9,10 @@ export default function Footer() {
                     {/* Brand Column */}
                     <div className="lg:w-1/3 flex flex-col justify-between">
                         <div>
-                            <Link href="/" className="text-2xl font-bold font-heading text-primary mb-4 inline-block">
-                                Yunkhngn
+                            <Link href="/" className="font-mono text-2xl font-bold flex items-center gap-1 mb-4 hover:opacity-80 transition-opacity">
+                                <span className="text-primary">&gt;</span>
+                                <span className="text-foreground">yun.khngn</span>
+                                <span className="text-primary animate-pulse">_</span>
                             </Link>
                             <p className="text-muted-foreground mb-6 max-w-sm">
                                 Full Stack Developer building beautiful web experiences.
