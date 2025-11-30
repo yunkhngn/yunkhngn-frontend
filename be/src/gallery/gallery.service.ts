@@ -28,6 +28,13 @@ export class GalleryService {
         });
     }
 
+    async update(id: string, data: { caption?: string }) {
+        return this.prisma.gallery.update({
+            where: { id },
+            data,
+        });
+    }
+
     getUploadSignature() {
         return this.cloudinaryService.generateUploadSignature({
             folder: 'blog-portfolio/gallery',

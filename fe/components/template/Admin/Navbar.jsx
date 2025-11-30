@@ -17,9 +17,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/Avatar";
 
 const ADMIN_NAV_ITEMS = [
     { label: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
-    { label: "Blogs", href: "/admin/blogs", icon: FileText },
-    { label: "Projects", href: "/admin/projects", icon: Folder },
-    { label: "Gallery", href: "/admin/gallery", icon: Image },
+    { label: "Project", href: "/admin/project", icon: Folder },
+    { label: "Blog", href: "/admin/blog", icon: FileText },
+    { label: "Photo", href: "/admin/photo", icon: Image },
     { label: "Profile", href: "/admin/profile", icon: User },
 ];
 

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Body, Param, Delete, UseGuards } from '@nestjs/common';
 import { GalleryService } from './gallery.service';
 import { CreateGalleryDto } from './dto/create-gallery.dto';
 import { FirebaseAuthGuard } from '../auth/firebase-auth.guard';
@@ -22,6 +22,12 @@ export class GalleryController {
     @UseGuards(FirebaseAuthGuard)
     getSignature() {
         return this.galleryService.getUploadSignature();
+    }
+
+    @Patch(':id')
+    @UseGuards(FirebaseAuthGuard)
+    update(@Param('id') id: string, @Body() body: { caption?: string }) {
+        return this.galleryService.update(id, body);
     }
 
     @Delete(':id')
