@@ -59,8 +59,7 @@ export default function Footer() {
                             <h3 className="font-semibold text-foreground mb-4">Connect</h3>
                             <ul className="space-y-3">
                                 <FooterLink href="/contact">Contact</FooterLink>
-                                <FooterLink href="mailto:contact@yunkhngn.dev">Email Me</FooterLink>
-                                <FooterLink href="/newsletter">Newsletter</FooterLink>
+                                <FooterLink href="mailto:yunkhngn.mail@gmail.com">Email Me</FooterLink>
                             </ul>
                         </div>
                     </div>

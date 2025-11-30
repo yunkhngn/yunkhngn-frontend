@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import { useTheme } from 'next-themes';
 import { Search, Moon, Sun, Menu, X, LogOut, LayoutDashboard, User } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
@@ -25,6 +26,7 @@ const NAV_ITEMS = [
 export default function Navbar() {
     const { theme, setTheme } = useTheme();
     const { user, signOut } = useAuth();
+    const router = useRouter();
     const [mounted, setMounted] = useState(false);
     const [text, setText] = useState('');
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -49,6 +51,11 @@ export default function Navbar() {
 
     const toggleTheme = () => {
         setTheme(theme === 'dark' ? 'light' : 'dark');
+    };
+
+    const handleLogout = async () => {
+        await signOut();
+        router.push('/login');
     };
 
     return (
@@ -110,7 +117,7 @@ export default function Navbar() {
                                     </Link>
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator className="my-1" />
-                                <DropdownMenuItem onClick={signOut} className="p-3 cursor-pointer text-destructive focus:text-destructive focus:bg-destructive/10 focus:ring-0 focus:outline-none">
+                                <DropdownMenuItem onClick={handleLogout} className="p-3 cursor-pointer text-destructive focus:text-destructive focus:bg-destructive/10 focus:ring-0 focus:outline-none">
                                     <div className="flex items-center gap-3">
                                         <LogOut className="h-4 w-4" />
                                         <span className="font-medium">Log out</span>
