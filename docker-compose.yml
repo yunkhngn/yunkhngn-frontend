@@ -22,7 +22,7 @@ services:
     depends_on:
       - mssql
     environment:
-      - DATABASE_URL=sqlserver://mssql:1433;database=blogdb;user=sa;password=YourStrong@Passw0rd;encrypt=false
+      - DATABASE_URL=sqlserver://mssql:1433;database=blogdb;user=sa;password=YourStrong@Passw0rd;encrypt=false;trustServerCertificate=true
       - PORT=3001
     ports:
       - "3001:3001"
@@ -30,7 +30,7 @@ services:
       - app_network
     volumes:
       - ./be:/usr/src/app
-      - /usr/src/app/node_modules
+
 
   caddy:
     image: caddy:2-alpine
