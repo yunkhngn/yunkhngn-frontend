@@ -1,0 +1,9 @@
+# *
+User-agent: *
+Allow: /
+
+# Host
+Host: https://yunkhngn.dev/
+
+# Sitemaps
+Sitemap: https://yunkhngn.dev/sitemap.xml
