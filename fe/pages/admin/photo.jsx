@@ -8,6 +8,7 @@ import { Loader2, Upload, Trash2, Pencil, X, Save, Image as ImageIcon, Crop as C
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/Dialog';
 import Cropper from 'react-easy-crop';
 import getCroppedImg from '@/lib/cropImage';
+import Image from 'next/image';
 
 export default function PhotoManager() {
     const { user } = useAuth();
@@ -257,8 +258,14 @@ export default function PhotoManager() {
                                 >
                                     {previewUrl ? (
                                         <div className="relative w-full h-full">
-                                            <img src={previewUrl} alt="Preview" className="w-full h-full object-cover" />
-                                            <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity gap-3">
+                                            <Image
+                                                src={previewUrl}
+                                                alt="Preview"
+                                                fill
+                                                className="object-cover"
+                                                unoptimized
+                                            />
+                                            <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity gap-3 z-10">
                                                 <Button
                                                     size="sm"
                                                     variant="secondary"
@@ -321,12 +328,14 @@ export default function PhotoManager() {
                                     className="aspect-square relative rounded-xl overflow-hidden cursor-pointer group bg-muted"
                                     onClick={() => setViewingPhoto(photo)}
                                 >
-                                    <img
+                                    <Image
                                         src={photo.imageUrl}
-                                        alt={photo.caption}
-                                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                        alt={photo.caption || 'Photo'}
+                                        fill
+                                        className="object-cover transition-transform duration-500 group-hover:scale-110"
+                                        sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
                                     />
-                                    <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                    <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity z-10" />
                                 </div>
                             ))}
                         </div>
@@ -370,10 +379,12 @@ export default function PhotoManager() {
                     {viewingPhoto && (
                         <div className="flex flex-col bg-card rounded-lg overflow-hidden">
                             <div className="relative aspect-square w-full bg-black">
-                                <img
+                                <Image
                                     src={viewingPhoto.imageUrl}
                                     alt="Detail"
-                                    className="w-full h-full object-contain"
+                                    fill
+                                    className="object-contain"
+                                    sizes="(max-width: 768px) 100vw, 500px"
                                 />
                             </div>
                             <div className="p-4 space-y-4">
