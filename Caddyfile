@@ -1,0 +1,12 @@
+:80 {
+    # Backend API
+    handle /api/* {
+        reverse_proxy backend:3001
+    }
+
+    # Frontend (Next.js) - Placeholder for now, assuming running on host or another container later
+    # For now, we just handle API. When FE is dockerized, we add it here.
+    # handle /* {
+    #     reverse_proxy frontend:3000
+    # }
+}

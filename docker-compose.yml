@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  mssql:
+    image: mcr.microsoft.com/azure-sql-edge:latest
+    container_name: yunkhngn_mssql
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=YourStrong@Passw0rd
+    ports:
+      - "1434:1433"
+    volumes:
+      - mssql_data:/var/opt/mssql
+    networks:
+      - app_network
+
+  backend:
+    build:
+      context: ./be
+      dockerfile: Dockerfile
+    container_name: yunkhngn_backend
+    depends_on:
+      - mssql
+    environment:
+      - DATABASE_URL=sqlserver://mssql:1433;database=blogdb;user=sa;password=YourStrong@Passw0rd;encrypt=false
+      - PORT=3001
+    ports:
+      - "3001:3001"
+    networks:
+      - app_network
+    volumes:
+      - ./be:/usr/src/app
+      - /usr/src/app/node_modules
+
+  caddy:
+    image: caddy:2-alpine
+    container_name: yunkhngn_caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - app_network
+    depends_on:
+      - backend
+
+networks:
+  app_network:
+    driver: bridge
+
+volumes:
+  mssql_data:
+  caddy_data:
+  caddy_config:
