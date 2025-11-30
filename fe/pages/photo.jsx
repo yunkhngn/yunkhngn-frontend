@@ -37,7 +37,7 @@ export default function Photo() {
 
             <main className="flex-1 w-full max-w-7xl mx-auto p-4 sm:p-8">
                 <div className="mb-8">
-                    <h1 className="text-3xl font-bold mb-2">Moments</h1>
+                    <h1 className="text-3xl font-bold mb-2">Locket</h1>
                     <p className="text-muted-foreground">Captured memories and little things.</p>
                 </div>
 

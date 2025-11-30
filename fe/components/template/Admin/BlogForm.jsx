@@ -63,9 +63,16 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
 
     const generateSlug = (text) => {
         return text
+            .toString()
             .toLowerCase()
-            .replace(/[^a-z0-9]+/g, '-')
-            .replace(/(^-|-$)+/g, '');
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .replace(/đ/g, 'd')
+            .replace(/[^a-z0-9 -]/g, '')
+            .replace(/\s+/g, '-')
+            .replace(/-+/g, '-')
+            .replace(/^-+/, '')
+            .replace(/-+$/, '');
     };
 
     const handleTitleChange = (e) => {
@@ -168,6 +175,7 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
         setSubmitting(true);
         try {
             const payload = {
+                ...(initialData || {}),
                 ...formData,
                 tags: Array.isArray(formData.tags) ? formData.tags.join(', ') : formData.tags,
             };
