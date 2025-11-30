@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Patch, Body, UseGuards, Request } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { UserService } from './user.service';
 
@@ -12,11 +12,16 @@ export class UserController {
         const uid = req.user.uid;
         const user = await this.userService.findByUid(uid);
         if (!user) {
-            // If user doesn't exist in DB but exists in Firebase, we might want to create it?
-            // Or just return null/404.
-            // For now, let's return null or basic info from token.
             return { uid, email: req.user.email };
         }
         return user;
+    }
+
+    @UseGuards(AuthGuard('firebase'))
+    @Patch('me')
+    async updateProfile(@Request() req, @Body() body: { name?: string; avatarUrl?: string }) {
+        const uid = req.user.uid;
+        const email = req.user.email;
+        return this.userService.createOrUpdate(uid, email, body.avatarUrl, body.name);
     }
 }

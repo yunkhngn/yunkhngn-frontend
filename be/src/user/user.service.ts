@@ -11,17 +11,19 @@ export class UserService {
         });
     }
 
-    async createOrUpdate(uid: string, email: string, avatarUrl?: string) {
+    async createOrUpdate(uid: string, email: string, avatarUrl?: string, name?: string) {
         return this.prisma.user.upsert({
             where: { uid },
             update: {
                 email,
                 avatarUrl,
+                name,
             },
             create: {
                 uid,
                 email,
                 avatarUrl,
+                name,
                 role: 'ADMIN', // Default role, maybe change later
             },
         });
