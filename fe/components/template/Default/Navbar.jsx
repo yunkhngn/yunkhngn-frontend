@@ -1,8 +1,18 @@
 import Link from 'next/link';
 import { useTheme } from 'next-themes';
-import { Search, Moon, Sun, Menu, X } from 'lucide-react';
+import { Search, Moon, Sun, Menu, X, LogOut, LayoutDashboard, User } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { useState, useEffect } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from "@/components/ui/DropdownMenu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/Avatar";
 
 const NAV_ITEMS = [
     { label: "Projects", href: "/projects" },
@@ -14,6 +24,7 @@ const NAV_ITEMS = [
 
 export default function Navbar() {
     const { theme, setTheme } = useTheme();
+    const { user, signOut } = useAuth();
     const [mounted, setMounted] = useState(false);
     const [text, setText] = useState('');
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -72,27 +83,49 @@ export default function Navbar() {
                         <Search size={20} />
                     </button>
 
-                    <Button asChild variant="ghost" className="hidden sm:flex">
-                        <Link href="/login">Log In</Link>
-                    </Button>
+                    {user ? (
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                                    <Avatar className="h-8 w-8">
+                                        <AvatarImage src={user.avatarUrl || user.photoURL} alt={user.displayName || "User"} />
+                                        <AvatarFallback>{user.email?.charAt(0).toUpperCase()}</AvatarFallback>
+                                    </Avatar>
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent className="w-64 p-2" align="end" forceMount>
+                                <DropdownMenuLabel className="font-normal p-3">
+                                    <div className="flex flex-col space-y-2">
+                                        <p className="text-sm font-semibold leading-none">{user.displayName || "User"}</p>
+                                        <p className="text-xs leading-none text-muted-foreground">
+                                            {user.email}
+                                        </p>
+                                    </div>
+                                </DropdownMenuLabel>
+                                <DropdownMenuSeparator className="my-1" />
+                                <DropdownMenuItem asChild className="p-3 cursor-pointer focus:ring-0 focus:outline-none">
+                                    <Link href="/dashboard" className="flex items-center gap-3">
+                                        <LayoutDashboard className="h-4 w-4 text-muted-foreground" />
+                                        <span className="font-medium">Dashboard</span>
+                                    </Link>
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator className="my-1" />
+                                <DropdownMenuItem onClick={signOut} className="p-3 cursor-pointer text-destructive focus:text-destructive focus:bg-destructive/10 focus:ring-0 focus:outline-none">
+                                    <div className="flex items-center gap-3">
+                                        <LogOut className="h-4 w-4" />
+                                        <span className="font-medium">Log out</span>
+                                    </div>
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    ) : (
+                        <Button asChild variant="ghost" className="hidden sm:flex">
+                            <Link href="/login">Log In</Link>
+                        </Button>
+                    )}
 
                     {/* Theme Toggle Button (Purple) */}
-                    <Button
-                        onClick={toggleTheme}
-                        className="bg-primary hover:bg-primary/90 text-white font-medium px-4 py-2 rounded-md transition-all flex items-center gap-2"
-                    >
-                        {mounted && theme === 'dark' ? (
-                            <>
-                                <Sun size={16} />
-                                <span>Light Mode</span>
-                            </>
-                        ) : (
-                            <>
-                                <Moon size={16} />
-                                <span>Dark Mode</span>
-                            </>
-                        )}
-                    </Button>
+
 
 
                     {/* Mobile Menu Trigger */}

@@ -29,8 +29,25 @@ export const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, (user) => {
-            setUser(user);
+        const unsubscribe = onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                try {
+                    const token = await user.getIdToken();
+                    const res = await fetch('http://localhost:3001/user/me', {
+                        headers: {
+                            Authorization: `Bearer ${token}`
+                        }
+                    });
+                    if (res.ok) {
+                        const profile = await res.json();
+                        // Merge profile data
+                        user.avatarUrl = profile.avatarUrl;
+                    }
+                } catch (error) {
+                    console.error('Failed to fetch user profile:', error);
+                }
+            }
+            setUser(user ? { ...user } : null);
             setLoading(false);
         });
 

@@ -12,6 +12,7 @@ import { ProjectModule } from './project/project.module';
 import { GalleryModule } from './gallery/gallery.module';
 import { CommentModule } from './comment/comment.module';
 import { SettingsModule } from './settings/settings.module';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { SettingsModule } from './settings/settings.module';
     GalleryModule,
     CommentModule,
     SettingsModule,
+    UserModule,
   ],
   controllers: [AppController],
   providers: [AppService],
