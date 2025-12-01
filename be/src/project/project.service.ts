@@ -19,9 +19,16 @@ export class ProjectService {
         });
     }
 
-    async findOne(id: string) {
+    async findOne(idOrSlug: string) {
+        const isUuid = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(idOrSlug);
+
+        if (isUuid) {
+            const project = await this.prisma.project.findUnique({ where: { id: idOrSlug } });
+            if (project) return project;
+        }
+
         return this.prisma.project.findUnique({
-            where: { id },
+            where: { slug: idOrSlug },
         });
     }
 

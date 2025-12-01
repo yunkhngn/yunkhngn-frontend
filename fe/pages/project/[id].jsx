@@ -83,10 +83,10 @@ export default function ProjectDetail() {
                         </Button>
                     </Link>
 
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
                         {/* Left Column: Image & Links */}
-                        <div className="space-y-6">
-                            <div className="relative aspect-video w-full rounded-xl overflow-hidden border bg-muted shadow-sm">
+                        <div className="space-y-8">
+                            <div className="relative aspect-video w-full rounded-2xl overflow-hidden border bg-muted shadow-sm">
                                 {project.cover ? (
                                     <Image
                                         src={project.cover}
@@ -105,25 +105,25 @@ export default function ProjectDetail() {
                             <div className="flex gap-4">
                                 {project.demoLink && (
                                     <a href={project.demoLink} target="_blank" rel="noopener noreferrer" className="flex-1">
-                                        <Button className="w-full">
-                                            <ExternalLink className="mr-2 h-4 w-4" /> Live Demo
+                                        <Button className="w-full h-12 text-base" variant="default">
+                                            <ExternalLink className="mr-2 h-5 w-5" /> Live Demo
                                         </Button>
                                     </a>
                                 )}
                                 {project.repoLink && (
                                     <a href={project.repoLink} target="_blank" rel="noopener noreferrer" className="flex-1">
-                                        <Button variant="outline" className="w-full">
-                                            <Github className="mr-2 h-4 w-4" /> Source Code
+                                        <Button variant="outline" className="w-full h-12 text-base">
+                                            <Github className="mr-2 h-5 w-5" /> Source Code
                                         </Button>
                                     </a>
                                 )}
                             </div>
 
-                            <div className="space-y-4 pt-4">
-                                <h3 className="font-semibold text-lg">Tech Stack</h3>
+                            <div className="space-y-4">
+                                <h3 className="font-semibold text-xl">Tech Stack</h3>
                                 <div className="flex flex-wrap gap-2">
                                     {Array.isArray(project.techStack) && project.techStack.map((tech, i) => (
-                                        <span key={i} className="px-3 py-1 bg-secondary rounded-full text-sm font-medium">
+                                        <span key={i} className="px-4 py-2 bg-secondary rounded-full text-sm font-medium">
                                             {tech}
                                         </span>
                                     ))}
@@ -134,19 +134,38 @@ export default function ProjectDetail() {
                         {/* Right Column: Details */}
                         <div className="space-y-6">
                             <div>
-                                <h1 className="text-4xl font-bold mb-4">{project.title}</h1>
+                                <h1 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">{project.title}</h1>
                                 <p className="text-lg text-muted-foreground leading-relaxed">
                                     {project.description}
                                 </p>
                             </div>
 
-                            {(project.contentJSON || project.content) && (
-                                <div className="prose dark:prose-invert max-w-none pt-6 border-t">
-                                    <TipTapViewer content={project.contentJSON || project.content} />
-                                </div>
+                            {project.tags && (
+                                <>
+                                    <hr className="border-border" />
+                                    <div className="space-y-3">
+                                        <h3 className="font-semibold text-lg">Tags</h3>
+                                        <div className="flex flex-wrap gap-2">
+                                            {project.tags.split(',').map((tag, i) => (
+                                                <span key={i} className="px-3 py-1 bg-primary/10 text-primary rounded-md text-sm font-medium">
+                                                    {tag.trim()}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </>
                             )}
                         </div>
                     </div>
+
+                    {/* Content Section - Full Width Below */}
+                    {(project.contentJSON || project.content) && (
+                        <div className="max-w-4xl mx-auto pt-12 border-t">
+                            <div className="prose dark:prose-invert max-w-none">
+                                <TipTapViewer content={project.contentJSON || project.content} />
+                            </div>
+                        </div>
+                    )}
                 </div>
             </main>
 
