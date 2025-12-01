@@ -159,11 +159,11 @@ export default function Navbar() {
                                         </Link>
                                     </DropdownMenuItem>
                                 )}
-                                {user.role === 'ADMIN' && (
+                                {!user.isAnonymous && user.role === 'ADMIN' && (
                                     <DropdownMenuItem asChild>
                                         <Link href="/admin/settings" className="cursor-pointer">
                                             <Settings className="mr-2 h-4 w-4" />
-                                            <span className="font-medium">Site Settings</span>
+                                            <span>Site Settings</span>
                                         </Link>
                                     </DropdownMenuItem>
                                 )}
