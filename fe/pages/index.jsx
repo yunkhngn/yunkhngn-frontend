@@ -13,23 +13,18 @@ import { extractTextFromTipTap } from '@/lib/utils';
 export default function Home() {
   const [recentBlogs, setRecentBlogs] = useState([]);
   const [featuredProjects, setFeaturedProjects] = useState([]);
-  const [galleryPhotos, setGalleryPhotos] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [settings, setSettings] = useState({});
 
-  const calculateReadTime = (contentJSON) => {
-    const text = extractTextFromTipTap(contentJSON);
-    const words = text.trim().split(/\s+/).length;
-    const minutes = Math.ceil(words / 200);
-    return `${minutes} mins read`;
-  };
+  // ...
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [blogsRes, projectsRes, galleryRes] = await Promise.all([
+        const [blogsRes, projectsRes, galleryRes, settingsRes] = await Promise.all([
           fetch(`${process.env.NEXT_PUBLIC_API_URL}/blogs`),
           fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects`),
-          fetch(`${process.env.NEXT_PUBLIC_API_URL}/gallery`)
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/gallery`),
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/settings`)
         ]);
 
         if (blogsRes.ok) {
@@ -45,6 +40,15 @@ export default function Home() {
         if (galleryRes.ok) {
           const photos = await galleryRes.json();
           setGalleryPhotos(photos.slice(0, 6));
+        }
+
+        if (settingsRes.ok) {
+          const settingsData = await settingsRes.json();
+          const settingsObj = settingsData.reduce((acc, curr) => {
+            acc[curr.settingTitle] = curr.content;
+            return acc;
+          }, {});
+          setSettings(settingsObj);
         }
       } catch (error) {
         console.error(error);
@@ -81,13 +85,17 @@ export default function Home() {
           </div>
 
           <div className="space-y-6 text-xl md:text-2xl text-muted-foreground leading-relaxed max-w-2xl mx-auto font-light">
-            <p>
-              Tớ là <strong className="font-semibold">Khoa Nguyễn (yun.khngn)</strong>, sinh viên ngành Kỹ thuật phần mềm tại FPT University.
-              Công việc của tớ xoay quanh <strong className="font-semibold">Software Development</strong>,
-              <strong className="font-semibold"> Graphic Design</strong> và <strong className="font-semibold">Guitarist</strong>.
-              <br />Đây là nơi tớ lưu lại dự án, bài viết và những điều hay!
-              <br />Chào mừng tới website của <strong className="font-semibold">yunkhngn</strong>!
-            </p>
+            {settings.bio ? (
+              <p dangerouslySetInnerHTML={{ __html: settings.bio }} />
+            ) : (
+              <p>
+                Tớ là <strong className="font-semibold">Khoa Nguyễn (yun.khngn)</strong>, sinh viên ngành Kỹ thuật phần mềm tại FPT University.
+                Công việc của tớ xoay quanh <strong className="font-semibold">Software Development</strong>,
+                <strong className="font-semibold"> Graphic Design</strong> và <strong className="font-semibold">Guitarist</strong>.
+                <br />Đây là nơi tớ lưu lại dự án, bài viết và những điều hay!
+                <br />Chào mừng tới website của <strong className="font-semibold">yunkhngn</strong>!
+              </p>
+            )}
           </div>
 
           <div className="flex flex-wrap items-center justify-center gap-6 pt-8 relative z-10">
@@ -98,10 +106,21 @@ export default function Home() {
             </Link>
 
             <div className="flex gap-6">
-              <SocialLink href="https://facebook.com/yunkhngn" icon={<Facebook size={24} />} />
-              <SocialLink href="https://instagram.com/yunkhngn" icon={<Instagram size={24} />} />
-              <SocialLink href="https://github.com/yunkhngn" icon={<Github size={24} />} />
-              <SocialLink href="https://linkedin.com/in/yunkhngn" icon={<Linkedin size={24} />} />
+              {(settings.facebook || settings.instagram || settings.github || settings.linkedin) ? (
+                <>
+                  {settings.facebook && <SocialLink href={settings.facebook} icon={<Facebook size={24} />} />}
+                  {settings.instagram && <SocialLink href={settings.instagram} icon={<Instagram size={24} />} />}
+                  {settings.github && <SocialLink href={settings.github} icon={<Github size={24} />} />}
+                  {settings.linkedin && <SocialLink href={settings.linkedin} icon={<Linkedin size={24} />} />}
+                </>
+              ) : (
+                <>
+                  <SocialLink href="https://facebook.com/yunkhngn" icon={<Facebook size={24} />} />
+                  <SocialLink href="https://instagram.com/yunkhngn" icon={<Instagram size={24} />} />
+                  <SocialLink href="https://github.com/yunkhngn" icon={<Github size={24} />} />
+                  <SocialLink href="https://linkedin.com/in/yunkhngn" icon={<Linkedin size={24} />} />
+                </>
+              )}
             </div>
           </div>
         </section>

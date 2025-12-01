@@ -1,4 +1,4 @@
-import { Controller, Get, Body, Patch, UseGuards } from '@nestjs/common';
+import { Controller, Get, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
 import { SettingsService } from './settings.service';
 import { UpdateSettingsDto } from './dto/update-settings.dto';
 import { FirebaseAuthGuard } from '../auth/firebase-auth.guard';
@@ -16,5 +16,11 @@ export class SettingsController {
     @UseGuards(FirebaseAuthGuard)
     update(@Body() updateSettingsDto: UpdateSettingsDto) {
         return this.settingsService.update(updateSettingsDto);
+    }
+
+    @Delete(':id')
+    @UseGuards(FirebaseAuthGuard)
+    remove(@Param('id') id: string) {
+        return this.settingsService.delete(+id);
     }
 }

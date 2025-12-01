@@ -1,7 +1,29 @@
 import Link from 'next/link';
-import { Github, Facebook, Instagram, Linkedin } from 'lucide-react';
+import { Github, Facebook, Instagram, Linkedin, Mail } from 'lucide-react';
+import { useState, useEffect } from 'react';
 
 export default function Footer() {
+    const [settings, setSettings] = useState({});
+
+    useEffect(() => {
+        const fetchSettings = async () => {
+            try {
+                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/settings`);
+                if (res.ok) {
+                    const data = await res.json();
+                    const settingsObj = data.reduce((acc, curr) => {
+                        acc[curr.settingTitle] = curr.content;
+                        return acc;
+                    }, {});
+                    setSettings(settingsObj);
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        };
+        fetchSettings();
+    }, []);
+
     return (
         <footer className="bg-background border-t border-border pt-16 pb-8 w-full">
             <div className="container mx-auto px-4">
@@ -20,10 +42,22 @@ export default function Footer() {
                             </p>
                         </div>
                         <div className="flex gap-4 mt-auto">
-                            <SocialLink href="https://facebook.com/yunkhngn" icon={<Facebook size={20} />} label="Facebook" />
-                            <SocialLink href="https://instagram.com/yunkhngn" icon={<Instagram size={20} />} label="Instagram" />
-                            <SocialLink href="https://github.com/yunkhngn" icon={<Github size={20} />} label="Github" />
-                            <SocialLink href="https://linkedin.com/in/yunkhngn" icon={<Linkedin size={20} />} label="Linkedin" />
+                            {(settings.facebook || settings.instagram || settings.github || settings.linkedin || settings.email) ? (
+                                <>
+                                    {settings.facebook && <SocialLink href={settings.facebook} icon={<Facebook size={20} />} label="Facebook" />}
+                                    {settings.instagram && <SocialLink href={settings.instagram} icon={<Instagram size={20} />} label="Instagram" />}
+                                    {settings.github && <SocialLink href={settings.github} icon={<Github size={20} />} label="Github" />}
+                                    {settings.linkedin && <SocialLink href={settings.linkedin} icon={<Linkedin size={20} />} label="Linkedin" />}
+                                    {settings.email && <SocialLink href={`mailto:${settings.email}`} icon={<Mail size={20} />} label="Email" />}
+                                </>
+                            ) : (
+                                <>
+                                    <SocialLink href="https://facebook.com/yunkhngn" icon={<Facebook size={20} />} label="Facebook" />
+                                    <SocialLink href="https://instagram.com/yunkhngn" icon={<Instagram size={20} />} label="Instagram" />
+                                    <SocialLink href="https://github.com/yunkhngn" icon={<Github size={20} />} label="Github" />
+                                    <SocialLink href="https://linkedin.com/in/yunkhngn" icon={<Linkedin size={20} />} label="Linkedin" />
+                                </>
+                            )}
                         </div>
                     </div>
 
@@ -39,7 +73,7 @@ export default function Footer() {
                                 <FooterLink href="/project">Project</FooterLink>
                                 <FooterLink href="/blog">Blog</FooterLink>
                                 <FooterLink href="/photo">Photo</FooterLink>
-                                <FooterLink href="/aboutme">About Me</FooterLink>
+                                <FooterLink href="/about">About Me</FooterLink>
                             </ul>
                         </div>
 
@@ -49,7 +83,11 @@ export default function Footer() {
                             <ul className="space-y-3">
                                 <FooterLink href="/contact">Contact</FooterLink>
                                 <FooterLink href="/resume">Resume</FooterLink>
-                                <FooterLink href="mailto:yunkhngn.mail@gmail.com">Email Me</FooterLink>
+                                {settings.email ? (
+                                    <FooterLink href={`mailto:${settings.email}`}>Email Me</FooterLink>
+                                ) : (
+                                    <FooterLink href="mailto:contact@yunkhngn.dev">Email Me</FooterLink>
+                                )}
                             </ul>
                         </div>
                     </div>

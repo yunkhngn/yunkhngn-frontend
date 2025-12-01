@@ -4,8 +4,30 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { Github, Facebook, Instagram, Linkedin, Mail } from "lucide-react";
+import { useState, useEffect } from 'react';
 
 export default function About() {
+    const [settings, setSettings] = useState({});
+
+    useEffect(() => {
+        const fetchSettings = async () => {
+            try {
+                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/settings`);
+                if (res.ok) {
+                    const data = await res.json();
+                    const settingsObj = data.reduce((acc, curr) => {
+                        acc[curr.settingTitle] = curr.content;
+                        return acc;
+                    }, {});
+                    setSettings(settingsObj);
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        };
+        fetchSettings();
+    }, []);
+
     return (
         <div className="flex flex-col min-h-screen font-sans bg-background text-foreground relative">
             <Metadata
@@ -40,21 +62,37 @@ export default function About() {
                             <Button className="rounded-full px-6">Resume</Button>
                         </Link>
                         <div className="flex gap-4 items-center">
-                            <SocialLink href="https://github.com/yunkhngn" icon={<Github size={20} />} />
-                            <SocialLink href="https://facebook.com/yunkhngn" icon={<Facebook size={20} />} />
-                            <SocialLink href="https://instagram.com/yunkhngn" icon={<Instagram size={20} />} />
-                            <SocialLink href="https://linkedin.com/in/yunkhngn" icon={<Linkedin size={20} />} />
-                            <SocialLink href="mailto:contact@yunkhngn.dev" icon={<Mail size={20} />} />
+                            {(settings.facebook || settings.instagram || settings.github || settings.linkedin || settings.email) ? (
+                                <>
+                                    {settings.github && <SocialLink href={settings.github} icon={<Github size={20} />} />}
+                                    {settings.facebook && <SocialLink href={settings.facebook} icon={<Facebook size={20} />} />}
+                                    {settings.instagram && <SocialLink href={settings.instagram} icon={<Instagram size={20} />} />}
+                                    {settings.linkedin && <SocialLink href={settings.linkedin} icon={<Linkedin size={20} />} />}
+                                    {settings.email && <SocialLink href={`mailto:${settings.email}`} icon={<Mail size={20} />} />}
+                                </>
+                            ) : (
+                                <>
+                                    <SocialLink href="https://github.com/yunkhngn" icon={<Github size={20} />} />
+                                    <SocialLink href="https://facebook.com/yunkhngn" icon={<Facebook size={20} />} />
+                                    <SocialLink href="https://instagram.com/yunkhngn" icon={<Instagram size={20} />} />
+                                    <SocialLink href="https://linkedin.com/in/yunkhngn" icon={<Linkedin size={20} />} />
+                                    <SocialLink href="mailto:contact@yunkhngn.dev" icon={<Mail size={20} />} />
+                                </>
+                            )}
                         </div>
                     </div>
                 </div>
 
                 <div className="space-y-12 text-lg leading-relaxed text-gray-600 dark:text-gray-300 font-medium">
-                    <p>
-                        Xin chào, tớ là <strong className="text-foreground">Khoa Nguyễn (yun.khngn)</strong>, sinh viên chuyên ngành Kỹ thuật phần mềm tại Đại học FPT.
-                        Tớ đang là freelancer thiết kế đồ hoạ và là một guitarist.
-                        Tớ đang hướng tới trở thành một <strong className="text-foreground">Fullstack Developer</strong> và thực hiện thêm nhiều ước mơ phía trước.
-                    </p>
+                    {settings.bio ? (
+                        <div dangerouslySetInnerHTML={{ __html: settings.bio }} />
+                    ) : (
+                        <p>
+                            Xin chào, tớ là <strong className="text-foreground">Khoa Nguyễn (yun.khngn)</strong>, sinh viên chuyên ngành Kỹ thuật phần mềm tại Đại học FPT.
+                            Tớ đang là freelancer thiết kế đồ hoạ và là một guitarist.
+                            Tớ đang hướng tới trở thành một <strong className="text-foreground">Fullstack Developer</strong> và thực hiện thêm nhiều ước mơ phía trước.
+                        </p>
+                    )}
 
                     <blockquote className="border-l-4 border-primary pl-6 py-2 italic text-xl text-foreground font-serif">
                         "Tương lai thuộc về những người tin vào vẻ đẹp trong chính những giấc mơ, hoài bão to lớn của mình..."

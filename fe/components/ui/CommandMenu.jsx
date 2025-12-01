@@ -62,6 +62,7 @@ export function CommandMenu() {
                 { icon: <ImageIcon className="mr-2 h-4 w-4" />, label: 'Manage Photos', action: () => router.push('/admin/photo') },
                 { icon: <Plus className="mr-2 h-4 w-4" />, label: 'New Photo', action: () => router.push('/admin/photo/new') },
                 { icon: <User className="mr-2 h-4 w-4" />, label: 'Profile', action: () => router.push('/admin/profile') },
+                { icon: <Settings className="mr-2 h-4 w-4" />, label: 'Site Settings', action: () => router.push('/admin/settings') },
             ]
         });
     }

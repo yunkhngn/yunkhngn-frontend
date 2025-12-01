@@ -3,34 +3,27 @@ import { UpdateSettingsDto } from './dto/update-settings.dto';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
+@Injectable()
 export class SettingsService {
     constructor(private prisma: PrismaService) { }
 
     async getSettings() {
-        let settings = await this.prisma.settings.findUnique({
-            where: { id: 1 },
+        return this.prisma.settings.findMany({
+            orderBy: { id: 'asc' }
         });
-
-        if (!settings) {
-            settings = await this.prisma.settings.create({
-                data: {
-                    id: 1,
-                    siteTitle: 'My Developer Portfolio',
-                    bio: 'Welcome to my blog and portfolio.',
-                },
-            });
-        }
-
-        return settings;
     }
 
     async update(updateSettingsDto: UpdateSettingsDto) {
-        // Ensure settings exist
-        await this.getSettings();
+        const { settingTitle, content } = updateSettingsDto;
 
-        return this.prisma.settings.update({
-            where: { id: 1 },
-            data: updateSettingsDto,
+        return this.prisma.settings.upsert({
+            where: { settingTitle },
+            update: { content },
+            create: { settingTitle, content },
         });
+    }
+
+    async delete(id: number) {
+        return this.prisma.settings.delete({ where: { id } });
     }
 }

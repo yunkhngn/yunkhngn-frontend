@@ -56,12 +56,9 @@ model Gallery {
 }
 
 model Settings {
-  id           Int     @id @default(1)
-  siteTitle    String?
-  bio          String? @db.NVarChar(Max)
-  avatarUrl    String?
-  socialLinks  String? // Stored as JSON string
-  designTokens String? // Stored as JSON string
+  id           Int     @id @default(autoincrement())
+  settingTitle String  @unique
+  content      String? @db.NVarChar(Max)
 }
 
 model User {
