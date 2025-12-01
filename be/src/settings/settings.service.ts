@@ -1,11 +1,36 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnModuleInit, BadRequestException } from '@nestjs/common';
 import { UpdateSettingsDto } from './dto/update-settings.dto';
 import { PrismaService } from '../prisma/prisma.service';
 
+const SYSTEM_SETTINGS = [
+    'bio',
+    'quote',
+    'facebook',
+    'github',
+    'instagram',
+    'linkedin',
+    'email',
+    'homepage_description',
+    'footer_description',
+    'about_content',
+];
+
 @Injectable()
-@Injectable()
-export class SettingsService {
+export class SettingsService implements OnModuleInit {
     constructor(private prisma: PrismaService) { }
+
+    async onModuleInit() {
+        for (const title of SYSTEM_SETTINGS) {
+            await this.prisma.settings.upsert({
+                where: { settingTitle: title },
+                update: {},
+                create: {
+                    settingTitle: title,
+                    content: ''
+                }
+            });
+        }
+    }
 
     async getSettings() {
         return this.prisma.settings.findMany({
@@ -24,6 +49,10 @@ export class SettingsService {
     }
 
     async delete(id: number) {
+        const setting = await this.prisma.settings.findUnique({ where: { id } });
+        if (setting && SYSTEM_SETTINGS.includes(setting.settingTitle)) {
+            throw new BadRequestException(`Cannot delete system setting: ${setting.settingTitle}`);
+        }
         return this.prisma.settings.delete({ where: { id } });
     }
 }

@@ -36,9 +36,17 @@ export default function Footer() {
                                 <span className="text-foreground">yun.khngn</span>
                                 <span className="text-primary animate-pulse">_</span>
                             </Link>
-                            <p className="text-muted-foreground mb-6 max-w-sm whitespace-pre-wrap">
-                                {settings.footer_description || "Full Stack Developer building beautiful web experiences.\nSharing knowledge and journey through code."}
-                            </p>
+                            {settings.footer_description ? (
+                                <div
+                                    className="text-muted-foreground mb-6 max-w-sm whitespace-pre-wrap"
+                                    dangerouslySetInnerHTML={{ __html: settings.footer_description }}
+                                />
+                            ) : (
+                                <p className="text-muted-foreground mb-6 max-w-sm whitespace-pre-wrap">
+                                    Full Stack Developer building beautiful web experiences.
+                                    Sharing knowledge and journey through code.
+                                </p>
+                            )}
                         </div>
                         <div className="flex gap-4 mt-auto">
                             {(settings.facebook || settings.instagram || settings.github || settings.linkedin || settings.email) ? (

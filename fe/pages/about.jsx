@@ -97,28 +97,17 @@ export default function About() {
                     <blockquote className="border-l-4 border-primary pl-6 py-2 italic text-xl text-foreground font-serif">
                         {settings.quote || '"Tương lai thuộc về những người tin vào vẻ đẹp trong chính những giấc mơ, hoài bão to lớn của mình..."'}
                     </blockquote>
-
-                    {settings.about_content ? (
-                        <div dangerouslySetInnerHTML={{ __html: settings.about_content }} className="whitespace-pre-wrap" />
-                    ) : (
-                        <div className="space-y-6">
+                    {
+                        settings.about_content ? (
+                            <div dangerouslySetInnerHTML={{ __html: settings.about_content }} className="whitespace-pre-wrap" />
+                        ) : (
                             <p>
-                                Giới thiệu nhiều hơn một chút về bản thân, tớ sống và làm việc tại Hà Nội.
-                                Tớ thích tìm hiểu về những thứ mới mẻ, thử thách bản thân và không ngừng học hỏi nhiều điều hơn.
-                                Tớ có kĩ năng khá tốt với nghệ thuật và cả kĩ thuật/công nghệ, không phải là năng khiếu thiên bẩm,
-                                nhưng tớ cảm nhận được tớ đã tự đạt được bằng những nỗ lực của bản thân.
+                                Xin chào, tớ là <strong className="text-foreground">Khoa Nguyễn (yun.khngn)</strong>, sinh viên chuyên ngành Kỹ thuật phần mềm tại Đại học FPT.
+                                Tớ đang là freelancer thiết kế đồ hoạ và là một guitarist.
+                                Tớ đang hướng tới trở thành một <strong className="text-foreground">Fullstack Developer</strong> và thực hiện thêm nhiều ước mơ phía trước.
                             </p>
-                            <p>
-                                Tớ đã chơi đàn được hơn 5 năm rồi, và cũng từng được đi diễn tại một số show.
-                                Ngoài ra, tớ cũng siêu thích quay phim và chụp ảnh, kiểu như, tớ đang muốn truyền tải với thế giới này những gì tớ thấy qua góc kính máy ảnh nhiệm màu.
-                            </p>
-                            <p>
-                                Tuy rằng hơi bận rộn với việc học và làm, nhưng tớ vẫn luôn có một khoảng dành cho những sở thích của riêng mình,
-                                tập đàn 2 tiếng mỗi ngày, hay là ngồi code cả tối. Hihi, chắc là hết rồi, tạm gác ở đây nha!
-                            </p>
-                        </div>
-                    )}
-
+                        )
+                    }
                     <div className="pt-8 space-y-2">
                         <p className="italic">Vài dòng thư tay viết vội.</p>
                         <p className="font-serif text-xl text-foreground font-bold pt-4">Khoa Nguyễn</p>

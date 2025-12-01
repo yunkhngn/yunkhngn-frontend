@@ -93,7 +93,7 @@ export default function Home() {
             </h1>
           </div>
 
-          <div className="space-y-6 text-xl md:text-2xl text-muted-foreground leading-relaxed max-w-2xl mx-auto font-light">
+          <div className="space-y-6 text-xl md:text-2xl text-muted-foreground leading-relaxed max-w-2xl mx-auto">
             {settings.homepage_description ? (
               <p dangerouslySetInnerHTML={{ __html: settings.homepage_description }} className="whitespace-pre-wrap" />
             ) : (

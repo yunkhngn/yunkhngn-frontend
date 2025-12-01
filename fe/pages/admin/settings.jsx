@@ -4,7 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
-import { Loader2, Plus, Trash2, Edit, X } from 'lucide-react';
+import { Loader2, Edit, X } from 'lucide-react';
 import {
     Table,
     TableBody,
@@ -77,34 +77,8 @@ export default function Settings() {
         }
     };
 
-    const handleDelete = async (id) => {
-        if (!confirm("Are you sure you want to delete this setting?")) return;
-        if (!user) return;
-
-        try {
-            const token = await user.getIdToken();
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/settings/${id}`, {
-                method: 'DELETE',
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            });
-
-            if (res.ok) {
-                setSettings(settings.filter(s => s.id !== id));
-            }
-        } catch (error) {
-            console.error("Failed to delete setting", error);
-        }
-    };
-
     const openEdit = (setting) => {
         setCurrentSetting({ settingTitle: setting.settingTitle, content: setting.content || '' });
-        setIsDialogOpen(true);
-    };
-
-    const openNew = () => {
-        setCurrentSetting({ settingTitle: '', content: '' });
         setIsDialogOpen(true);
     };
 
@@ -123,18 +97,15 @@ export default function Settings() {
             <div className="space-y-6">
                 <div className="flex justify-between items-center">
                     <h1 className="text-2xl font-bold">Configuration</h1>
-                    <Button onClick={openNew}>
-                        <Plus className="mr-2 h-4 w-4" /> Add Setting
-                    </Button>
                 </div>
 
                 <div className="bg-card rounded-md border">
                     <Table>
                         <TableHeader>
                             <TableRow>
-                                <TableHead>Key (Title)</TableHead>
+                                <TableHead className="w-[100px] md:w-[200px]">Key (Title)</TableHead>
                                 <TableHead>Content</TableHead>
-                                <TableHead className="w-[100px]">Actions</TableHead>
+                                <TableHead className="w-[70px] md:w-[100px]">Actions</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -147,17 +118,16 @@ export default function Settings() {
                             ) : (
                                 settings.map((setting) => (
                                     <TableRow key={setting.id}>
-                                        <TableCell className="font-medium">{setting.settingTitle}</TableCell>
-                                        <TableCell className="max-w-md truncate" title={setting.content}>
-                                            {setting.content}
+                                        <TableCell className="font-medium align-top py-4 break-all">{setting.settingTitle}</TableCell>
+                                        <TableCell className="align-top py-4">
+                                            <div className="max-w-[120px] md:max-w-md line-clamp-3 whitespace-pre-wrap text-sm text-muted-foreground break-all">
+                                                {setting.content}
+                                            </div>
                                         </TableCell>
-                                        <TableCell>
-                                            <div className="flex items-center gap-2">
-                                                <Button variant="ghost" size="icon" onClick={() => openEdit(setting)}>
+                                        <TableCell className="align-top py-4">
+                                            <div className="flex items-center gap-1 md:gap-2">
+                                                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(setting)}>
                                                     <Edit className="h-4 w-4" />
-                                                </Button>
-                                                <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive" onClick={() => handleDelete(setting.id)}>
-                                                    <Trash2 className="h-4 w-4" />
                                                 </Button>
                                             </div>
                                         </TableCell>
@@ -169,18 +139,17 @@ export default function Settings() {
                 </div>
 
                 <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                    <DialogContent className="max-w-3xl">
+                    <DialogContent className="w-[95vw] max-w-3xl">
                         <DialogHeader>
-                            <DialogTitle>{currentSetting.id ? 'Edit Setting' : 'Add New Setting'}</DialogTitle>
+                            <DialogTitle>Edit Setting</DialogTitle>
                         </DialogHeader>
                         <form onSubmit={handleSave} className="space-y-4">
                             <div className="space-y-2">
                                 <label className="text-sm font-medium">Setting Key (Title)</label>
                                 <Input
                                     value={currentSetting.settingTitle}
-                                    onChange={(e) => setCurrentSetting({ ...currentSetting, settingTitle: e.target.value })}
-                                    placeholder="e.g., site_title, contact_email"
-                                    required
+                                    disabled
+                                    className="bg-muted"
                                 />
                             </div>
                             <div className="space-y-2">
