@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { useTheme } from 'next-themes';
-import { Search, Moon, Sun, Menu, X, LogOut, LayoutDashboard, User, FileText, Folder, Image, Settings } from 'lucide-react';
+import { Search, Moon, Sun, Menu, X, LogOut, LayoutDashboard, User, FileText, Folder, Image, Settings, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
@@ -19,6 +19,7 @@ const ADMIN_NAV_ITEMS = [
     { label: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
     { label: "Project", href: "/admin/project", icon: Folder },
     { label: "Blog", href: "/admin/blog", icon: FileText },
+    { label: "Comments", href: "/admin/comments", icon: MessageSquare },
     { label: "Photo", href: "/admin/photo", icon: Image },
     { label: "Profile", href: "/admin/profile", icon: User },
     { label: "Settings", href: "/admin/settings", icon: Settings },

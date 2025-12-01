@@ -29,7 +29,7 @@ export class CommentsController {
     }
 
     @Get()
-    findAll(@Query('blogId') blogId: string, @Query('includeHidden') includeHidden?: string) {
+    findAll(@Query('blogId') blogId?: string, @Query('includeHidden') includeHidden?: string) {
         if (includeHidden === 'true') {
             return this.commentsService.findAllIncludingHidden(blogId);
         }

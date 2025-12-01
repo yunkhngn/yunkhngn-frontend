@@ -38,19 +38,37 @@ export class CommentsService {
         return commentWithUser;
     }
 
-    async findAll(blogId: string) {
+    async findAll(blogId?: string) {
+        const where: any = { hidden: false };
+        if (blogId) {
+            where.blogId = blogId;
+        }
+
         const comments = await this.prisma.comment.findMany({
-            where: { blogId, hidden: false },
+            where,
             orderBy: { createdAt: 'desc' },
         });
 
         return this.attachUserDetails(comments);
     }
 
-    async findAllIncludingHidden(blogId: string) {
+    async findAllIncludingHidden(blogId?: string) {
+        const where: any = {};
+        if (blogId) {
+            where.blogId = blogId;
+        }
+
         const comments = await this.prisma.comment.findMany({
-            where: { blogId },
+            where,
             orderBy: { createdAt: 'desc' },
+            include: {
+                blog: {
+                    select: {
+                        title: true,
+                        slug: true,
+                    }
+                }
+            }
         });
 
         return this.attachUserDetails(comments);
@@ -139,10 +157,13 @@ export class CommentsService {
                     ? { upvoteCount: { decrement: 1 } }
                     : { downvoteCount: { decrement: 1 } };
 
-                return this.prisma.comment.update({
+                const updatedComment = await this.prisma.comment.update({
                     where: { id: commentId },
                     data: updateData,
                 });
+
+                const [commentWithUser] = await this.attachUserDetails([updatedComment]);
+                return commentWithUser;
             } else {
                 // Switch vote
                 await this.prisma.commentVote.update({
@@ -155,10 +176,13 @@ export class CommentsService {
                     ? { upvoteCount: { decrement: 1 }, downvoteCount: { increment: 1 } }
                     : { downvoteCount: { decrement: 1 }, upvoteCount: { increment: 1 } };
 
-                return this.prisma.comment.update({
+                const updatedComment = await this.prisma.comment.update({
                     where: { id: commentId },
                     data: updateData,
                 });
+
+                const [commentWithUser] = await this.attachUserDetails([updatedComment]);
+                return commentWithUser;
             }
         } else {
             // Create new vote
@@ -175,10 +199,13 @@ export class CommentsService {
                 ? { upvoteCount: { increment: 1 } }
                 : { downvoteCount: { increment: 1 } };
 
-            return this.prisma.comment.update({
+            const updatedComment = await this.prisma.comment.update({
                 where: { id: commentId },
                 data: updateData,
             });
+
+            const [commentWithUser] = await this.attachUserDetails([updatedComment]);
+            return commentWithUser;
         }
     }
 
