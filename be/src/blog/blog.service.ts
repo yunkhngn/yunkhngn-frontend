@@ -43,12 +43,7 @@ export class BlogService {
             const existing = await this.prisma.blog.findUnique({
                 where: { slug: updateBlogDto.slug },
             });
-            console.log('Update Blog Debug:', {
-                id,
-                slug: updateBlogDto.slug,
-                existingId: existing?.id,
-                match: existing?.id === id
-            });
+
             if (existing && existing.id !== id) {
                 throw new ConflictException('Slug already exists');
             }

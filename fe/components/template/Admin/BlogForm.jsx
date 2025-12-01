@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea'; // Not strictly needed if no description, but maybe for SEO? Schema doesn't have description.
 import { TagInput } from '@/components/ui/TagInput';
 import TipTapEditor from '@/components/ui/TipTapEditor';
-import { Loader2, Plus, X, Image as ImageIcon, Save, RotateCcw } from 'lucide-react';
+import { Loader2, Plus, X, Image as ImageIcon, Save, RotateCcw, UploadCloud } from 'lucide-react';
 import Image from 'next/image';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
@@ -174,7 +174,7 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
         }
     };
 
-    const handleSubmit = async () => {
+    const handleSubmit = async (statusOverride) => {
         if (!formData.title || !formData.slug) {
             toast.error('Title and Slug are required');
             return;
@@ -188,8 +188,12 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
                 ...formData,
                 content: formData.contentJSON,
                 tags: formData.tags,
+                status: statusOverride || formData.status || 'DRAFT'
             };
             await onSubmit(payload);
+            if (statusOverride) {
+                setFormData(prev => ({ ...prev, status: statusOverride }));
+            }
         } catch (error) {
             console.error(error);
             setIsDirty(true); // Re-enable if failed
@@ -240,86 +244,94 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium">Status</label>
-                        <Select
-                            value={formData.status}
-                            onValueChange={(value) => {
-                                setFormData({ ...formData, status: value });
-                                setIsDirty(true);
-                            }}
-                        >
-                            <SelectTrigger>
-                                <SelectValue placeholder="Select status" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="DRAFT">Draft</SelectItem>
-                                <SelectItem value="PUBLISHED">Published</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium">Tag</label>
-                        <Input
-                            value={formData.tags}
-                            onChange={(e) => {
-                                setFormData({ ...formData, tags: e.target.value });
-                                setIsDirty(true);
-                            }}
-                            placeholder="City"
-                        />
-                    </div>
-                </div>
 
                 <div className="space-y-2">
-                    <label className="text-sm font-medium">Thumbnail</label>
-                    <div
-                        className="aspect-video relative rounded-lg overflow-hidden group border border-dashed flex items-center justify-center cursor-pointer hover:bg-muted/50 transition-colors max-w-md"
-                        onClick={() => fileInputRef.current?.click()}
-                    >
-                        {formData.thumbnail ? (
-                            <>
-                                <Image src={formData.thumbnail} alt="Thumbnail" fill className="object-cover" />
-                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white font-medium">
-                                    Change Thumbnail
-                                </div>
-                            </>
-                        ) : (
-                            <div className="flex flex-col items-center text-muted-foreground">
-                                {uploading ? <Loader2 className="h-8 w-8 animate-spin" /> : <ImageIcon className="h-8 w-8 mb-2" />}
-                                <span>Upload Thumbnail</span>
-                            </div>
-                        )}
-                    </div>
-                    <input
-                        type="file"
-                        ref={fileInputRef}
-                        className="hidden"
-                        accept="image/*"
-                        onChange={handleUpload}
-                    />
-                </div>
-
-                <div className="space-y-2">
-                    <label className="text-sm font-medium">Content</label>
-                    <TipTapEditor
-                        key={initialData ? initialData.id : 'new'}
-                        content={formData.contentJSON}
-                        onChange={(json) => {
-                            setFormData({ ...formData, contentJSON: json });
+                    <label className="text-sm font-medium">Tag</label>
+                    <Input
+                        value={formData.tags}
+                        onChange={(e) => {
+                            setFormData({ ...formData, tags: e.target.value });
                             setIsDirty(true);
                         }}
-                        onImageUpload={handleEditorImageUpload}
+                        placeholder="City"
                     />
                 </div>
+            </div>
 
-                <div className="pt-4 flex gap-2">
-                    <Button className="w-full md:w-auto" onClick={handleSubmit} disabled={submitting}>
-                        {submitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-                        {isEditing ? 'Update Blog' : 'Create Blog'}
-                    </Button>
+            <div className="space-y-2">
+                <label className="text-sm font-medium">Thumbnail</label>
+                <div
+                    className="aspect-video relative rounded-lg overflow-hidden group border border-dashed flex items-center justify-center cursor-pointer hover:bg-muted/50 transition-colors max-w-md"
+                    onClick={() => fileInputRef.current?.click()}
+                >
+                    {formData.thumbnail ? (
+                        <>
+                            <Image src={formData.thumbnail} alt="Thumbnail" fill className="object-cover" />
+                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white font-medium">
+                                Change Thumbnail
+                            </div>
+                        </>
+                    ) : (
+                        <div className="flex flex-col items-center text-muted-foreground">
+                            {uploading ? <Loader2 className="h-8 w-8 animate-spin" /> : <ImageIcon className="h-8 w-8 mb-2" />}
+                            <span>Upload Thumbnail</span>
+                        </div>
+                    )}
                 </div>
+                <input
+                    type="file"
+                    ref={fileInputRef}
+                    className="hidden"
+                    accept="image/*"
+                    onChange={handleUpload}
+                />
+            </div>
+
+            <div className="space-y-2">
+                <label className="text-sm font-medium">Content</label>
+                <TipTapEditor
+                    key={initialData ? initialData.id : 'new'}
+                    content={formData.contentJSON}
+                    onChange={(json) => {
+                        setFormData({ ...formData, contentJSON: json });
+                        setIsDirty(true);
+                    }}
+                    onImageUpload={handleEditorImageUpload}
+                />
+            </div>
+
+            <div className="pt-4 flex gap-2">
+                {!isEditing ? (
+                    <Button className="w-full md:w-auto" onClick={() => handleSubmit('DRAFT')} disabled={submitting}>
+                        {submitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+                        Save Draft
+                    </Button>
+                ) : (
+                    <>
+                        {formData.status === 'DRAFT' ? (
+                            <>
+                                <Button className="w-full md:w-auto" onClick={() => handleSubmit('PUBLISHED')} disabled={submitting}>
+                                    {submitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <UploadCloud className="mr-2 h-4 w-4" />}
+                                    Publish
+                                </Button>
+                                <Button variant="outline" className="w-full md:w-auto" onClick={() => handleSubmit('DRAFT')} disabled={submitting}>
+                                    <Save className="mr-2 h-4 w-4" />
+                                    Save Draft
+                                </Button>
+                            </>
+                        ) : (
+                            <>
+                                <Button className="w-full md:w-auto" onClick={() => handleSubmit()} disabled={submitting}>
+                                    {submitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+                                    Update Blog
+                                </Button>
+                                <Button variant="ghost" className="w-full md:w-auto text-destructive hover:text-destructive" onClick={() => handleSubmit('DRAFT')} disabled={submitting}>
+                                    Unpublish
+                                </Button>
+                            </>
+                        )}
+                    </>
+                )}
             </div>
         </div>
     );

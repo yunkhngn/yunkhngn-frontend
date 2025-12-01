@@ -42,8 +42,11 @@ export default function Login() {
             await method();
             window.location.href = '/';
         } catch (err) {
-            setError('Failed to log in with social provider.');
-            console.error(err);
+            setError(err.message || 'Failed to log in with social provider.');
+
+            if (!err.message?.includes('Access Denied') && !err.message?.includes('Unauthorized')) {
+                console.error(err);
+            }
         }
     };
 

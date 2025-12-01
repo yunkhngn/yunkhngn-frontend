@@ -116,6 +116,29 @@ export default function BlogList() {
                     </div>
                 </div>
 
+                {/* Explore Topics */}
+                {allTags.length > 0 && (
+                    <div className="flex flex-wrap justify-center gap-2 mb-16 max-w-3xl mx-auto">
+                        <Button
+                            variant={selectedTag === null ? "default" : "outline"}
+                            onClick={() => setSelectedTag(null)}
+                            className="rounded-full text-sm h-8"
+                        >
+                            All
+                        </Button>
+                        {allTags.map(tag => (
+                            <Button
+                                key={tag}
+                                variant={selectedTag === tag ? "default" : "outline"}
+                                onClick={() => setSelectedTag(tag === selectedTag ? null : tag)}
+                                className="rounded-full text-sm h-8"
+                            >
+                                {tag}
+                            </Button>
+                        ))}
+                    </div>
+                )}
+
                 {!isFiltering && (
                     <div className="flex items-center justify-between mb-8">
                         <h2 className="text-2xl font-bold tracking-tight">Recent blog posts</h2>
@@ -283,31 +306,7 @@ export default function BlogList() {
                             />
                         </div>
 
-                        {/* Explore Topics */}
-                        {allTags.length > 0 && (
-                            <div className="mt-20 border-t border-border/40 pt-12 mb-12">
-                                <h3 className="text-xl font-bold mb-6 text-center">Explore Topics</h3>
-                                <div className="flex flex-wrap justify-center gap-3">
-                                    <Button
-                                        variant={selectedTag === null ? "default" : "outline"}
-                                        onClick={() => setSelectedTag(null)}
-                                        className="rounded-full"
-                                    >
-                                        All
-                                    </Button>
-                                    {allTags.map(tag => (
-                                        <Button
-                                            key={tag}
-                                            variant={selectedTag === tag ? "default" : "outline"}
-                                            onClick={() => setSelectedTag(tag === selectedTag ? null : tag)}
-                                            className="rounded-full"
-                                        >
-                                            {tag}
-                                        </Button>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
+
                     </>
                 )}
             </main>

@@ -11,6 +11,7 @@ import {
     TwitterAuthProvider
 } from 'firebase/auth';
 import { auth } from '../lib/firebase/config';
+import { toast } from 'sonner';
 
 const AuthContext = createContext({
     user: null,
@@ -45,12 +46,21 @@ export const AuthProvider = ({ children }) => {
                         if (profile.name) {
                             user.displayName = profile.name;
                         }
+                        user.role = profile.role;
+                        setUser(user);
+                    } else {
+                        // User not in DB
+                        console.error('User not found in database');
+                        await firebaseSignOut(auth);
+                        setUser(null);
                     }
                 } catch (error) {
                     console.error('Failed to fetch user profile:', error);
+                    setUser(null);
                 }
+            } else {
+                setUser(null);
             }
-            setUser(user);
             setLoading(false);
         });
 
@@ -69,14 +79,66 @@ export const AuthProvider = ({ children }) => {
         return signInWithEmailAndPassword(auth, email, password);
     };
 
-    const loginWithGoogle = () => {
+    const loginWithGoogle = async () => {
         const provider = new GoogleAuthProvider();
-        return signInWithPopup(auth, provider);
+        const result = await signInWithPopup(auth, provider);
+        const user = result.user;
+        const token = await user.getIdToken();
+
+        try {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/me`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+
+            if (!res.ok) {
+                await user.delete();
+                toast.error('Unauthorized: Account not found in system.');
+                throw new Error('Unauthorized: Account deleted');
+            }
+
+            const profile = await res.json();
+            if (profile.role !== 'ADMIN') {
+                await firebaseSignOut(auth);
+                toast.error('Unauthorized: Access restricted to Admins.');
+                throw new Error('Access Denied: Admins only');
+            }
+            return result;
+        } catch (error) {
+            console.error("Login validation failed:", error);
+            if (auth.currentUser) await firebaseSignOut(auth);
+            throw error;
+        }
     };
 
-    const loginWithGithub = () => {
+    const loginWithGithub = async () => {
         const provider = new GithubAuthProvider();
-        return signInWithPopup(auth, provider);
+        const result = await signInWithPopup(auth, provider);
+        const user = result.user;
+        const token = await user.getIdToken();
+
+        try {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/me`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+
+            if (!res.ok) {
+                await user.delete();
+                toast.error('Unauthorized: Account not found in system.');
+                throw new Error('Unauthorized: Account deleted');
+            }
+
+            const profile = await res.json();
+            if (profile.role !== 'ADMIN') {
+                await firebaseSignOut(auth);
+                toast.error('Unauthorized: Access restricted to Admins.');
+                throw new Error('Access Denied: Admins only');
+            }
+            return result;
+        } catch (error) {
+            console.error("Login validation failed:", error);
+            if (auth.currentUser) await firebaseSignOut(auth);
+            throw error;
+        }
     };
 
     const loginWithFacebook = () => {

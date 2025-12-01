@@ -1,7 +1,24 @@
 import AdminNavbar from './Navbar';
 import { Metadata } from '@/components/template';
+import { useAuth } from '@/contexts/AuthContext';
+import { useRouter } from 'next/router';
+import { useEffect } from 'react';
 
 export default function AdminLayout({ children, title = "Admin Dashboard" }) {
+    const { user, loading } = useAuth();
+    const router = useRouter();
+
+    useEffect(() => {
+        if (!loading) {
+            if (!user || user.role !== 'ADMIN') {
+                router.push('/');
+            }
+        }
+    }, [user, loading, router]);
+
+    if (loading) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+    if (!user || user.role !== 'ADMIN') return null;
+
     return (
         <div className="flex flex-col min-h-screen font-sans bg-background">
             <Metadata

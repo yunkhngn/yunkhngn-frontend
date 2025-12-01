@@ -12,11 +12,11 @@ export default function NewBlog() {
     const handleSubmit = async (data) => {
         try {
             const token = await user.getIdToken();
-            await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/blogs`, data, {
+            const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/blogs`, data, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             toast.success('Blog created successfully');
-            router.push('/admin/blog');
+            router.push(`/admin/blog/${res.data.id}/edit`);
         } catch (error) {
             console.error(error);
             toast.error('Failed to create blog');
