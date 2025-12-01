@@ -181,12 +181,11 @@ export const AuthProvider = ({ children }) => {
     };
 
     // Auto sign-in anonymously if not logged in (for visitors)
-    // DISABLED: Enable this after setting up Firebase Anonymous Auth
-    // useEffect(() => {
-    //     if (!loading && !user) {
-    //         signInAnon();
-    //     }
-    // }, [loading, user]);
+    useEffect(() => {
+        if (!loading && !user) {
+            signInAnon();
+        }
+    }, [loading, user]);
 
     return (
         <AuthContext.Provider value={{ 

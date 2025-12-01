@@ -60,13 +60,8 @@ export default function CommentForm({ blogId, onCommentAdded }) {
 
     if (!user) {
         return (
-            <div className="text-center py-8 border border-border rounded-lg">
-                <p className="text-muted-foreground mb-4">
-                    You need to be signed in to comment
-                </p>
-                <p className="text-sm text-muted-foreground">
-                    Anonymous authentication is currently disabled. Please enable it in Firebase Console.
-                </p>
+            <div className="text-center py-8 text-muted-foreground">
+                Loading...
             </div>
         );
     }
