@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { Metadata } from "@/components/template";
-import { ChevronLeft, Github, ExternalLink, Calendar } from 'lucide-react';
+import { ChevronLeft, Github, ExternalLink, Calendar, Star, GitFork, Scale, BookOpen } from 'lucide-react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/Button';
 import Link from 'next/link';
@@ -14,6 +14,7 @@ export default function ProjectDetail() {
     const { id } = router.query;
     const [project, setProject] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [githubStats, setGithubStats] = useState(null);
 
     useEffect(() => {
         if (!id) return;
@@ -41,6 +42,35 @@ export default function ProjectDetail() {
         fetchProject();
     }, [id]);
 
+    useEffect(() => {
+        if (!project?.repoLink) return;
+
+        const fetchGithubStats = async () => {
+            try {
+                // Extract owner and repo from URL
+                // Format: https://github.com/owner/repo
+                const match = project.repoLink.match(/github\.com\/([^/]+)\/([^/]+)/);
+                if (!match) return;
+
+                const [, owner, repo] = match;
+                const res = await fetch(`https://api.github.com/repos/${owner}/${repo}`);
+                if (!res.ok) return;
+
+                const data = await res.json();
+                setGithubStats({
+                    stars: data.stargazers_count,
+                    forks: data.forks_count,
+                    license: data.license?.spdx_id || data.license?.name,
+                    repoUrl: data.html_url
+                });
+            } catch (error) {
+                console.error('Error fetching GitHub stats:', error);
+            }
+        };
+
+        fetchGithubStats();
+    }, [project?.repoLink]);
+
     if (loading) {
         return (
             <div className="flex-1 flex items-center justify-center min-h-[50vh]">
@@ -60,6 +90,8 @@ export default function ProjectDetail() {
         );
     }
 
+
+
     return (
         <div className="bg-background text-foreground">
             <Metadata
@@ -75,42 +107,93 @@ export default function ProjectDetail() {
                     </Button>
                 </Link>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
-                    {/* Left Column: Image & Links */}
-                    <div className="space-y-8">
-                        <div className="relative aspect-video w-full rounded-2xl overflow-hidden border bg-muted shadow-sm">
-                            {project.cover ? (
-                                <Image
-                                    src={project.cover}
-                                    alt={project.title}
-                                    fill
-                                    className="object-cover"
-                                    priority
-                                />
-                            ) : (
-                                <div className="flex items-center justify-center h-full text-muted-foreground">
-                                    No Preview
+                <div className="space-y-12 mb-16">
+                    {/* Full Width Image */}
+                    <div className="relative aspect-video w-full rounded-2xl overflow-hidden border bg-muted shadow-sm">
+                        {project.cover ? (
+                            <Image
+                                src={project.cover}
+                                alt={project.title}
+                                fill
+                                className="object-cover"
+                                priority
+                            />
+                        ) : (
+                            <div className="flex items-center justify-center h-full text-muted-foreground">
+                                No Preview
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Title, Description & Links */}
+                    <div className="max-w-4xl mx-auto text-center space-y-6">
+                        <h1 className="text-4xl md:text-5xl font-bold leading-tight">{project.title}</h1>
+                        <p className="text-lg text-muted-foreground leading-relaxed">
+                            {project.description}
+                        </p>
+
+                        <div className="flex flex-col items-center gap-4 pt-4">
+                            <div className="flex gap-4">
+                                {project.demoLink && (
+                                    <a href={project.demoLink} target="_blank" rel="noopener noreferrer">
+                                        <Button className="h-12 px-8 text-base" variant="default">
+                                            <ExternalLink className="mr-2 h-5 w-5" /> Live Demo
+                                        </Button>
+                                    </a>
+                                )}
+                                {project.repoLink && (
+                                    <a href={project.repoLink} target="_blank" rel="noopener noreferrer">
+                                        <Button variant="outline" className="h-12 px-8 text-base">
+                                            <Github className="mr-2 h-5 w-5" />
+                                            Source Code
+                                        </Button>
+                                    </a>
+                                )}
+                            </div>
+
+                            {githubStats && (
+                                <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                                    <span className="flex items-center gap-1 hover:text-foreground transition-colors" title="Stars">
+                                        <Star className="h-4 w-4" /> {githubStats.stars}
+                                    </span>
+                                    <span className="flex items-center gap-1 hover:text-foreground transition-colors" title="Forks">
+                                        <GitFork className="h-4 w-4" /> {githubStats.forks}
+                                    </span>
+                                    {githubStats.license && (
+                                        <span className="flex items-center gap-1 hover:text-foreground transition-colors" title="License">
+                                            <Scale className="h-4 w-4" /> {githubStats.license}
+                                        </span>
+                                    )}
+                                    <a
+                                        href={`${githubStats.repoUrl}#readme`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="flex items-center gap-1 hover:text-foreground transition-colors underline underline-offset-4"
+                                    >
+                                        <BookOpen className="h-4 w-4" /> Readme
+                                    </a>
                                 </div>
                             )}
                         </div>
+                    </div>
 
-                        <div className="flex gap-4">
-                            {project.demoLink && (
-                                <a href={project.demoLink} target="_blank" rel="noopener noreferrer" className="flex-1">
-                                    <Button className="w-full h-12 text-base" variant="default">
-                                        <ExternalLink className="mr-2 h-5 w-5" /> Live Demo
-                                    </Button>
-                                </a>
-                            )}
-                            {project.repoLink && (
-                                <a href={project.repoLink} target="_blank" rel="noopener noreferrer" className="flex-1">
-                                    <Button variant="outline" className="w-full h-12 text-base">
-                                        <Github className="mr-2 h-5 w-5" /> Source Code
-                                    </Button>
-                                </a>
-                            )}
-                        </div>
+                    {/* Tags & Tech Stack */}
+                    <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 pt-8 border-t">
+                        {/* Tags */}
+                        {project.tags && (
+                            <div className="space-y-4">
+                                <h3 className="font-semibold text-xl">Tags</h3>
+                                <div className="flex flex-wrap gap-2">
+                                    {project.tags.split(',').map((tag, i) => (
+                                        <span key={i} className="px-3 py-1 bg-primary/10 text-primary rounded-md text-sm font-medium">
+                                            {tag.trim()}
+                                        </span>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
 
+                        {/* Tech Stack */}
                         <div className="space-y-4">
                             <h3 className="font-semibold text-xl">Tech Stack</h3>
                             <div className="flex flex-wrap gap-2">
@@ -121,32 +204,6 @@ export default function ProjectDetail() {
                                 ))}
                             </div>
                         </div>
-                    </div>
-
-                    {/* Right Column: Details */}
-                    <div className="space-y-6">
-                        <div>
-                            <h1 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">{project.title}</h1>
-                            <p className="text-lg text-muted-foreground leading-relaxed">
-                                {project.description}
-                            </p>
-                        </div>
-
-                        {project.tags && (
-                            <>
-                                <hr className="border-border" />
-                                <div className="space-y-3">
-                                    <h3 className="font-semibold text-lg">Tags</h3>
-                                    <div className="flex flex-wrap gap-2">
-                                        {project.tags.split(',').map((tag, i) => (
-                                            <span key={i} className="px-3 py-1 bg-primary/10 text-primary rounded-md text-sm font-medium">
-                                                {tag.trim()}
-                                            </span>
-                                        ))}
-                                    </div>
-                                </div>
-                            </>
-                        )}
                     </div>
                 </div>
 

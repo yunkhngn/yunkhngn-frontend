@@ -18,7 +18,12 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'cataas.com',
         pathname: '/cat',
-      }
+      },
+      {
+        protocol: 'https',
+        hostname: 'placekitten.com',
+        pathname: '/**',
+      },
     ],
   },
   async redirects() {

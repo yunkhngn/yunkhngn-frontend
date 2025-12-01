@@ -43,7 +43,7 @@ export class CommentsService {
 
     async findAll(blogId?: string, projectId?: string, page: number = 1, limit: number = 100) {
         const skip = (page - 1) * limit;
-        const where: any = { hidden: false };
+        const where: any = { hidden: false, deleted: false };
         if (blogId) {
             where.blogId = blogId;
         }
@@ -75,7 +75,7 @@ export class CommentsService {
 
     async findAllIncludingHidden(blogId?: string, projectId?: string, page: number = 1, limit: number = 100) {
         const skip = (page - 1) * limit;
-        const where: any = {};
+        const where: any = { deleted: false };
         if (blogId) {
             where.blogId = blogId;
         }
@@ -166,7 +166,19 @@ export class CommentsService {
             throw new ForbiddenException('You can only delete your own comments');
         }
 
-        await this.prisma.comment.delete({ where: { id } });
+        // Soft delete
+        await this.prisma.comment.update({
+            where: { id },
+            data: { deleted: true },
+        });
+
+        // If admin, resolve all reports
+        if (isAdmin) {
+            await this.prisma.commentReport.updateMany({
+                where: { commentId: id },
+                data: { status: 'resolved' },
+            });
+        }
     }
 
     async hide(id: string) {
@@ -334,6 +346,12 @@ export class CommentsService {
         return this.prisma.commentReport.update({
             where: { id },
             data: { status: updateReportDto.status },
+        });
+    }
+
+    async deleteReport(id: string) {
+        return this.prisma.commentReport.delete({
+            where: { id },
         });
     }
 }

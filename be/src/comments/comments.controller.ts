@@ -144,4 +144,13 @@ export class CommentsController {
         }
         return this.commentsService.updateReportStatus(id, updateReportDto);
     }
+
+    @Delete('admin/reports/:id')
+    @UseGuards(FirebaseAuthGuard)
+    deleteReport(@Param('id') id: string, @Request() req) {
+        if (!req.user.isAdmin) {
+            throw new Error('Only admins can delete reports');
+        }
+        return this.commentsService.deleteReport(id);
+    }
 }

@@ -132,11 +132,38 @@ export default function AdminComments() {
 
             if (!res.ok) throw new Error('Failed to delete comment');
 
+            // Remove from comments list
             setComments(comments.filter(c => c.id !== commentId));
-            toast.success('Comment deleted');
+
+            // Update associated reports to resolved
+            setReports(reports.map(r =>
+                r.commentId === commentId ? { ...r, status: 'resolved' } : r
+            ));
+
+            toast.success('Comment deleted and reports resolved');
         } catch (error) {
             console.error('Error deleting comment:', error);
             toast.error('Failed to delete comment');
+        }
+    };
+
+    const handleDismissReport = async (reportId) => {
+        if (!confirm('Are you sure you want to delete this report?')) return;
+
+        try {
+            const token = await user.getIdToken();
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/comments/admin/reports/${reportId}`, {
+                method: 'DELETE',
+                headers: { Authorization: `Bearer ${token}` }
+            });
+
+            if (!res.ok) throw new Error('Failed to delete report');
+
+            setReports(reports.filter(r => r.id !== reportId));
+            toast.success('Report deleted');
+        } catch (error) {
+            console.error('Error deleting report:', error);
+            toast.error('Failed to delete report');
         }
     };
 
@@ -389,8 +416,8 @@ export default function AdminComments() {
                                                             <DropdownMenuItem onClick={() => handleUpdateReportStatus(report.id, 'resolved')}>
                                                                 <CheckCircle2 className="mr-2 h-4 w-4" /> Mark Resolved
                                                             </DropdownMenuItem>
-                                                            <DropdownMenuItem onClick={() => handleUpdateReportStatus(report.id, 'dismissed')}>
-                                                                <XCircle className="mr-2 h-4 w-4" /> Dismiss
+                                                            <DropdownMenuItem onClick={() => handleDismissReport(report.id)}>
+                                                                <XCircle className="mr-2 h-4 w-4" /> Dismiss (Delete)
                                                             </DropdownMenuItem>
                                                             <DropdownMenuItem
                                                                 onClick={() => handleDelete(report.commentId)}
