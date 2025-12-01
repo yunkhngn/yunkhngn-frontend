@@ -27,7 +27,7 @@ import { format, formatDistanceToNow } from "date-fns";
 import { Badge } from "@/components/ui/Badge";
 import { useRouter } from "next/router";
 import Image from "next/image";
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid, AreaChart, Area } from 'recharts';
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -189,8 +189,46 @@ export default function Dashboard() {
 
   const blogStatusData = [
     { name: 'Published', value: stats.blogsPublished, color: isDark ? '#f5f5f5' : '#171717' }, // light: gray-100, dark: gray-900
-    { name: 'Draft', value: stats.blogsDraft, color: isDark ? '#d4d4d4' : '#525252' }          // light: gray-300, dark: gray-600
+    { name: 'Draft', value: stats.blogsDraft, color: isDark ? '#d4d4d4af' : '#525252' }          // light: gray-300, dark: gray-600
   ];
+
+  // Activity timeline data - last 7 days
+  const getActivityData = () => {
+    const days = 7;
+    const data = [];
+    const now = new Date();
+
+    for (let i = days - 1; i >= 0; i--) {
+      const date = new Date(now);
+      date.setDate(date.getDate() - i);
+      const dateStr = date.toISOString().split('T')[0];
+
+      // Count items created on this date
+      const blogsCount = recentBlogs.filter(b =>
+        new Date(b.createdAt).toISOString().split('T')[0] === dateStr
+      ).length;
+
+      const projectsCount = recentProjects.filter(p =>
+        new Date(p.createdAt).toISOString().split('T')[0] === dateStr
+      ).length;
+
+      const photosCount = recentPhotos.filter(p =>
+        new Date(p.createdAt).toISOString().split('T')[0] === dateStr
+      ).length;
+
+      data.push({
+        date: format(date, 'MMM dd'),
+        blogs: blogsCount,
+        projects: projectsCount,
+        photos: photosCount,
+        total: blogsCount + projectsCount + photosCount
+      });
+    }
+
+    return data;
+  };
+
+  const activityData = getActivityData();
 
   return (
     <AdminLayout title="Dashboard">
@@ -313,6 +351,53 @@ export default function Dashboard() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Activity Timeline Chart */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <TrendingUp className="h-5 w-5" />
+              Activity Timeline (Last 7 Days)
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <AreaChart data={activityData}>
+                <defs>
+                  <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor={isDark ? "#f5f5f5" : "#171717"} stopOpacity={0.8} />
+                    <stop offset="95%" stopColor={isDark ? "#f5f5f5" : "#171717"} stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke={isDark ? "#404040" : "#e5e5e5"} />
+                <XAxis
+                  dataKey="date"
+                  stroke={isDark ? "#a3a3a3" : "#737373"}
+                  style={{ fontSize: '12px' }}
+                />
+                <YAxis
+                  stroke={isDark ? "#a3a3a3" : "#737373"}
+                  style={{ fontSize: '12px' }}
+                />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: isDark ? '#171717' : '#ffffff',
+                    border: `1px solid ${isDark ? '#404040' : '#e5e5e5'}`,
+                    borderRadius: '8px'
+                  }}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="total"
+                  stroke={isDark ? "#f5f5f5" : "#171717"}
+                  fillOpacity={1}
+                  fill="url(#colorTotal)"
+                  strokeWidth={2}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
 
         <div className="grid gap-4 lg:grid-cols-7">
           {/* Recent Blogs */}
