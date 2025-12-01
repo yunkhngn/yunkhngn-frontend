@@ -108,7 +108,7 @@ export default function ProjectList() {
                             {paginatedProjects.map((project) => (
                                 <div
                                     key={project.id}
-                                    onClick={() => router.push(`/admin/project/${project.id}`)}
+                                    onClick={() => router.push(`/admin/project/${project.slug || project.id}`)}
                                     className="bg-card border rounded-xl overflow-hidden shadow-sm flex flex-col transition-all hover:shadow-md group cursor-pointer"
                                 >
                                     <div className="aspect-video relative bg-muted">
@@ -132,7 +132,7 @@ export default function ProjectList() {
                                                 className="h-8 w-8"
                                                 onClick={(e) => {
                                                     e.stopPropagation();
-                                                    router.push(`/admin/project/edit-project/${project.id}`);
+                                                    router.push(`/admin/project/edit-project/${project.slug || project.id}`);
                                                 }}
                                             >
                                                 <Pencil className="h-4 w-4" />

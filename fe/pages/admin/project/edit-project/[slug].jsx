@@ -8,16 +8,16 @@ import { toast } from 'sonner';
 export default function EditProject() {
     const { user } = useAuth();
     const router = useRouter();
-    const { id } = router.query;
+    const { slug } = router.query;
     const [project, setProject] = useState(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        if (!id) return;
+        if (!slug) return;
 
         const fetchProject = async () => {
             try {
-                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/${id}`);
+                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/${slug}`);
                 if (!res.ok) throw new Error('Failed to fetch project');
                 const data = await res.json();
 
@@ -38,12 +38,12 @@ export default function EditProject() {
         };
 
         fetchProject();
-    }, [id, router]);
+    }, [slug, router]);
 
     const handleSubmit = async (data) => {
         try {
             const token = await user.getIdToken();
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/${id}`, {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/${project.id}`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',

@@ -12,16 +12,16 @@ import { toast } from 'sonner';
 export default function ViewProject() {
     const { user } = useAuth();
     const router = useRouter();
-    const { id } = router.query;
+    const { slug } = router.query;
     const [project, setProject] = useState(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        if (!id) return;
+        if (!slug) return;
 
         const fetchProject = async () => {
             try {
-                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/${id}`);
+                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/${slug}`);
                 if (!res.ok) throw new Error('Failed to fetch project');
                 const data = await res.json();
 
@@ -42,13 +42,13 @@ export default function ViewProject() {
         };
 
         fetchProject();
-    }, [id, router]);
+    }, [slug, router]);
 
     const handleDelete = async () => {
         if (!confirm('Are you sure you want to delete this project?')) return;
         try {
             const token = await user.getIdToken();
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/${id}`, {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/${project.id}`, {
                 method: 'DELETE',
                 headers: { Authorization: `Bearer ${token}` }
             });
@@ -75,7 +75,7 @@ export default function ViewProject() {
                         </Button>
                     </Link>
                     <div className="flex gap-2">
-                        <Link href={`/admin/project/edit-project/${project.id}`}>
+                        <Link href={`/admin/project/edit-project/${project.slug || project.id}`}>
                             <Button variant="outline" size="sm">
                                 <Pencil className="h-4 w-4 mr-2" /> Edit
                             </Button>

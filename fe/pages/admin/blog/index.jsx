@@ -12,6 +12,7 @@ import { format } from 'date-fns';
 import { Badge } from '@/components/ui/Badge';
 import { useRouter } from 'next/router';
 import { Pagination } from '@/components/ui/Pagination';
+import { ConfirmModal } from '@/components/ui/ConfirmModal';
 
 export default function BlogList() {
     const [blogs, setBlogs] = useState([]);
@@ -21,6 +22,8 @@ export default function BlogList() {
     const itemsPerPage = 6;
     const { user } = useAuth();
     const router = useRouter();
+    const [deleteId, setDeleteId] = useState(null);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
     useEffect(() => {
         fetchBlogs();
@@ -42,20 +45,27 @@ export default function BlogList() {
         }
     };
 
-    const handleDelete = async (id, e) => {
-        e.stopPropagation(); // Prevent card click
-        if (!confirm('Are you sure you want to delete this blog?')) return;
+    const handleDelete = (id, e) => {
+        e.stopPropagation();
+        setDeleteId(id);
+        setIsDeleteModalOpen(true);
+    };
 
+    const confirmDelete = async () => {
+        if (!deleteId) return;
         try {
             const token = await user.getIdToken();
-            await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/blogs/${id}`, {
+            await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/blogs/${deleteId}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
-            setBlogs(blogs.filter(b => b.id !== id));
+            setBlogs(blogs.filter(b => b.id !== deleteId));
             toast.success('Blog deleted');
         } catch (error) {
             console.error(error);
             toast.error('Failed to delete blog');
+        } finally {
+            setIsDeleteModalOpen(false);
+            setDeleteId(null);
         }
     };
 
@@ -171,6 +181,13 @@ export default function BlogList() {
                         />
                     </>
                 )}
+                <ConfirmModal
+                    isOpen={isDeleteModalOpen}
+                    onClose={() => setIsDeleteModalOpen(false)}
+                    onConfirm={confirmDelete}
+                    title="Delete Blog"
+                    description="Are you sure you want to delete this blog? This action cannot be undone."
+                />
             </div>
         </AdminLayout>
     );

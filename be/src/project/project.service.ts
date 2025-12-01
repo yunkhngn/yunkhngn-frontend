@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, ConflictException } from '@nestjs/common';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { PrismaService } from '../prisma/prisma.service';
@@ -8,6 +8,13 @@ export class ProjectService {
     constructor(private prisma: PrismaService) { }
 
     async create(createProjectDto: CreateProjectDto) {
+        const existing = await this.prisma.project.findUnique({
+            where: { slug: createProjectDto.slug },
+        });
+        if (existing) {
+            throw new ConflictException('Slug already exists');
+        }
+
         return this.prisma.project.create({
             data: createProjectDto,
         });
@@ -33,6 +40,15 @@ export class ProjectService {
     }
 
     async update(id: string, updateProjectDto: UpdateProjectDto) {
+        if (updateProjectDto.slug) {
+            const existing = await this.prisma.project.findUnique({
+                where: { slug: updateProjectDto.slug },
+            });
+            if (existing && existing.id !== id) {
+                throw new ConflictException('Slug already exists');
+            }
+        }
+
         const { id: _id, createdAt, ...rest } = updateProjectDto as any;
         return this.prisma.project.update({
             where: { id },
