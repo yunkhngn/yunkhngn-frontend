@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
@@ -29,6 +29,11 @@ export default function CommentForm({ blogId, onCommentAdded }) {
 
         if (!displayName.trim()) {
             toast.error('Please enter your name');
+            return;
+        }
+
+        if (!user) {
+            toast.error('Please wait, initializing session...');
             return;
         }
 
@@ -70,13 +75,7 @@ export default function CommentForm({ blogId, onCommentAdded }) {
         }
     };
 
-    if (!user) {
-        return (
-            <div className="text-center py-8 text-muted-foreground">
-                Loading...
-            </div>
-        );
-    }
+
 
     return (
         <form onSubmit={handleSubmit} className="space-y-4">
