@@ -1,5 +1,6 @@
 export class CreateProjectDto {
     title: string;
+    slug: string;
     description: string;
     techStack?: string; // JSON string
     tags?: string;

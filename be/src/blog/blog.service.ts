@@ -8,8 +8,13 @@ export class BlogService {
     constructor(private prisma: PrismaService) { }
 
     async create(createBlogDto: CreateBlogDto) {
+        const { content, ...rest } = createBlogDto as any;
+        const data = {
+            ...rest,
+            contentJSON: rest.contentJSON || content,
+        };
         return this.prisma.blog.create({
-            data: createBlogDto,
+            data,
         });
     }
 
@@ -27,9 +32,14 @@ export class BlogService {
     }
 
     async update(id: string, updateBlogDto: UpdateBlogDto) {
+        const { content, id: _id, createdAt, updatedAt, comments, ...rest } = updateBlogDto as any;
+        const data = {
+            ...rest,
+            contentJSON: rest.contentJSON || content,
+        };
         return this.prisma.blog.update({
             where: { id },
-            data: updateBlogDto,
+            data,
         });
     }
 

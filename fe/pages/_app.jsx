@@ -6,6 +6,8 @@ import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 import { Playfair_Display } from 'next/font/google';
 
+import { Toaster } from 'sonner';
+
 const playfair = Playfair_Display({
   subsets: ['latin'],
   variable: '--font-playfair',
@@ -41,6 +43,7 @@ export default function App({ Component, pageProps }) {
           <main className={playfair.variable}>
             <Component {...pageProps} />
             <FloatingControls />
+            <Toaster position="top-right" />
           </main>
         </AuthGuard>
       </ThemeProvider>

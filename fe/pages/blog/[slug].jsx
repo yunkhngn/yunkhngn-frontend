@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import Link from 'next/link';
 import TipTapViewer from '@/components/ui/TipTapViewer';
+import { toast } from 'sonner';
 
 export default function BlogDetail() {
     const router = useRouter();
@@ -77,8 +78,7 @@ export default function BlogDetail() {
 
     const handleCopyLink = () => {
         navigator.clipboard.writeText(shareUrl);
-        // Ideally show a toast here, but for now just copy
-        alert('Link copied to clipboard!');
+        toast.success('Link copied to clipboard!');
     };
 
     if (loading) {

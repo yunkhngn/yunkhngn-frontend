@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { DefaultFooter, DefaultNavbar, Metadata } from "@/components/template";
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
-import { Search, Calendar, ArrowRight } from 'lucide-react';
+import { Search, Calendar, ArrowRight, ArrowUpRight } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { format } from 'date-fns';
@@ -15,6 +15,8 @@ export default function BlogList() {
     const [search, setSearch] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 6;
+
+    const [selectedTag, setSelectedTag] = useState(null);
 
     useEffect(() => {
         const fetchBlogs = async () => {
@@ -35,9 +37,13 @@ export default function BlogList() {
         fetchBlogs();
     }, []);
 
-    const filteredBlogs = blogs.filter(blog =>
-        blog.title.toLowerCase().includes(search.toLowerCase())
-    );
+    const allTags = [...new Set(blogs.flatMap(blog => blog.tags ? blog.tags.split(',').map(t => t.trim()) : []))];
+
+    const filteredBlogs = blogs.filter(blog => {
+        const matchesSearch = blog.title.toLowerCase().includes(search.toLowerCase());
+        const matchesTag = selectedTag ? blog.tags && blog.tags.includes(selectedTag) : true;
+        return matchesSearch && matchesTag;
+    });
 
     const totalPages = Math.ceil(filteredBlogs.length / itemsPerPage);
     const paginatedBlogs = filteredBlogs.slice(
@@ -47,7 +53,30 @@ export default function BlogList() {
 
     useEffect(() => {
         setCurrentPage(1);
-    }, [search]);
+    }, [search, selectedTag]);
+
+    const getExcerpt = (blog, length = 150) => {
+        if (blog.description) return blog.description;
+
+        let content = blog.contentJSON || blog.content || '';
+        let text = '';
+
+        try {
+            const json = JSON.parse(content);
+            if (json.content) {
+                const extractText = (node) => {
+                    if (node.text) return node.text;
+                    if (node.content) return node.content.map(extractText).join(' ');
+                    return '';
+                };
+                text = extractText(json);
+            }
+        } catch (e) {
+            text = content.replace(/<[^>]*>?/gm, '');
+        }
+
+        return text.length > length ? text.substring(0, length) + '...' : text;
+    };
 
     return (
         <div className="flex flex-col min-h-screen font-sans bg-background text-foreground">
@@ -58,21 +87,33 @@ export default function BlogList() {
             <DefaultNavbar />
 
             <main className="flex-1 container mx-auto px-4 py-12 md:py-20 max-w-7xl">
-                <div className="flex flex-col items-center text-center mb-12 space-y-4">
-                    <h1 className="text-4xl md:text-5xl font-bold tracking-tight">Blog</h1>
-                    <p className="text-muted-foreground max-w-2xl text-lg">
-                        Sharing my thoughts, tutorials, and experiences on web development and technology.
-                    </p>
-
-                    <div className="relative w-full max-w-md mt-6">
-                        <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                        <Input
-                            placeholder="Search articles..."
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                            className="pl-10 h-10"
-                        />
+                {/* Hero Section */}
+                <div className="flex flex-col items-center text-center mb-20 space-y-6">
+                    <div className="space-y-4">
+                        <div className="text-sm font-medium text-primary uppercase tracking-wider">Our Blog</div>
+                        <h1 className="text-4xl md:text-6xl font-bold tracking-tight font-serif">
+                            Stories & Ideas
+                        </h1>
+                        <p className="text-muted-foreground max-w-2xl mx-auto text-lg md:text-xl">
+                            The latest news, technologies, and resources from our team.
+                        </p>
                     </div>
+
+                    <div className="w-full max-w-md flex gap-2 mt-4">
+                        <div className="relative flex-1">
+                            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                            <Input
+                                placeholder="Search articles..."
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                                className="pl-10 h-10"
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                <div className="flex items-center justify-between mb-8">
+                    <h2 className="text-2xl font-bold tracking-tight">Recent blog posts</h2>
                 </div>
 
                 {loading ? (
@@ -82,47 +123,143 @@ export default function BlogList() {
                 ) : (
                     <>
                         {filteredBlogs.length > 0 ? (
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                                {paginatedBlogs.map((blog) => (
-                                    <Link
-                                        href={`/blog/${blog.slug || blog.id}`}
-                                        key={blog.id}
-                                        className="group flex flex-col bg-card border rounded-2xl overflow-hidden hover:shadow-lg transition-all duration-300 h-full"
-                                    >
-                                        <div className="aspect-video relative bg-muted overflow-hidden">
-                                            {blog.thumbnail ? (
-                                                <Image
-                                                    src={blog.thumbnail}
-                                                    alt={blog.title}
-                                                    fill
-                                                    className="object-cover transition-transform duration-500 group-hover:scale-105"
-                                                />
-                                            ) : (
-                                                <div className="flex items-center justify-center h-full text-muted-foreground bg-secondary/50">
-                                                    No Thumbnail
+                            <div className="space-y-16">
+                                {/* Featured & Recent Section - Only on first page and if no search or matches search */}
+                                {currentPage === 1 && (
+                                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
+                                        {/* Featured Post (Left) */}
+                                        {paginatedBlogs[0] && (
+                                            <Link href={`/blog/${paginatedBlogs[0].slug || paginatedBlogs[0].id}`} className="group flex flex-col gap-4">
+                                                <div className="aspect-video w-full relative overflow-hidden rounded-2xl bg-muted">
+                                                    {paginatedBlogs[0].thumbnail ? (
+                                                        <Image
+                                                            src={paginatedBlogs[0].thumbnail}
+                                                            alt={paginatedBlogs[0].title}
+                                                            fill
+                                                            className="object-cover transition-transform duration-500 group-hover:scale-105"
+                                                        />
+                                                    ) : (
+                                                        <div className="flex items-center justify-center h-full text-muted-foreground">No Thumbnail</div>
+                                                    )}
                                                 </div>
-                                            )}
-                                        </div>
-                                        <div className="flex-1 p-6 flex flex-col">
-                                            <div className="flex items-center gap-2 text-xs text-muted-foreground mb-3">
-                                                <Calendar className="h-3 w-3" />
-                                                {format(new Date(blog.createdAt), 'MMM d, yyyy')}
-                                            </div>
+                                                <div className="space-y-3">
+                                                    <div className="text-sm font-semibold text-primary flex items-center gap-2">
+                                                        <span>Khoa Nguyễn</span>
+                                                        <span>•</span>
+                                                        <span>{format(new Date(paginatedBlogs[0].createdAt), 'd MMM yyyy')}</span>
+                                                    </div>
+                                                    <div className="flex justify-between items-start gap-4">
+                                                        <h2 className="text-2xl font-bold group-hover:text-primary transition-colors leading-tight">
+                                                            {paginatedBlogs[0].title}
+                                                        </h2>
+                                                        <ArrowUpRight className="h-6 w-6 text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0" />
+                                                    </div>
+                                                    <p className="text-muted-foreground line-clamp-3 text-base">
+                                                        {getExcerpt(paginatedBlogs[0])}
+                                                    </p>
+                                                    <div className="flex flex-wrap gap-2 pt-2">
+                                                        {paginatedBlogs[0].tags && paginatedBlogs[0].tags.split(',').map((tag, i) => (
+                                                            <Badge key={i} variant="outline" className="rounded-md font-normal">
+                                                                {tag.trim()}
+                                                            </Badge>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            </Link>
+                                        )}
 
-                                            <h2 className="text-xl font-bold mb-3 line-clamp-2 group-hover:text-primary transition-colors">
-                                                {blog.title}
-                                            </h2>
-
-                                            <div className="flex flex-wrap gap-2 mt-auto pt-4">
-                                                {blog.tags && blog.tags.split(',').slice(0, 3).map((tag, i) => (
-                                                    <Badge key={i} variant="secondary" className="text-xs font-normal">
-                                                        {tag.trim()}
-                                                    </Badge>
-                                                ))}
-                                            </div>
+                                        {/* Sidebar Posts (Right) */}
+                                        <div className="flex flex-col gap-8">
+                                            {paginatedBlogs.slice(1, 3).map((blog) => (
+                                                <Link href={`/blog/${blog.slug || blog.id}`} key={blog.id} className="group flex flex-col md:flex-row gap-6 items-start">
+                                                    <div className="aspect-video md:aspect-[4/3] w-full md:w-64 relative overflow-hidden rounded-xl bg-muted flex-shrink-0">
+                                                        {blog.thumbnail ? (
+                                                            <Image
+                                                                src={blog.thumbnail}
+                                                                alt={blog.title}
+                                                                fill
+                                                                className="object-cover transition-transform duration-500 group-hover:scale-105"
+                                                            />
+                                                        ) : (
+                                                            <div className="flex items-center justify-center h-full text-muted-foreground text-xs">No Thumbnail</div>
+                                                        )}
+                                                    </div>
+                                                    <div className="flex-1 space-y-2">
+                                                        <div className="text-xs font-semibold text-primary flex items-center gap-2">
+                                                            <span>Khoa Nguyễn</span>
+                                                            <span>•</span>
+                                                            <span>{format(new Date(blog.createdAt), 'd MMM yyyy')}</span>
+                                                        </div>
+                                                        <h3 className="text-lg font-bold group-hover:text-primary transition-colors line-clamp-2">
+                                                            {blog.title}
+                                                        </h3>
+                                                        <p className="text-muted-foreground text-sm line-clamp-2">
+                                                            {getExcerpt(blog)}
+                                                        </p>
+                                                        <div className="flex flex-wrap gap-2 pt-1">
+                                                            {blog.tags && blog.tags.split(',').slice(0, 2).map((tag, i) => (
+                                                                <Badge key={i} variant="outline" className="text-xs rounded-md font-normal">
+                                                                    {tag.trim()}
+                                                                </Badge>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                </Link>
+                                            ))}
                                         </div>
-                                    </Link>
-                                ))}
+                                    </div>
+                                )}
+
+                                {/* All Blog Posts Grid (Remaining) */}
+                                {paginatedBlogs.length > 3 && (
+                                    <div>
+                                        <h2 className="text-2xl font-bold mb-8">All blog posts</h2>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-12">
+                                            {paginatedBlogs.slice(3).map((blog) => (
+                                                <Link
+                                                    href={`/blog/${blog.slug || blog.id}`}
+                                                    key={blog.id}
+                                                    className="group flex flex-col sm:flex-row gap-6 items-start"
+                                                >
+                                                    <div className="aspect-[4/3] w-full sm:w-60 relative bg-muted overflow-hidden rounded-xl flex-shrink-0">
+                                                        {blog.thumbnail ? (
+                                                            <Image
+                                                                src={blog.thumbnail}
+                                                                alt={blog.title}
+                                                                fill
+                                                                className="object-cover transition-transform duration-500 group-hover:scale-105"
+                                                            />
+                                                        ) : (
+                                                            <div className="flex items-center justify-center h-full text-muted-foreground bg-secondary/50 text-xs">
+                                                                No Thumbnail
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                    <div className="flex-1 space-y-3">
+                                                        <div className="text-xs font-semibold text-primary flex items-center gap-2">
+                                                            <span>Khoa Nguyễn</span>
+                                                            <span>•</span>
+                                                            <span>{format(new Date(blog.createdAt), 'd MMM yyyy')}</span>
+                                                        </div>
+                                                        <h3 className="text-xl font-bold line-clamp-2 group-hover:text-primary transition-colors leading-tight">
+                                                            {blog.title}
+                                                        </h3>
+                                                        <p className="text-muted-foreground text-sm line-clamp-2">
+                                                            {getExcerpt(blog)}
+                                                        </p>
+                                                        <div className="flex flex-wrap gap-2 pt-1">
+                                                            {blog.tags && blog.tags.split(',').slice(0, 2).map((tag, i) => (
+                                                                <Badge key={i} variant="outline" className="text-xs font-normal rounded-md">
+                                                                    {tag.trim()}
+                                                                </Badge>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                </Link>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         ) : (
                             <div className="text-center py-20 text-muted-foreground">
@@ -130,11 +267,39 @@ export default function BlogList() {
                             </div>
                         )}
 
-                        <Pagination
-                            currentPage={currentPage}
-                            totalPages={totalPages}
-                            onPageChange={setCurrentPage}
-                        />
+                        <div className="mt-16">
+                            <Pagination
+                                currentPage={currentPage}
+                                totalPages={totalPages}
+                                onPageChange={setCurrentPage}
+                            />
+                        </div>
+
+                        {/* Explore Topics */}
+                        {allTags.length > 0 && (
+                            <div className="mt-20 border-t border-border/40 pt-12 mb-12">
+                                <h3 className="text-xl font-bold mb-6 text-center">Explore Topics</h3>
+                                <div className="flex flex-wrap justify-center gap-3">
+                                    <Button
+                                        variant={selectedTag === null ? "default" : "outline"}
+                                        onClick={() => setSelectedTag(null)}
+                                        className="rounded-full"
+                                    >
+                                        All
+                                    </Button>
+                                    {allTags.map(tag => (
+                                        <Button
+                                            key={tag}
+                                            variant={selectedTag === tag ? "default" : "outline"}
+                                            onClick={() => setSelectedTag(tag === selectedTag ? null : tag)}
+                                            className="rounded-full"
+                                        >
+                                            {tag}
+                                        </Button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </>
                 )}
             </main>

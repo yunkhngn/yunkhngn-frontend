@@ -26,9 +26,10 @@ export class ProjectService {
     }
 
     async update(id: string, updateProjectDto: UpdateProjectDto) {
+        const { id: _id, createdAt, ...rest } = updateProjectDto as any;
         return this.prisma.project.update({
             where: { id },
-            data: updateProjectDto,
+            data: rest,
         });
     }
 

@@ -1,7 +1,9 @@
 import { useEffect, useRef } from 'react';
+import { useTheme } from 'next-themes';
 
 export default function InteractiveBackground({ className = "" }) {
     const canvasRef = useRef(null);
+    const { resolvedTheme } = useTheme();
 
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -9,6 +11,10 @@ export default function InteractiveBackground({ className = "" }) {
         let animationFrameId;
         let particles = [];
         let mouse = { x: null, y: null, radius: 150 };
+
+        // Determine color based on theme
+        const color = resolvedTheme === 'dark' ? '255, 255, 255' : '0, 0, 0';
+        const opacityMultiplier = resolvedTheme === 'dark' ? 0.1 : 0.1; // Slightly brighter in dark mode
 
         const resizeCanvas = () => {
             const parent = canvas.parentElement;
@@ -40,7 +46,7 @@ export default function InteractiveBackground({ className = "" }) {
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
                 ctx.closePath();
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+                ctx.fillStyle = `rgba(${color}, ${opacityMultiplier})`;
                 ctx.fill();
             }
 
@@ -77,14 +83,6 @@ export default function InteractiveBackground({ className = "" }) {
                     }
                 }
 
-                // Movement
-                // this.x += this.vx;
-                // this.y += this.vy;
-
-                // Bounce off edges (if moving)
-                // if (this.x < 0 || this.x > canvas.width) this.vx = -this.vx;
-                // if (this.y < 0 || this.y > canvas.height) this.vy = -this.vy;
-
                 this.draw();
             }
         }
@@ -107,7 +105,7 @@ export default function InteractiveBackground({ className = "" }) {
                         + ((particles[a].y - particles[b].y) * (particles[a].y - particles[b].y));
                     if (distance < (width / 7) * (height / 7)) {
                         opacityValue = 1 - (distance / 20000);
-                        ctx.strokeStyle = 'rgba(0, 0, 0,' + opacityValue * 0.1 + ')';
+                        ctx.strokeStyle = `rgba(${color}, ${opacityValue * opacityMultiplier})`;
                         ctx.lineWidth = 1;
                         ctx.beginPath();
                         ctx.moveTo(particles[a].x, particles[a].y);
@@ -146,7 +144,7 @@ export default function InteractiveBackground({ className = "" }) {
             window.removeEventListener('resize', resizeCanvas);
             cancelAnimationFrame(animationFrameId);
         };
-    }, []);
+    }, [resolvedTheme]);
 
     return (
         <canvas
