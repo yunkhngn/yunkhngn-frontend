@@ -8,8 +8,16 @@ import { toast } from 'sonner';
 export default function CommentForm({ blogId, onCommentAdded }) {
     const { user } = useAuth();
     const [content, setContent] = useState('');
-    const [displayName, setDisplayName] = useState(user?.displayName || '');
+    const [displayName, setDisplayName] = useState('');
     const [loading, setLoading] = useState(false);
+
+    // Load saved displayName from localStorage
+    useEffect(() => {
+        const savedName = localStorage.getItem('commentDisplayName');
+        if (savedName) {
+            setDisplayName(savedName);
+        }
+    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -46,6 +54,10 @@ export default function CommentForm({ blogId, onCommentAdded }) {
             }
 
             const newComment = await res.json();
+
+            // Save displayName to localStorage for next time
+            localStorage.setItem('commentDisplayName', displayName.trim());
+
             toast.success('Comment posted!');
             setContent('');
             // Keep displayName for next comment
