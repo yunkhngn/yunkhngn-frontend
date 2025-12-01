@@ -13,6 +13,7 @@ import { extractTextFromTipTap } from '@/lib/utils';
 export default function Home() {
   const [recentBlogs, setRecentBlogs] = useState([]);
   const [featuredProjects, setFeaturedProjects] = useState([]);
+  const [galleryPhotos, setGalleryPhotos] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const calculateReadTime = (contentJSON) => {
@@ -25,19 +26,25 @@ export default function Home() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [blogsRes, projectsRes] = await Promise.all([
+        const [blogsRes, projectsRes, galleryRes] = await Promise.all([
           fetch(`${process.env.NEXT_PUBLIC_API_URL}/blogs`),
-          fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects`)
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects`),
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/gallery`)
         ]);
 
         if (blogsRes.ok) {
           const blogs = await blogsRes.json();
-          setRecentBlogs(blogs.filter(b => b.status === 'PUBLISHED').slice(0, 9));
+          setRecentBlogs(blogs.filter(b => b.status === 'PUBLISHED').slice(0, 3));
         }
 
         if (projectsRes.ok) {
           const projects = await projectsRes.json();
-          setFeaturedProjects(projects.slice(0, 3));
+          setFeaturedProjects(projects.slice(0, 5));
+        }
+
+        if (galleryRes.ok) {
+          const photos = await galleryRes.json();
+          setGalleryPhotos(photos.slice(0, 6));
         }
       } catch (error) {
         console.error(error);
@@ -63,7 +70,7 @@ export default function Home() {
       <DefaultNavbar />
 
 
-      <main className="flex-1 container mx-auto px-4 py-12 md:py-24 max-w-5xl space-y-24 relative z-10">
+      <main className="flex-1 container mx-auto px-4 py-12 md:py-24 max-w-7xl space-y-32 relative z-10">
         {/* Hero Section */}
         <section className="flex flex-col items-center text-center justify-center space-y-8 py-20 md:py-32 max-w-4xl mx-auto">
 
@@ -153,44 +160,75 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Recent Projects */}
+        {/* Featured Projects - Bento Grid */}
         <section className="space-y-8">
           <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold">Featured Projects</h2>
+            <h2 className="text-3xl font-bold font-serif">Featured Projects</h2>
             <Link href="/project" className="text-sm text-muted-foreground hover:text-primary flex items-center gap-1 transition-colors">
               View all <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-2">
-            {featuredProjects.map((project) => (
-              <Link href={`/project/${project.id}`} key={project.id} className="group flex gap-4 items-start p-4 rounded-xl hover:bg-muted/50 transition-colors border border-transparent hover:border-border">
-                <div className="h-16 w-16 rounded-lg bg-muted overflow-hidden relative flex-shrink-0">
-                  {project.cover && (
-                    <Image
-                      src={project.cover}
-                      alt={project.title}
-                      fill
-                      className="object-cover"
-                    />
-                  )}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold group-hover:text-primary transition-colors mb-1">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 auto-rows-[200px]">
+            {featuredProjects.map((project, i) => (
+              <Link
+                href={`/project/${project.id}`}
+                key={project.id}
+                className={`group relative rounded-2xl overflow-hidden bg-muted ${i === 0 ? 'md:col-span-2 md:row-span-2' : 'md:col-span-1 md:row-span-1'}`}
+              >
+                {project.cover && (
+                  <Image
+                    src={project.cover}
+                    alt={project.title}
+                    fill
+                    className="object-cover transition-transform duration-700 group-hover:scale-105"
+                  />
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity" />
+
+                <div className="absolute bottom-0 left-0 p-6 w-full">
+                  <h3 className={`font-bold text-white mb-2 ${i === 0 ? 'text-2xl md:text-3xl' : 'text-lg'}`}>
                     {project.title}
                   </h3>
-                  <p className="text-sm text-muted-foreground line-clamp-2 mb-2">
-                    {project.description}
-                  </p>
+                  {i === 0 && (
+                    <p className="text-gray-200 line-clamp-2 mb-3 max-w-md">
+                      {project.description}
+                    </p>
+                  )}
                   <div className="flex flex-wrap gap-1">
-                    {Array.isArray(project.techStack) && project.techStack.slice(0, 3).map((tech, i) => (
-                      <Badge key={i} variant="secondary" className="text-[10px] px-1.5 py-0 h-5">
+                    {Array.isArray(project.techStack) && project.techStack.slice(0, 2).map((tech, idx) => (
+                      <Badge key={idx} variant="secondary" className="bg-white/20 hover:bg-white/30 text-white border-none backdrop-blur-sm text-[10px] px-2 h-5">
                         {tech}
                       </Badge>
                     ))}
                   </div>
                 </div>
               </Link>
+            ))}
+          </div>
+        </section>
+
+        {/* Gallery - Masonry */}
+        <section className="space-y-8">
+          <div className="flex items-center justify-between">
+            <h2 className="text-3xl font-bold font-serif">Captured Moments</h2>
+            <Link href="/photo" className="text-sm text-muted-foreground hover:text-primary flex items-center gap-1 transition-colors">
+              View gallery <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+
+          <div className="columns-2 md:columns-3 gap-4 space-y-4">
+            {galleryPhotos.map((photo) => (
+              <div key={photo.id} className="break-inside-avoid relative group rounded-xl overflow-hidden">
+                <Image
+                  src={photo.imageUrl}
+                  alt={photo.caption || 'Gallery Photo'}
+                  width={500}
+                  height={500}
+                  className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300" />
+              </div>
             ))}
           </div>
         </section>
