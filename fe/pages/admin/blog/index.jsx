@@ -192,7 +192,7 @@ export default function BlogList() {
                                 {paginatedBlogs.map((blog) => (
                                     <div
                                         key={blog.id}
-                                        className="group relative bg-card border rounded-xl overflow-hidden hover:shadow-lg transition-all cursor-pointer flex flex-col"
+                                        className="group relative bg-card border rounded-3xl overflow-hidden hover:shadow-lg transition-all cursor-pointer flex flex-col"
                                         onClick={() => router.push(`/admin/blog/${blog.slug}`)}
                                     >
                                         <div className="aspect-video relative bg-muted shrink-0">

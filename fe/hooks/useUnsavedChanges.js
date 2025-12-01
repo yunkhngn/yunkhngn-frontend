@@ -1,8 +1,11 @@
-import { useEffect } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/router';
 
 export function useUnsavedChanges(isDirty) {
     const router = useRouter();
+    const [showModal, setShowModal] = useState(false);
+    const [nextUrl, setNextUrl] = useState(null);
+    const isConfirmed = useRef(false);
 
     useEffect(() => {
         const handleWindowClose = (e) => {
@@ -12,8 +15,10 @@ export function useUnsavedChanges(isDirty) {
         };
 
         const handleBrowseAway = (url) => {
-            if (!isDirty) return;
-            if (window.confirm('You have unsaved changes. Are you sure you want to leave?')) return;
+            if (!isDirty || isConfirmed.current) return;
+            
+            setNextUrl(url);
+            setShowModal(true);
             
             router.events.emit('routeChangeError');
             // Throwing an error is the only way to cancel route change in Next.js Pages Router
@@ -28,4 +33,19 @@ export function useUnsavedChanges(isDirty) {
             router.events.off('routeChangeStart', handleBrowseAway);
         };
     }, [isDirty, router]);
+
+    const confirmNavigation = () => {
+        if (nextUrl) {
+            isConfirmed.current = true;
+            setShowModal(false);
+            router.push(nextUrl);
+        }
+    };
+
+    return { 
+        showModal, 
+        setShowModal, 
+        confirmNavigation 
+    };
 }
+

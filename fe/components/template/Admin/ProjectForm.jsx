@@ -9,6 +9,7 @@ import Image from 'next/image';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { useUnsavedChanges } from '@/hooks/useUnsavedChanges';
+import { UnsavedChangesModal } from '@/components/ui/UnsavedChangesModal';
 
 export default function ProjectForm({ initialData, onSubmit, isEditing = false }) {
     const { user } = useAuth();
@@ -29,7 +30,7 @@ export default function ProjectForm({ initialData, onSubmit, isEditing = false }
     const [isDirty, setIsDirty] = useState(false);
     const fileInputRef = useRef(null);
 
-    useUnsavedChanges(isDirty);
+    const { showModal, setShowModal, confirmNavigation } = useUnsavedChanges(isDirty);
 
     useEffect(() => {
         if (initialData) {
@@ -249,6 +250,11 @@ export default function ProjectForm({ initialData, onSubmit, isEditing = false }
 
     return (
         <div className="flex flex-col gap-4 h-full">
+            <UnsavedChangesModal
+                open={showModal}
+                onOpenChange={setShowModal}
+                onConfirm={confirmNavigation}
+            />
             <div className="flex items-center justify-between sticky top-0 bg-background z-10 py-2 border-b">
                 <h2 className="text-xl font-bold">
                     {isEditing ? 'Edit Project' : 'New Project'}

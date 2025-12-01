@@ -57,7 +57,7 @@ export class AiService {
         {
           "title": "Project Title",
           "description": "A short, engaging description (max 200 chars)",
-          "content": "A detailed and engaging introduction to the project in HTML format (compatible with TipTap/ProseMirror). Use tags like <h2>, <p>, <ul>, <li>, <strong>, <em>. Do not use <h1>. Focus on what it does, why it exists, and its key features. Avoid technical installation/usage instructions.",
+          "content": "Generate a full project introduction in clean HTML (TipTap-compatible) using only <h2>, <h3>, <p>, <ul>, <li>, <strong>, <em> (no <h1>). Summarize the project based on its README and codebase, including: (1) Overview of what the project does and why it exists; (2) Main technologies and why they fit; (3) Key features; (4) Technical challenges; (5) A 'What I Learned' section with 3–5 insights; (6) A complexity label (Beginner / Intermediate / Advanced) with justification. Do not include installation guides, commands, or code snippets. Focus only on describing the project itself in a clear, readable, structured HTML format.",
           "techStack": ["Tech 1", "Tech 2 (Max 5 most important items)"],
           "tags": ["Tag 1", "Tag 2 (Max 5 most important items)"],
           "demoLink": "URL if found, otherwise null"

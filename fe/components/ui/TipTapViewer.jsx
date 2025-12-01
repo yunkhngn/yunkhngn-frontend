@@ -4,7 +4,8 @@ import Image from '@tiptap/extension-image';
 import Link from '@tiptap/extension-link';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
 import { common, createLowlight } from 'lowlight';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { ImagePreviewModal } from './ImagePreviewModal';
 
 const lowlight = createLowlight(common);
 
@@ -20,7 +21,7 @@ export default function TipTapViewer({ content }) {
         editable: false, // Read-only
         editorProps: {
             attributes: {
-                class: 'prose dark:prose-invert max-w-none p-4 outline-none',
+                class: 'prose dark:prose-invert max-w-none p-4 outline-none [&_img]:rounded-3xl [&_img]:border-4 [&_img]:border-dashed [&_img]:border-muted-foreground/20 [&_img]:p-2 [&_img]:max-w-[100%] [&_img]:mx-auto [&_img]:block',
             },
         },
         immediatelyRender: false,
@@ -45,7 +46,28 @@ export default function TipTapViewer({ content }) {
         }
     }, [content, editor]);
 
+    const [previewImage, setPreviewImage] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const handleContentClick = (e) => {
+        if (e.target.tagName === 'IMG') {
+            setPreviewImage(e.target.src);
+            setIsModalOpen(true);
+        }
+    };
+
     if (!editor) return null;
 
-    return <EditorContent editor={editor} />;
+    return (
+        <>
+            <div onClick={handleContentClick} className="cursor-pointer">
+                <EditorContent editor={editor} />
+            </div>
+            <ImagePreviewModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                imageSrc={previewImage}
+            />
+        </>
+    );
 }

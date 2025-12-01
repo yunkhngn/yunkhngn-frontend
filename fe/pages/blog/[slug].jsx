@@ -202,7 +202,7 @@ export default function BlogDetail() {
                         </aside>
 
                         {/* Main Content */}
-                        <div className="flex-1 max-w-3xl mx-auto">
+                        <div className="flex-1 max-w-5xl mx-auto">
                             <header className="text-center mb-16 pt-4">
                                 <div className="text-sm text-muted-foreground uppercase tracking-widest mb-6">
                                     {format(new Date(blog.createdAt), 'MMMM d, yyyy')}
@@ -240,7 +240,7 @@ export default function BlogDetail() {
                             </header>
 
                             <article
-                                className="prose prose-lg dark:prose-invert max-w-none prose-headings:font-serif prose-p:leading-relaxed prose-img:rounded-xl"
+                                className="prose prose-lg dark:prose-invert max-w-none prose-headings:font-serif prose-p:leading-relaxed"
                                 style={{ fontFamily: 'Palatino, "Palatino Linotype", "Book Antiqua", serif', fontSize: '1.2rem' }}
                             >
                                 <TipTapViewer content={blog.contentJSON || blog.content} />

@@ -10,6 +10,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/Select';
 import { useUnsavedChanges } from '@/hooks/useUnsavedChanges';
+import { UnsavedChangesModal } from '@/components/ui/UnsavedChangesModal';
 
 export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
     const { user } = useAuth();
@@ -27,7 +28,7 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
     const [isDirty, setIsDirty] = useState(false);
     const fileInputRef = useRef(null);
 
-    useUnsavedChanges(isDirty);
+    const { showModal, setShowModal, confirmNavigation } = useUnsavedChanges(isDirty);
 
     useEffect(() => {
         if (initialData) {
@@ -204,6 +205,11 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
 
     return (
         <div className="flex flex-col gap-4 h-full">
+            <UnsavedChangesModal
+                open={showModal}
+                onOpenChange={setShowModal}
+                onConfirm={confirmNavigation}
+            />
             <div className="flex items-center justify-between sticky top-0 bg-background z-10 py-2 border-b">
                 <h2 className="text-xl font-bold">
                     {isEditing ? 'Edit Blog' : 'New Blog'}
@@ -213,79 +219,93 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
                 </Button>
             </div>
 
-            <div className="space-y-4 pb-32">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium">Title</label>
-                        <Input
-                            value={formData.title}
-                            onChange={handleTitleChange}
-                            placeholder="Blog Title"
-                        />
-                    </div>
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium">Slug</label>
-                        <Input
-                            value={formData.slug}
-                            onChange={handleSlugChange}
-                            placeholder="blog-slug"
-                        />
-                    </div>
-                </div>
-
-
-                <div className="space-y-2">
-                    <label className="text-sm font-medium">Tag</label>
-                    <Input
-                        value={formData.tags}
-                        onChange={(e) => {
-                            setFormData({ ...formData, tags: e.target.value });
-                            setIsDirty(true);
-                        }}
-                        placeholder="City"
-                    />
-                </div>
-
-                <div className="space-y-2">
-                    <label className="text-sm font-medium">Thumbnail</label>
-                    <div
-                        className="aspect-video relative rounded-lg overflow-hidden group border border-dashed flex items-center justify-center cursor-pointer hover:bg-muted/50 transition-colors max-w-md"
-                        onClick={() => fileInputRef.current?.click()}
-                    >
-                        {formData.thumbnail ? (
-                            <>
-                                <Image src={formData.thumbnail} alt="Thumbnail" fill className="object-cover" />
-                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white font-medium">
-                                    Change Thumbnail
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 pb-32">
+                {/* Left Column: Thumbnail */}
+                <div className="lg:col-span-1 space-y-4">
+                    <div className="space-y-2 sticky top-24">
+                        <label className="text-sm font-medium">Thumbnail</label>
+                        <div
+                            className="aspect-video relative rounded-3xl overflow-hidden group border-2 border-dashed border-muted-foreground/20 hover:border-muted-foreground/50 hover:bg-muted/50 transition-all flex items-center justify-center cursor-pointer w-full"
+                            onClick={() => fileInputRef.current?.click()}
+                        >
+                            {formData.thumbnail ? (
+                                <>
+                                    <Image src={formData.thumbnail} alt="Thumbnail" fill className="object-cover" />
+                                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white font-medium">
+                                        Change Thumbnail
+                                    </div>
+                                </>
+                            ) : (
+                                <div className="flex flex-col items-center text-muted-foreground/50 gap-2">
+                                    {uploading ? (
+                                        <Loader2 className="h-10 w-10 animate-spin text-muted-foreground" />
+                                    ) : (
+                                        <div className="p-4 rounded-full bg-muted/50 group-hover:bg-muted transition-colors">
+                                            <ImageIcon className="h-8 w-8 text-muted-foreground/70" />
+                                        </div>
+                                    )}
+                                    <span className="text-sm font-medium text-muted-foreground/70">Tap to upload or drag and drop</span>
                                 </div>
-                            </>
-                        ) : (
-                            <div className="flex flex-col items-center text-muted-foreground">
-                                {uploading ? <Loader2 className="h-8 w-8 animate-spin" /> : <ImageIcon className="h-8 w-8 mb-2" />}
-                                <span>Upload Thumbnail</span>
-                            </div>
-                        )}
+                            )}
+                        </div>
+                        <input
+                            type="file"
+                            ref={fileInputRef}
+                            className="hidden"
+                            accept="image/*"
+                            onChange={handleUpload}
+                        />
+                        <p className="text-xs text-muted-foreground">
+                            Recommended: 16:9 aspect ratio. The image will be cropped to fit.
+                        </p>
                     </div>
-                    <input
-                        type="file"
-                        ref={fileInputRef}
-                        className="hidden"
-                        accept="image/*"
-                        onChange={handleUpload}
-                    />
                 </div>
 
-                <div className="space-y-2">
-                    <label className="text-sm font-medium">Content</label>
-                    <TipTapEditor
-                        key={initialData ? initialData.id : 'new'}
-                        content={formData.contentJSON}
-                        onChange={(json) => {
-                            setFormData({ ...formData, contentJSON: json });
-                            setIsDirty(true);
-                        }}
-                        onImageUpload={handleEditorImageUpload}
-                    />
+                {/* Right Column: Form Fields */}
+                <div className="lg:col-span-2 space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium">Title</label>
+                            <Input
+                                value={formData.title}
+                                onChange={handleTitleChange}
+                                placeholder="Blog Title"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium">Slug</label>
+                            <Input
+                                value={formData.slug}
+                                onChange={handleSlugChange}
+                                placeholder="blog-slug"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium">Tag</label>
+                        <Input
+                            value={formData.tags}
+                            onChange={(e) => {
+                                setFormData({ ...formData, tags: e.target.value });
+                                setIsDirty(true);
+                            }}
+                            placeholder="Technology, Life, Coding..."
+                        />
+                    </div>
+
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium">Content</label>
+                        <TipTapEditor
+                            key={initialData ? initialData.id : 'new'}
+                            content={formData.contentJSON}
+                            onChange={(json) => {
+                                setFormData({ ...formData, contentJSON: json });
+                                setIsDirty(true);
+                            }}
+                            onImageUpload={handleEditorImageUpload}
+                        />
+                    </div>
                 </div>
             </div>
 
