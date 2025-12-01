@@ -8,7 +8,7 @@ import { toast } from 'sonner';
 export default function CommentForm({ blogId, onCommentAdded }) {
     const { user } = useAuth();
     const [content, setContent] = useState('');
-    const [displayName, setDisplayName] = useState('');
+    const [displayName, setDisplayName] = useState(user?.displayName || '');
     const [loading, setLoading] = useState(false);
 
     const handleSubmit = async (e) => {
@@ -26,6 +26,13 @@ export default function CommentForm({ blogId, onCommentAdded }) {
 
         setLoading(true);
         try {
+            // Update Firebase profile with displayName if anonymous
+            if (user.isAnonymous && user.displayName !== displayName.trim()) {
+                await user.updateProfile({
+                    displayName: displayName.trim(),
+                });
+            }
+
             const token = await user.getIdToken();
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/comments`, {
                 method: 'POST',
@@ -48,7 +55,7 @@ export default function CommentForm({ blogId, onCommentAdded }) {
             const newComment = await res.json();
             toast.success('Comment posted!');
             setContent('');
-            setDisplayName('');
+            // Keep displayName for next comment
             onCommentAdded(newComment);
         } catch (error) {
             console.error('Error posting comment:', error);

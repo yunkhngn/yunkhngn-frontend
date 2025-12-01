@@ -16,8 +16,8 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'placekitten.com',
-        pathname: '/**',
+        hostname: 'cataas.com',
+        pathname: '/cat',
       }
     ],
   },

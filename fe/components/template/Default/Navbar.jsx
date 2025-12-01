@@ -122,36 +122,47 @@ export default function Navbar() {
                         <Search size={20} />
                     </button>
 
-                    {user ? (
+                    {user && (
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                                    <Avatar className="h-8 w-8">
-                                        <AvatarImage src={user.avatarUrl || user.photoURL} alt={user.displayName || "User"} />
-                                        <AvatarFallback>{user.email?.charAt(0).toUpperCase()}</AvatarFallback>
+                                <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                                    <Avatar className="h-10 w-10">
+                                        <AvatarImage
+                                            src={user.isAnonymous ? "https://cataas.com/cat" : (user.avatarUrl || user.photoURL)}
+                                            alt={user.displayName || "User"}
+                                        />
+                                        <AvatarFallback>
+                                            {user.isAnonymous ? "😺" : (user.displayName?.[0] || user.email?.[0] || "U")}
+                                        </AvatarFallback>
                                     </Avatar>
                                 </Button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent className="w-64 p-2" align="end" forceMount>
-                                <DropdownMenuLabel className="font-normal p-3">
-                                    <div className="flex flex-col space-y-2">
-                                        <p className="text-sm font-semibold leading-none">{user.displayName || "User"}</p>
-                                        <p className="text-xs leading-none text-muted-foreground">
-                                            {user.email}
+                            <DropdownMenuContent className="w-56" align="end" forceMount>
+                                <DropdownMenuLabel className="font-normal">
+                                    <div className="flex flex-col space-y-1">
+                                        <p className="text-sm font-medium leading-none">
+                                            {user.isAnonymous ? "Anonymous" : (user.displayName || "User")}
                                         </p>
+                                        {!user.isAnonymous && user.email && (
+                                            <p className="text-xs leading-none text-muted-foreground">
+                                                {user.email}
+                                            </p>
+                                        )}
                                     </div>
                                 </DropdownMenuLabel>
-                                <DropdownMenuSeparator className="my-1" />
-                                <DropdownMenuItem asChild className="p-3 cursor-pointer focus:ring-0 focus:outline-none">
-                                    <Link href="/admin/dashboard" className="flex items-center gap-3">
-                                        <LayoutDashboard className="h-4 w-4 text-muted-foreground" />
-                                        <span className="font-medium">Dashboard</span>
-                                    </Link>
-                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                {!user.isAnonymous && user.role === 'ADMIN' && (
+                                    <DropdownMenuItem asChild>
+                                        <Link href="/admin/dashboard" className="cursor-pointer">
+                                            <LayoutDashboard className="mr-2 h-4 w-4" />
+                                            <span>Dashboard</span>
+                                        </Link>
+                                    </DropdownMenuItem>
+                                )}
                                 {user.role === 'ADMIN' && (
-                                    <DropdownMenuItem asChild className="p-3 cursor-pointer focus:ring-0 focus:outline-none">
-                                        <Link href="/admin/settings" className="flex items-center gap-3">
-                                            <Settings className="h-4 w-4 text-muted-foreground" />
+                                    <DropdownMenuItem asChild>
+                                        <Link href="/admin/settings" className="cursor-pointer">
+                                            <Settings className="mr-2 h-4 w-4" />
                                             <span className="font-medium">Site Settings</span>
                                         </Link>
                                     </DropdownMenuItem>
@@ -166,9 +177,9 @@ export default function Navbar() {
                             </DropdownMenuContent>
                         </DropdownMenu>
                     ) : (
-                        <Button asChild variant="ghost" className="hidden sm:flex">
-                            <Link href="/login">Log In</Link>
-                        </Button>
+                    <Button asChild variant="ghost" className="hidden sm:flex">
+                        <Link href="/login">Log In</Link>
+                    </Button>
                     )}
 
                     {/* Buy Me a Coffee */}
