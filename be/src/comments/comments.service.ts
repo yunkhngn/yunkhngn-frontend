@@ -1,9 +1,5 @@
 import { Injectable, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Comment } from './entities/comment.entity';
-import { CommentVote } from './entities/comment-vote.entity';
-import { CommentReport, ReportStatus } from './entities/comment-report.entity';
+import { PrismaService } from '../prisma/prisma.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
 import { VoteDto } from './dto/vote.dto';
@@ -14,14 +10,7 @@ import { UpdateReportDto } from './dto/update-report.dto';
 export class CommentsService {
     private readonly rateLimitMap = new Map<string, number>();
 
-    constructor(
-        @InjectRepository(Comment)
-        private commentsRepository: Repository<Comment>,
-        @InjectRepository(CommentVote)
-        private votesRepository: Repository<CommentVote>,
-        @InjectRepository(CommentReport)
-        private reportsRepository: Repository<CommentReport>,
-    ) { }
+    constructor(private prisma: PrismaService) { }
 
     // Rate limiting: 1 comment per 10 seconds per UID
     private checkRateLimit(uid: string): void {
@@ -35,40 +24,40 @@ export class CommentsService {
         this.rateLimitMap.set(uid, now);
     }
 
-    async create(createCommentDto: CreateCommentDto, uid: string): Promise<Comment> {
+    async create(createCommentDto: CreateCommentDto, uid: string) {
         this.checkRateLimit(uid);
 
-        const comment = this.commentsRepository.create({
-            ...createCommentDto,
-            uid,
+        return this.prisma.comment.create({
+            data: {
+                ...createCommentDto,
+                uid,
+            },
         });
-
-        return this.commentsRepository.save(comment);
     }
 
-    async findAll(blogId: string): Promise<Comment[]> {
-        return this.commentsRepository.find({
+    async findAll(blogId: string) {
+        return this.prisma.comment.findMany({
             where: { blogId, hidden: false },
-            order: { createdAt: 'DESC' },
+            orderBy: { createdAt: 'desc' },
         });
     }
 
-    async findAllIncludingHidden(blogId: string): Promise<Comment[]> {
-        return this.commentsRepository.find({
+    async findAllIncludingHidden(blogId: string) {
+        return this.prisma.comment.findMany({
             where: { blogId },
-            order: { createdAt: 'DESC' },
+            orderBy: { createdAt: 'desc' },
         });
     }
 
-    async findOne(id: string): Promise<Comment> {
-        const comment = await this.commentsRepository.findOne({ where: { id } });
+    async findOne(id: string) {
+        const comment = await this.prisma.comment.findUnique({ where: { id } });
         if (!comment) {
             throw new NotFoundException('Comment not found');
         }
         return comment;
     }
 
-    async update(id: string, updateCommentDto: UpdateCommentDto, uid: string, isAdmin: boolean): Promise<Comment> {
+    async update(id: string, updateCommentDto: UpdateCommentDto, uid: string, isAdmin: boolean) {
         const comment = await this.findOne(id);
 
         // Only owner or admin can update
@@ -76,11 +65,13 @@ export class CommentsService {
             throw new ForbiddenException('You can only edit your own comments');
         }
 
-        Object.assign(comment, updateCommentDto);
-        return this.commentsRepository.save(comment);
+        return this.prisma.comment.update({
+            where: { id },
+            data: updateCommentDto,
+        });
     }
 
-    async remove(id: string, uid: string, isAdmin: boolean): Promise<void> {
+    async remove(id: string, uid: string, isAdmin: boolean) {
         const comment = await this.findOne(id);
 
         // Only owner or admin can delete
@@ -88,122 +79,150 @@ export class CommentsService {
             throw new ForbiddenException('You can only delete your own comments');
         }
 
-        await this.commentsRepository.delete(id);
+        await this.prisma.comment.delete({ where: { id } });
     }
 
-    async hide(id: string): Promise<Comment> {
-        const comment = await this.findOne(id);
-        comment.hidden = true;
-        return this.commentsRepository.save(comment);
+    async hide(id: string) {
+        return this.prisma.comment.update({
+            where: { id },
+            data: { hidden: true },
+        });
     }
 
-    async unhide(id: string): Promise<Comment> {
-        const comment = await this.findOne(id);
-        comment.hidden = false;
-        return this.commentsRepository.save(comment);
+    async unhide(id: string) {
+        return this.prisma.comment.update({
+            where: { id },
+            data: { hidden: false },
+        });
     }
 
     // Voting logic
-    async vote(commentId: string, voteDto: VoteDto, uid: string): Promise<Comment> {
+    async vote(commentId: string, voteDto: VoteDto, uid: string) {
         const comment = await this.findOne(commentId);
-        const existingVote = await this.votesRepository.findOne({
-            where: { commentId, uid },
+        const existingVote = await this.prisma.commentVote.findUnique({
+            where: { commentId_uid: { commentId, uid } },
         });
 
         if (existingVote) {
             // If same vote value, remove vote
             if (existingVote.value === voteDto.value) {
-                await this.votesRepository.delete(existingVote.id);
+                await this.prisma.commentVote.delete({
+                    where: { id: existingVote.id },
+                });
 
                 // Update counts
-                if (voteDto.value === 1) {
-                    comment.upvoteCount = Math.max(0, comment.upvoteCount - 1);
-                } else {
-                    comment.downvoteCount = Math.max(0, comment.downvoteCount - 1);
-                }
+                const updateData = voteDto.value === 1
+                    ? { upvoteCount: { decrement: 1 } }
+                    : { downvoteCount: { decrement: 1 } };
+
+                return this.prisma.comment.update({
+                    where: { id: commentId },
+                    data: updateData,
+                });
             } else {
                 // Switch vote
-                const oldValue = existingVote.value;
-                existingVote.value = voteDto.value;
-                await this.votesRepository.save(existingVote);
+                await this.prisma.commentVote.update({
+                    where: { id: existingVote.id },
+                    data: { value: voteDto.value },
+                });
 
                 // Update counts
-                if (oldValue === 1) {
-                    comment.upvoteCount = Math.max(0, comment.upvoteCount - 1);
-                    comment.downvoteCount += 1;
-                } else {
-                    comment.downvoteCount = Math.max(0, comment.downvoteCount - 1);
-                    comment.upvoteCount += 1;
-                }
+                const updateData = existingVote.value === 1
+                    ? { upvoteCount: { decrement: 1 }, downvoteCount: { increment: 1 } }
+                    : { downvoteCount: { decrement: 1 }, upvoteCount: { increment: 1 } };
+
+                return this.prisma.comment.update({
+                    where: { id: commentId },
+                    data: updateData,
+                });
             }
         } else {
             // Create new vote
-            const vote = this.votesRepository.create({
-                commentId,
-                uid,
-                value: voteDto.value,
+            await this.prisma.commentVote.create({
+                data: {
+                    commentId,
+                    uid,
+                    value: voteDto.value,
+                },
             });
-            await this.votesRepository.save(vote);
 
             // Update counts
-            if (voteDto.value === 1) {
-                comment.upvoteCount += 1;
-            } else {
-                comment.downvoteCount += 1;
-            }
+            const updateData = voteDto.value === 1
+                ? { upvoteCount: { increment: 1 } }
+                : { downvoteCount: { increment: 1 } };
+
+            return this.prisma.comment.update({
+                where: { id: commentId },
+                data: updateData,
+            });
         }
-
-        return this.commentsRepository.save(comment);
     }
 
-    async getUserVote(commentId: string, uid: string): Promise<CommentVote | null> {
-        return this.votesRepository.findOne({ where: { commentId, uid } });
+    async getUserVote(commentId: string, uid: string) {
+        return this.prisma.commentVote.findUnique({
+            where: { commentId_uid: { commentId, uid } },
+        });
     }
 
-    async getUserVotes(commentIds: string[], uid: string): Promise<CommentVote[]> {
+    async getUserVotes(commentIds: string[], uid: string) {
         if (commentIds.length === 0) return [];
-        return this.votesRepository.find({
-            where: commentIds.map(id => ({ commentId: id, uid })),
+        return this.prisma.commentVote.findMany({
+            where: {
+                commentId: { in: commentIds },
+                uid,
+            },
         });
     }
 
     // Reporting logic
-    async report(commentId: string, reportDto: ReportCommentDto, reporterUid: string): Promise<CommentReport> {
+    async report(commentId: string, reportDto: ReportCommentDto, reporterUid: string) {
         await this.findOne(commentId); // Verify comment exists
 
         // Check if already reported
-        const existingReport = await this.reportsRepository.findOne({
-            where: { commentId, reporterUid },
+        const existingReport = await this.prisma.commentReport.findUnique({
+            where: { commentId_reporterUid: { commentId, reporterUid } },
         });
 
         if (existingReport) {
             throw new BadRequestException('You have already reported this comment');
         }
 
-        const report = this.reportsRepository.create({
-            commentId,
-            reporterUid,
-            reason: reportDto.reason,
+        return this.prisma.commentReport.create({
+            data: {
+                commentId,
+                reporterUid,
+                reason: reportDto.reason,
+            },
         });
-
-        return this.reportsRepository.save(report);
     }
 
-    async getReports(status?: ReportStatus): Promise<CommentReport[]> {
+    async getReports(status?: string) {
         const where = status ? { status } : {};
-        return this.reportsRepository.find({
+        return this.prisma.commentReport.findMany({
             where,
-            order: { createdAt: 'DESC' },
+            orderBy: { createdAt: 'desc' },
+            include: {
+                comment: {
+                    select: {
+                        id: true,
+                        content: true,
+                        displayName: true,
+                        blogId: true,
+                    },
+                },
+            },
         });
     }
 
-    async updateReportStatus(id: string, updateReportDto: UpdateReportDto): Promise<CommentReport> {
-        const report = await this.reportsRepository.findOne({ where: { id } });
+    async updateReportStatus(id: string, updateReportDto: UpdateReportDto) {
+        const report = await this.prisma.commentReport.findUnique({ where: { id } });
         if (!report) {
             throw new NotFoundException('Report not found');
         }
 
-        report.status = updateReportDto.status;
-        return this.reportsRepository.save(report);
+        return this.prisma.commentReport.update({
+            where: { id },
+            data: { status: updateReportDto.status },
+        });
     }
 }

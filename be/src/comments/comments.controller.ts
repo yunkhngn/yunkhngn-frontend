@@ -17,7 +17,6 @@ import { VoteDto } from './dto/vote.dto';
 import { ReportCommentDto } from './dto/report-comment.dto';
 import { UpdateReportDto } from './dto/update-report.dto';
 import { FirebaseAuthGuard } from '../auth/firebase-auth.guard';
-import { ReportStatus } from './entities/comment-report.entity';
 
 @Controller('comments')
 export class CommentsController {
@@ -115,7 +114,7 @@ export class CommentsController {
 
     @Get('admin/reports')
     @UseGuards(FirebaseAuthGuard)
-    getReports(@Query('status') status?: ReportStatus, @Request() req?) {
+    getReports(@Query('status') status?: string, @Request() req?) {
         if (!req.user.isAdmin) {
             throw new Error('Only admins can view reports');
         }

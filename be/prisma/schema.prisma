@@ -13,7 +13,7 @@ model Blog {
   title       String
   slug        String    @unique
   thumbnail   String?
-  tags        String?   // Stored as JSON string or comma-separated
+  tags        String? // Stored as JSON string or comma-separated
   contentJSON String    @db.NVarChar(Max) // TipTap JSON content
   status      String    @default("DRAFT") // DRAFT, PUBLISHED
   createdAt   DateTime  @default(now())
@@ -26,7 +26,7 @@ model Project {
   title       String
   slug        String   @unique
   description String   @db.NVarChar(Max)
-  techStack   String?  // Stored as JSON string
+  techStack   String? // Stored as JSON string
   tags        String?
   repoLink    String?
   demoLink    String?
@@ -36,16 +36,56 @@ model Project {
 }
 
 model Comment {
+  id            String   @id @default(uuid())
+  content       String   @db.NVarChar(Max)
+  uid           String // Firebase UID
+  displayName   String?
+  hidden        Boolean  @default(false)
+  upvoteCount   Int      @default(0)
+  downvoteCount Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  blogId String
+  blog   Blog   @relation(fields: [blogId], references: [id], onDelete: Cascade)
+
+  votes   CommentVote[]
+  reports CommentReport[]
+
+  @@index([blogId])
+  @@index([uid])
+}
+
+model CommentVote {
+  id        String   @id @default(uuid())
+  commentId String
+  uid       String // Firebase UID
+  value     Int // 1 = upvote, -1 = downvote
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  comment Comment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
+  @@unique([commentId, uid])
+  @@index([commentId])
+  @@index([uid])
+}
+
+model CommentReport {
   id          String   @id @default(uuid())
-  content     String   @db.NVarChar(Max)
-  uid         String   // Firebase UID
-  displayName String?
-  hidden      Boolean  @default(false)
+  commentId   String
+  reporterUid String // Firebase UID
+  reason      String   @db.NVarChar(Max)
+  status      String   @default("pending") // pending, resolved, dismissed
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  
-  blogId      String
-  blog        Blog     @relation(fields: [blogId], references: [id], onDelete: Cascade)
+
+  comment Comment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
+  @@unique([commentId, reporterUid])
+  @@index([commentId])
+  @@index([reporterUid])
+  @@index([status])
 }
 
 model Gallery {
