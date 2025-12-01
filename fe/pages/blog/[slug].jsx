@@ -131,7 +131,7 @@ export default function BlogDetail() {
         <div className="bg-background text-foreground">
             <div className="fixed top-0 left-0 h-full w-1 z-[9999] bg-transparent">
                 <div
-                    className="w-full bg-foreground transition-all duration-200 ease-out"
+                    className="w-full bg-sky-600 transition-all duration-200 ease-out"
                     style={{ height: `${scrollProgress * 100}%` }}
                 />
             </div>

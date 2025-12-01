@@ -390,35 +390,54 @@ export default function PhotoManager() {
 
             {/* View Photo Modal */}
             <Dialog open={!!viewingPhoto} onOpenChange={(open) => !open && setViewingPhoto(null)}>
-                <DialogContent className="max-w-md p-0 overflow-hidden border-none bg-transparent shadow-none sm:bg-background sm:shadow-lg sm:border">
+                <DialogContent showCloseButton={false} className="max-w-4xl p-0 overflow-hidden border-none bg-transparent shadow-none sm:bg-transparent">
                     {viewingPhoto && (
-                        <div className="flex flex-col bg-card rounded-lg overflow-hidden">
-                            <div className="relative aspect-square w-full bg-black">
-                                <Image
+                        <div className="relative flex flex-col items-center justify-center min-h-[50vh] max-h-[90vh] pointer-events-none">
+                            {/* Wrapper to constrain caption to image width */}
+                            <div className="relative max-w-full max-h-[80vh] pointer-events-auto">
+                                {/* Close button */}
+                                <Button
+                                    variant="secondary"
+                                    size="icon"
+                                    className="absolute top-2 right-2 z-50 rounded-full opacity-80 hover:opacity-100 bg-black/50 hover:bg-black/70 text-white border-none"
+                                    onClick={() => setViewingPhoto(null)}
+                                >
+                                    <X className="h-4 w-4" />
+                                </Button>
+
+                                {/* Edit button */}
+                                <Button
+                                    variant="secondary"
+                                    size="icon"
+                                    className="absolute top-2 right-14 z-50 rounded-full opacity-80 hover:opacity-100 bg-black/50 hover:bg-black/70 text-white border-none"
+                                    onClick={() => { setViewingPhoto(null); openEdit(viewingPhoto); }}
+                                >
+                                    <Pencil className="h-4 w-4" />
+                                </Button>
+
+                                {/* Delete button */}
+                                <Button
+                                    variant="secondary"
+                                    size="icon"
+                                    className="absolute top-2 right-26 z-50 rounded-full opacity-80 hover:opacity-100 bg-red-500/50 hover:bg-red-500/70 text-white border-none"
+                                    onClick={() => { setViewingPhoto(null); handleDelete(viewingPhoto.id); }}
+                                >
+                                    <Trash2 className="h-4 w-4" />
+                                </Button>
+
+                                <img
                                     src={viewingPhoto.imageUrl}
-                                    alt="Detail"
-                                    fill
-                                    className="object-contain"
-                                    sizes="(max-width: 768px) 100vw, 500px"
+                                    alt={viewingPhoto.caption}
+                                    className="w-auto h-auto max-w-full max-h-[80vh] object-contain rounded-lg shadow-2xl"
                                 />
-                            </div>
-                            <div className="p-4 space-y-4">
-                                <p className="text-sm leading-relaxed">
-                                    {viewingPhoto.caption || <span className="italic text-muted-foreground">No caption</span>}
-                                </p>
-                                <div className="flex justify-between items-center pt-2 border-t">
-                                    <span className="text-xs text-muted-foreground">
-                                        {new Date(viewingPhoto.createdAt).toLocaleDateString()}
-                                    </span>
-                                    <div className="flex gap-2">
-                                        <Button size="icon-sm" variant="ghost" onClick={() => { setViewingPhoto(null); openEdit(viewingPhoto); }}>
-                                            <Pencil className="h-4 w-4" />
-                                        </Button>
-                                        <Button size="icon-sm" variant="ghost" className="text-destructive hover:text-destructive" onClick={() => { setViewingPhoto(null); handleDelete(viewingPhoto.id); }}>
-                                            <Trash2 className="h-4 w-4" />
-                                        </Button>
+
+                                {/* Caption Overlay for Modal */}
+                                {viewingPhoto.caption && (
+                                    <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/90 via-black/50 to-transparent rounded-b-lg text-left">
+                                        <p className="text-white text-base sm:text-lg font-medium leading-relaxed">{viewingPhoto.caption}</p>
+                                        <p className="text-white/60 text-xs mt-2">{new Date(viewingPhoto.createdAt).toLocaleDateString()}</p>
                                     </div>
-                                </div>
+                                )}
                             </div>
                         </div>
                     )}

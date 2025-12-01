@@ -111,7 +111,6 @@ export default function Search() {
                     {results.blogs.length > 0 && (
                         <section>
                             <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-                                <FileText className="h-6 w-6" />
                                 Blogs ({results.blogs.length})
                             </h2>
                             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -150,7 +149,6 @@ export default function Search() {
                     {results.projects.length > 0 && (
                         <section>
                             <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-                                <Folder className="h-6 w-6" />
                                 Projects ({results.projects.length})
                             </h2>
                             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -197,7 +195,6 @@ export default function Search() {
                     {results.photos.length > 0 && (
                         <section>
                             <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-                                <ImageIcon className="h-6 w-6" />
                                 Photos ({results.photos.length})
                             </h2>
                             <div className="columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4">

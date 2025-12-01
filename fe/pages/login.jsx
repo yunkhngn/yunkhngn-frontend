@@ -53,7 +53,7 @@ export default function Login() {
         <div className="flex flex-col items-center justify-center px-4 py-12 min-h-[calc(100vh-200px)]">
             <div className="w-full max-w-md space-y-8">
                 <div className="text-center">
-                    <h1 className="text-2xl font-bold text-foreground">Log in to Yunkhngn</h1>
+                    <h1 className="text-2xl font-bold text-foreground">Log in to Khoa Nguyễn</h1>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
@@ -130,8 +130,8 @@ export default function Login() {
 Login.getLayout = function getLayout(page) {
     return (
         <Layout
-            title="Login to Yunkhngn"
-            description="Login to Yunkhngn"
+            title="Login to Khoa Nguyễn"
+            description="Login to Khoa Nguyễn"
         >
             {page}
         </Layout>

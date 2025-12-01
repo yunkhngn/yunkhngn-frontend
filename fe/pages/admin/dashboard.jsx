@@ -17,13 +17,16 @@ import {
   CheckCircle2,
   FileEdit,
   Upload,
-  Sparkles
+  Sparkles,
+  BarChart3,
+  PieChart as PieChartIcon
 } from "lucide-react";
 import Link from "next/link";
 import { format, formatDistanceToNow } from "date-fns";
 import { Badge } from "@/components/ui/Badge";
 import { useRouter } from "next/router";
 import Image from "next/image";
+import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -174,22 +177,46 @@ export default function Dashboard() {
     );
   };
 
+  // Chart data
+  const contentData = [
+    { name: 'Blogs', value: stats.blogs, color: '#171717' },      // gray-900
+    { name: 'Projects', value: stats.projects, color: '#525252' }, // gray-600
+    { name: 'Photos', value: stats.gallery, color: '#a3a3a3' }     // gray-400
+  ];
+
+  const blogStatusData = [
+    { name: 'Published', value: stats.blogsPublished, color: '#171717' }, // gray-900
+    { name: 'Draft', value: stats.blogsDraft, color: '#737373' }          // gray-500
+  ];
+
   return (
     <AdminLayout title="Dashboard">
       <div className="space-y-8">
-        {/* Welcome Section */}
+        {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-3xl font-bold tracking-tight">Welcome back!</h2>
-            <p className="text-muted-foreground">Here's what's happening with your content today.</p>
+            <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+            <p className="text-muted-foreground mt-1">
+              Welcome back, {user?.displayName || user?.email}
+            </p>
           </div>
-          <div className="hidden md:flex items-center gap-2 text-sm text-muted-foreground">
-            <Clock className="h-4 w-4" />
-            {format(new Date(), 'EEEE, MMMM d, yyyy')}
+          <div className="flex gap-2">
+            <Button asChild variant="outline">
+              <Link href="/admin/blog/new">
+                <Plus className="h-4 w-4 mr-2" />
+                New Blog
+              </Link>
+            </Button>
+            <Button asChild>
+              <Link href="/admin/project/add-project">
+                <Plus className="h-4 w-4 mr-2" />
+                New Project
+              </Link>
+            </Button>
           </div>
         </div>
 
-        {/* Enhanced Stats Grid */}
+        {/* Stats Grid */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <StatCard
             title="Total Blogs"
@@ -215,6 +242,73 @@ export default function Dashboard() {
             subtitle="Live articles"
             icon={CheckCircle2}
           />
+        </div>
+
+        {/* Charts Section */}
+        <div className="grid gap-4 md:grid-cols-2">
+          {/* Content Distribution Chart */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <PieChartIcon className="h-5 w-5" />
+                Content Distribution
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={250}>
+                <PieChart>
+                  <Pie
+                    data={contentData}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                    outerRadius={80}
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    {contentData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+
+          {/* Blog Status Chart */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <BarChart3 className="h-5 w-5" />
+                Blog Status
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={250}>
+                <PieChart>
+                  <Pie
+                    data={blogStatusData}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                    outerRadius={80}
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    {blogStatusData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
         </div>
 
         <div className="grid gap-4 lg:grid-cols-7">
