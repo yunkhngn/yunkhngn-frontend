@@ -167,19 +167,19 @@ export default function Navbar() {
                                         </Link>
                                     </DropdownMenuItem>
                                 )}
-                                <DropdownMenuSeparator className="my-1" />
-                                <DropdownMenuItem onClick={handleLogout} className="p-3 cursor-pointer text-destructive focus:text-destructive focus:bg-destructive/10 focus:ring-0 focus:outline-none">
-                                    <div className="flex items-center gap-3">
-                                        <LogOut className="h-4 w-4" />
-                                        <span className="font-medium">Log out</span>
-                                    </div>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-red-600">
+                                    <LogOut className="mr-2 h-4 w-4" />
+                                    <span>Log out</span>
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
-                    ) : (
-                    <Button asChild variant="ghost" className="hidden sm:flex">
-                        <Link href="/login">Log In</Link>
-                    </Button>
+                    )}
+
+                    {!user && (
+                        <Button asChild variant="ghost" className="hidden sm:flex">
+                            <Link href="/login">Log In</Link>
+                        </Button>
                     )}
 
                     {/* Buy Me a Coffee */}
