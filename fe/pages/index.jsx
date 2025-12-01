@@ -1,18 +1,26 @@
 import { useState, useEffect } from 'react';
 import { DefaultFooter, DefaultNavbar, Metadata } from "@/components/template";
 import { Button } from '@/components/ui/Button';
-import { CommandMenu } from '@/components/ui/CommandMenu';
+
 import { Github, Facebook, Instagram, Linkedin, ArrowRight, Command } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/Badge';
 import InteractiveBackground from '@/components/ui/InteractiveBackground';
+import { extractTextFromTipTap } from '@/lib/utils';
 
 export default function Home() {
   const [recentBlogs, setRecentBlogs] = useState([]);
   const [featuredProjects, setFeaturedProjects] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const calculateReadTime = (contentJSON) => {
+    const text = extractTextFromTipTap(contentJSON);
+    const words = text.trim().split(/\s+/).length;
+    const minutes = Math.ceil(words / 200);
+    return `${minutes} mins read`;
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -24,7 +32,7 @@ export default function Home() {
 
         if (blogsRes.ok) {
           const blogs = await blogsRes.json();
-          setRecentBlogs(blogs.filter(b => b.status === 'PUBLISHED').slice(0, 3));
+          setRecentBlogs(blogs.filter(b => b.status === 'PUBLISHED').slice(0, 9));
         }
 
         if (projectsRes.ok) {
@@ -53,7 +61,7 @@ export default function Home() {
       </div>
 
       <DefaultNavbar />
-      <CommandMenu />
+
 
       <main className="flex-1 container mx-auto px-4 py-12 md:py-24 max-w-5xl space-y-24 relative z-10">
         {/* Hero Section */}
@@ -67,9 +75,11 @@ export default function Home() {
 
           <div className="space-y-6 text-xl md:text-2xl text-muted-foreground leading-relaxed max-w-2xl mx-auto font-light">
             <p>
-              Xin chào, tớ là Khoa Nguyễn (yun.khngn), sinh viên chuyên ngành Kỹ thuật phần mềm tại Đại học FPT.
-              Tớ đang là freelancer thiết kế đồ hoạ và là một guitarist.
-              Tớ đang hướng tới trở thành một Fullstack Developer và thực hiện thêm nhiều ước mơ phía trước.
+              Tớ là <strong className="font-semibold">Khoa Nguyễn (yun.khngn)</strong>, sinh viên ngành Kỹ thuật phần mềm tại FPT University.
+              Công việc của tớ xoay quanh <strong className="font-semibold">Software Development</strong>,
+              <strong className="font-semibold"> Graphic Design</strong> và <strong className="font-semibold">Guitarist</strong>.
+              <br />Đây là nơi tớ lưu lại dự án, bài viết và những điều hay!
+              <br />Chào mừng tới website của <strong className="font-semibold">yunkhngn</strong>!
             </p>
           </div>
 
@@ -98,29 +108,48 @@ export default function Home() {
             </Link>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-3">
-            {recentBlogs.map((blog) => (
-              <Link href={`/blog/${blog.slug || blog.id}`} key={blog.id} className="group block space-y-3">
-                <div className="aspect-video relative rounded-xl overflow-hidden bg-muted">
-                  {blog.thumbnail && (
-                    <Image
-                      src={blog.thumbnail}
-                      alt={blog.title}
-                      fill
-                      className="object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                  )}
-                </div>
-                <div>
-                  <div className="text-xs text-muted-foreground mb-1">
-                    {format(new Date(blog.createdAt), 'MMM d, yyyy')}
+          <div className="grid gap-8 md:grid-cols-3">
+            {recentBlogs.map((blog) => {
+              const plainText = extractTextFromTipTap(blog.contentJSON);
+              const readTime = calculateReadTime(blog.contentJSON);
+              const firstTag = blog.tags ? blog.tags.split(',')[0].trim() : 'Blog';
+
+              return (
+                <Link href={`/blog/${blog.slug || blog.id}`} key={blog.id} className="group flex flex-col space-y-4">
+                  <div className="aspect-[4/3] relative rounded-2xl overflow-hidden bg-muted">
+                    {blog.thumbnail && (
+                      <Image
+                        src={blog.thumbnail}
+                        alt={blog.title}
+                        fill
+                        className="object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                    )}
+                    <div className="absolute top-4 left-4">
+                      <Badge variant="secondary" className="bg-black/50 hover:bg-black/70 text-white backdrop-blur-md border-none rounded-full px-3 py-1 text-xs font-medium">
+                        {firstTag}
+                      </Badge>
+                    </div>
                   </div>
-                  <h3 className="font-semibold group-hover:text-primary transition-colors line-clamp-2">
-                    {blog.title}
-                  </h3>
-                </div>
-              </Link>
-            ))}
+
+                  <div className="space-y-3 flex-1 flex flex-col">
+                    <div className="text-xs font-medium text-muted-foreground flex items-center gap-2">
+                      <span>{format(new Date(blog.createdAt), 'd MMM yyyy')}</span>
+                      <span className="w-1 h-1 rounded-full bg-muted-foreground/50" />
+                      <span>{readTime}</span>
+                    </div>
+
+                    <h3 className="text-xl font-bold leading-tight group-hover:text-primary transition-colors line-clamp-2">
+                      {blog.title}
+                    </h3>
+
+                    <p className="text-muted-foreground text-sm line-clamp-3 leading-relaxed flex-1">
+                      {plainText}
+                    </p>
+                  </div>
+                </Link>
+              );
+            })}
           </div>
         </section>
 

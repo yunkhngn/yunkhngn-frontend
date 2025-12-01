@@ -16,7 +16,7 @@ export default function NewBlog() {
                 headers: { Authorization: `Bearer ${token}` }
             });
             toast.success('Blog created successfully');
-            router.push(`/admin/blog/${res.data.id}/edit`);
+            router.push(`/admin/blog/${res.data.slug}/edit`);
         } catch (error) {
             console.error(error);
             toast.error('Failed to create blog');

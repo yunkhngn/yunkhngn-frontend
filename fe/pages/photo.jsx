@@ -36,9 +36,16 @@ export default function Photo() {
             <DefaultNavbar />
 
             <main className="flex-1 w-full max-w-7xl mx-auto p-4 sm:p-8">
-                <div className="mb-8">
-                    <h1 className="text-3xl font-bold mb-2">Locket</h1>
-                    <p className="text-muted-foreground">Captured memories and little things.</p>
+                <div className="mb-16 text-center pt-8">
+                    <div className="text-xs font-bold tracking-[0.2em] text-muted-foreground uppercase mb-4">
+                        Gallery
+                    </div>
+                    <h1 className="text-5xl md:text-7xl font-bold mb-6 text-foreground" style={{ fontFamily: 'var(--font-playfair)' }}>
+                        Captured Moments
+                    </h1>
+                    <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+                        A collection of memories, places, and little things that inspire me.
+                    </p>
                 </div>
 
                 {loading ? (

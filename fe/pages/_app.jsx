@@ -45,8 +45,12 @@ export default function App({ Component, pageProps }) {
             <Component {...pageProps} />
             <FloatingControls />
             <CommandMenu />
-            <div className="fixed bottom-4 left-4 text-xs text-muted-foreground/50 hidden md:block pointer-events-none z-50 select-none">
-              Press <kbd className="font-mono font-bold">⌘ K</kbd> to search
+            <div className="fixed bottom-6 left-6 hidden md:flex items-center gap-2 px-4 py-2 rounded-full border bg-background/50 backdrop-blur-sm shadow-sm text-sm text-muted-foreground pointer-events-none z-50 select-none">
+              <span>Press</span>
+              <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
+                <span className="text-xs">⌘</span>K
+              </kbd>
+              <span>to search</span>
             </div>
             <Toaster position="top-right" />
           </main>

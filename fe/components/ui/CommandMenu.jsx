@@ -1,13 +1,16 @@
 import { useEffect, useState } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/Dialog';
-import { Input } from '@/components/ui/Input';
 import { useRouter } from 'next/router';
-import { Search, Home, FileText, Folder, User, Settings } from 'lucide-react';
+import { Search, Home, FileText, Folder, User, Settings, Image as ImageIcon, Sun, Moon, Laptop, Plus, LayoutDashboard, List } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { useTheme } from 'next-themes';
 
 export function CommandMenu() {
     const [open, setOpen] = useState(false);
     const [search, setSearch] = useState('');
     const router = useRouter();
+    const { user } = useAuth();
+    const { setTheme } = useTheme();
 
     useEffect(() => {
         const down = (e) => {
@@ -32,17 +35,33 @@ export function CommandMenu() {
                 { icon: <Home className="mr-2 h-4 w-4" />, label: 'Home', action: () => router.push('/') },
                 { icon: <FileText className="mr-2 h-4 w-4" />, label: 'Blog', action: () => router.push('/blog') },
                 { icon: <Folder className="mr-2 h-4 w-4" />, label: 'Projects', action: () => router.push('/project') },
+                { icon: <ImageIcon className="mr-2 h-4 w-4" />, label: 'Gallery', action: () => router.push('/photo') },
                 { icon: <FileText className="mr-2 h-4 w-4" />, label: 'Resume', action: () => router.push('/resume') },
                 { icon: <User className="mr-2 h-4 w-4" />, label: 'About', action: () => router.push('/about') },
             ]
         },
         {
-            group: 'Admin',
+            group: 'Theme',
             items: [
-                { icon: <Settings className="mr-2 h-4 w-4" />, label: 'Dashboard', action: () => router.push('/admin/dashboard') },
+                { icon: <Sun className="mr-2 h-4 w-4" />, label: 'Light', action: () => setTheme('light') },
+                { icon: <Moon className="mr-2 h-4 w-4" />, label: 'Dark', action: () => setTheme('dark') },
+                { icon: <Laptop className="mr-2 h-4 w-4" />, label: 'System', action: () => setTheme('system') },
             ]
         }
     ];
+
+    if (user && user.role === 'ADMIN') {
+        actions.push({
+            group: 'Admin',
+            items: [
+                { icon: <LayoutDashboard className="mr-2 h-4 w-4" />, label: 'Dashboard', action: () => router.push('/admin/dashboard') },
+                { icon: <List className="mr-2 h-4 w-4" />, label: 'Manage Blogs', action: () => router.push('/admin/blog') },
+                { icon: <Plus className="mr-2 h-4 w-4" />, label: 'New Blog', action: () => router.push('/admin/blog/new') },
+                { icon: <List className="mr-2 h-4 w-4" />, label: 'Manage Projects', action: () => router.push('/admin/project') },
+                { icon: <Plus className="mr-2 h-4 w-4" />, label: 'New Project', action: () => router.push('/admin/project/new') },
+            ]
+        });
+    }
 
     const filteredActions = actions.map(group => ({
         ...group,

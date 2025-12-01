@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { DefaultFooter, DefaultNavbar, Metadata } from "@/components/template";
-import { Calendar, Clock, ChevronLeft, Tag, Facebook, Twitter, Linkedin, Link as LinkIcon } from 'lucide-react';
+import { Calendar, Clock, ChevronLeft, Tag, Facebook, Twitter, Linkedin, Link as LinkIcon, UploadCloud, Loader2, Edit } from 'lucide-react';
 import Image from 'next/image';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/Badge';
@@ -9,13 +9,16 @@ import { Button } from '@/components/ui/Button';
 import Link from 'next/link';
 import TipTapViewer from '@/components/ui/TipTapViewer';
 import { toast } from 'sonner';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function BlogDetail() {
     const router = useRouter();
     const { slug } = router.query;
+    const { user } = useAuth();
     const [blog, setBlog] = useState(null);
     const [loading, setLoading] = useState(true);
     const [scrollProgress, setScrollProgress] = useState(0);
+    const [publishing, setPublishing] = useState(false);
 
     useEffect(() => {
         if (!slug) return;
@@ -79,6 +82,29 @@ export default function BlogDetail() {
     const handleCopyLink = () => {
         navigator.clipboard.writeText(shareUrl);
         toast.success('Link copied to clipboard!');
+    };
+
+    const handlePublish = async () => {
+        if (!confirm('Are you sure you want to publish this blog?')) return;
+        setPublishing(true);
+        try {
+            const token = await user.getIdToken();
+            await fetch(`${process.env.NEXT_PUBLIC_API_URL}/blogs/${blog.id}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify({ status: 'PUBLISHED' })
+            });
+            toast.success('Blog published successfully');
+            setBlog(prev => ({ ...prev, status: 'PUBLISHED' }));
+        } catch (error) {
+            console.error(error);
+            toast.error('Failed to publish blog');
+        } finally {
+            setPublishing(false);
+        }
     };
 
     if (loading) {
@@ -146,6 +172,23 @@ export default function BlogDetail() {
                             </Button>
                         </Link>
                     </div>
+
+                    {/* Admin Controls */}
+                    {user && user.role === 'ADMIN' && (
+                        <div className="absolute top-0 right-4 md:right-8 mt-10 flex gap-2">
+                            <Link href={`/admin/blog/${blog.slug}/edit`}>
+                                <Button variant="outline" size="sm">
+                                    <Edit className="mr-2 h-4 w-4" /> Edit Blog
+                                </Button>
+                            </Link>
+                            {blog.status === 'DRAFT' && (
+                                <Button size="sm" onClick={handlePublish} disabled={publishing}>
+                                    {publishing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <UploadCloud className="mr-2 h-4 w-4" />}
+                                    Publish
+                                </Button>
+                            )}
+                        </div>
+                    )}
 
                     <div className="flex flex-col lg:flex-row gap-12 max-w-6xl mx-auto pt-12">
                         {/* Social Sidebar (Desktop) */}

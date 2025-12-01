@@ -31,9 +31,14 @@ export class BlogService {
         });
     }
 
-    async findOne(slug: string) {
-        return this.prisma.blog.findUnique({
-            where: { slug },
+    async findOne(slugOrId: string) {
+        return this.prisma.blog.findFirst({
+            where: {
+                OR: [
+                    { slug: slugOrId },
+                    { id: slugOrId }
+                ]
+            },
             include: { comments: true },
         });
     }
