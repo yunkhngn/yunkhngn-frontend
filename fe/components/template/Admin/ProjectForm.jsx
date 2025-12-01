@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
 import { TagInput } from '@/components/ui/TagInput';
 import TipTapEditor from '@/components/ui/TipTapEditor';
-import { Loader2, Plus, X, Image as ImageIcon, Save, RotateCcw } from 'lucide-react';
+import { Loader2, Plus, X, Image as ImageIcon, Save, RotateCcw, Sparkles } from 'lucide-react';
 import Image from 'next/image';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
@@ -98,6 +98,48 @@ export default function ProjectForm({ initialData, onSubmit, isEditing = false }
         setFormData(prev => ({ ...prev, slug: e.target.value }));
         setSlugManuallyEdited(true);
         setIsDirty(true);
+    };
+
+    const [generating, setGenerating] = useState(false);
+
+    const handleGenerateAI = async () => {
+        if (!formData.repoLink) return;
+
+        setGenerating(true);
+        try {
+            const token = await user.getIdToken();
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ai/project-info`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify({ repoUrl: formData.repoLink })
+            });
+
+            if (!res.ok) throw new Error('Failed to generate project info');
+
+            const data = await res.json();
+
+            setFormData(prev => ({
+                ...prev,
+                title: data.title || prev.title,
+                description: data.description || prev.description,
+                contentJSON: data.content || prev.contentJSON,
+                techStack: data.techStack || prev.techStack,
+                tags: data.tags || prev.tags,
+                demoLink: data.demoLink || prev.demoLink,
+                slug: !slugManuallyEdited && data.title ? generateSlug(data.title) : prev.slug
+            }));
+
+            setIsDirty(true);
+            toast.success('Project info generated successfully');
+        } catch (error) {
+            console.error(error);
+            toast.error('Failed to generate project info');
+        } finally {
+            setGenerating(false);
+        }
     };
 
     const handleUpload = async (e) => {
@@ -273,14 +315,26 @@ export default function ProjectForm({ initialData, onSubmit, isEditing = false }
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                         <label className="text-sm font-medium">Repo Link</label>
-                        <Input
-                            value={formData.repoLink}
-                            onChange={(e) => {
-                                setFormData({ ...formData, repoLink: e.target.value });
-                                setIsDirty(true);
-                            }}
-                            placeholder="https://github.com/..."
-                        />
+                        <div className="flex gap-2">
+                            <Input
+                                value={formData.repoLink}
+                                onChange={(e) => {
+                                    setFormData({ ...formData, repoLink: e.target.value });
+                                    setIsDirty(true);
+                                }}
+                                placeholder="https://github.com/..."
+                            />
+                            <Button
+                                type="button"
+                                variant="outline"
+                                size="icon"
+                                onClick={handleGenerateAI}
+                                disabled={generating || !formData.repoLink}
+                                title="Generate with AI"
+                            >
+                                {generating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+                            </Button>
+                        </div>
                     </div>
                     <div className="space-y-2">
                         <label className="text-sm font-medium">Demo Link</label>

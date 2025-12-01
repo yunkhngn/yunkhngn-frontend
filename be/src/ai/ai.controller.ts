@@ -15,4 +15,13 @@ export class AiController {
         const text = await this.aiService.generateText(prompt);
         return { text };
     }
+
+    @Post('project-info')
+    @UseGuards(FirebaseAuthGuard)
+    async generateProjectInfo(@Body('repoUrl') repoUrl: string) {
+        if (!repoUrl) {
+            throw new Error('Repo URL is required');
+        }
+        return this.aiService.generateProjectInfo(repoUrl);
+    }
 }
