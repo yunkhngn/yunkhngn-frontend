@@ -10,7 +10,6 @@ import { PrismaModule } from './prisma/prisma.module';
 import { BlogModule } from './blog/blog.module';
 import { ProjectModule } from './project/project.module';
 import { GalleryModule } from './gallery/gallery.module';
-import { CommentModule } from './comment/comment.module';
 import { CommentsModule } from './comments/comments.module';
 import { SettingsModule } from './settings/settings.module';
 import { UserModule } from './user/user.module';
@@ -30,7 +29,6 @@ import { UserModule } from './user/user.module';
     BlogModule,
     ProjectModule,
     GalleryModule,
-    CommentModule,
     CommentsModule,
     SettingsModule,
     UserModule,
