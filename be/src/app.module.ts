@@ -13,6 +13,7 @@ import { GalleryModule } from './gallery/gallery.module';
 import { CommentsModule } from './comments/comments.module';
 import { SettingsModule } from './settings/settings.module';
 import { UserModule } from './user/user.module';
+import { AiModule } from './ai/ai.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { UserModule } from './user/user.module';
     CommentsModule,
     SettingsModule,
     UserModule,
+    AiModule,
   ],
   controllers: [AppController],
   providers: [AppService],
