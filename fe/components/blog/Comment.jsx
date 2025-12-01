@@ -1,15 +1,17 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
-import { ThumbsUp, ThumbsDown, Trash2 } from 'lucide-react';
+import { ThumbsUp, ThumbsDown } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { formatDistanceToNow } from 'date-fns';
 import ReportModal from './ReportModal';
+import DeleteCommentModal from './DeleteCommentModal';
 
 export default function Comment({ comment, onUpdate, onDelete }) {
     const { user } = useAuth();
     const [voting, setVoting] = useState(false);
     const [userVote, setUserVote] = useState(null);
+    const [deleting, setDeleting] = useState(false);
 
     const isOwner = user && comment.uid === user.uid;
     const isAdmin = user && user.role === 'ADMIN';
@@ -82,8 +84,7 @@ export default function Comment({ comment, onUpdate, onDelete }) {
     };
 
     const handleDelete = async () => {
-        if (!confirm('Are you sure you want to delete this comment?')) return;
-
+        setDeleting(true);
         try {
             const token = await user.getIdToken();
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/comments/${comment.id}`, {
@@ -100,6 +101,8 @@ export default function Comment({ comment, onUpdate, onDelete }) {
         } catch (error) {
             console.error('Error deleting:', error);
             toast.error('Failed to delete comment');
+        } finally {
+            setDeleting(false);
         }
     };
 
@@ -114,14 +117,7 @@ export default function Comment({ comment, onUpdate, onDelete }) {
                 </div>
                 <div className="flex gap-2">
                     {(isOwner || isAdmin) && (
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={handleDelete}
-                            className="h-8 w-8"
-                        >
-                            <Trash2 className="h-4 w-4" />
-                        </Button>
+                        <DeleteCommentModal onConfirm={handleDelete} loading={deleting} />
                     )}
                 </div>
             </div>

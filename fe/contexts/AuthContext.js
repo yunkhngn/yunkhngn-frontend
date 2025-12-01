@@ -73,10 +73,12 @@ export const AuthProvider = ({ children }) => {
 
     const signInAnon = async () => {
         try {
-            await signInAnonymously(auth);
+            const result = await signInAnonymously(auth);
             hasLoggedOut.current = false;
+            return result;
         } catch (error) {
             console.error('Error signing in anonymously:', error);
+            throw error;
         }
     };
 
@@ -184,11 +186,12 @@ export const AuthProvider = ({ children }) => {
     };
 
     // Auto sign-in anonymously if not logged in (for visitors)
-    useEffect(() => {
-        if (!loading && !user && !hasLoggedOut.current) {
-            signInAnon();
-        }
-    }, [loading, user]);
+    // DISABLED: Only sign in when user performs an action (like commenting)
+    // useEffect(() => {
+    //     if (!loading && !user && !hasLoggedOut.current) {
+    //         signInAnon();
+    //     }
+    // }, [loading, user]);
 
     return (
         <AuthContext.Provider value={{ 

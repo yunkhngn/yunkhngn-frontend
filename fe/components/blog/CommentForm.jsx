@@ -6,7 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 
 export default function CommentForm({ blogId, onCommentAdded }) {
-    const { user } = useAuth();
+    const { user, signInAnonymously } = useAuth();
     const [content, setContent] = useState('');
     const [displayName, setDisplayName] = useState('');
     const [loading, setLoading] = useState(false);
@@ -32,14 +32,24 @@ export default function CommentForm({ blogId, onCommentAdded }) {
             return;
         }
 
-        if (!user) {
-            toast.error('Please wait, initializing session...');
-            return;
-        }
+        let currentUser = user;
 
         setLoading(true);
         try {
-            const token = await user.getIdToken();
+            if (!currentUser) {
+                // Sign in anonymously if not logged in
+                try {
+                    const result = await signInAnonymously();
+                    currentUser = result.user;
+                } catch (error) {
+                    console.error('Anonymous auth failed:', error);
+                    toast.error('Failed to initialize session');
+                    setLoading(false);
+                    return;
+                }
+            }
+
+            const token = await currentUser.getIdToken();
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/comments`, {
                 method: 'POST',
                 headers: {
