@@ -154,7 +154,7 @@ export default function Navbar() {
                                         )}
                                     </div>
                                 </DropdownMenuLabel>
-                                <DropdownMenuSeparator />
+                                {!user.isAnonymous && <DropdownMenuSeparator />}
                                 {!user.isAnonymous && user.role === 'ADMIN' && (
                                     <DropdownMenuItem asChild>
                                         <Link href="/admin/dashboard" className="cursor-pointer">

@@ -27,26 +27,50 @@ export class CommentsService {
     async create(createCommentDto: CreateCommentDto, uid: string) {
         this.checkRateLimit(uid);
 
-        return this.prisma.comment.create({
+        const comment = await this.prisma.comment.create({
             data: {
                 ...createCommentDto,
                 uid,
             },
         });
+
+        const [commentWithUser] = await this.attachUserDetails([comment]);
+        return commentWithUser;
     }
 
     async findAll(blogId: string) {
-        return this.prisma.comment.findMany({
+        const comments = await this.prisma.comment.findMany({
             where: { blogId, hidden: false },
             orderBy: { createdAt: 'desc' },
         });
+
+        return this.attachUserDetails(comments);
     }
 
     async findAllIncludingHidden(blogId: string) {
-        return this.prisma.comment.findMany({
+        const comments = await this.prisma.comment.findMany({
             where: { blogId },
             orderBy: { createdAt: 'desc' },
         });
+
+        return this.attachUserDetails(comments);
+    }
+
+    private async attachUserDetails(comments: any[]) {
+        if (comments.length === 0) return [];
+
+        const uids = [...new Set(comments.map(c => c.uid))];
+        const users = await this.prisma.user.findMany({
+            where: { uid: { in: uids } },
+            select: { uid: true, role: true, avatarUrl: true, name: true }
+        });
+
+        const userMap = new Map(users.map(u => [u.uid, u]));
+
+        return comments.map(comment => ({
+            ...comment,
+            user: userMap.get(comment.uid) || null
+        }));
     }
 
     async findOne(id: string) {

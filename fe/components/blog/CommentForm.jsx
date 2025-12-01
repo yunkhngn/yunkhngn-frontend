@@ -11,13 +11,20 @@ export default function CommentForm({ blogId, onCommentAdded }) {
     const [displayName, setDisplayName] = useState('');
     const [loading, setLoading] = useState(false);
 
+    const isAdmin = user?.role === 'ADMIN';
+
     // Load saved displayName from localStorage
     useEffect(() => {
+        if (isAdmin) {
+            setDisplayName(user.displayName || 'Administrator');
+            return;
+        }
+
         const savedName = localStorage.getItem('commentDisplayName');
         if (savedName) {
             setDisplayName(savedName);
         }
-    }, []);
+    }, [isAdmin, user]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -27,10 +34,12 @@ export default function CommentForm({ blogId, onCommentAdded }) {
             return;
         }
 
-        if (!displayName.trim()) {
+        if (!displayName.trim() && !isAdmin) {
             toast.error('Please enter your name');
             return;
         }
+
+        // ... (rest of the function)
 
         let currentUser = user;
 
@@ -89,16 +98,18 @@ export default function CommentForm({ blogId, onCommentAdded }) {
 
     return (
         <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-                <Input
-                    type="text"
-                    placeholder="Your name"
-                    value={displayName}
-                    onChange={(e) => setDisplayName(e.target.value)}
-                    maxLength={50}
-                    required
-                />
-            </div>
+            {!isAdmin && (
+                <div>
+                    <Input
+                        type="text"
+                        placeholder="Your name"
+                        value={displayName}
+                        onChange={(e) => setDisplayName(e.target.value)}
+                        maxLength={50}
+                        required
+                    />
+                </div>
+            )}
             <div>
                 <Textarea
                     placeholder="Write your comment..."
