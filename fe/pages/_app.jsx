@@ -6,6 +6,8 @@ import { CommandMenu } from "@/components/ui/CommandMenu";
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 import { Playfair_Display } from 'next/font/google';
+import { AppProgressBar as ProgressBar } from 'next-nprogress-bar';
+import { AnimatePresence, motion } from 'framer-motion';
 
 import { Toaster } from 'sonner';
 
@@ -37,12 +39,38 @@ function AuthGuard({ children }) {
 }
 
 export default function App({ Component, pageProps }) {
+  const router = useRouter();
+  const getLayout = Component.getLayout || ((page) => page);
+  const isAdminRoute = router.pathname.startsWith('/admin');
+
   return (
     <AuthProvider>
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+        <ProgressBar
+          height="4px"
+          color="#3b82f6"
+          options={{ showSpinner: false }}
+          shallowRouting
+        />
         <AuthGuard>
           <main className={playfair.variable}>
-            <Component {...pageProps} />
+            {getLayout(
+              isAdminRoute ? (
+                <Component {...pageProps} />
+              ) : (
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={router.route}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <Component {...pageProps} />
+                  </motion.div>
+                </AnimatePresence>
+              )
+            )}
             <FloatingControls />
             <CommandMenu />
             <div className="fixed bottom-6 left-6 hidden md:flex items-center gap-2 px-4 py-2 rounded-2xl border bg-background/40 backdrop-blur-md shadow-sm text-sm text-muted-foreground pointer-events-none z-50 select-none">

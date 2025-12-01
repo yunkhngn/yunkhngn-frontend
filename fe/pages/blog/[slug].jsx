@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { DefaultFooter, DefaultNavbar, Metadata } from "@/components/template";
+import { Metadata } from "@/components/template";
 import { Calendar, Clock, ChevronLeft, Tag, Facebook, Twitter, Linkedin, Link as LinkIcon, UploadCloud, Loader2, Edit } from 'lucide-react';
 import Image from 'next/image';
 import { format } from 'date-fns';
@@ -10,6 +10,7 @@ import Link from 'next/link';
 import TipTapViewer from '@/components/ui/TipTapViewer';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
+import Layout from '@/components/template/Default/Layout';
 
 export default function BlogDetail() {
     const router = useRouter();
@@ -109,33 +110,25 @@ export default function BlogDetail() {
 
     if (loading) {
         return (
-            <div className="flex flex-col min-h-screen font-sans">
-                <DefaultNavbar />
-                <div className="flex-1 flex items-center justify-center">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-                </div>
-                <DefaultFooter />
+            <div className="flex-1 flex items-center justify-center min-h-[50vh]">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
             </div>
         );
     }
 
     if (!blog) {
         return (
-            <div className="flex flex-col min-h-screen font-sans">
-                <DefaultNavbar />
-                <div className="flex-1 flex flex-col items-center justify-center space-y-4">
-                    <h1 className="text-2xl font-bold">Blog not found</h1>
-                    <Link href="/blog">
-                        <Button>Back to Blog</Button>
-                    </Link>
-                </div>
-                <DefaultFooter />
+            <div className="flex-1 flex flex-col items-center justify-center space-y-4 min-h-[50vh]">
+                <h1 className="text-2xl font-bold">Blog not found</h1>
+                <Link href="/blog">
+                    <Button>Back to Blog</Button>
+                </Link>
             </div>
         );
     }
 
     return (
-        <div className="flex flex-col min-h-screen font-sans bg-background text-foreground">
+        <div className="bg-background text-foreground">
             <div className="fixed top-0 left-0 w-full h-1 z-[9999] bg-transparent">
                 <div
                     className="h-full bg-blue-500 shadow-[0_0_15px_#3b82f6] transition-all duration-200 ease-out"
@@ -147,9 +140,8 @@ export default function BlogDetail() {
                 description={blog.description || `Read ${blog.title} on Yunkhngn`}
                 image={blog.thumbnail}
             />
-            <DefaultNavbar />
 
-            <main className="flex-1 relative">
+            <div className="relative">
                 {/* Full Width Banner */}
                 {blog.thumbnail && (
                     <div className="w-full h-64 md:h-100 relative bg-muted">
@@ -280,9 +272,15 @@ export default function BlogDetail() {
                         </div>
                     </div>
                 </div>
-            </main>
-
-            <DefaultFooter />
+            </div>
         </div>
     );
 }
+
+BlogDetail.getLayout = function getLayout(page) {
+    return (
+        <Layout>
+            {page}
+        </Layout>
+    );
+};
