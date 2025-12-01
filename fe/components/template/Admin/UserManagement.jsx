@@ -5,6 +5,8 @@ import { Input } from '@/components/ui/Input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/Dialog';
 import { Loader2, Plus, Pencil, Trash2, MoreVertical } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/DropdownMenu';
+import { ConfirmModal } from '@/components/ui/ConfirmModal';
+import { toast } from 'sonner';
 
 export default function UserManagement() {
     const { user } = useAuth();
@@ -15,6 +17,8 @@ export default function UserManagement() {
     const [formData, setFormData] = useState({ email: '', name: '', password: '', role: 'ADMIN' });
     const [actionLoading, setActionLoading] = useState(false);
     const [error, setError] = useState('');
+    const [deleteId, setDeleteId] = useState(null);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
     const fetchUsers = async () => {
         try {
@@ -78,12 +82,16 @@ export default function UserManagement() {
         }
     };
 
-    const handleDelete = async (uid) => {
-        if (!confirm('Are you sure you want to delete this user? This action cannot be undone.')) return;
+    const handleDelete = (uid) => {
+        setDeleteId(uid);
+        setIsDeleteModalOpen(true);
+    };
 
+    const confirmDelete = async () => {
+        if (!deleteId) return;
         try {
             const token = await user.getIdToken();
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/${uid}`, {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/${deleteId}`, {
                 method: 'DELETE',
                 headers: { Authorization: `Bearer ${token}` }
             });
@@ -91,9 +99,13 @@ export default function UserManagement() {
             if (!res.ok) throw new Error('Failed to delete user');
 
             fetchUsers();
+            toast.success('User deleted');
         } catch (err) {
             console.error(err);
-            alert('Failed to delete user: ' + err.message);
+            toast.error('Failed to delete user: ' + err.message);
+        } finally {
+            setIsDeleteModalOpen(false);
+            setDeleteId(null);
         }
     };
 
@@ -272,6 +284,14 @@ export default function UserManagement() {
                     </form>
                 </DialogContent>
             </Dialog>
+
+            <ConfirmModal
+                isOpen={isDeleteModalOpen}
+                onClose={() => setIsDeleteModalOpen(false)}
+                onConfirm={confirmDelete}
+                title="Delete User"
+                description="Are you sure you want to delete this user? This action cannot be undone."
+            />
         </div>
     );
 }

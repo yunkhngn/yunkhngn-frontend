@@ -10,6 +10,7 @@ import { toast } from 'sonner';
 import { useRouter } from 'next/router';
 import { Input } from '@/components/ui/Input';
 import { Pagination } from '@/components/ui/Pagination';
+import { ConfirmModal } from '@/components/ui/ConfirmModal';
 
 export default function ProjectList() {
     const { user } = useAuth();
@@ -19,6 +20,8 @@ export default function ProjectList() {
     const [search, setSearch] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 6;
+    const [deleteId, setDeleteId] = useState(null);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
     const fetchProjects = async () => {
         try {
@@ -42,11 +45,16 @@ export default function ProjectList() {
         fetchProjects();
     }, []);
 
-    const handleDelete = async (id) => {
-        if (!confirm('Are you sure you want to delete this project?')) return;
+    const handleDelete = (id) => {
+        setDeleteId(id);
+        setIsDeleteModalOpen(true);
+    };
+
+    const confirmDelete = async () => {
+        if (!deleteId) return;
         try {
             const token = await user.getIdToken();
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/${id}`, {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/${deleteId}`, {
                 method: 'DELETE',
                 headers: { Authorization: `Bearer ${token}` }
             });
@@ -56,6 +64,9 @@ export default function ProjectList() {
         } catch (error) {
             console.error(error);
             toast.error('Failed to delete project');
+        } finally {
+            setIsDeleteModalOpen(false);
+            setDeleteId(null);
         }
     };
 
@@ -204,6 +215,13 @@ export default function ProjectList() {
                         />
                     </>
                 )}
+                <ConfirmModal
+                    isOpen={isDeleteModalOpen}
+                    onClose={() => setIsDeleteModalOpen(false)}
+                    onConfirm={confirmDelete}
+                    title="Delete Project"
+                    description="Are you sure you want to delete this project? This action cannot be undone."
+                />
             </div>
         </AdminLayout>
     );

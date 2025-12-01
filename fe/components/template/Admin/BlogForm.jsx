@@ -9,6 +9,7 @@ import Image from 'next/image';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/Select';
+import { useUnsavedChanges } from '@/hooks/useUnsavedChanges';
 
 export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
     const { user } = useAuth();
@@ -16,14 +17,17 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
         title: '',
         slug: '',
         thumbnail: '',
-        tags: [],
+        tags: '',
         contentJSON: '',
         status: 'DRAFT'
     });
     const [submitting, setSubmitting] = useState(false);
     const [uploading, setUploading] = useState(false);
     const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
+    const [isDirty, setIsDirty] = useState(false);
     const fileInputRef = useRef(null);
+
+    useUnsavedChanges(isDirty);
 
     useEffect(() => {
         if (initialData) {
@@ -31,7 +35,7 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
                 title: initialData.title || '',
                 slug: initialData.slug || '',
                 thumbnail: initialData.thumbnail || '',
-                tags: initialData.tags ? (typeof initialData.tags === 'string' ? initialData.tags.split(',').map(t => t.trim()).filter(Boolean) : initialData.tags) : [],
+                tags: initialData.tags || '',
                 contentJSON: initialData.content || initialData.contentJSON || '',
                 status: initialData.status || 'DRAFT'
             });
@@ -44,7 +48,7 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
                 title: initialData.title || '',
                 slug: initialData.slug || '',
                 thumbnail: initialData.thumbnail || '',
-                tags: initialData.tags ? (typeof initialData.tags === 'string' ? initialData.tags.split(',').map(t => t.trim()).filter(Boolean) : initialData.tags) : [],
+                tags: initialData.tags || '',
                 contentJSON: initialData.content || initialData.contentJSON || '',
                 status: initialData.status || 'DRAFT'
             });
@@ -53,12 +57,13 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
                 title: '',
                 slug: '',
                 thumbnail: '',
-                tags: [],
+                tags: '',
                 contentJSON: '',
                 status: 'DRAFT'
             });
             setSlugManuallyEdited(false);
         }
+        setIsDirty(false);
     };
 
     const generateSlug = (text) => {
@@ -82,11 +87,13 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
             title,
             slug: !slugManuallyEdited ? generateSlug(title) : prev.slug
         }));
+        setIsDirty(true);
     };
 
     const handleSlugChange = (e) => {
         setFormData(prev => ({ ...prev, slug: e.target.value }));
         setSlugManuallyEdited(true);
+        setIsDirty(true);
     };
 
     const handleUpload = async (e) => {
@@ -124,6 +131,7 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
                 ...prev,
                 thumbnail: uploadData.secure_url
             }));
+            setIsDirty(true);
             toast.success('Thumbnail uploaded');
 
         } catch (error) {
@@ -173,16 +181,18 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
         }
 
         setSubmitting(true);
+        setIsDirty(false); // Disable warning for submit
         try {
             const payload = {
                 ...(initialData || {}),
                 ...formData,
                 content: formData.contentJSON,
-                tags: Array.isArray(formData.tags) ? formData.tags.join(', ') : formData.tags,
+                tags: formData.tags,
             };
             await onSubmit(payload);
         } catch (error) {
             console.error(error);
+            setIsDirty(true); // Re-enable if failed
         } finally {
             setSubmitting(false);
         }
@@ -235,7 +245,10 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
                         <label className="text-sm font-medium">Status</label>
                         <Select
                             value={formData.status}
-                            onValueChange={(value) => setFormData({ ...formData, status: value })}
+                            onValueChange={(value) => {
+                                setFormData({ ...formData, status: value });
+                                setIsDirty(true);
+                            }}
                         >
                             <SelectTrigger>
                                 <SelectValue placeholder="Select status" />
@@ -247,11 +260,14 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
                         </Select>
                     </div>
                     <div className="space-y-2">
-                        <label className="text-sm font-medium">Tags</label>
-                        <TagInput
+                        <label className="text-sm font-medium">Tag</label>
+                        <Input
                             value={formData.tags}
-                            onChange={(newTags) => setFormData({ ...formData, tags: newTags })}
-                            placeholder="Tech, Life..."
+                            onChange={(e) => {
+                                setFormData({ ...formData, tags: e.target.value });
+                                setIsDirty(true);
+                            }}
+                            placeholder="City"
                         />
                     </div>
                 </div>
@@ -290,7 +306,10 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
                     <TipTapEditor
                         key={initialData ? initialData.id : 'new'}
                         content={formData.contentJSON}
-                        onChange={(json) => setFormData({ ...formData, contentJSON: json })}
+                        onChange={(json) => {
+                            setFormData({ ...formData, contentJSON: json });
+                            setIsDirty(true);
+                        }}
                         onImageUpload={handleEditorImageUpload}
                     />
                 </div>

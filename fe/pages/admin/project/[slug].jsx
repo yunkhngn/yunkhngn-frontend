@@ -8,6 +8,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import TipTapViewer from '@/components/ui/TipTapViewer';
 import { toast } from 'sonner';
+import { ConfirmModal } from '@/components/ui/ConfirmModal';
 
 export default function ViewProject() {
     const { user } = useAuth();
@@ -15,6 +16,7 @@ export default function ViewProject() {
     const { slug } = router.query;
     const [project, setProject] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
     useEffect(() => {
         if (!slug) return;
@@ -44,8 +46,11 @@ export default function ViewProject() {
         fetchProject();
     }, [slug, router]);
 
-    const handleDelete = async () => {
-        if (!confirm('Are you sure you want to delete this project?')) return;
+    const handleDelete = () => {
+        setIsDeleteModalOpen(true);
+    };
+
+    const confirmDelete = async () => {
         try {
             const token = await user.getIdToken();
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/${project.id}`, {
@@ -58,6 +63,8 @@ export default function ViewProject() {
         } catch (error) {
             console.error(error);
             toast.error('Failed to delete project');
+        } finally {
+            setIsDeleteModalOpen(false);
         }
     };
 
@@ -168,6 +175,13 @@ export default function ViewProject() {
                         </div>
                     </div>
                 )}
+                <ConfirmModal
+                    isOpen={isDeleteModalOpen}
+                    onClose={() => setIsDeleteModalOpen(false)}
+                    onConfirm={confirmDelete}
+                    title="Delete Project"
+                    description="Are you sure you want to delete this project? This action cannot be undone."
+                />
             </div>
         </AdminLayout>
     );

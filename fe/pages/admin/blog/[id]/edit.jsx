@@ -38,14 +38,14 @@ export default function EditBlog() {
     const handleSubmit = async (data) => {
         try {
             const token = await user.getIdToken();
-            await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/blogs/${id}`, data, {
+            await axios.patch(`${process.env.NEXT_PUBLIC_API_URL}/blogs/${blog.id}`, data, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             toast.success('Blog updated successfully');
             router.push('/admin/blog');
         } catch (error) {
             console.error(error);
-            toast.error('Failed to update blog');
+            toast.error(error.response?.data?.message || 'Failed to update blog');
         }
     };
 

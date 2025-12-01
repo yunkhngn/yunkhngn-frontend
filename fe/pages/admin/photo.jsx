@@ -9,6 +9,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import Cropper from 'react-easy-crop';
 import getCroppedImg from '@/lib/cropImage';
 import Image from 'next/image';
+import { ConfirmModal } from '@/components/ui/ConfirmModal';
+import { toast } from 'sonner';
 
 export default function PhotoManager() {
     const { user } = useAuth();
@@ -38,6 +40,10 @@ export default function PhotoManager() {
     const [editingPhoto, setEditingPhoto] = useState(null);
     const [editCaption, setEditCaption] = useState('');
     const [editDialogOpen, setEditDialogOpen] = useState(false);
+
+    // Delete state
+    const [deleteId, setDeleteId] = useState(null);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
     const fileInputRef = useRef(null);
 
@@ -181,19 +187,28 @@ export default function PhotoManager() {
         }
     };
 
-    const handleDelete = async (id) => {
-        if (!confirm('Are you sure you want to delete this photo?')) return;
+    const handleDelete = (id) => {
+        setDeleteId(id);
+        setIsDeleteModalOpen(true);
+    };
+
+    const confirmDelete = async () => {
+        if (!deleteId) return;
         try {
             const token = await user.getIdToken();
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/gallery/${id}`, {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/gallery/${deleteId}`, {
                 method: 'DELETE',
                 headers: { Authorization: `Bearer ${token}` }
             });
             if (!res.ok) throw new Error('Failed to delete');
             fetchPhotos();
+            toast.success('Photo deleted');
         } catch (error) {
             console.error(error);
-            alert('Failed to delete photo');
+            toast.error('Failed to delete photo');
+        } finally {
+            setIsDeleteModalOpen(false);
+            setDeleteId(null);
         }
     };
 
@@ -470,6 +485,14 @@ export default function PhotoManager() {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
+
+            <ConfirmModal
+                isOpen={isDeleteModalOpen}
+                onClose={() => setIsDeleteModalOpen(false)}
+                onConfirm={confirmDelete}
+                title="Delete Photo"
+                description="Are you sure you want to delete this photo? This action cannot be undone."
+            />
         </AdminLayout>
     );
 }

@@ -8,6 +8,7 @@ import { Loader2, Plus, X, Image as ImageIcon, Save, RotateCcw } from 'lucide-re
 import Image from 'next/image';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { useUnsavedChanges } from '@/hooks/useUnsavedChanges';
 
 export default function ProjectForm({ initialData, onSubmit, isEditing = false }) {
     const { user } = useAuth();
@@ -25,7 +26,10 @@ export default function ProjectForm({ initialData, onSubmit, isEditing = false }
     const [submitting, setSubmitting] = useState(false);
     const [uploading, setUploading] = useState(false);
     const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
+    const [isDirty, setIsDirty] = useState(false);
     const fileInputRef = useRef(null);
+
+    useUnsavedChanges(isDirty);
 
     useEffect(() => {
         if (initialData) {
@@ -70,6 +74,7 @@ export default function ProjectForm({ initialData, onSubmit, isEditing = false }
             });
             setSlugManuallyEdited(false);
         }
+        setIsDirty(false);
     };
 
     const generateSlug = (text) => {
@@ -86,11 +91,13 @@ export default function ProjectForm({ initialData, onSubmit, isEditing = false }
             title,
             slug: !slugManuallyEdited ? generateSlug(title) : prev.slug
         }));
+        setIsDirty(true);
     };
 
     const handleSlugChange = (e) => {
         setFormData(prev => ({ ...prev, slug: e.target.value }));
         setSlugManuallyEdited(true);
+        setIsDirty(true);
     };
 
     const handleUpload = async (e) => {
@@ -128,6 +135,7 @@ export default function ProjectForm({ initialData, onSubmit, isEditing = false }
                 ...prev,
                 cover: uploadData.secure_url
             }));
+            setIsDirty(true);
             toast.success('Cover image uploaded');
 
         } catch (error) {
@@ -177,6 +185,7 @@ export default function ProjectForm({ initialData, onSubmit, isEditing = false }
         }
 
         setSubmitting(true);
+        setIsDirty(false); // Disable warning for submit
         try {
             const payload = {
                 ...formData,
@@ -186,7 +195,7 @@ export default function ProjectForm({ initialData, onSubmit, isEditing = false }
             await onSubmit(payload);
         } catch (error) {
             console.error(error);
-            // Error handling should be done in parent or here if onSubmit throws
+            setIsDirty(true); // Re-enable if failed
         } finally {
             setSubmitting(false);
         }
@@ -227,7 +236,10 @@ export default function ProjectForm({ initialData, onSubmit, isEditing = false }
                     <label className="text-sm font-medium">Description</label>
                     <Textarea
                         value={formData.description}
-                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                        onChange={(e) => {
+                            setFormData({ ...formData, description: e.target.value });
+                            setIsDirty(true);
+                        }}
                         placeholder="Project Description"
                         rows={3}
                     />
@@ -238,7 +250,10 @@ export default function ProjectForm({ initialData, onSubmit, isEditing = false }
                         <label className="text-sm font-medium">Tech Stack</label>
                         <TagInput
                             value={formData.techStack}
-                            onChange={(newTags) => setFormData({ ...formData, techStack: newTags })}
+                            onChange={(newTags) => {
+                                setFormData({ ...formData, techStack: newTags });
+                                setIsDirty(true);
+                            }}
                             placeholder="React, Node.js..."
                         />
                     </div>
@@ -246,7 +261,10 @@ export default function ProjectForm({ initialData, onSubmit, isEditing = false }
                         <label className="text-sm font-medium">Tags</label>
                         <TagInput
                             value={formData.tags}
-                            onChange={(newTags) => setFormData({ ...formData, tags: newTags })}
+                            onChange={(newTags) => {
+                                setFormData({ ...formData, tags: newTags });
+                                setIsDirty(true);
+                            }}
                             placeholder="Web, Mobile..."
                         />
                     </div>
@@ -257,7 +275,10 @@ export default function ProjectForm({ initialData, onSubmit, isEditing = false }
                         <label className="text-sm font-medium">Repo Link</label>
                         <Input
                             value={formData.repoLink}
-                            onChange={(e) => setFormData({ ...formData, repoLink: e.target.value })}
+                            onChange={(e) => {
+                                setFormData({ ...formData, repoLink: e.target.value });
+                                setIsDirty(true);
+                            }}
                             placeholder="https://github.com/..."
                         />
                     </div>
@@ -265,7 +286,10 @@ export default function ProjectForm({ initialData, onSubmit, isEditing = false }
                         <label className="text-sm font-medium">Demo Link</label>
                         <Input
                             value={formData.demoLink}
-                            onChange={(e) => setFormData({ ...formData, demoLink: e.target.value })}
+                            onChange={(e) => {
+                                setFormData({ ...formData, demoLink: e.target.value });
+                                setIsDirty(true);
+                            }}
                             placeholder="https://..."
                         />
                     </div>
@@ -305,7 +329,10 @@ export default function ProjectForm({ initialData, onSubmit, isEditing = false }
                     <TipTapEditor
                         key={initialData ? initialData.id : 'new'}
                         content={formData.contentJSON}
-                        onChange={(json) => setFormData({ ...formData, contentJSON: json })}
+                        onChange={(json) => {
+                            setFormData({ ...formData, contentJSON: json });
+                            setIsDirty(true);
+                        }}
                         onImageUpload={handleEditorImageUpload}
                     />
                 </div>
