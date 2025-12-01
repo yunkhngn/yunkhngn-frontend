@@ -1,6 +1,7 @@
 import AdminLayout from "@/components/template/Admin/Layout";
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTheme } from 'next-themes';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import {
@@ -30,6 +31,7 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip, BarChart, Ba
 
 export default function Dashboard() {
   const { user } = useAuth();
+  const { theme } = useTheme();
   const router = useRouter();
   const [stats, setStats] = useState({
     blogs: 0,
@@ -177,16 +179,17 @@ export default function Dashboard() {
     );
   };
 
-  // Chart data
+  // Chart data - dynamic colors based on theme
+  const isDark = theme === 'dark';
   const contentData = [
-    { name: 'Blogs', value: stats.blogs, color: '#171717' },      // gray-900
-    { name: 'Projects', value: stats.projects, color: '#525252' }, // gray-600
-    { name: 'Photos', value: stats.gallery, color: '#a3a3a3' }     // gray-400
+    { name: 'Blogs', value: stats.blogs, color: isDark ? '#f5f5f5' : '#171717' },      // light: gray-100, dark: gray-900
+    { name: 'Projects', value: stats.projects, color: isDark ? '#d4d4d4' : '#525252' }, // light: gray-300, dark: gray-600
+    { name: 'Photos', value: stats.gallery, color: isDark ? '#a3a3a3' : '#737373' }     // light: gray-400, dark: gray-500
   ];
 
   const blogStatusData = [
-    { name: 'Published', value: stats.blogsPublished, color: '#171717' }, // gray-900
-    { name: 'Draft', value: stats.blogsDraft, color: '#737373' }          // gray-500
+    { name: 'Published', value: stats.blogsPublished, color: isDark ? '#f5f5f5' : '#171717' }, // light: gray-100, dark: gray-900
+    { name: 'Draft', value: stats.blogsDraft, color: isDark ? '#d4d4d4' : '#525252' }          // light: gray-300, dark: gray-600
   ];
 
   return (

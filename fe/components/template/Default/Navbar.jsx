@@ -99,9 +99,24 @@ export default function Navbar() {
 
                 {/* Right: Actions */}
                 <div className="flex items-center gap-4">
+                    {/* Desktop Search Box - Hidden on mobile */}
+                    <form onSubmit={handleSearch} className="hidden md:block">
+                        <div className="relative">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground z-10 pointer-events-none" />
+                            <Input
+                                type="search"
+                                placeholder="Search..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className="pl-10 h-9 w-64"
+                            />
+                        </div>
+                    </form>
+
+                    {/* Mobile Search Button - Hidden on desktop */}
                     <button
                         onClick={() => setIsSearchOpen(true)}
-                        className="p-2 hover:bg-accent rounded-full text-muted-foreground transition-colors"
+                        className="md:hidden p-2 hover:bg-accent rounded-full text-muted-foreground transition-colors"
                         aria-label="Search"
                     >
                         <Search size={20} />
