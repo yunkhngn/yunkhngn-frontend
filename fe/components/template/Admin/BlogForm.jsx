@@ -213,7 +213,7 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
                 </Button>
             </div>
 
-            <div className="space-y-4 pb-8">
+            <div className="space-y-4 pb-32">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                         <label className="text-sm font-medium">Title</label>
@@ -225,22 +225,11 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
                     </div>
                     <div className="space-y-2">
                         <label className="text-sm font-medium">Slug</label>
-                        <div className="flex gap-2">
-                            <Input
-                                value={formData.slug}
-                                onChange={handleSlugChange}
-                                placeholder="blog-slug"
-                            />
-                            <Button
-                                type="button"
-                                variant="outline"
-                                size="icon"
-                                onClick={() => setFormData(prev => ({ ...prev, slug: generateSlug(prev.title) }))}
-                                title="Regenerate Slug from Title"
-                            >
-                                <RotateCcw className="h-4 w-4" />
-                            </Button>
-                        </div>
+                        <Input
+                            value={formData.slug}
+                            onChange={handleSlugChange}
+                            placeholder="blog-slug"
+                        />
                     </div>
                 </div>
 
@@ -256,82 +245,85 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
                         placeholder="City"
                     />
                 </div>
-            </div>
 
-            <div className="space-y-2">
-                <label className="text-sm font-medium">Thumbnail</label>
-                <div
-                    className="aspect-video relative rounded-lg overflow-hidden group border border-dashed flex items-center justify-center cursor-pointer hover:bg-muted/50 transition-colors max-w-md"
-                    onClick={() => fileInputRef.current?.click()}
-                >
-                    {formData.thumbnail ? (
-                        <>
-                            <Image src={formData.thumbnail} alt="Thumbnail" fill className="object-cover" />
-                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white font-medium">
-                                Change Thumbnail
-                            </div>
-                        </>
-                    ) : (
-                        <div className="flex flex-col items-center text-muted-foreground">
-                            {uploading ? <Loader2 className="h-8 w-8 animate-spin" /> : <ImageIcon className="h-8 w-8 mb-2" />}
-                            <span>Upload Thumbnail</span>
-                        </div>
-                    )}
-                </div>
-                <input
-                    type="file"
-                    ref={fileInputRef}
-                    className="hidden"
-                    accept="image/*"
-                    onChange={handleUpload}
-                />
-            </div>
-
-            <div className="space-y-2">
-                <label className="text-sm font-medium">Content</label>
-                <TipTapEditor
-                    key={initialData ? initialData.id : 'new'}
-                    content={formData.contentJSON}
-                    onChange={(json) => {
-                        setFormData({ ...formData, contentJSON: json });
-                        setIsDirty(true);
-                    }}
-                    onImageUpload={handleEditorImageUpload}
-                />
-            </div>
-
-            <div className="pt-4 flex gap-2">
-                {!isEditing ? (
-                    <Button className="w-full md:w-auto" onClick={() => handleSubmit('DRAFT')} disabled={submitting}>
-                        {submitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-                        Save Draft
-                    </Button>
-                ) : (
-                    <>
-                        {formData.status === 'DRAFT' ? (
+                <div className="space-y-2">
+                    <label className="text-sm font-medium">Thumbnail</label>
+                    <div
+                        className="aspect-video relative rounded-lg overflow-hidden group border border-dashed flex items-center justify-center cursor-pointer hover:bg-muted/50 transition-colors max-w-md"
+                        onClick={() => fileInputRef.current?.click()}
+                    >
+                        {formData.thumbnail ? (
                             <>
-                                <Button className="w-full md:w-auto" onClick={() => handleSubmit('PUBLISHED')} disabled={submitting}>
-                                    {submitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <UploadCloud className="mr-2 h-4 w-4" />}
-                                    Publish
-                                </Button>
-                                <Button variant="outline" className="w-full md:w-auto" onClick={() => handleSubmit('DRAFT')} disabled={submitting}>
-                                    <Save className="mr-2 h-4 w-4" />
-                                    Save Draft
-                                </Button>
+                                <Image src={formData.thumbnail} alt="Thumbnail" fill className="object-cover" />
+                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white font-medium">
+                                    Change Thumbnail
+                                </div>
                             </>
                         ) : (
-                            <>
-                                <Button className="w-full md:w-auto" onClick={() => handleSubmit()} disabled={submitting}>
-                                    {submitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-                                    Update Blog
-                                </Button>
-                                <Button variant="ghost" className="w-full md:w-auto text-destructive hover:text-destructive" onClick={() => handleSubmit('DRAFT')} disabled={submitting}>
-                                    Unpublish
-                                </Button>
-                            </>
+                            <div className="flex flex-col items-center text-muted-foreground">
+                                {uploading ? <Loader2 className="h-8 w-8 animate-spin" /> : <ImageIcon className="h-8 w-8 mb-2" />}
+                                <span>Upload Thumbnail</span>
+                            </div>
                         )}
-                    </>
-                )}
+                    </div>
+                    <input
+                        type="file"
+                        ref={fileInputRef}
+                        className="hidden"
+                        accept="image/*"
+                        onChange={handleUpload}
+                    />
+                </div>
+
+                <div className="space-y-2">
+                    <label className="text-sm font-medium">Content</label>
+                    <TipTapEditor
+                        key={initialData ? initialData.id : 'new'}
+                        content={formData.contentJSON}
+                        onChange={(json) => {
+                            setFormData({ ...formData, contentJSON: json });
+                            setIsDirty(true);
+                        }}
+                        onImageUpload={handleEditorImageUpload}
+                    />
+                </div>
+            </div>
+
+            {/* Fixed Action Bar */}
+            <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border p-4 z-50">
+                <div className="container mx-auto flex gap-2 justify-end">
+                    {!isEditing ? (
+                        <Button onClick={() => handleSubmit('DRAFT')} disabled={submitting}>
+                            {submitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+                            Save Draft
+                        </Button>
+                    ) : (
+                        <>
+                            {formData.status === 'DRAFT' ? (
+                                <>
+                                    <Button onClick={() => handleSubmit('PUBLISHED')} disabled={submitting}>
+                                        {submitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <UploadCloud className="mr-2 h-4 w-4" />}
+                                        Publish
+                                    </Button>
+                                    <Button variant="outline" onClick={() => handleSubmit('DRAFT')} disabled={submitting}>
+                                        <Save className="mr-2 h-4 w-4" />
+                                        Save Draft
+                                    </Button>
+                                </>
+                            ) : (
+                                <>
+                                    <Button onClick={() => handleSubmit()} disabled={submitting}>
+                                        {submitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+                                        Update Blog
+                                    </Button>
+                                    <Button variant="ghost" className="text-destructive hover:text-destructive" onClick={() => handleSubmit('DRAFT')} disabled={submitting}>
+                                        Unpublish
+                                    </Button>
+                                </>
+                            )}
+                        </>
+                    )}
+                </div>
             </div>
         </div>
     );

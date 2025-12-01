@@ -207,7 +207,7 @@ export default function Home() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 auto-rows-[200px]">
           {featuredProjects.map((project, i) => (
             <Link
-              href={`/project/${project.id}`}
+              href={`/project/${project.slug}`}
               key={project.id}
               className={`group relative rounded-2xl overflow-hidden bg-muted ${i === 0 ? 'md:col-span-2 md:row-span-2' : 'md:col-span-1 md:row-span-1'}`}
             >
@@ -254,7 +254,7 @@ export default function Home() {
 
         <div className="columns-2 md:columns-3 gap-4 space-y-4">
           {galleryPhotos.map((photo) => (
-            <div key={photo.id} className="break-inside-avoid relative group rounded-xl overflow-hidden">
+            <div key={photo.id} className="break-inside-avoid relative group rounded-xl overflow-hidden cursor-pointer">
               <Image
                 src={photo.imageUrl}
                 alt={photo.caption || 'Gallery Photo'}
@@ -262,7 +262,13 @@ export default function Home() {
                 height={500}
                 className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105"
               />
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end">
+                {photo.caption && (
+                  <p className="text-white p-4 font-medium text-sm md:text-base">
+                    {photo.caption}
+                  </p>
+                )}
+              </div>
             </div>
           ))}
         </div>
