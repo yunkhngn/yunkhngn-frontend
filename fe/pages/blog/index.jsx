@@ -98,7 +98,7 @@ export default function BlogList() {
 
                 <div className="w-full max-w-md flex gap-2 mt-4">
                     <div className="relative flex-1">
-                        <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground z-10 pointer-events-none" />
                         <Input
                             placeholder="Search articles..."
                             value={search}
