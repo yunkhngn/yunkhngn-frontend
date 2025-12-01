@@ -2,6 +2,7 @@ import "@/styles/globals.css";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { ThemeProvider } from "next-themes";
 import FloatingControls from "@/components/ui/FloatingControls";
+import { CommandMenu } from "@/components/ui/CommandMenu";
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 import { Playfair_Display } from 'next/font/google';
@@ -43,6 +44,10 @@ export default function App({ Component, pageProps }) {
           <main className={playfair.variable}>
             <Component {...pageProps} />
             <FloatingControls />
+            <CommandMenu />
+            <div className="fixed bottom-4 left-4 text-xs text-muted-foreground/50 hidden md:block pointer-events-none z-50 select-none">
+              Press <kbd className="font-mono font-bold">⌘ K</kbd> to search
+            </div>
             <Toaster position="top-right" />
           </main>
         </AuthGuard>
