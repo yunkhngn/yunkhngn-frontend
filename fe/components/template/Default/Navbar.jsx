@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useTheme } from 'next-themes';
-import { Search, Moon, Sun, Menu, X, LogOut, LayoutDashboard, User } from 'lucide-react';
+import { Search, Moon, Sun, Menu, X, LogOut, LayoutDashboard, User, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
@@ -116,6 +116,14 @@ export default function Navbar() {
                                         <span className="font-medium">Dashboard</span>
                                     </Link>
                                 </DropdownMenuItem>
+                                {user.role === 'ADMIN' && (
+                                    <DropdownMenuItem asChild className="p-3 cursor-pointer focus:ring-0 focus:outline-none">
+                                        <Link href="/admin/settings" className="flex items-center gap-3">
+                                            <Settings className="h-4 w-4 text-muted-foreground" />
+                                            <span className="font-medium">Site Settings</span>
+                                        </Link>
+                                    </DropdownMenuItem>
+                                )}
                                 <DropdownMenuSeparator className="my-1" />
                                 <DropdownMenuItem onClick={handleLogout} className="p-3 cursor-pointer text-destructive focus:text-destructive focus:bg-destructive/10 focus:ring-0 focus:outline-none">
                                     <div className="flex items-center gap-3">

@@ -21,6 +21,7 @@ const ADMIN_NAV_ITEMS = [
     { label: "Blog", href: "/admin/blog", icon: FileText },
     { label: "Photo", href: "/admin/photo", icon: Image },
     { label: "Profile", href: "/admin/profile", icon: User },
+    { label: "Settings", href: "/admin/settings", icon: Settings },
 ];
 
 export default function AdminNavbar() {

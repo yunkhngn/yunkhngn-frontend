@@ -4,7 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
-import { Loader2, Plus, Trash2, Save, X } from 'lucide-react';
+import { Loader2, Plus, Trash2, Edit, X } from 'lucide-react';
 import {
     Table,
     TableBody,
@@ -154,7 +154,7 @@ export default function Settings() {
                                         <TableCell>
                                             <div className="flex items-center gap-2">
                                                 <Button variant="ghost" size="icon" onClick={() => openEdit(setting)}>
-                                                    <Save className="h-4 w-4" />
+                                                    <Edit className="h-4 w-4" />
                                                 </Button>
                                                 <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive" onClick={() => handleDelete(setting.id)}>
                                                     <Trash2 className="h-4 w-4" />
@@ -169,7 +169,7 @@ export default function Settings() {
                 </div>
 
                 <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                    <DialogContent>
+                    <DialogContent className="max-w-3xl">
                         <DialogHeader>
                             <DialogTitle>{currentSetting.id ? 'Edit Setting' : 'Add New Setting'}</DialogTitle>
                         </DialogHeader>
@@ -189,7 +189,7 @@ export default function Settings() {
                                     value={currentSetting.content}
                                     onChange={(e) => setCurrentSetting({ ...currentSetting, content: e.target.value })}
                                     placeholder="Value..."
-                                    rows={5}
+                                    rows={10}
                                 />
                             </div>
                             <div className="flex justify-end gap-2">
