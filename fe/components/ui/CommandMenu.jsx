@@ -59,6 +59,9 @@ export function CommandMenu() {
                 { icon: <Plus className="mr-2 h-4 w-4" />, label: 'New Blog', action: () => router.push('/admin/blog/new') },
                 { icon: <List className="mr-2 h-4 w-4" />, label: 'Manage Projects', action: () => router.push('/admin/project') },
                 { icon: <Plus className="mr-2 h-4 w-4" />, label: 'New Project', action: () => router.push('/admin/project/new') },
+                { icon: <ImageIcon className="mr-2 h-4 w-4" />, label: 'Manage Photos', action: () => router.push('/admin/photo') },
+                { icon: <Plus className="mr-2 h-4 w-4" />, label: 'New Photo', action: () => router.push('/admin/photo/new') },
+                { icon: <User className="mr-2 h-4 w-4" />, label: 'Profile', action: () => router.push('/admin/profile') },
             ]
         });
     }
