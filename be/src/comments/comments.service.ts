@@ -27,6 +27,10 @@ export class CommentsService {
     async create(createCommentDto: CreateCommentDto, uid: string) {
         this.checkRateLimit(uid);
 
+        if (!createCommentDto.blogId && !createCommentDto.projectId) {
+            throw new Error('Either blogId or projectId must be provided');
+        }
+
         const comment = await this.prisma.comment.create({
             data: {
                 ...createCommentDto,
@@ -34,44 +38,85 @@ export class CommentsService {
             },
         });
 
-        const [commentWithUser] = await this.attachUserDetails([comment]);
-        return commentWithUser;
+        return this.attachUserDetails([comment]).then(comments => comments[0]);
     }
 
-    async findAll(blogId?: string) {
+    async findAll(blogId?: string, projectId?: string, page: number = 1, limit: number = 100) {
+        const skip = (page - 1) * limit;
         const where: any = { hidden: false };
         if (blogId) {
             where.blogId = blogId;
         }
+        if (projectId) {
+            where.projectId = projectId;
+        }
 
-        const comments = await this.prisma.comment.findMany({
-            where,
-            orderBy: { createdAt: 'desc' },
-        });
+        const [comments, total] = await Promise.all([
+            this.prisma.comment.findMany({
+                where,
+                orderBy: { createdAt: 'desc' },
+                skip,
+                take: limit,
+            }),
+            this.prisma.comment.count({ where }),
+        ]);
 
-        return this.attachUserDetails(comments);
+        const data = await this.attachUserDetails(comments);
+
+        return {
+            data,
+            meta: {
+                total,
+                page,
+                lastPage: Math.ceil(total / limit),
+            }
+        };
     }
 
-    async findAllIncludingHidden(blogId?: string) {
+    async findAllIncludingHidden(blogId?: string, projectId?: string, page: number = 1, limit: number = 100) {
+        const skip = (page - 1) * limit;
         const where: any = {};
         if (blogId) {
             where.blogId = blogId;
         }
+        if (projectId) {
+            where.projectId = projectId;
+        }
 
-        const comments = await this.prisma.comment.findMany({
-            where,
-            orderBy: { createdAt: 'desc' },
-            include: {
-                blog: {
-                    select: {
-                        title: true,
-                        slug: true,
+        const [comments, total] = await Promise.all([
+            this.prisma.comment.findMany({
+                where,
+                orderBy: { createdAt: 'desc' },
+                include: {
+                    blog: {
+                        select: {
+                            title: true,
+                            slug: true,
+                        }
+                    },
+                    project: {
+                        select: {
+                            title: true,
+                            slug: true,
+                        }
                     }
-                }
-            }
-        });
+                },
+                skip,
+                take: limit,
+            }),
+            this.prisma.comment.count({ where }),
+        ]);
 
-        return this.attachUserDetails(comments);
+        const data = await this.attachUserDetails(comments);
+
+        return {
+            data,
+            meta: {
+                total,
+                page,
+                lastPage: Math.ceil(total / limit),
+            }
+        };
     }
 
     private async attachUserDetails(comments: any[]) {
@@ -247,24 +292,39 @@ export class CommentsService {
         });
     }
 
-    async getReports(status?: string) {
+    async getReports(status?: string, page: number = 1, limit: number = 100) {
+        const skip = (page - 1) * limit;
         const where = status ? { status } : {};
-        return this.prisma.commentReport.findMany({
-            where,
-            orderBy: { createdAt: 'desc' },
-            include: {
-                comment: {
-                    select: {
-                        id: true,
-                        content: true,
-                        displayName: true,
-                        blogId: true,
+
+        const [reports, total] = await Promise.all([
+            this.prisma.commentReport.findMany({
+                where,
+                orderBy: { createdAt: 'desc' },
+                include: {
+                    comment: {
+                        select: {
+                            id: true,
+                            content: true,
+                            displayName: true,
+                            blogId: true,
+                        },
                     },
                 },
-            },
-        });
-    }
+                skip,
+                take: limit,
+            }),
+            this.prisma.commentReport.count({ where }),
+        ]);
 
+        return {
+            data: reports,
+            meta: {
+                total,
+                page,
+                lastPage: Math.ceil(total / limit),
+            }
+        };
+    }
     async updateReportStatus(id: string, updateReportDto: UpdateReportDto) {
         const report = await this.prisma.commentReport.findUnique({ where: { id } });
         if (!report) {

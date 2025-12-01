@@ -36,32 +36,42 @@ export default function AdminComments() {
     const [comments, setComments] = useState([]);
     const [reports, setReports] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [filter, setFilter] = useState('all');
 
-    const fetchComments = async () => {
+    // Pagination state
+    const [page, setPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [reportPage, setReportPage] = useState(1);
+    const [reportTotalPages, setReportTotalPages] = useState(1);
+    const limit = 100;
+
+    const fetchComments = async (pageNum = 1) => {
         try {
             const token = await user.getIdToken();
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/comments?includeHidden=true`, {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/comments?includeHidden=true&page=${pageNum}&limit=${limit}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             if (!res.ok) throw new Error('Failed to fetch comments');
-            const data = await res.json();
+            const { data, meta } = await res.json();
             setComments(data);
+            setPage(meta.page);
+            setTotalPages(meta.lastPage);
         } catch (error) {
             console.error('Error fetching comments:', error);
             toast.error('Failed to fetch comments');
         }
     };
 
-    const fetchReports = async () => {
+    const fetchReports = async (pageNum = 1) => {
         try {
             const token = await user.getIdToken();
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/comments/admin/reports`, {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/comments/admin/reports?page=${pageNum}&limit=${limit}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             if (!res.ok) throw new Error('Failed to fetch reports');
-            const data = await res.json();
+            const { data, meta } = await res.json();
             setReports(data);
+            setReportPage(meta.page);
+            setReportTotalPages(meta.lastPage);
         } catch (error) {
             console.error('Error fetching reports:', error);
             toast.error('Failed to fetch reports');
@@ -70,10 +80,24 @@ export default function AdminComments() {
 
     useEffect(() => {
         if (user) {
-            Promise.all([fetchComments(), fetchReports()])
+            Promise.all([fetchComments(1), fetchReports(1)])
                 .finally(() => setLoading(false));
         }
     }, [user]);
+
+    const handlePageChange = (newPage) => {
+        if (newPage >= 1 && newPage <= totalPages) {
+            fetchComments(newPage);
+        }
+    };
+
+    const handleReportPageChange = (newPage) => {
+        if (newPage >= 1 && newPage <= reportTotalPages) {
+            fetchReports(newPage);
+        }
+    };
+
+    // ... (rest of the handlers: handleToggleHidden, handleDelete, handleUpdateReportStatus)
 
     const handleToggleHidden = async (commentId, currentHidden) => {
         try {
@@ -171,9 +195,9 @@ export default function AdminComments() {
                         <TabsTrigger value="reports" className="flex items-center gap-2">
                             <Flag className="h-4 w-4" />
                             Reports
-                            {reports.filter(r => r.status === 'pending').length > 0 && (
+                            {reports.length > 0 && reports.some(r => r.status === 'pending') && (
                                 <Badge variant="destructive" className="ml-1 h-5 w-5 p-0 flex items-center justify-center rounded-full text-[10px]">
-                                    {reports.filter(r => r.status === 'pending').length}
+                                    !
                                 </Badge>
                             )}
                         </TabsTrigger>
@@ -274,6 +298,31 @@ export default function AdminComments() {
                                         )}
                                     </TableBody>
                                 </Table>
+
+                                {/* Pagination Controls for Comments */}
+                                {totalPages > 1 && (
+                                    <div className="flex items-center justify-end space-x-2 py-4">
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => handlePageChange(page - 1)}
+                                            disabled={page === 1}
+                                        >
+                                            Previous
+                                        </Button>
+                                        <div className="text-sm font-medium">
+                                            Page {page} of {totalPages}
+                                        </div>
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => handlePageChange(page + 1)}
+                                            disabled={page === totalPages}
+                                        >
+                                            Next
+                                        </Button>
+                                    </div>
+                                )}
                             </CardContent>
                         </Card>
                     </TabsContent>
@@ -363,6 +412,31 @@ export default function AdminComments() {
                                         )}
                                     </TableBody>
                                 </Table>
+
+                                {/* Pagination Controls for Reports */}
+                                {reportTotalPages > 1 && (
+                                    <div className="flex items-center justify-end space-x-2 py-4">
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => handleReportPageChange(reportPage - 1)}
+                                            disabled={reportPage === 1}
+                                        >
+                                            Previous
+                                        </Button>
+                                        <div className="text-sm font-medium">
+                                            Page {reportPage} of {reportTotalPages}
+                                        </div>
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => handleReportPageChange(reportPage + 1)}
+                                            disabled={reportPage === reportTotalPages}
+                                        >
+                                            Next
+                                        </Button>
+                                    </div>
+                                )}
                             </CardContent>
                         </Card>
                     </TabsContent>

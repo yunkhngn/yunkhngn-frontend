@@ -5,7 +5,7 @@ import { Textarea } from '@/components/ui/Textarea';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 
-export default function CommentForm({ blogId, onCommentAdded }) {
+export default function CommentForm({ blogId, projectId, onCommentAdded }) {
     const { user, signInAnonymously } = useAuth();
     const [content, setContent] = useState('');
     const [displayName, setDisplayName] = useState('');
@@ -58,7 +58,7 @@ export default function CommentForm({ blogId, onCommentAdded }) {
                 }
             }
 
-            const token = await currentUser.getIdToken();
+            const token = await currentUser.getIdToken(true);
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/comments`, {
                 method: 'POST',
                 headers: {
@@ -67,6 +67,7 @@ export default function CommentForm({ blogId, onCommentAdded }) {
                 },
                 body: JSON.stringify({
                     blogId,
+                    projectId,
                     content: content.trim(),
                     displayName: displayName.trim(),
                 }),

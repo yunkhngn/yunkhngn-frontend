@@ -26,7 +26,7 @@ export default function Comment({ comment, onUpdate, onDelete }) {
 
         setVoting(true);
         try {
-            const token = await user.getIdToken();
+            const token = await user.getIdToken(true);
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/comments/${comment.id}/vote`, {
                 method: 'POST',
                 headers: {
@@ -55,14 +55,14 @@ export default function Comment({ comment, onUpdate, onDelete }) {
         }
     };
 
-    const handleReport = async (commentId, reason) => {
-        if (!user) {
+    const handleReport = async (commentId, reason, tokenOverride) => {
+        if (!user && !tokenOverride) {
             toast.error('Please sign in to report');
             throw new Error('Not signed in');
         }
 
         try {
-            const token = await user.getIdToken();
+            const token = tokenOverride || await user.getIdToken(true);
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/comments/${commentId}/report`, {
                 method: 'POST',
                 headers: {
@@ -88,7 +88,7 @@ export default function Comment({ comment, onUpdate, onDelete }) {
     const handleDelete = async () => {
         setDeleting(true);
         try {
-            const token = await user.getIdToken();
+            const token = await user.getIdToken(true);
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/comments/${comment.id}`, {
                 method: 'DELETE',
                 headers: {
@@ -167,7 +167,7 @@ export default function Comment({ comment, onUpdate, onDelete }) {
                         </Button>
                     </div>
 
-                    {!isOwner && (
+                    {!isOwner && !isCommentAdmin && (
                         <ReportModal commentId={comment.id} onReport={handleReport} />
                     )}
                 </div>

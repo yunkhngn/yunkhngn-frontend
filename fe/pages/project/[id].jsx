@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/Button';
 import Link from 'next/link';
 import TipTapViewer from '@/components/ui/TipTapViewer';
 import Layout from '@/components/template/Default/Layout';
+import CommentSection from '@/components/blog/CommentSection';
 
 export default function ProjectDetail() {
     const router = useRouter();
@@ -157,6 +158,12 @@ export default function ProjectDetail() {
                         </div>
                     </div>
                 )}
+
+                {/* Comments Section */}
+                <div className="max-w-4xl mx-auto pt-12 mt-12 border-t">
+                    <h2 className="text-2xl font-bold mb-8">Comments</h2>
+                    <CommentSection projectId={project.id} />
+                </div>
             </div>
         </div>
     );

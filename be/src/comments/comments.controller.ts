@@ -29,11 +29,17 @@ export class CommentsController {
     }
 
     @Get()
-    findAll(@Query('blogId') blogId?: string, @Query('includeHidden') includeHidden?: string) {
+    findAll(
+        @Query('blogId') blogId?: string,
+        @Query('projectId') projectId?: string,
+        @Query('includeHidden') includeHidden?: string,
+        @Query('page') page: number = 1,
+        @Query('limit') limit: number = 100,
+    ) {
         if (includeHidden === 'true') {
-            return this.commentsService.findAllIncludingHidden(blogId);
+            return this.commentsService.findAllIncludingHidden(blogId, projectId, +page, +limit);
         }
-        return this.commentsService.findAll(blogId);
+        return this.commentsService.findAll(blogId, projectId, +page, +limit);
     }
 
     @Get(':id')
@@ -114,11 +120,16 @@ export class CommentsController {
 
     @Get('admin/reports')
     @UseGuards(FirebaseAuthGuard)
-    getReports(@Query('status') status?: string, @Request() req?) {
+    getReports(
+        @Query('status') status?: string,
+        @Query('page') page: number = 1,
+        @Query('limit') limit: number = 100,
+        @Request() req?
+    ) {
         if (!req.user.isAdmin) {
             throw new Error('Only admins can view reports');
         }
-        return this.commentsService.getReports(status);
+        return this.commentsService.getReports(status, +page, +limit);
     }
 
     @Patch('admin/reports/:id')

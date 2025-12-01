@@ -4,21 +4,23 @@ import Comment from './Comment';
 import CommentForm from './CommentForm';
 import { useAuth } from '@/contexts/AuthContext';
 
-export default function CommentSection({ blogId }) {
+export default function CommentSection({ blogId, projectId }) {
     const { user } = useAuth();
     const [comments, setComments] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         fetchComments();
-    }, [blogId]);
+    }, [blogId, projectId]);
 
     const fetchComments = async () => {
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/comments?blogId=${blogId}`);
+            const queryParam = blogId ? `blogId=${blogId}` : `projectId=${projectId}`;
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/comments?${queryParam}`);
             if (res.ok) {
-                const data = await res.json();
-                setComments(data);
+                const responseData = await res.json();
+                // Handle both paginated and non-paginated responses for backward compatibility
+                setComments(responseData.data || responseData);
             }
         } catch (error) {
             console.error('Error fetching comments:', error);
@@ -61,6 +63,7 @@ export default function CommentSection({ blogId }) {
             <CardContent className="space-y-6">
                 <CommentForm
                     blogId={blogId}
+                    projectId={projectId}
                     onCommentAdded={handleCommentAdded}
                 />
 

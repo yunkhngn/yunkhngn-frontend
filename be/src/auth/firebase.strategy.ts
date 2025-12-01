@@ -29,6 +29,17 @@ export class FirebaseStrategy extends PassportStrategy(Strategy, 'firebase') {
                 isAdmin: user.role === 'ADMIN',
             };
         } catch (error) {
+            console.error('Firebase token verification failed:', error);
+            try {
+                const parts = token.split('.');
+                if (parts.length === 3) {
+                    const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString());
+                    console.log('Token payload (aud/iss):', { aud: payload.aud, iss: payload.iss });
+                    // console.log('Backend Config:', admin.app().options); 
+                }
+            } catch (e) {
+                console.error('Failed to decode token for debugging:', e);
+            }
             throw new UnauthorizedException('Invalid token');
         }
     }
