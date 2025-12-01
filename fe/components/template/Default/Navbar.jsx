@@ -143,7 +143,11 @@ export default function Navbar() {
                                         <p className="text-sm font-medium leading-none">
                                             {user.isAnonymous ? "Anonymous" : (user.displayName || "User")}
                                         </p>
-                                        {!user.isAnonymous && user.email && (
+                                        {user.isAnonymous ? (
+                                            <p className="text-xs leading-none text-muted-foreground">
+                                                Temporary visitor account
+                                            </p>
+                                        ) : user.email && (
                                             <p className="text-xs leading-none text-muted-foreground">
                                                 {user.email}
                                             </p>
