@@ -45,8 +45,12 @@ export default function BlogList() {
         return matchesSearch && matchesTag;
     });
 
-    const totalPages = Math.ceil(filteredBlogs.length / itemsPerPage);
-    const paginatedBlogs = filteredBlogs.slice(
+    const isFiltering = search.length > 0 || selectedTag !== null;
+    const recentBlogs = !isFiltering ? filteredBlogs.slice(0, 3) : [];
+    const blogsToPaginate = !isFiltering ? filteredBlogs.slice(3) : filteredBlogs;
+
+    const totalPages = Math.ceil(blogsToPaginate.length / itemsPerPage);
+    const paginatedBlogs = blogsToPaginate.slice(
         (currentPage - 1) * itemsPerPage,
         currentPage * itemsPerPage
     );
@@ -112,9 +116,11 @@ export default function BlogList() {
                     </div>
                 </div>
 
-                <div className="flex items-center justify-between mb-8">
-                    <h2 className="text-2xl font-bold tracking-tight">Recent blog posts</h2>
-                </div>
+                {!isFiltering && (
+                    <div className="flex items-center justify-between mb-8">
+                        <h2 className="text-2xl font-bold tracking-tight">Recent blog posts</h2>
+                    </div>
+                )}
 
                 {loading ? (
                     <div className="flex justify-center py-20">
@@ -124,17 +130,17 @@ export default function BlogList() {
                     <>
                         {filteredBlogs.length > 0 ? (
                             <div className="space-y-16">
-                                {/* Featured & Recent Section - Only on first page and if no search or matches search */}
-                                {currentPage === 1 && (
+                                {/* Featured & Recent Section - Only if not filtering */}
+                                {!isFiltering && recentBlogs.length > 0 && (
                                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
                                         {/* Featured Post (Left) */}
-                                        {paginatedBlogs[0] && (
-                                            <Link href={`/blog/${paginatedBlogs[0].slug || paginatedBlogs[0].id}`} className="group flex flex-col gap-4">
+                                        {recentBlogs[0] && (
+                                            <Link href={`/blog/${recentBlogs[0].slug || recentBlogs[0].id}`} className="group flex flex-col gap-4">
                                                 <div className="aspect-video w-full relative overflow-hidden rounded-2xl bg-muted">
-                                                    {paginatedBlogs[0].thumbnail ? (
+                                                    {recentBlogs[0].thumbnail ? (
                                                         <Image
-                                                            src={paginatedBlogs[0].thumbnail}
-                                                            alt={paginatedBlogs[0].title}
+                                                            src={recentBlogs[0].thumbnail}
+                                                            alt={recentBlogs[0].title}
                                                             fill
                                                             className="object-cover transition-transform duration-500 group-hover:scale-105"
                                                         />
@@ -146,19 +152,19 @@ export default function BlogList() {
                                                     <div className="text-sm font-semibold text-primary flex items-center gap-2">
                                                         <span>Khoa Nguyễn</span>
                                                         <span>•</span>
-                                                        <span>{format(new Date(paginatedBlogs[0].createdAt), 'd MMM yyyy')}</span>
+                                                        <span>{format(new Date(recentBlogs[0].createdAt), 'd MMM yyyy')}</span>
                                                     </div>
                                                     <div className="flex justify-between items-start gap-4">
                                                         <h2 className="text-2xl font-bold group-hover:text-primary transition-colors leading-tight">
-                                                            {paginatedBlogs[0].title}
+                                                            {recentBlogs[0].title}
                                                         </h2>
                                                         <ArrowUpRight className="h-6 w-6 text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0" />
                                                     </div>
                                                     <p className="text-muted-foreground line-clamp-3 text-base">
-                                                        {getExcerpt(paginatedBlogs[0])}
+                                                        {getExcerpt(recentBlogs[0])}
                                                     </p>
                                                     <div className="flex flex-wrap gap-2 pt-2">
-                                                        {paginatedBlogs[0].tags && paginatedBlogs[0].tags.split(',').map((tag, i) => (
+                                                        {recentBlogs[0].tags && recentBlogs[0].tags.split(',').map((tag, i) => (
                                                             <Badge key={i} variant="outline" className="rounded-md font-normal">
                                                                 {tag.trim()}
                                                             </Badge>
@@ -170,7 +176,7 @@ export default function BlogList() {
 
                                         {/* Sidebar Posts (Right) */}
                                         <div className="flex flex-col gap-8">
-                                            {paginatedBlogs.slice(1, 3).map((blog) => (
+                                            {recentBlogs.slice(1, 3).map((blog) => (
                                                 <Link href={`/blog/${blog.slug || blog.id}`} key={blog.id} className="group flex flex-col md:flex-row gap-6 items-start">
                                                     <div className="aspect-video md:aspect-[4/3] w-full md:w-64 relative overflow-hidden rounded-xl bg-muted flex-shrink-0">
                                                         {blog.thumbnail ? (
@@ -210,12 +216,14 @@ export default function BlogList() {
                                     </div>
                                 )}
 
-                                {/* All Blog Posts Grid (Remaining) */}
-                                {paginatedBlogs.length > 3 && (
+                                {/* All Blog Posts Grid (Paginated) */}
+                                {paginatedBlogs.length > 0 && (
                                     <div>
-                                        <h2 className="text-2xl font-bold mb-8">All blog posts</h2>
+                                        <h2 className="text-2xl font-bold mb-8">
+                                            {isFiltering ? 'Search Results' : 'All blog posts'}
+                                        </h2>
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-12">
-                                            {paginatedBlogs.slice(3).map((blog) => (
+                                            {paginatedBlogs.map((blog) => (
                                                 <Link
                                                     href={`/blog/${blog.slug || blog.id}`}
                                                     key={blog.id}
