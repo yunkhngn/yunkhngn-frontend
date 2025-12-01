@@ -49,7 +49,7 @@ export default function About() {
                     </div>
                 </div>
 
-                <div className="space-y-12 text-lg leading-relaxed text-muted-foreground">
+                <div className="space-y-12 text-lg leading-relaxed text-gray-600 dark:text-gray-300 font-medium">
                     <p>
                         Xin chào, tớ là <strong className="text-foreground">Khoa Nguyễn (yun.khngn)</strong>, sinh viên chuyên ngành Kỹ thuật phần mềm tại Đại học FPT.
                         Tớ đang là freelancer thiết kế đồ hoạ và là một guitarist.
@@ -83,10 +83,7 @@ export default function About() {
                     </div>
                 </div>
             </main>
-
-            <footer className="py-8 text-center text-sm text-muted-foreground relative z-10">
-                <p>© 2025 Khoa Nguyễn. All rights reserved!</p>
-            </footer>
+            <DefaultFooter />
         </div>
     );
 }
