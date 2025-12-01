@@ -5,7 +5,7 @@
 @layer base {
     :root {
         /* Codecademy-inspired Theme */
-        --background: #ffffff;
+        --background: 0 100% 100%;
         /* #F5FCFF */
         --foreground: 232 59% 10%;
         /* #0A0E27 */

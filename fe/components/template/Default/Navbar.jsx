@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import { useTheme } from 'next-themes';
 import { Search, Moon, Sun, Menu, X, LogOut, LayoutDashboard, User, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import {
@@ -14,6 +15,7 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/DropdownMenu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/Avatar";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/Dialog";
 
 const NAV_ITEMS = [
     { label: "Project", href: "/project" },
@@ -30,6 +32,8 @@ export default function Navbar() {
     const [mounted, setMounted] = useState(false);
     const [text, setText] = useState('');
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [isSearchOpen, setIsSearchOpen] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
     const fullText = 'yun.khngn';
 
     // Avoid hydration mismatch & Start typing effect
@@ -56,6 +60,15 @@ export default function Navbar() {
     const handleLogout = async () => {
         await signOut();
         router.push('/login');
+    };
+
+    const handleSearch = (e) => {
+        e.preventDefault();
+        if (searchQuery.trim()) {
+            router.push(`/search?q=${encodeURIComponent(searchQuery)}`);
+            setIsSearchOpen(false);
+            setSearchQuery('');
+        }
     };
 
     return (
@@ -86,7 +99,11 @@ export default function Navbar() {
 
                 {/* Right: Actions */}
                 <div className="flex items-center gap-4">
-                    <button className="p-2 hover:bg-accent rounded-full text-muted-foreground transition-colors">
+                    <button
+                        onClick={() => setIsSearchOpen(true)}
+                        className="p-2 hover:bg-accent rounded-full text-muted-foreground transition-colors"
+                        aria-label="Search"
+                    >
                         <Search size={20} />
                     </button>
 
@@ -186,15 +203,47 @@ export default function Navbar() {
                         </Link>
                     ))}
                     <hr className="border-border" />
-                    <Link
-                        href="/login"
-                        className="text-sm font-medium hover:text-primary transition-colors py-2"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                        Log In
-                    </Link>
+                    {!user && (
+                        <Link
+                            href="/login"
+                            className="text-sm font-medium hover:text-primary transition-colors py-2"
+                            onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                            Log In
+                        </Link>
+                    )}
                 </div>
             )}
+
+            {/* Search Dialog */}
+            <Dialog open={isSearchOpen} onOpenChange={setIsSearchOpen}>
+                <DialogContent className="sm:max-w-[600px]">
+                    <DialogHeader>
+                        <DialogTitle>Search</DialogTitle>
+                    </DialogHeader>
+                    <form onSubmit={handleSearch} className="mt-4">
+                        <div className="relative">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground z-10 pointer-events-none" />
+                            <Input
+                                type="search"
+                                placeholder="Search blogs, projects, photos..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className="pl-12 h-12"
+                                autoFocus
+                            />
+                        </div>
+                        <div className="mt-4 flex justify-end gap-2">
+                            <Button type="button" variant="outline" onClick={() => setIsSearchOpen(false)}>
+                                Cancel
+                            </Button>
+                            <Button type="submit" disabled={!searchQuery.trim()}>
+                                Search
+                            </Button>
+                        </div>
+                    </form>
+                </DialogContent>
+            </Dialog>
         </nav>
     );
 }

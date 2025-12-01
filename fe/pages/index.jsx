@@ -44,7 +44,7 @@ export default function Home() {
 
         if (galleryRes.ok) {
           const photos = await galleryRes.json();
-          setGalleryPhotos(photos.slice(0, 6));
+          setGalleryPhotos(photos.slice(0, 10));
         }
 
         if (settingsRes.ok) {
@@ -144,7 +144,7 @@ export default function Home() {
       {/* Recent Blogs */}
       <section className="space-y-8">
         <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold">Recent Writings</h2>
+          <h2 className="text-3xl font-bold font-serif">Recent Blogs</h2>
           <Link href="/blog" className="text-sm text-muted-foreground hover:text-primary flex items-center gap-1 transition-colors">
             View all <ArrowRight className="h-4 w-4" />
           </Link>
