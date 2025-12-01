@@ -18,10 +18,11 @@ export class AiController {
 
     @Post('project-info')
     @UseGuards(FirebaseAuthGuard)
-    async generateProjectInfo(@Body('repoUrl') repoUrl: string) {
+    async generateProjectInfo(@Body('repoUrl') repoUrl: string, @Body('language') language: string) {
         if (!repoUrl) {
             throw new Error('Repo URL is required');
         }
-        return this.aiService.generateProjectInfo(repoUrl);
+        return this.aiService.generateProjectInfo(repoUrl, language);
     }
 }
+

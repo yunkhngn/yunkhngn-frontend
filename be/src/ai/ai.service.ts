@@ -27,7 +27,7 @@ export class AiService {
         }
     }
 
-    async generateProjectInfo(repoUrl: string): Promise<any> {
+    async generateProjectInfo(repoUrl: string, language: string = 'vi'): Promise<any> {
         try {
             // Extract owner and repo
             const match = repoUrl.match(/github\.com\/([^/]+)\/([^/]+)/);
@@ -51,13 +51,15 @@ export class AiService {
 
             // Generate info using Gemini
             const prompt = `
-        Analyze the following README content and extract/generate the following information in JSON format:
+        Analyze the following README content and extract/generate the following information in JSON format.
+        Please write the content in ${language === 'vi' ? 'Vietnamese' : 'English'}.
+
         {
           "title": "Project Title",
           "description": "A short, engaging description (max 200 chars)",
-          "content": "A detailed explanation of the project in Markdown format. Include features, installation, and usage if available. Do not use H1 (#). Use H2 (##) and below.",
-          "techStack": ["Tech 1", "Tech 2"],
-          "tags": ["Tag 1", "Tag 2"],
+          "content": "A detailed and engaging introduction to the project in HTML format (compatible with TipTap/ProseMirror). Use tags like <h2>, <p>, <ul>, <li>, <strong>, <em>. Do not use <h1>. Focus on what it does, why it exists, and its key features. Avoid technical installation/usage instructions.",
+          "techStack": ["Tech 1", "Tech 2 (Max 5 most important items)"],
+          "tags": ["Tag 1", "Tag 2 (Max 5 most important items)"],
           "demoLink": "URL if found, otherwise null"
         }
 

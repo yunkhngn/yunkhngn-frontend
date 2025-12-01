@@ -101,6 +101,7 @@ export default function ProjectForm({ initialData, onSubmit, isEditing = false }
     };
 
     const [generating, setGenerating] = useState(false);
+    const [aiLanguage, setAiLanguage] = useState('vi');
 
     const handleGenerateAI = async () => {
         if (!formData.repoLink) return;
@@ -114,7 +115,10 @@ export default function ProjectForm({ initialData, onSubmit, isEditing = false }
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${token}`
                 },
-                body: JSON.stringify({ repoUrl: formData.repoLink })
+                body: JSON.stringify({
+                    repoUrl: formData.repoLink,
+                    language: aiLanguage
+                })
             });
 
             if (!res.ok) throw new Error('Failed to generate project info');
@@ -324,10 +328,19 @@ export default function ProjectForm({ initialData, onSubmit, isEditing = false }
                                 }}
                                 placeholder="https://github.com/..."
                             />
+                            <select
+                                className="h-10 rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none"
+                                value={aiLanguage}
+                                onChange={(e) => setAiLanguage(e.target.value)}
+                                disabled={generating}
+                            >
+                                <option value="vi">VI</option>
+                                <option value="en">EN</option>
+                            </select>
                             <Button
                                 type="button"
                                 variant="outline"
-                                size="icon"
+                                size="icon-lg"
                                 onClick={handleGenerateAI}
                                 disabled={generating || !formData.repoLink}
                                 title="Generate with AI"
