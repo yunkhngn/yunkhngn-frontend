@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import Link from 'next/link';
 import TipTapViewer from '@/components/ui/TipTapViewer';
+import CommentSection from '@/components/blog/CommentSection';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import Layout from '@/components/template/Default/Layout';
@@ -268,6 +269,11 @@ export default function BlogDetail() {
                                         </div>
                                     )}
                                 </div>
+                            </div>
+
+                            {/* Comment Section */}
+                            <div className="mt-16">
+                                <CommentSection blogId={blog.id} />
                             </div>
                         </div>
                     </div>
