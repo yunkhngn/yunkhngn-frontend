@@ -26,13 +26,6 @@ export default function CommentForm({ blogId, onCommentAdded }) {
 
         setLoading(true);
         try {
-            // Update Firebase profile with displayName if anonymous
-            if (user.isAnonymous && user.displayName !== displayName.trim()) {
-                await user.updateProfile({
-                    displayName: displayName.trim(),
-                });
-            }
-
             const token = await user.getIdToken();
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/comments`, {
                 method: 'POST',

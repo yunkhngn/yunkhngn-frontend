@@ -29,6 +29,7 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const isLoggingIn = useRef(false);
+    const hasLoggedOut = useRef(false);
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -73,6 +74,7 @@ export const AuthProvider = ({ children }) => {
     const signInAnon = async () => {
         try {
             await signInAnonymously(auth);
+            hasLoggedOut.current = false;
         } catch (error) {
             console.error('Error signing in anonymously:', error);
         }
@@ -174,6 +176,7 @@ export const AuthProvider = ({ children }) => {
 
     const signOut = async () => {
         try {
+            hasLoggedOut.current = true;
             await firebaseSignOut(auth);
         } catch (error) {
             console.error('Error signing out:', error);
@@ -182,7 +185,7 @@ export const AuthProvider = ({ children }) => {
 
     // Auto sign-in anonymously if not logged in (for visitors)
     useEffect(() => {
-        if (!loading && !user) {
+        if (!loading && !user && !hasLoggedOut.current) {
             signInAnon();
         }
     }, [loading, user]);
