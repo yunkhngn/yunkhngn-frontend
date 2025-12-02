@@ -1,6 +1,18 @@
 version: '3.8'
 
 services:
+  mssql:
+    image: mcr.microsoft.com/azure-sql-edge:latest
+    container_name: yunkhngn-mssql
+    restart: always
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=YourStrong@Passw0rd
+    volumes:
+      - mssql_data:/var/opt/mssql
+    networks:
+      - app-network
+
   backend:
     build:
       context: ./be
@@ -53,5 +65,6 @@ networks:
     driver: bridge
 
 volumes:
+  mssql_data:
   caddy_data:
   caddy_config:
