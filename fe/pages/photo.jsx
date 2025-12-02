@@ -180,75 +180,70 @@ export default function Photo() {
             <Dialog open={!!viewingPhoto} onOpenChange={(open) => !open && setViewingPhoto(null)}>
                 <DialogContent showCloseButton={false} className="max-w-4xl p-0 overflow-hidden border-none bg-transparent shadow-none sm:bg-transparent rounded">
                     {viewingPhoto && (
-                        <div className="relative flex flex-col items-center justify-center min-h-[50vh] max-h-[90vh] pointer-events-none">
-                            {/* Wrapper to constrain caption to image width */}
-                            <div className="relative w-full h-[80vh] pointer-events-auto ">
-                                {/* Top Controls: Reactions + Close */}
-                                <div className="absolute top-2 right-2 md:top-4 md:right-4 z-50 flex items-center gap-2 md:gap-3">
-                                    {/* Reaction Panel */}
-                                    <div className="flex items-center gap-1 md:gap-1.5 bg-black/60 backdrop-blur-md rounded-full px-2 py-1 md:px-2.5 md:py-1.5 shadow-xl border border-white/10">
-                                        {REACTIONS.map((reaction) => {
-                                            const Icon = reaction.icon;
-                                            const isSelected = selectedReaction === reaction.id;
-                                            const count = reactionCounts[reaction.id] || 0;
+                        <div className="relative flex items-center justify-center pointer-events-auto">
+                            {/* Top Controls: Reactions + Close */}
+                            <div className="absolute top-2 right-2 md:top-4 md:right-4 z-50 flex items-center gap-2 md:gap-3">
+                                {/* Reaction Panel */}
+                                <div className="flex items-center gap-1 md:gap-1.5 bg-black/60 backdrop-blur-md rounded-full px-2 py-1 md:px-2.5 md:py-1.5 shadow-xl border border-white/10">
+                                    {REACTIONS.map((reaction) => {
+                                        const Icon = reaction.icon;
+                                        const isSelected = selectedReaction === reaction.id;
+                                        const count = reactionCounts[reaction.id] || 0;
 
-                                            return (
-                                                <button
-                                                    key={reaction.id}
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        handleReactionClick(reaction.id);
-                                                    }}
-                                                    disabled={loadingReaction}
-                                                    className={`flex items-center gap-1 px-1.5 py-1 md:px-2 md:py-1 rounded-full transition-all duration-200 hover:scale-110 ${isSelected
-                                                        ? 'bg-white/20 scale-105'
-                                                        : 'hover:bg-white/10'
-                                                        } ${loadingReaction ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                                    title={reaction.label}
-                                                >
-                                                    <Icon
-                                                        className={`h-3.5 w-3.5 md:h-4 md:w-4 ${isSelected ? reaction.color : 'text-white'
-                                                            } transition-colors duration-200`}
-                                                        fill={isSelected ? 'currentColor' : 'none'}
-                                                        strokeWidth={2}
-                                                    />
-                                                    {count > 0 && (
-                                                        <span className={`text-[10px] md:text-xs font-medium ${isSelected ? reaction.color : 'text-white'}`}>
-                                                            {count}
-                                                        </span>
-                                                    )}
-                                                </button>
-                                            );
-                                        })}
-                                    </div>
-
-                                    {/* Close button */}
-                                    <Button
-                                        variant="secondary"
-                                        size="icon"
-                                        className="rounded-full opacity-80 hover:opacity-100 bg-black/50 hover:bg-black/70 text-white border-none h-8 w-8 md:h-9 md:w-9"
-                                        onClick={() => setViewingPhoto(null)}
-                                    >
-                                        <X className="h-4 w-4" />
-                                    </Button>
+                                        return (
+                                            <button
+                                                key={reaction.id}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleReactionClick(reaction.id);
+                                                }}
+                                                disabled={loadingReaction}
+                                                className={`flex items-center gap-1 px-1.5 py-1 md:px-2 md:py-1 rounded-full transition-all duration-200 hover:scale-110 ${isSelected
+                                                    ? 'bg-white/20 scale-105'
+                                                    : 'hover:bg-white/10'
+                                                    } ${loadingReaction ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                                title={reaction.label}
+                                            >
+                                                <Icon
+                                                    className={`h-3.5 w-3.5 md:h-4 md:w-4 ${isSelected ? reaction.color : 'text-white'
+                                                        } transition-colors duration-200`}
+                                                    fill={isSelected ? 'currentColor' : 'none'}
+                                                    strokeWidth={2}
+                                                />
+                                                {count > 0 && (
+                                                    <span className={`text-[10px] md:text-xs font-medium ${isSelected ? reaction.color : 'text-white'}`}>
+                                                        {count}
+                                                    </span>
+                                                )}
+                                            </button>
+                                        );
+                                    })}
                                 </div>
 
-                                <Image
-                                    src={viewingPhoto.imageUrl}
-                                    alt={viewingPhoto.caption}
-                                    fill
-                                    className="object-contain rounded-2xl shadow-2xl"
-                                    priority
-                                    unoptimized
-                                />
-
-                                {/* Caption Overlay for Modal */}
-                                {viewingPhoto.caption && (
-                                    <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/90 via-black/50 to-transparent rounded-b-lg text-left z-40">
-                                        <p className="text-white text-base sm:text-lg font-medium leading-relaxed">{viewingPhoto.caption}</p>
-                                    </div>
-                                )}
+                                {/* Close button */}
+                                <Button
+                                    variant="secondary"
+                                    size="icon"
+                                    className="rounded-full opacity-80 hover:opacity-100 bg-black/50 hover:bg-black/70 text-white border-none h-8 w-8 md:h-9 md:w-9"
+                                    onClick={() => setViewingPhoto(null)}
+                                >
+                                    <X className="h-4 w-4" />
+                                </Button>
                             </div>
+
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                                src={viewingPhoto.imageUrl}
+                                alt={viewingPhoto.caption}
+                                className="max-w-full max-h-[80vh] w-auto h-auto object-contain rounded-2xl shadow-2xl"
+                            />
+
+                            {/* Caption Overlay for Modal */}
+                            {viewingPhoto.caption && (
+                                <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6 bg-gradient-to-t from-black/90 via-black/50 to-transparent rounded-b-2xl text-left z-40">
+                                    <p className="text-white text-sm md:text-lg font-medium leading-relaxed">{viewingPhoto.caption}</p>
+                                </div>
+                            )}
                         </div>
                     )}
                 </DialogContent>
