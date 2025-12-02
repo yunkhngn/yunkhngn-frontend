@@ -80,13 +80,18 @@ export function LinkBubbleMenu({ editor }) {
             editor={editor}
             tippyOptions={{ duration: 100, placement: 'bottom' }}
             shouldShow={({ editor, from, to }) => {
-                // Show if selection is not empty OR if cursor is on a link
-                return !editor.state.selection.empty || editor.isActive('link');
+                // If cursor is on a link, only show if it starts with http/https
+                if (editor.isActive('link')) {
+                    const href = editor.getAttributes('link').href;
+                    return href && /^https?:\/\//i.test(href);
+                }
+
+                return false;
             }}
         >
             <div className={cn(
                 "flex flex-col gap-1 rounded-xl border-2 border-dashed border-muted-foreground/30 bg-popover p-3 shadow-md transition-all",
-                showInput ? "w-96" : "w-auto"
+                showInput ? "w-[90vw] max-w-xs sm:max-w-sm md:w-96" : "w-auto"
             )}>
                 {showInput ? (
                     <>

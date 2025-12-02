@@ -173,16 +173,36 @@ export default function TipTapEditor({ content, onChange, onImageUpload }) {
     const extensions = [
         StarterKit.configure({
             codeBlock: false, // Disable StarterKit's codeBlock to use CodeBlockLowlight
+            blockquote: {
+                HTMLAttributes: {
+                    class: 'editor-quote',
+                },
+            },
         }),
         Image.configure({
             inline: true,
             allowBase64: true,
         }),
-        Link.configure({
-            openOnClick: false,
-            HTMLAttributes: {
-                class: 'editor-link',
+        Link.extend({
+            addAttributes() {
+                return {
+                    ...this.parent?.(),
+                    class: {
+                        default: null,
+                        renderHTML: (attributes) => {
+                            // Only add .editor-link class if href starts with http/https
+                            if (attributes.href && /^https?:\/\//i.test(attributes.href)) {
+                                return {
+                                    class: 'editor-link',
+                                };
+                            }
+                            return {};
+                        },
+                    },
+                };
             },
+        }).configure({
+            openOnClick: false,
         }),
         CodeBlockLowlight.configure({
             lowlight,

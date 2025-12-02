@@ -140,6 +140,9 @@ export default function BlogList() {
                 <>
                     {filteredBlogs.length > 0 ? (
                         <div className="space-y-16">
+                            <h2 className="text-3xl font-bold">
+                                Recent Posts
+                            </h2>
                             {/* Featured & Recent Section - Only if not filtering */}
                             {!isFiltering && recentBlogs.length > 0 && (
                                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">

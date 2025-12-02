@@ -213,4 +213,44 @@
         -webkit-mask-position: center;
         mask-position: center;
     }
+
+    /* Editor Blockquote Styling */
+    .editor-quote {
+        width: 50%;
+        position: relative !important;
+        padding: 2.5rem 2rem 1.5rem 2rem !important;
+        margin: 1.5rem auto !important;
+        border: 2px dashed rgba(161, 161, 170, 0.3) !important;
+        border-radius: 0.75rem !important;
+        background-color: rgba(244, 244, 245, 0.5) !important;
+        font-size: 1.25rem !important;
+        font-weight: 600 !important;
+        font-style: italic !important;
+        color: var(--foreground) !important;
+        text-align: center !important;
+    }
+
+    .dark .editor-quote {
+        border-color: rgba(161, 161, 170, 0.3) !important;
+        background-color: rgba(39, 39, 42, 0.5) !important;
+    }
+
+    .editor-quote::before {
+        content: "“" !important;
+        position: absolute;
+        top: -1.25rem;
+        left: 50%;
+        transform: translateX(-50%);
+        font-family: serif;
+        font-size: 3.5rem;
+        line-height: 1;
+        color: var(--muted-foreground);
+        background-color: var(--background) !important;
+        padding: 0 0.5rem;
+        opacity: 1;
+        -webkit-mask-image: none !important;
+        mask-image: none !important;
+        width: auto !important;
+        height: auto !important;
+    }
 }

@@ -15,13 +15,33 @@ export default function TipTapViewer({ content }) {
         extensions: [
             StarterKit.configure({
                 codeBlock: false,
+                blockquote: {
+                    HTMLAttributes: {
+                        class: 'editor-quote',
+                    },
+                },
             }),
             Image,
-            Link.configure({
-                openOnClick: true,
-                HTMLAttributes: {
-                    class: 'editor-link',
+            Link.extend({
+                addAttributes() {
+                    return {
+                        ...this.parent?.(),
+                        class: {
+                            default: null,
+                            renderHTML: (attributes) => {
+                                // Only add .editor-link class if href starts with http/https
+                                if (attributes.href && /^https?:\/\//i.test(attributes.href)) {
+                                    return {
+                                        class: 'editor-link',
+                                    };
+                                }
+                                return {};
+                            },
+                        },
+                    };
                 },
+            }).configure({
+                openOnClick: true,
             }),
             CodeBlockLowlight.extend({
                 addNodeView() {
