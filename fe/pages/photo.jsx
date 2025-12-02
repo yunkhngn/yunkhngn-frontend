@@ -183,29 +183,10 @@ export default function Photo() {
                         <div className="relative flex flex-col items-center justify-center min-h-[50vh] max-h-[90vh] pointer-events-none">
                             {/* Wrapper to constrain caption to image width */}
                             <div className="relative max-w-full max-h-[80vh] pointer-events-auto">
-                                {/* Close button */}
-                                <Button
-                                    variant="secondary"
-                                    size="icon"
-                                    className="absolute top-2 right-2 z-50 rounded-full opacity-80 hover:opacity-100 bg-black/50 hover:bg-black/70 text-white border-none"
-                                    onClick={() => setViewingPhoto(null)}
-                                >
-                                    <X className="h-4 w-4" />
-                                </Button>
-
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img
-                                    src={viewingPhoto.imageUrl}
-                                    alt={viewingPhoto.caption}
-                                    className="w-auto h-auto max-w-full max-h-[80vh] object-contain rounded-lg shadow-2xl"
-                                />
-
-                                {/* Reaction Panel - Smaller, at Bottom, with Counts */}
-                                <div
-                                    className="absolute bottom-4 left-1/2 -translate-x-1/2 z-50"
-                                    style={{ pointerEvents: 'auto' }}
-                                >
-                                    <div className="flex items-center gap-1.5 bg-black/80 backdrop-blur-md rounded-full px-2.5 py-1.5 shadow-xl border border-white/20">
+                                {/* Top Controls: Reactions + Close */}
+                                <div className="absolute top-4 right-4 z-50 flex items-center gap-3">
+                                    {/* Reaction Panel */}
+                                    <div className="flex items-center gap-1.5 bg-black/60 backdrop-blur-md rounded-full px-2.5 py-1.5 shadow-xl border border-white/10">
                                         {REACTIONS.map((reaction) => {
                                             const Icon = reaction.icon;
                                             const isSelected = selectedReaction === reaction.id;
@@ -240,6 +221,16 @@ export default function Photo() {
                                             );
                                         })}
                                     </div>
+
+                                    {/* Close button */}
+                                    <Button
+                                        variant="secondary"
+                                        size="icon"
+                                        className="rounded-full opacity-80 hover:opacity-100 bg-black/50 hover:bg-black/70 text-white border-none h-9 w-9"
+                                        onClick={() => setViewingPhoto(null)}
+                                    >
+                                        <X className="h-4 w-4" />
+                                    </Button>
                                 </div>
 
                                 {/* Caption Overlay for Modal */}
