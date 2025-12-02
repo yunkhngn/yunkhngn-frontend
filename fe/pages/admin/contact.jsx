@@ -20,12 +20,6 @@ export default function AdminContact() {
     const [aiGenerating, setAiGenerating] = useState(false);
     const [aiLanguage, setAiLanguage] = useState('en'); // en or vi
 
-    useEffect(() => {
-        if (user) {
-            fetchContacts();
-        }
-    }, [user, fetchContacts]);
-
     const fetchContacts = useCallback(async () => {
         if (!user) return;
         try {
@@ -43,6 +37,12 @@ export default function AdminContact() {
             setLoading(false);
         }
     }, [user]);
+
+    useEffect(() => {
+        if (user) {
+            fetchContacts();
+        }
+    }, [user, fetchContacts]);
 
     const markAsRead = async (id) => {
         try {
