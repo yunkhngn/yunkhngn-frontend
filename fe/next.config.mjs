@@ -16,7 +16,8 @@ const nextConfig = {
       'avatars.githubusercontent.com', 
       'lh3.googleusercontent.com',
       'cataas.com',
-      'placekitten.com'
+      'placekitten.com',
+      'cdn.buymeacoffee.com'
     ],
     remotePatterns: [
       {
@@ -52,6 +53,11 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'github.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdn.buymeacoffee.com',
         pathname: '/**',
       }
     ],

@@ -26,7 +26,7 @@ export function LinkBubbleMenu({ editor }) {
             if (url !== '') setUrl('');
             if (text !== '') setText('');
         }
-    }, [editor, editor?.state?.selection]);
+    }, [editor, editor?.state?.selection, url, text]);
 
     const setLink = useCallback(() => {
         if (url === '') {

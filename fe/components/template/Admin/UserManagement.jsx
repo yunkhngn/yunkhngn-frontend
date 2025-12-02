@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -20,7 +20,7 @@ export default function UserManagement() {
     const [deleteId, setDeleteId] = useState(null);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
-    const fetchUsers = async () => {
+    const fetchUsers = useCallback(async () => {
         try {
             const token = await user.getIdToken();
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user`, {
@@ -35,11 +35,11 @@ export default function UserManagement() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [user]);
 
     useEffect(() => {
         if (user) fetchUsers();
-    }, [user]);
+    }, [user, fetchUsers]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();

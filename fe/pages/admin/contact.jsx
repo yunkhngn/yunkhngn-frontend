@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import AdminLayout from '@/components/template/Admin/Layout';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/Button';
@@ -21,10 +21,13 @@ export default function AdminContact() {
     const [aiLanguage, setAiLanguage] = useState('en'); // en or vi
 
     useEffect(() => {
-        fetchContacts();
-    }, []);
+        if (user) {
+            fetchContacts();
+        }
+    }, [user, fetchContacts]);
 
-    const fetchContacts = async () => {
+    const fetchContacts = useCallback(async () => {
+        if (!user) return;
         try {
             const token = await user.getIdToken();
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/contact`, {
@@ -39,7 +42,7 @@ export default function AdminContact() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [user]);
 
     const markAsRead = async (id) => {
         try {

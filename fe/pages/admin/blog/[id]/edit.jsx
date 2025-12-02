@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import AdminLayout from '@/components/template/Admin/Layout';
 import BlogForm from '@/components/template/Admin/BlogForm';
 import { useRouter } from 'next/router';
@@ -17,9 +17,9 @@ export default function EditBlog() {
         if (id && user) {
             fetchBlog();
         }
-    }, [id, user]);
+    }, [id, user, fetchBlog]);
 
-    const fetchBlog = async () => {
+    const fetchBlog = useCallback(async () => {
         try {
             const token = await user.getIdToken();
             const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/blogs/${id}`, {
@@ -33,7 +33,7 @@ export default function EditBlog() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [id, user, router]);
 
     const handleSubmit = async (data) => {
         try {

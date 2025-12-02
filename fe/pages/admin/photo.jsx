@@ -425,6 +425,7 @@ export default function PhotoManager() {
                                     <Trash2 className="h-4 w-4" />
                                 </Button>
 
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
                                 <img
                                     src={viewingPhoto.imageUrl}
                                     alt={viewingPhoto.caption}

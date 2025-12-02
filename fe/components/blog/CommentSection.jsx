@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import Comment from './Comment';
 import CommentForm from './CommentForm';
@@ -11,9 +11,9 @@ export default function CommentSection({ blogId, projectId }) {
 
     useEffect(() => {
         fetchComments();
-    }, [blogId, projectId]);
+    }, [fetchComments]);
 
-    const fetchComments = async () => {
+    const fetchComments = useCallback(async () => {
         try {
             const queryParam = blogId ? `blogId=${blogId}` : `projectId=${projectId}`;
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/comments?${queryParam}`);
@@ -27,7 +27,7 @@ export default function CommentSection({ blogId, projectId }) {
         } finally {
             setLoading(false);
         }
-    };
+    }, [blogId, projectId]);
 
     const handleCommentAdded = (newComment) => {
         setComments([newComment, ...comments]);

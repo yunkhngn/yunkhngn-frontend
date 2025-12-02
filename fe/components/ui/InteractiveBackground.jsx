@@ -1,6 +1,63 @@
 import { useEffect, useRef } from 'react';
 import { useTheme } from 'next-themes';
 
+class Particle {
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.vx = (Math.random() - 0.5) * 0.5;
+        this.vy = (Math.random() - 0.5) * 0.5;
+        this.size = Math.random() * 2 + 1;
+        this.baseX = x;
+        this.baseY = y;
+        this.density = (Math.random() * 30) + 1;
+    }
+
+    draw(ctx, color, opacityMultiplier) {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.closePath();
+        ctx.fillStyle = `rgba(${color}, ${opacityMultiplier})`;
+        ctx.fill();
+    }
+
+    update(ctx, mouse, canvas, color, opacityMultiplier) {
+        // Mouse interaction
+        if (mouse.x != null) {
+            // Adjust mouse coordinates relative to canvas
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = mouse.x - rect.left;
+            const mouseY = mouse.y - rect.top;
+
+            let dx = mouseX - this.x;
+            let dy = mouseY - this.y;
+            let distance = Math.sqrt(dx * dx + dy * dy);
+            let forceDirectionX = dx / distance;
+            let forceDirectionY = dy / distance;
+            let maxDistance = mouse.radius;
+            let force = (maxDistance - distance) / maxDistance;
+            let directionX = forceDirectionX * force * this.density;
+            let directionY = forceDirectionY * force * this.density;
+
+            if (distance < mouse.radius) {
+                this.x -= directionX;
+                this.y -= directionY;
+            } else {
+                if (this.x !== this.baseX) {
+                    let dx = this.x - this.baseX;
+                    this.x -= dx / 10;
+                }
+                if (this.y !== this.baseY) {
+                    let dy = this.y - this.baseY;
+                    this.y -= dy / 10;
+                }
+            }
+        }
+
+        this.draw(ctx, color, opacityMultiplier);
+    }
+}
+
 export default function InteractiveBackground({ className = "" }) {
     const canvasRef = useRef(null);
     const { resolvedTheme } = useTheme();
@@ -29,63 +86,6 @@ export default function InteractiveBackground({ className = "" }) {
             ctx.scale(dpr, dpr);
             initParticles(rect.width, rect.height);
         };
-
-        class Particle {
-            constructor(x, y) {
-                this.x = x;
-                this.y = y;
-                this.vx = (Math.random() - 0.5) * 0.5;
-                this.vy = (Math.random() - 0.5) * 0.5;
-                this.size = Math.random() * 2 + 1;
-                this.baseX = x;
-                this.baseY = y;
-                this.density = (Math.random() * 30) + 1;
-            }
-
-            draw() {
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.closePath();
-                ctx.fillStyle = `rgba(${color}, ${opacityMultiplier})`;
-                ctx.fill();
-            }
-
-            update() {
-                // Mouse interaction
-                if (mouse.x != null) {
-                    // Adjust mouse coordinates relative to canvas
-                    const rect = canvas.getBoundingClientRect();
-                    const mouseX = mouse.x - rect.left;
-                    const mouseY = mouse.y - rect.top;
-
-                    let dx = mouseX - this.x;
-                    let dy = mouseY - this.y;
-                    let distance = Math.sqrt(dx * dx + dy * dy);
-                    let forceDirectionX = dx / distance;
-                    let forceDirectionY = dy / distance;
-                    let maxDistance = mouse.radius;
-                    let force = (maxDistance - distance) / maxDistance;
-                    let directionX = forceDirectionX * force * this.density;
-                    let directionY = forceDirectionY * force * this.density;
-
-                    if (distance < mouse.radius) {
-                        this.x -= directionX;
-                        this.y -= directionY;
-                    } else {
-                        if (this.x !== this.baseX) {
-                            let dx = this.x - this.baseX;
-                            this.x -= dx / 10;
-                        }
-                        if (this.y !== this.baseY) {
-                            let dy = this.y - this.baseY;
-                            this.y -= dy / 10;
-                        }
-                    }
-                }
-
-                this.draw();
-            }
-        }
 
         const initParticles = (width, height) => {
             particles = [];
@@ -122,7 +122,7 @@ export default function InteractiveBackground({ className = "" }) {
             ctx.clearRect(0, 0, rect.width, rect.height);
 
             for (let i = 0; i < particles.length; i++) {
-                particles[i].update();
+                particles[i].update(ctx, mouse, canvas, color, opacityMultiplier);
             }
             connect(rect.width, rect.height);
         };

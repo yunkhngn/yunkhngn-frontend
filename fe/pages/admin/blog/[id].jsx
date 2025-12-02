@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import AdminLayout from '@/components/template/Admin/Layout';
 import { useRouter } from 'next/router';
 import { useAuth } from '@/contexts/AuthContext';
@@ -23,9 +23,9 @@ export default function ViewBlog() {
         if (id && user) {
             fetchBlog();
         }
-    }, [id, user]);
+    }, [id, user, fetchBlog]);
 
-    const fetchBlog = async () => {
+    const fetchBlog = useCallback(async () => {
         try {
             const token = await user.getIdToken();
             const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/blogs/${id}`, {
@@ -39,7 +39,7 @@ export default function ViewBlog() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [id, user, router]);
 
     if (loading) return <AdminLayout><div>Loading...</div></AdminLayout>;
     if (!blog) return <AdminLayout><div>Blog not found</div></AdminLayout>;

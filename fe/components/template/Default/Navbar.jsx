@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useTheme } from 'next-themes';
 import { Search, Moon, Sun, Menu, X, LogOut, LayoutDashboard, User, Settings } from 'lucide-react';
@@ -193,10 +194,13 @@ export default function Navbar() {
                         rel="noopener noreferrer"
                         className="hidden sm:flex hover:scale-105 transition-transform"
                     >
-                        <img
+                        <Image
                             src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png"
                             alt="Buy Me A Coffee"
+                            width={130}
+                            height={36}
                             className="h-9 w-auto"
+                            unoptimized
                         />
                     </a>
 

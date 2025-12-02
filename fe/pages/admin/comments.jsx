@@ -1,5 +1,5 @@
 import AdminLayout from "@/components/template/Admin/Layout";
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -44,7 +44,7 @@ export default function AdminComments() {
     const [reportTotalPages, setReportTotalPages] = useState(1);
     const limit = 100;
 
-    const fetchComments = async (pageNum = 1) => {
+    const fetchComments = useCallback(async (pageNum = 1) => {
         try {
             const token = await user.getIdToken();
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/comments?includeHidden=true&page=${pageNum}&limit=${limit}`, {
@@ -59,9 +59,9 @@ export default function AdminComments() {
             console.error('Error fetching comments:', error);
             toast.error('Failed to fetch comments');
         }
-    };
+    }, [user]);
 
-    const fetchReports = async (pageNum = 1) => {
+    const fetchReports = useCallback(async (pageNum = 1) => {
         try {
             const token = await user.getIdToken();
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/comments/admin/reports?page=${pageNum}&limit=${limit}`, {
@@ -76,14 +76,14 @@ export default function AdminComments() {
             console.error('Error fetching reports:', error);
             toast.error('Failed to fetch reports');
         }
-    };
+    }, [user]);
 
     useEffect(() => {
         if (user) {
             Promise.all([fetchComments(1), fetchReports(1)])
                 .finally(() => setLoading(false));
         }
-    }, [user]);
+    }, [user, fetchComments, fetchReports]);
 
     const handlePageChange = (newPage) => {
         if (newPage >= 1 && newPage <= totalPages) {

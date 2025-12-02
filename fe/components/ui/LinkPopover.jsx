@@ -14,7 +14,7 @@ export function LinkPopover({ editor, children }) {
             // eslint-disable-next-line react-hooks/set-state-in-effect
             if (url !== newUrl) setUrl(newUrl);
         }
-    }, [isOpen, editor]);
+    }, [isOpen, editor, url]);
 
     const setLink = () => {
         if (url === '') {
