@@ -67,22 +67,22 @@ export default function Photo() {
     const handleReactionClick = async (reactionId) => {
         if (!viewingPhoto) return;
 
-        // Ensure user is authenticated (anonymous or logged in)
-        let currentUser = user;
-        if (!currentUser) {
-            try {
-                await signInAnonymously();
-                currentUser = user; // This might not update immediately, but the next click will work
-                toast.info('Signed in anonymously to react');
-                return; // Let user click again after anonymous login
-            } catch (error) {
-                toast.error('Failed to authenticate');
-                return;
-            }
-        }
-
         setLoadingReaction(true);
         try {
+            // Ensure user is authenticated (anonymous or logged in)
+            let currentUser = user;
+            if (!currentUser) {
+                try {
+                    const result = await signInAnonymously();
+                    currentUser = result.user; // Get user from UserCredential
+                    toast.success('Signed in anonymously');
+                } catch (error) {
+                    toast.error('Failed to authenticate');
+                    setLoadingReaction(false);
+                    return;
+                }
+            }
+
             const token = await currentUser.getIdToken();
 
             // If clicking the same reaction, remove it
@@ -199,35 +199,42 @@ export default function Photo() {
                                     className="w-auto h-auto max-w-full max-h-[80vh] object-contain rounded-lg shadow-2xl"
                                 />
 
-                                {/* Reaction Panel */}
+                                {/* Reaction Panel - Smaller, at Bottom, with Counts */}
                                 <div
-                                    className="absolute top-4 left-1/2 -translate-x-1/2 z-50"
+                                    className="absolute bottom-4 left-1/2 -translate-x-1/2 z-50"
                                     style={{ pointerEvents: 'auto' }}
                                 >
-                                    <div className="flex items-center gap-3 bg-white/95 dark:bg-black/90 backdrop-blur-md rounded-full px-4 py-3 shadow-2xl border-2 border-gray-300 dark:border-white/20">
+                                    <div className="flex items-center gap-1.5 bg-black/80 backdrop-blur-md rounded-full px-2.5 py-1.5 shadow-xl border border-white/20">
                                         {REACTIONS.map((reaction) => {
                                             const Icon = reaction.icon;
                                             const isSelected = selectedReaction === reaction.id;
+                                            const count = reactionCounts[reaction.id] || 0;
 
                                             return (
                                                 <button
                                                     key={reaction.id}
                                                     onClick={(e) => {
                                                         e.stopPropagation();
-                                                        setSelectedReaction(isSelected ? null : reaction.id);
+                                                        handleReactionClick(reaction.id);
                                                     }}
-                                                    className={`p-2.5 rounded-full transition-all duration-200 hover:scale-125 ${isSelected
-                                                        ? 'bg-gray-200 dark:bg-white/20 scale-110'
-                                                        : 'hover:bg-gray-100 dark:hover:bg-white/10'
-                                                        }`}
+                                                    disabled={loadingReaction}
+                                                    className={`flex items-center gap-1 px-2 py-1 rounded-full transition-all duration-200 hover:scale-110 ${isSelected
+                                                        ? 'bg-white/20 scale-105'
+                                                        : 'hover:bg-white/10'
+                                                        } ${loadingReaction ? 'opacity-50 cursor-not-allowed' : ''}`}
                                                     title={reaction.label}
                                                 >
                                                     <Icon
-                                                        className={`h-6 w-6 ${isSelected ? reaction.color : 'text-gray-700 dark:text-white'
+                                                        className={`h-4 w-4 ${isSelected ? reaction.color : 'text-white'
                                                             } transition-colors duration-200`}
                                                         fill={isSelected ? 'currentColor' : 'none'}
                                                         strokeWidth={2}
                                                     />
+                                                    {count > 0 && (
+                                                        <span className={`text-xs font-medium ${isSelected ? reaction.color : 'text-white'}`}>
+                                                            {count}
+                                                        </span>
+                                                    )}
                                                 </button>
                                             );
                                         })}

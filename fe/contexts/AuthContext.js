@@ -37,26 +37,31 @@ export const AuthProvider = ({ children }) => {
 
             if (user) {
                 try {
-                    const token = await user.getIdToken();
-                    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/me`, {
-                        headers: {
-                            Authorization: `Bearer ${token}`
-                        }
-                    });
-                    if (res.ok) {
-                        const profile = await res.json();
-                        // Merge profile data
-                        user.avatarUrl = profile.avatarUrl;
-                        if (profile.name) {
-                            user.displayName = profile.name;
-                        }
-                        user.role = profile.role;
+                    // Skip database check for anonymous users
+                    if (user.isAnonymous) {
                         setUser(user);
                     } else {
-                        // User not in DB
-                        console.error('User not found in database');
-                        await firebaseSignOut(auth);
-                        setUser(null);
+                        const token = await user.getIdToken();
+                        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/me`, {
+                            headers: {
+                                Authorization: `Bearer ${token}`
+                            }
+                        });
+                        if (res.ok) {
+                            const profile = await res.json();
+                            // Merge profile data
+                            user.avatarUrl = profile.avatarUrl;
+                            if (profile.name) {
+                                user.displayName = profile.name;
+                            }
+                            user.role = profile.role;
+                            setUser(user);
+                        } else {
+                            // User not in DB
+                            console.error('User not found in database');
+                            await firebaseSignOut(auth);
+                            setUser(null);
+                        }
                     }
                 } catch (error) {
                     console.error('Failed to fetch user profile:', error);
