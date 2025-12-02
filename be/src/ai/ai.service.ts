@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { GoogleGenerativeAI, GenerativeModel } from '@google/generative-ai';
 
-interface ProjectInfo {
+export interface ProjectInfo {
   title: string;
   description: string;
   content: string;
