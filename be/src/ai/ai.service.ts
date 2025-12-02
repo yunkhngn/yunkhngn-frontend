@@ -80,4 +80,55 @@ export class AiService {
             throw new Error('Failed to generate project info');
         }
     }
+    async generateBlogContent(prompt: string, currentContent?: string, language: string = 'vi'): Promise<string> {
+        try {
+            let systemPrompt = '';
+            if (currentContent) {
+                systemPrompt = `
+                    You are a professional blog editor and writer.
+                    The user wants you to EDIT or EXTEND the following blog content based on their instructions.
+                    
+                    Current Content (HTML):
+                    ${currentContent}
+                    
+                    User Instructions: ${prompt}
+                    
+                    Output Requirements:
+                    1. Return the FULL updated content in clean HTML format (TipTap-compatible).
+                    2. Use <h2>, <h3> for headings (no <h1>).
+                    3. Use <p>, <ul>, <ol>, <li>, <strong>, <em>, <blockquote>, <pre><code> for formatting.
+                    4. Maintain the existing style and tone.
+                    5. Write in ${language === 'vi' ? 'Vietnamese' : 'English'}.
+                    6. Do NOT wrap the output in markdown code blocks (like \`\`\`html). Just return the raw HTML string.
+                `;
+            } else {
+                systemPrompt = `
+                    You are a professional blog writer.
+                    The user wants you to WRITE a new blog post based on their instructions.
+                    
+                    User Instructions: ${prompt}
+                    
+                    Output Requirements:
+                    1. Return the FULL content in clean HTML format (TipTap-compatible).
+                    2. Use <h2>, <h3> for headings (no <h1>).
+                    3. Use <p>, <ul>, <ol>, <li>, <strong>, <em>, <blockquote>, <pre><code> for formatting.
+                    4. Structure the post logically (Introduction, Body, Conclusion).
+                    5. Write in ${language === 'vi' ? 'Vietnamese' : 'English'}.
+                    6. Do NOT wrap the output in markdown code blocks (like \`\`\`html). Just return the raw HTML string.
+                `;
+            }
+
+            const result = await this.model.generateContent(systemPrompt);
+            const response = await result.response;
+            let text = response.text();
+
+            // Clean up markdown code blocks if present
+            text = text.replace(/```html\n?|\n?```/g, '').trim();
+
+            return text;
+        } catch (error) {
+            console.error('Error generating blog content:', error);
+            throw new Error('Failed to generate blog content');
+        }
+    }
 }

@@ -12,6 +12,8 @@ import { toast } from 'sonner';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/Select';
 import { useUnsavedChanges } from '@/hooks/useUnsavedChanges';
 import { UnsavedChangesModal } from '@/components/ui/UnsavedChangesModal';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/Dialog';
+import { Sparkles } from 'lucide-react';
 
 export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
     const router = useRouter();
@@ -28,6 +30,10 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
     const [uploading, setUploading] = useState(false);
     const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
     const [isDirty, setIsDirty] = useState(false);
+    const [showAiModal, setShowAiModal] = useState(false);
+    const [aiPrompt, setAiPrompt] = useState('');
+    const [aiLanguage, setAiLanguage] = useState('vi');
+    const [generatingAi, setGeneratingAi] = useState(false);
     const fileInputRef = useRef(null);
 
     const { showModal, setShowModal, confirmNavigation } = useUnsavedChanges(isDirty);
@@ -205,6 +211,40 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
         }
     };
 
+    const handleAiGenerate = async () => {
+        if (!aiPrompt) return;
+        setGeneratingAi(true);
+        try {
+            const token = await user.getIdToken();
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ai/blog-content`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    prompt: aiPrompt,
+                    currentContent: formData.contentJSON, // Send current content for context/editing
+                    language: aiLanguage
+                })
+            });
+
+            if (!res.ok) throw new Error('Failed to generate content');
+
+            const data = await res.json();
+            setFormData(prev => ({ ...prev, contentJSON: data.content }));
+            setIsDirty(true);
+            setShowAiModal(false);
+            setAiPrompt('');
+            toast.success('Content generated successfully');
+        } catch (error) {
+            console.error(error);
+            toast.error('Failed to generate content');
+        } finally {
+            setGeneratingAi(false);
+        }
+    };
+
     return (
         <div className="flex flex-col gap-4 h-full">
             <UnsavedChangesModal
@@ -212,12 +252,70 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
                 onOpenChange={setShowModal}
                 onConfirm={confirmNavigation}
             />
+
+            {/* AI Assistant Modal */}
+            <Dialog open={showAiModal} onOpenChange={setShowAiModal}>
+                <DialogContent className="sm:max-w-[500px]">
+                    <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2">
+                            <Sparkles className="h-5 w-5 text-yellow-500" />
+                            AI Writing Assistant
+                        </DialogTitle>
+                        <DialogDescription>
+                            Describe what you want to write or how you want to edit the current content.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4 py-4">
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium">Instructions</label>
+                            <Textarea
+                                value={aiPrompt}
+                                onChange={(e) => setAiPrompt(e.target.value)}
+                                placeholder="E.g., Write a blog post about React Hooks..."
+                                className="min-h-[100px]"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium">Language</label>
+                            <Select value={aiLanguage} onValueChange={setAiLanguage}>
+                                <SelectTrigger>
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="vi">Vietnamese</SelectItem>
+                                    <SelectItem value="en">English</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    </div>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setShowAiModal(false)} disabled={generatingAi}>
+                            Cancel
+                        </Button>
+                        <Button onClick={handleAiGenerate} disabled={!aiPrompt || generatingAi}>
+                            {generatingAi ? (
+                                <>
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Generating...
+                                </>
+                            ) : (
+                                <>
+                                    <Sparkles className="mr-2 h-4 w-4" /> Generate
+                                </>
+                            )}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
             <div className="flex items-center justify-between sticky top-0 bg-background z-10 py-2 border-b">
                 <h2 className="text-xl font-bold">
                     {isEditing ? 'Edit Blog' : 'New Blog'}
                 </h2>
                 <Button variant="ghost" size="sm" onClick={resetForm}>
                     <RotateCcw className="h-4 w-4 mr-2" /> Reset
+                </Button>
+                <Button variant="outline" size="sm" className="ml-auto mr-2" onClick={() => setShowAiModal(true)}>
+                    <Sparkles className="h-4 w-4 mr-2 text-yellow-500" /> AI Assistant
                 </Button>
             </div>
 

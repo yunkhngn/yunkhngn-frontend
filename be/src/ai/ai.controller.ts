@@ -24,5 +24,18 @@ export class AiController {
         }
         return this.aiService.generateProjectInfo(repoUrl, language);
     }
+    @Post('blog-content')
+    @UseGuards(FirebaseAuthGuard)
+    async generateBlogContent(
+        @Body('prompt') prompt: string,
+        @Body('currentContent') currentContent: string,
+        @Body('language') language: string
+    ) {
+        if (!prompt) {
+            throw new Error('Prompt is required');
+        }
+        const content = await this.aiService.generateBlogContent(prompt, currentContent, language);
+        return { content };
+    }
 }
 
