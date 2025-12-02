@@ -49,6 +49,7 @@ const nextConfig = {
   webpack: (config) => {
     config.resolve.alias = {
       ...config.resolve.alias,
+      '@': path.resolve(__dirname, './'),
       'highlight.js/lib/core': path.resolve(__dirname, 'node_modules/highlight.js/lib/core.js'),
     };
     return config;
