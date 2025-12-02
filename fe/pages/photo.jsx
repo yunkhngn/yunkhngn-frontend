@@ -184,9 +184,9 @@ export default function Photo() {
                             {/* Wrapper to constrain caption to image width */}
                             <div className="relative w-full h-[80vh] pointer-events-auto ">
                                 {/* Top Controls: Reactions + Close */}
-                                <div className="absolute top-4 right-4 z-50 flex items-center gap-3">
+                                <div className="absolute top-2 right-2 md:top-4 md:right-4 z-50 flex items-center gap-2 md:gap-3">
                                     {/* Reaction Panel */}
-                                    <div className="flex items-center gap-1.5 bg-black/60 backdrop-blur-md rounded-full px-2.5 py-1.5 shadow-xl border border-white/10">
+                                    <div className="flex items-center gap-1 md:gap-1.5 bg-black/60 backdrop-blur-md rounded-full px-2 py-1 md:px-2.5 md:py-1.5 shadow-xl border border-white/10">
                                         {REACTIONS.map((reaction) => {
                                             const Icon = reaction.icon;
                                             const isSelected = selectedReaction === reaction.id;
@@ -200,20 +200,20 @@ export default function Photo() {
                                                         handleReactionClick(reaction.id);
                                                     }}
                                                     disabled={loadingReaction}
-                                                    className={`flex items-center gap-1 px-2 py-1 rounded-full transition-all duration-200 hover:scale-110 ${isSelected
+                                                    className={`flex items-center gap-1 px-1.5 py-1 md:px-2 md:py-1 rounded-full transition-all duration-200 hover:scale-110 ${isSelected
                                                         ? 'bg-white/20 scale-105'
                                                         : 'hover:bg-white/10'
                                                         } ${loadingReaction ? 'opacity-50 cursor-not-allowed' : ''}`}
                                                     title={reaction.label}
                                                 >
                                                     <Icon
-                                                        className={`h-4 w-4 ${isSelected ? reaction.color : 'text-white'
+                                                        className={`h-3.5 w-3.5 md:h-4 md:w-4 ${isSelected ? reaction.color : 'text-white'
                                                             } transition-colors duration-200`}
                                                         fill={isSelected ? 'currentColor' : 'none'}
                                                         strokeWidth={2}
                                                     />
                                                     {count > 0 && (
-                                                        <span className={`text-xs font-medium ${isSelected ? reaction.color : 'text-white'}`}>
+                                                        <span className={`text-[10px] md:text-xs font-medium ${isSelected ? reaction.color : 'text-white'}`}>
                                                             {count}
                                                         </span>
                                                     )}
@@ -226,7 +226,7 @@ export default function Photo() {
                                     <Button
                                         variant="secondary"
                                         size="icon"
-                                        className="rounded-full opacity-80 hover:opacity-100 bg-black/50 hover:bg-black/70 text-white border-none h-9 w-9"
+                                        className="rounded-full opacity-80 hover:opacity-100 bg-black/50 hover:bg-black/70 text-white border-none h-8 w-8 md:h-9 md:w-9"
                                         onClick={() => setViewingPhoto(null)}
                                     >
                                         <X className="h-4 w-4" />
