@@ -61,7 +61,7 @@ export default function ProjectList() {
                 <div className="space-y-4">
                     <div className="text-sm font-medium text-primary uppercase tracking-wider">My Work</div>
                     <h1 className="text-4xl md:text-6xl font-bold tracking-tight font-serif">
-                        Projects
+                        Project Repositories
                     </h1>
                     <p className="text-muted-foreground max-w-2xl mx-auto text-lg md:text-xl">
                         A collection of my work, side projects, and open source contributions.
