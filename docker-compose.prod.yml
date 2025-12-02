@@ -27,6 +27,8 @@ services:
       - "3001:3001"
     networks:
       - app-network
+    volumes:
+      - ./be/firebase-admin-sdk.json:/app/firebase-admin-sdk.json
 
   frontend:
     build:
