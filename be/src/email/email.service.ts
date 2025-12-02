@@ -22,7 +22,7 @@ export class EmailService {
     <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
         <div style="margin-bottom: 40px; border-bottom: 1px solid #333; padding-bottom: 20px;">
             <h1 style="margin: 0; font-size: 20px; font-weight: 600; color: #ffffff; letter-spacing: -0.5px;">New Contact Message</h1>
-            <div style="margin-top: 8px; font-size: 13px; color: #888;">Received via yunkhngn.com</div>
+            <div style="margin-top: 8px; font-size: 13px; color: #888;">Received via yunkhngn.dev</div>
         </div>
 
         <div style="background: #111; border: 1px solid #222; border-radius: 12px; padding: 24px;">
@@ -101,7 +101,9 @@ export class EmailService {
                 <p style="margin: 0; color: #fff; font-weight: 500;">Khoa Nguyen</p>
                 <p style="margin: 4px 0 0; font-size: 14px; color: #666;">Software Engineer & Designer</p>
                 <div style="margin-top: 16px;">
-                    <a href="https://yunkhngn.com" style="color: #666; text-decoration: none; font-size: 13px; margin-right: 16px;">Website</a>
+                    <a href="https://yunkhngn.dev" style="color: #666; text-decoration: none; font-size: 13px; margin-right: 16px;">Website</a>
+                    <a href="https://facebook.com/yun.khngn" style="color: #666; text-decoration: none; font-size: 13px; margin-right: 16px;">Facebook</a>
+                    <a href="https://instagram.com/yun.khngn" style="color: #666; text-decoration: none; font-size: 13px; margin-right: 16px;">Instagram</a>
                     <a href="https://github.com/yunkhngn" style="color: #666; text-decoration: none; font-size: 13px; margin-right: 16px;">GitHub</a>
                     <a href="https://linkedin.com/in/yunkhngn" style="color: #666; text-decoration: none; font-size: 13px;">LinkedIn</a>
                 </div>
@@ -135,7 +137,7 @@ export class EmailService {
       });
 
       const { data, error } = await this.resend.emails.send({
-        from: `Portfolio Contact <noreply@${process.env.RESEND_DOMAIN}>`,
+        from: `Website Contact <noreply@${process.env.RESEND_DOMAIN}>`,
         to: process.env.ADMIN_EMAIL || 'admin@example.com',
         subject: `New Contact: ${contact.subject}`,
         html,
