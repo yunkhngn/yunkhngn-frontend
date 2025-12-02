@@ -103,8 +103,13 @@ export default function AdminContact() {
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/contact/${viewingContact.id}/ai-suggest`, {
                 method: 'POST',
                 headers: {
+                    'Content-Type': 'application/json',
                     Authorization: `Bearer ${token}`,
                 },
+                body: JSON.stringify({
+                    language: aiLanguage,
+                    existingText: response.trim() || null,
+                }),
             });
 
             if (res.ok) {
@@ -270,7 +275,18 @@ export default function AdminContact() {
 
                                 {viewingContact.status !== 'responded' && (
                                     <div>
-                                        <h4 className="font-semibold mb-2">Send Response:</h4>
+                                        <div className="flex items-center justify-between mb-2">
+                                            <h4 className="font-semibold">Send Response:</h4>
+                                            <Select value={aiLanguage} onValueChange={setAiLanguage}>
+                                                <SelectTrigger className="w-[140px] h-8">
+                                                    <SelectValue />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="en">🇬🇧 English</SelectItem>
+                                                    <SelectItem value="vi">🇻🇳 Tiếng Việt</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
                                         <div className="relative">
                                             <Textarea
                                                 placeholder="Type your response here..."
