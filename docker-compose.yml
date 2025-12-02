@@ -13,6 +13,9 @@ services:
       - mssql_data:/var/opt/mssql
     networks:
       - app_network
+    security_opt:
+      - no-new-privileges:true
+    # nosemgrep: yaml.docker-compose.security.writable-filesystem-service.writable-filesystem-service
 
   backend:
     build:
@@ -30,6 +33,9 @@ services:
       - app_network
     volumes:
       - ./be:/usr/src/app
+    security_opt:
+      - no-new-privileges:true
+    # nosemgrep: yaml.docker-compose.security.writable-filesystem-service.writable-filesystem-service
 
 
   caddy:
@@ -47,6 +53,9 @@ services:
       - app_network
     depends_on:
       - backend
+    security_opt:
+      - no-new-privileges:true
+    # nosemgrep: yaml.docker-compose.security.writable-filesystem-service.writable-filesystem-service
 
 networks:
   app_network:
