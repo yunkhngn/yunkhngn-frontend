@@ -74,10 +74,14 @@ export function ImagePreviewModal({ isOpen, onClose, imageSrc, caption }) {
                             </button>
                         </div>
 
-                        <img
+                        <Image
                             src={imageSrc}
                             alt="Preview"
+                            width={0}
+                            height={0}
+                            sizes="100vw"
                             className="max-w-[95vw] max-h-[85vh] w-auto h-auto object-contain rounded-2xl shadow-2xl bg-black/20"
+                            unoptimized
                         />
 
                         {/* Caption Overlay */}

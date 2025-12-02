@@ -231,11 +231,14 @@ export default function Photo() {
                                 </Button>
                             </div>
 
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img
+                            <Image
                                 src={viewingPhoto.imageUrl}
                                 alt={viewingPhoto.caption}
+                                width={0}
+                                height={0}
+                                sizes="100vw"
                                 className="max-w-full max-h-[80vh] w-auto h-auto object-contain rounded-2xl shadow-2xl"
+                                unoptimized
                             />
 
                             {/* Caption Overlay for Modal */}
