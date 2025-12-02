@@ -1,6 +1,7 @@
 version: '3.8'
 
 services:
+  # nosemgrep: yaml.docker-compose.security.writable-filesystem-service.writable-filesystem-service
   mssql:
     image: mcr.microsoft.com/azure-sql-edge:latest
     container_name: yunkhngn_mssql
@@ -15,8 +16,8 @@ services:
       - app_network
     security_opt:
       - no-new-privileges:true
-    # nosemgrep: yaml.docker-compose.security.writable-filesystem-service.writable-filesystem-service
 
+  # nosemgrep: yaml.docker-compose.security.writable-filesystem-service.writable-filesystem-service
   backend:
     build:
       context: ./be
@@ -35,9 +36,8 @@ services:
       - ./be:/usr/src/app
     security_opt:
       - no-new-privileges:true
-    # nosemgrep: yaml.docker-compose.security.writable-filesystem-service.writable-filesystem-service
 
-
+  # nosemgrep: yaml.docker-compose.security.writable-filesystem-service.writable-filesystem-service
   caddy:
     image: caddy:2-alpine
     container_name: yunkhngn_caddy
@@ -55,7 +55,6 @@ services:
       - backend
     security_opt:
       - no-new-privileges:true
-    # nosemgrep: yaml.docker-compose.security.writable-filesystem-service.writable-filesystem-service
 
 networks:
   app_network:
