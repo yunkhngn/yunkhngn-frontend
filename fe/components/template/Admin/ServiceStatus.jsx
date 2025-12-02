@@ -1,8 +1,36 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/Button';
 import { CheckCircle, XCircle, Loader2, RefreshCw, Server, Image, Shield } from 'lucide-react';
 import { cn } from '@/lib/utils';
+
+const StatusItem = ({ icon: Icon, label, status }) => (
+    <div className="flex items-center justify-between p-3 border rounded-lg bg-card">
+        <div className="flex items-center gap-3">
+            <div className={cn("p-2 rounded-full bg-muted",
+                status.status === 'success' && "bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400",
+                status.status === 'error' && "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400"
+            )}>
+                <Icon className="h-5 w-5" />
+            </div>
+            <div>
+                <div className="font-medium">{label}</div>
+                <div className={cn("text-xs",
+                    status.status === 'success' && "text-green-600 dark:text-green-400",
+                    status.status === 'error' && "text-red-600 dark:text-red-400",
+                    status.status === 'pending' && "text-muted-foreground"
+                )}>
+                    {status.message}
+                </div>
+            </div>
+        </div>
+        <div>
+            {status.status === 'pending' && <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />}
+            {status.status === 'success' && <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />}
+            {status.status === 'error' && <XCircle className="h-5 w-5 text-red-600 dark:text-red-400" />}
+        </div>
+    </div>
+);
 
 export default function ServiceStatus() {
     const { user } = useAuth();
@@ -13,7 +41,7 @@ export default function ServiceStatus() {
     });
     const [loading, setLoading] = useState(false);
 
-    const checkServices = async () => {
+    const checkServices = useCallback(async () => {
         setLoading(true);
         setStatuses({
             backend: { status: 'pending', message: 'Checking...' },
@@ -53,39 +81,11 @@ export default function ServiceStatus() {
         }
 
         setLoading(false);
-    };
+    }, [user]);
 
     useEffect(() => {
         checkServices();
-    }, [user]);
-
-    const StatusItem = ({ icon: Icon, label, status }) => (
-        <div className="flex items-center justify-between p-3 border rounded-lg bg-card">
-            <div className="flex items-center gap-3">
-                <div className={cn("p-2 rounded-full bg-muted",
-                    status.status === 'success' && "bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400",
-                    status.status === 'error' && "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400"
-                )}>
-                    <Icon className="h-5 w-5" />
-                </div>
-                <div>
-                    <div className="font-medium">{label}</div>
-                    <div className={cn("text-xs",
-                        status.status === 'success' && "text-green-600 dark:text-green-400",
-                        status.status === 'error' && "text-red-600 dark:text-red-400",
-                        status.status === 'pending' && "text-muted-foreground"
-                    )}>
-                        {status.message}
-                    </div>
-                </div>
-            </div>
-            <div>
-                {status.status === 'pending' && <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />}
-                {status.status === 'success' && <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />}
-                {status.status === 'error' && <XCircle className="h-5 w-5 text-red-600 dark:text-red-400" />}
-            </div>
-        </div>
-    );
+    }, [checkServices]);
 
     return (
         <div className="space-y-4">
