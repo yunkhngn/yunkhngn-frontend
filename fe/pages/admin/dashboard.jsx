@@ -234,21 +234,21 @@ export default function Dashboard() {
     <AdminLayout title="Dashboard">
       <div className="space-y-8">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
             <p className="text-muted-foreground mt-1">
               Welcome back, {user?.displayName || user?.email}
             </p>
           </div>
-          <div className="flex gap-2">
-            <Button asChild variant="outline">
+          <div className="flex gap-2 w-full md:w-auto">
+            <Button asChild variant="outline" className="flex-1 md:flex-none">
               <Link href="/admin/blog/new">
                 <Plus className="h-4 w-4 mr-2" />
                 New Blog
               </Link>
             </Button>
-            <Button asChild>
+            <Button asChild className="flex-1 md:flex-none">
               <Link href="/admin/project/add-project">
                 <Plus className="h-4 w-4 mr-2" />
                 New Project
@@ -258,7 +258,7 @@ export default function Dashboard() {
         </div>
 
         {/* Stats Grid */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
           <StatCard
             title="Total Blogs"
             value={stats.blogs}
@@ -286,7 +286,7 @@ export default function Dashboard() {
         </div>
 
         {/* Charts Section */}
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
           {/* Content Distribution Chart */}
           <Card>
             <CardHeader>
@@ -399,7 +399,7 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        <div className="grid gap-4 lg:grid-cols-7">
+        <div className="grid gap-4 grid-cols-1 lg:grid-cols-7">
           {/* Recent Blogs */}
           <Card className="lg:col-span-4">
             <CardHeader className="flex flex-row items-center justify-between">
@@ -499,7 +499,7 @@ export default function Dashboard() {
         </div>
 
         {/* Recent Projects & Gallery */}
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
           {/* Recent Projects */}
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
@@ -512,7 +512,7 @@ export default function Dashboard() {
               </Link>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {recentProjects.map((project) => (
                   <Link
                     href={`/admin/project/${project.slug}`}

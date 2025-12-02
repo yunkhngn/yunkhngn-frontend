@@ -127,20 +127,20 @@ export default function BlogList() {
     return (
         <AdminLayout>
             <div className="space-y-6">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
                         <h1 className="text-3xl font-bold tracking-tight">Blogs</h1>
                         <p className="text-muted-foreground">Manage your blog posts</p>
                     </div>
                     <Link href="/admin/blog/new">
-                        <Button>
+                        <Button className="w-full md:w-auto">
                             <Plus className="mr-2 h-4 w-4" /> New Blog
                         </Button>
                     </Link>
                 </div>
 
-                <div className="flex items-center justify-between gap-4">
-                    <div className="relative flex-1 max-w-sm">
+                <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+                    <div className="relative w-full md:flex-1 md:max-w-sm">
                         <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                         <Input
                             placeholder="Search blogs..."
@@ -149,7 +149,7 @@ export default function BlogList() {
                             className="pl-8"
                         />
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 w-full md:w-auto justify-end">
                         <Select value={itemsPerPage.toString()} onValueChange={handleItemsPerPageChange}>
                             <SelectTrigger className="w-[70px] h-8">
                                 <SelectValue placeholder={itemsPerPage} />
@@ -275,8 +275,8 @@ export default function BlogList() {
                                 ))}
                             </div>
                         ) : (
-                            <div className="border rounded-lg overflow-hidden">
-                                <table className="w-full text-sm text-left">
+                            <div className="border rounded-lg overflow-hidden overflow-x-auto">
+                                <table className="w-full text-sm text-left min-w-[600px]">
                                     <thead className="bg-muted/50 text-muted-foreground border-b">
                                         <tr>
                                             <th className="px-4 py-3 font-medium">Title</th>

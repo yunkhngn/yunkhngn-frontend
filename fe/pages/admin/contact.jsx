@@ -161,7 +161,7 @@ export default function AdminContact() {
                 </div>
 
                 {/* Filter Tabs */}
-                <div className="flex gap-2 mb-6">
+                <div className="flex flex-wrap gap-2 mb-6">
                     {['all', 'new', 'read', 'responded'].map((f) => (
                         <Button
                             key={f}
