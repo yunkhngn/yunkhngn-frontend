@@ -1,5 +1,4 @@
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/Dialog";
-import Image from "next/image";
 import { X, ThumbsUp, Heart, Cat, Flame, Laugh } from "lucide-react";
 import { useState } from "react";
 
@@ -38,20 +37,19 @@ export function ImagePreviewModal({ isOpen, onClose, imageSrc }) {
 
                     {/* Image */}
                     <div
-                        className="relative w-auto h-auto max-w-[90vw] max-h-[80vh]"
+                        className="relative flex flex-col items-center justify-center"
                         onClick={(e) => e.stopPropagation()}
                     >
-                        <Image
+                        <img
                             src={imageSrc}
                             alt="Preview"
-                            fill
-                            className="object-contain rounded-lg shadow-2xl"
+                            className="max-w-[90vw] max-h-[80vh] object-contain rounded-lg shadow-2xl"
                         />
                     </div>
 
                     {/* Reaction Panel - Below Image */}
                     <div
-                        className="z-50 mt-10"
+                        className="z-50"
                         style={{ pointerEvents: 'auto' }}
                         onClick={(e) => e.stopPropagation()}
                     >
