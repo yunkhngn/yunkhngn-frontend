@@ -106,8 +106,44 @@ model Gallery {
   imageUrl  String
   caption   String?
   createdAt DateTime @default(now())
+  reactions PhotoReaction[]
 
   @@map("gallery")
+}
+
+model PhotoReaction {
+  id           String   @id @default(uuid())
+  photoId      String
+  uid          String // Firebase UID
+  reactionType String // 'like', 'heart', 'cat', 'fire', 'laugh'
+  createdAt    DateTime @default(now())
+
+  photo Gallery @relation(fields: [photoId], references: [id], onDelete: Cascade)
+
+  @@unique([photoId, uid])
+  @@index([photoId])
+  @@index([uid])
+  @@map("photo_reactions")
+}
+
+model Contact {
+  id            String    @id @default(uuid())
+  name          String
+  email         String
+  phone         String?
+  company       String?
+  subject       String
+  message       String    @db.NVarChar(Max)
+  category      String    @default("general") // general, business, support, feedback
+  status        String    @default("new") // new, read, responded
+  adminResponse String?   @db.NVarChar(Max)
+  createdAt     DateTime  @default(now())
+  respondedAt   DateTime?
+
+  @@index([status])
+  @@index([category])
+  @@index([createdAt])
+  @@map("contacts")
 }
 
 model Settings {

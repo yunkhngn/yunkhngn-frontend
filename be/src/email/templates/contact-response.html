@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Response from Khoa Nguyen</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f5f5f5;
+            color: #1a1a1a;
+        }
+        .container {
+            max-width: 600px;
+            margin: 40px auto;
+            background: #ffffff;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            padding: 40px 30px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 700;
+            color: #ffffff;
+        }
+        .header p {
+            margin: 8px 0 0;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 14px;
+        }
+        .content {
+            padding: 40px 30px;
+        }
+        .greeting {
+            font-size: 16px;
+            margin-bottom: 20px;
+            color: #1a1a1a;
+        }
+        .response-box {
+            background: #f8f9fa;
+            border-left: 4px solid #2563eb;
+            padding: 24px;
+            border-radius: 8px;
+            margin: 24px 0;
+            line-height: 1.8;
+            color: #1a1a1a;
+        }
+        .original-message {
+            margin-top: 40px;
+            padding-top: 24px;
+            border-top: 2px solid #e5e5e5;
+        }
+        .original-message-label {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #888;
+            margin-bottom: 12px;
+        }
+        .original-message-content {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            color: #666;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .footer {
+            background: #f8f9fa;
+            padding: 30px;
+            text-align: center;
+            border-top: 1px solid #e5e5e5;
+        }
+        .footer-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+        }
+        .footer-links {
+            margin-top: 16px;
+        }
+        .footer-links a {
+            display: inline-block;
+            margin: 0 8px;
+            color: #2563eb;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .footer p {
+            margin: 8px 0 0;
+            font-size: 12px;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Re: {{subject}}</h1>
+            <p>Response from Khoa Nguyen</p>
+        </div>
+        <div class="content">
+            <div class="greeting">Hi {{name}},</div>
+            <p>Thank you for reaching out! Here's my response:</p>
+            <div class="response-box">
+                {{response}}
+            </div>
+            <p>Feel free to reply to this email if you have any follow-up questions.</p>
+            <div class="original-message">
+                <div class="original-message-label">Your Original Message</div>
+                <div class="original-message-content">
+                    {{originalMessage}}
+                </div>
+            </div>
+        </div>
+        <div class="footer">
+            <div class="footer-name">Khoa Nguyen</div>
+            <div class="footer-links">
+                <a href="https://yunkhngn.com">Website</a>
+                <a href="https://github.com/yunkhngn">GitHub</a>
+                <a href="https://linkedin.com/in/yunkhngn">LinkedIn</a>
+            </div>
+            <p>© 2025 Khoa Nguyen. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>

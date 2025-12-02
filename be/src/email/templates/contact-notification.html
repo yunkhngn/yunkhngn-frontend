@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Contact Message</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #0a0a0a;
+            color: #e5e5e5;
+        }
+        .container {
+            max-width: 600px;
+            margin: 40px auto;
+            background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+        .header {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            padding: 40px 30px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: -0.5px;
+        }
+        .badge {
+            display: inline-block;
+            margin-top: 12px;
+            padding: 6px 16px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .content {
+            padding: 40px 30px;
+        }
+        .field {
+            margin-bottom: 24px;
+        }
+        .field-label {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #888;
+            margin-bottom: 8px;
+        }
+        .field-value {
+            font-size: 16px;
+            color: #e5e5e5;
+            line-height: 1.6;
+        }
+        .message-box {
+            background: rgba(255, 255, 255, 0.05);
+            border-left: 4px solid #2563eb;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 8px;
+        }
+        .footer {
+            background: #0a0a0a;
+            padding: 30px;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .footer p {
+            margin: 0;
+            font-size: 14px;
+            color: #666;
+        }
+        .button {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 14px 32px;
+            background: #2563eb;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📬 New Contact Message</h1>
+            <span class="badge">{{category}}</span>
+        </div>
+        <div class="content">
+            <div class="field">
+                <div class="field-label">From</div>
+                <div class="field-value">{{name}}</div>
+            </div>
+            <div class="field">
+                <div class="field-label">Email</div>
+                <div class="field-value">{{email}}</div>
+            </div>
+            {{#if phone}}
+            <div class="field">
+                <div class="field-label">Phone</div>
+                <div class="field-value">{{phone}}</div>
+            </div>
+            {{/if}}
+            {{#if company}}
+            <div class="field">
+                <div class="field-label">Company</div>
+                <div class="field-value">{{company}}</div>
+            </div>
+            {{/if}}
+            <div class="field">
+                <div class="field-label">Subject</div>
+                <div class="field-value">{{subject}}</div>
+            </div>
+            <div class="field">
+                <div class="field-label">Message</div>
+                <div class="message-box">
+                    {{message}}
+                </div>
+            </div>
+            <a href="{{adminUrl}}" class="button">View in Dashboard →</a>
+        </div>
+        <div class="footer">
+            <p>Received at {{timestamp}}</p>
+        </div>
+    </div>
+</body>
+</html>

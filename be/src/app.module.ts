@@ -14,6 +14,8 @@ import { CommentsModule } from './comments/comments.module';
 import { SettingsModule } from './settings/settings.module';
 import { UserModule } from './user/user.module';
 import { AiModule } from './ai/ai.module';
+import { PhotoReactionsModule } from './photo-reactions/photo-reactions.module';
+import { ContactModule } from './contact/contact.module';
 
 @Module({
   imports: [
@@ -34,6 +36,8 @@ import { AiModule } from './ai/ai.module';
     SettingsModule,
     UserModule,
     AiModule,
+    PhotoReactionsModule,
+    ContactModule,
   ],
   controllers: [AppController],
   providers: [AppService],
