@@ -19,12 +19,6 @@ export default function ViewBlog() {
     const [blog, setBlog] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        if (id && user) {
-            fetchBlog();
-        }
-    }, [id, user, fetchBlog]);
-
     const fetchBlog = useCallback(async () => {
         try {
             const token = await user.getIdToken();
@@ -40,6 +34,12 @@ export default function ViewBlog() {
             setLoading(false);
         }
     }, [id, user, router]);
+
+    useEffect(() => {
+        if (id && user) {
+            fetchBlog();
+        }
+    }, [id, user, fetchBlog]);
 
     if (loading) return <AdminLayout><div>Loading...</div></AdminLayout>;
     if (!blog) return <AdminLayout><div>Blog not found</div></AdminLayout>;

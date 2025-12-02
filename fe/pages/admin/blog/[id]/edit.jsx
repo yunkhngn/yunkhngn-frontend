@@ -13,12 +13,6 @@ export default function EditBlog() {
     const [blog, setBlog] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        if (id && user) {
-            fetchBlog();
-        }
-    }, [id, user, fetchBlog]);
-
     const fetchBlog = useCallback(async () => {
         try {
             const token = await user.getIdToken();
@@ -34,6 +28,12 @@ export default function EditBlog() {
             setLoading(false);
         }
     }, [id, user, router]);
+
+    useEffect(() => {
+        if (id && user) {
+            fetchBlog();
+        }
+    }, [id, user, fetchBlog]);
 
     const handleSubmit = async (data) => {
         try {
