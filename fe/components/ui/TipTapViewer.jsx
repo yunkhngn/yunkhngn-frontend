@@ -2,6 +2,7 @@ import { useEditor, EditorContent, ReactNodeViewRenderer } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
 import Link from '@tiptap/extension-link';
+import Youtube from '@tiptap/extension-youtube';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
 import { common, createLowlight } from 'lowlight';
 import { useEffect, useState } from 'react';
@@ -42,6 +43,10 @@ export default function TipTapViewer({ content }) {
                 },
             }).configure({
                 openOnClick: true,
+            }),
+            Youtube.configure({
+                controls: false,
+                nocookie: true,
             }),
             CodeBlockLowlight.extend({
                 addNodeView() {

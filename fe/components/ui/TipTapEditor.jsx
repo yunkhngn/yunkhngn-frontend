@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
 import Link from '@tiptap/extension-link';
+import Youtube from '@tiptap/extension-youtube';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
 import { common, createLowlight } from 'lowlight';
 import CodeBlockComponent from './CodeBlockComponent';
@@ -11,17 +12,15 @@ import { LinkBubbleMenu } from './LinkBubbleMenu';
 import { Button } from '@/components/ui/Button';
 import {
     Bold, Italic, Strikethrough, Code, List, ListOrdered, Quote,
-    Undo, Redo, Image as ImageIcon, Link as LinkIcon, Heading1, Heading2, Trash2
+    Undo, Redo, Image as ImageIcon, Link as LinkIcon, Heading1, Heading2, Trash2, Youtube as YoutubeIcon
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import BubbleMenuExtension from '@tiptap/extension-bubble-menu';
 
 const lowlight = createLowlight(common);
 
-const MenuBar = ({ editor, addImage }) => {
+const MenuBar = ({ editor, addImage, addYoutube }) => {
     if (!editor) return null;
-
-
 
     return (
         <div className="border-b p-2 flex flex-wrap gap-1 sticky top-0 bg-background z-10">
@@ -128,6 +127,16 @@ const MenuBar = ({ editor, addImage }) => {
             >
                 <ImageIcon className="h-4 w-4" />
             </Button>
+            <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={addYoutube}
+                className={cn(editor.isActive('youtube') && 'bg-muted')}
+            >
+                <YoutubeIcon className="h-4 w-4" />
+            </Button>
             <div className="flex-1" />
             <Button
                 type="button"
@@ -203,6 +212,10 @@ export default function TipTapEditor({ content, onChange, onImageUpload }) {
             },
         }).configure({
             openOnClick: false,
+        }),
+        Youtube.configure({
+            controls: false,
+            nocookie: true,
         }),
         CodeBlockLowlight.configure({
             lowlight,
@@ -297,9 +310,21 @@ export default function TipTapEditor({ content, onChange, onImageUpload }) {
         input.click();
     };
 
+    const addYoutube = () => {
+        const url = prompt('Enter YouTube URL');
+
+        if (url) {
+            editor.commands.setYoutubeVideo({
+                src: url,
+                width: 640,
+                height: 480,
+            })
+        }
+    }
+
     return (
         <div className="border rounded-md overflow-hidden bg-background">
-            <MenuBar editor={editor} addImage={addImage} />
+            <MenuBar editor={editor} addImage={addImage} addYoutube={addYoutube} />
             <LinkBubbleMenu editor={editor} />
             <EditorContent editor={editor} />
         </div>
