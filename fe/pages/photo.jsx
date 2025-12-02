@@ -178,11 +178,11 @@ export default function Photo() {
 
             {/* View Photo Modal */}
             <Dialog open={!!viewingPhoto} onOpenChange={(open) => !open && setViewingPhoto(null)}>
-                <DialogContent showCloseButton={false} className="max-w-4xl p-0 overflow-hidden border-none bg-transparent shadow-none sm:bg-transparent">
+                <DialogContent showCloseButton={false} className="max-w-4xl p-0 overflow-hidden border-none bg-transparent shadow-none sm:bg-transparent rounded">
                     {viewingPhoto && (
                         <div className="relative flex flex-col items-center justify-center min-h-[50vh] max-h-[90vh] pointer-events-none">
                             {/* Wrapper to constrain caption to image width */}
-                            <div className="relative w-full h-[80vh] pointer-events-auto">
+                            <div className="relative w-full h-[80vh] pointer-events-auto ">
                                 {/* Top Controls: Reactions + Close */}
                                 <div className="absolute top-4 right-4 z-50 flex items-center gap-3">
                                     {/* Reaction Panel */}
@@ -237,7 +237,7 @@ export default function Photo() {
                                     src={viewingPhoto.imageUrl}
                                     alt={viewingPhoto.caption}
                                     fill
-                                    className="object-contain rounded-lg shadow-2xl"
+                                    className="object-contain rounded-2xl shadow-2xl"
                                     priority
                                     unoptimized
                                 />

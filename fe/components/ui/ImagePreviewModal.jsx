@@ -78,7 +78,7 @@ export function ImagePreviewModal({ isOpen, onClose, imageSrc }) {
                             src={imageSrc}
                             alt="Preview"
                             fill
-                            className="object-contain rounded-lg shadow-2xl"
+                            className="object-contain rounded-2xl shadow-2xl"
                             priority
                             unoptimized
                         />
