@@ -1,15 +1,29 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Dialog, DialogContent } from '@/components/ui/Dialog';
-import { X } from 'lucide-react';
+import { X, ThumbsUp, Heart, Cat, Flame, Laugh } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Skeleton } from "@/components/ui/Skeleton";
 import Layout from '@/components/template/Default/Layout';
+import { useAuth } from '@/contexts/AuthContext';
+import { toast } from 'sonner';
+
+const REACTIONS = [
+    { id: 'like', icon: ThumbsUp, label: 'Like', color: 'text-blue-500' },
+    { id: 'heart', icon: Heart, label: 'Heart', color: 'text-red-500' },
+    { id: 'cat', icon: Cat, label: 'Cat', color: 'text-purple-500' },
+    { id: 'fire', icon: Flame, label: 'Fire', color: 'text-orange-500' },
+    { id: 'laugh', icon: Laugh, label: 'Laugh', color: 'text-yellow-500' },
+];
 
 export default function Photo() {
     const [photos, setPhotos] = useState([]);
     const [loading, setLoading] = useState(true);
     const [viewingPhoto, setViewingPhoto] = useState(null);
+    const [selectedReaction, setSelectedReaction] = useState(null);
+    const [reactionCounts, setReactionCounts] = useState({ like: 0, heart: 0, cat: 0, fire: 0, laugh: 0 });
+    const [loadingReaction, setLoadingReaction] = useState(false);
+    const { user, signInAnonymously } = useAuth();
 
     useEffect(() => {
         const fetchPhotos = async () => {
@@ -26,6 +40,85 @@ export default function Photo() {
         };
         fetchPhotos();
     }, []);
+
+    // Fetch reactions when viewing a photo
+    useEffect(() => {
+        if (viewingPhoto) {
+            fetchReactions(viewingPhoto.id);
+        } else {
+            // Reset when closing
+            setSelectedReaction(null);
+            setReactionCounts({ like: 0, heart: 0, cat: 0, fire: 0, laugh: 0 });
+        }
+    }, [viewingPhoto]);
+
+    const fetchReactions = async (photoId) => {
+        try {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/photo-reactions/${photoId}`);
+            if (!res.ok) return;
+            const data = await res.json();
+            setReactionCounts(data.stats.counts);
+            setSelectedReaction(data.userReaction);
+        } catch (error) {
+            console.error('Failed to fetch reactions:', error);
+        }
+    };
+
+    const handleReactionClick = async (reactionId) => {
+        if (!viewingPhoto) return;
+
+        // Ensure user is authenticated (anonymous or logged in)
+        let currentUser = user;
+        if (!currentUser) {
+            try {
+                await signInAnonymously();
+                currentUser = user; // This might not update immediately, but the next click will work
+                toast.info('Signed in anonymously to react');
+                return; // Let user click again after anonymous login
+            } catch (error) {
+                toast.error('Failed to authenticate');
+                return;
+            }
+        }
+
+        setLoadingReaction(true);
+        try {
+            const token = await currentUser.getIdToken();
+
+            // If clicking the same reaction, remove it
+            if (selectedReaction === reactionId) {
+                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/photo-reactions/${viewingPhoto.id}`, {
+                    method: 'DELETE',
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    setReactionCounts(data.stats.counts);
+                    setSelectedReaction(null);
+                }
+            } else {
+                // Add or update reaction
+                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/photo-reactions/${viewingPhoto.id}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({ reactionType: reactionId }),
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    setReactionCounts(data.stats.counts);
+                    setSelectedReaction(reactionId);
+                }
+            }
+        } catch (error) {
+            console.error('Failed to react:', error);
+            toast.error('Failed to save reaction');
+        } finally {
+            setLoadingReaction(false);
+        }
+    };
 
     return (
         <div className="w-full max-w-7xl mx-auto p-4 sm:p-8">
@@ -105,6 +198,41 @@ export default function Photo() {
                                     alt={viewingPhoto.caption}
                                     className="w-auto h-auto max-w-full max-h-[80vh] object-contain rounded-lg shadow-2xl"
                                 />
+
+                                {/* Reaction Panel */}
+                                <div
+                                    className="absolute top-4 left-1/2 -translate-x-1/2 z-50"
+                                    style={{ pointerEvents: 'auto' }}
+                                >
+                                    <div className="flex items-center gap-3 bg-white/95 dark:bg-black/90 backdrop-blur-md rounded-full px-4 py-3 shadow-2xl border-2 border-gray-300 dark:border-white/20">
+                                        {REACTIONS.map((reaction) => {
+                                            const Icon = reaction.icon;
+                                            const isSelected = selectedReaction === reaction.id;
+
+                                            return (
+                                                <button
+                                                    key={reaction.id}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setSelectedReaction(isSelected ? null : reaction.id);
+                                                    }}
+                                                    className={`p-2.5 rounded-full transition-all duration-200 hover:scale-125 ${isSelected
+                                                        ? 'bg-gray-200 dark:bg-white/20 scale-110'
+                                                        : 'hover:bg-gray-100 dark:hover:bg-white/10'
+                                                        }`}
+                                                    title={reaction.label}
+                                                >
+                                                    <Icon
+                                                        className={`h-6 w-6 ${isSelected ? reaction.color : 'text-gray-700 dark:text-white'
+                                                            } transition-colors duration-200`}
+                                                        fill={isSelected ? 'currentColor' : 'none'}
+                                                        strokeWidth={2}
+                                                    />
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
 
                                 {/* Caption Overlay for Modal */}
                                 {viewingPhoto.caption && (

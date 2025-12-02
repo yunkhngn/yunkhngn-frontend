@@ -232,6 +232,15 @@ export default function TipTapEditor({ content, onChange, onImageUpload }) {
         immediatelyRender: false,
     });
 
+    // Cleanup editor on unmount to prevent domFromPos errors
+    useEffect(() => {
+        return () => {
+            if (editor) {
+                editor.destroy();
+            }
+        };
+    }, [editor]);
+
     useEffect(() => {
         if (editor && content) {
             // Check if content needs update
