@@ -216,7 +216,12 @@
 
     /* Editor Blockquote Styling */
     .editor-quote {
-        width: 50%;
+        width: 90%;
+
+        @media (min-width: 768px) {
+            width: 50%;
+        }
+
         position: relative !important;
         padding: 2.5rem 2rem 1.5rem 2rem !important;
         margin: 1.5rem auto !important;
