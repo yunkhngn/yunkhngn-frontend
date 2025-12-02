@@ -35,7 +35,10 @@ async function bootstrap() {
         admin.initializeApp();
         console.log('Firebase Admin initialized with default credentials.');
       } catch (e) {
-        console.warn('Firebase Admin initialization failed (might be expected if no creds provided):', e.message);
+        console.warn(
+          'Firebase Admin initialization failed (might be expected if no creds provided):',
+          e.message,
+        );
       }
     }
   }

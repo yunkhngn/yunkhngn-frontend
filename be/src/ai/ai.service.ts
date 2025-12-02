@@ -1,56 +1,71 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenerativeAI, GenerativeModel } from '@google/generative-ai';
+
+interface ProjectInfo {
+  title: string;
+  description: string;
+  content: string;
+  techStack: string[];
+  tags: string[];
+  demoLink: string;
+}
 
 @Injectable()
 export class AiService {
-    private genAI: GoogleGenerativeAI;
-    private model: any;
+  private genAI: GoogleGenerativeAI;
+  private model: GenerativeModel;
 
-    constructor(private configService: ConfigService) {
-        const apiKey = this.configService.get<string>('GEMINI_API_KEY');
-        if (!apiKey) {
-            throw new Error('GEMINI_API_KEY is not defined');
-        }
-        this.genAI = new GoogleGenerativeAI(apiKey);
-        this.model = this.genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+  constructor(private configService: ConfigService) {
+    const apiKey = this.configService.get<string>('GEMINI_API_KEY');
+    if (!apiKey) {
+      throw new Error('GEMINI_API_KEY is not defined');
     }
+    this.genAI = new GoogleGenerativeAI(apiKey);
+    this.model = this.genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+  }
 
-    async generateText(prompt: string): Promise<string> {
-        try {
-            const result = await this.model.generateContent(prompt);
-            const response = await result.response;
-            return response.text();
-        } catch (error) {
-            console.error('Error generating content:', error);
-            throw new Error('Failed to generate content');
-        }
+  async generateText(prompt: string): Promise<string> {
+    try {
+      const result = await this.model.generateContent(prompt);
+      const response = result.response;
+      return response.text();
+    } catch (error) {
+      console.error('Error generating content:', error);
+      throw new Error('Failed to generate content');
     }
+  }
 
-    async generateProjectInfo(repoUrl: string, language: string = 'vi'): Promise<any> {
-        try {
-            // Extract owner and repo
-            const match = repoUrl.match(/github\.com\/([^/]+)\/([^/]+)/);
-            if (!match) {
-                throw new Error('Invalid GitHub URL');
-            }
-            const [, owner, repo] = match;
+  async generateProjectInfo(
+    repoUrl: string,
+    language: string = 'vi',
+  ): Promise<ProjectInfo> {
+    try {
+      // Extract owner and repo
+      const match = repoUrl.match(/github\.com\/([^/]+)\/([^/]+)/);
+      if (!match) {
+        throw new Error('Invalid GitHub URL');
+      }
+      const [, owner, repo] = match;
 
-            // Fetch README
-            const readmeRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/readme`, {
-                headers: {
-                    Accept: 'application/vnd.github.raw',
-                },
-            });
+      // Fetch README
+      const readmeRes = await fetch(
+        `https://api.github.com/repos/${owner}/${repo}/readme`,
+        {
+          headers: {
+            Accept: 'application/vnd.github.raw',
+          },
+        },
+      );
 
-            if (!readmeRes.ok) {
-                throw new Error('Failed to fetch README');
-            }
+      if (!readmeRes.ok) {
+        throw new Error('Failed to fetch README');
+      }
 
-            const readmeContent = await readmeRes.text();
+      const readmeContent = await readmeRes.text();
 
-            // Generate info using Gemini
-            const prompt = `
+      // Generate info using Gemini
+      const prompt = `
         Analyze the following README content and extract/generate the following information in JSON format.
         Please write the content in ${language === 'vi' ? 'Vietnamese' : 'English'}.
 
@@ -67,24 +82,28 @@ export class AiService {
         ${readmeContent.slice(0, 10000)} // Limit content length
       `;
 
-            const result = await this.model.generateContent(prompt);
-            const response = await result.response;
-            const text = response.text();
+      const result = await this.model.generateContent(prompt);
+      const response = result.response;
+      const text = response.text();
 
-            // Clean up JSON string (remove markdown code blocks if present)
-            const jsonString = text.replace(/```json\n?|\n?```/g, '').trim();
+      // Clean up JSON string (remove markdown code blocks if present)
+      const jsonString = text.replace(/```json\n?|\n?```/g, '').trim();
 
-            return JSON.parse(jsonString);
-        } catch (error) {
-            console.error('Error generating project info:', error);
-            throw new Error('Failed to generate project info');
-        }
+      return JSON.parse(jsonString) as ProjectInfo;
+    } catch (error) {
+      console.error('Error generating project info:', error);
+      throw new Error('Failed to generate project info');
     }
-    async generateBlogContent(prompt: string, currentContent?: string, language: string = 'vi'): Promise<string> {
-        try {
-            let systemPrompt = '';
-            if (currentContent) {
-                systemPrompt = `
+  }
+  async generateBlogContent(
+    prompt: string,
+    currentContent?: string,
+    language: string = 'vi',
+  ): Promise<string> {
+    try {
+      let systemPrompt = '';
+      if (currentContent) {
+        systemPrompt = `
                     You are a professional blog editor and writer.
                     The user wants you to EDIT or EXTEND the following blog content based on their instructions.
                     
@@ -96,13 +115,13 @@ export class AiService {
                     Output Requirements:
                     1. Return the FULL updated content in clean HTML format (TipTap-compatible).
                     2. Use <h2>, <h3> for headings (no <h1>).
-                    3. Use <p>, <ul>, <ol>, <li>, <strong>, <em>, <blockquote>, <pre><code> for formatting.
+                    3. Use <p>, <ul>, <ol>, <li>, <strong>, <em>, blockquote, <pre><code> for formatting.
                     4. Maintain the existing style and tone.
                     5. Write in ${language === 'vi' ? 'Vietnamese' : 'English'}.
                     6. Do NOT wrap the output in markdown code blocks (like \`\`\`html). Just return the raw HTML string.
                 `;
-            } else {
-                systemPrompt = `
+      } else {
+        systemPrompt = `
                     You are a professional blog writer.
                     The user wants you to WRITE a new blog post based on their instructions.
                     
@@ -116,19 +135,19 @@ export class AiService {
                     5. Write in ${language === 'vi' ? 'Vietnamese' : 'English'}.
                     6. Do NOT wrap the output in markdown code blocks (like \`\`\`html). Just return the raw HTML string.
                 `;
-            }
+      }
 
-            const result = await this.model.generateContent(systemPrompt);
-            const response = await result.response;
-            let text = response.text();
+      const result = await this.model.generateContent(systemPrompt);
+      const response = result.response;
+      let text = response.text();
 
-            // Clean up markdown code blocks if present
-            text = text.replace(/```html\n?|\n?```/g, '').trim();
+      // Clean up markdown code blocks if present
+      text = text.replace(/```html\n?|\n?```/g, '').trim();
 
-            return text;
-        } catch (error) {
-            console.error('Error generating blog content:', error);
-            throw new Error('Failed to generate blog content');
-        }
+      return text;
+    } catch (error) {
+      console.error('Error generating blog content:', error);
+      throw new Error('Failed to generate blog content');
     }
+  }
 }

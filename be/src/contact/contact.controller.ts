@@ -1,55 +1,69 @@
-import { Controller, Post, Get, Patch, Body, Param, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Get,
+  Patch,
+  Body,
+  Param,
+  UseGuards,
+} from '@nestjs/common';
 import { ContactService } from './contact.service';
 import { FirebaseAuthGuard } from '../auth/firebase-auth.guard';
 
 @Controller('contact')
 export class ContactController {
-    constructor(private readonly contactService: ContactService) { }
+  constructor(private readonly contactService: ContactService) {}
 
-    @Post()
-    async createContact(@Body() data: {
-        name: string;
-        email: string;
-        phone?: string;
-        company?: string;
-        subject: string;
-        message: string;
-        category?: string;
-    }) {
-        return this.contactService.createContact(data);
-    }
+  @Post()
+  async createContact(
+    @Body()
+    data: {
+      name: string;
+      email: string;
+      phone?: string;
+      company?: string;
+      subject: string;
+      message: string;
+      category?: string;
+    },
+  ) {
+    return this.contactService.createContact(data);
+  }
 
-    @Get()
-    @UseGuards(FirebaseAuthGuard)
-    async getAllContacts() {
-        return this.contactService.getAllContacts();
-    }
+  @Get()
+  @UseGuards(FirebaseAuthGuard)
+  async getAllContacts() {
+    return this.contactService.getAllContacts();
+  }
 
-    @Get(':id')
-    @UseGuards(FirebaseAuthGuard)
-    async getContactById(@Param('id') id: string) {
-        return this.contactService.getContactById(id);
-    }
+  @Get(':id')
+  @UseGuards(FirebaseAuthGuard)
+  async getContactById(@Param('id') id: string) {
+    return this.contactService.getContactById(id);
+  }
 
-    @Patch(':id/status')
-    @UseGuards(FirebaseAuthGuard)
-    async updateStatus(@Param('id') id: string, @Body('status') status: string) {
-        return this.contactService.updateContactStatus(id, status);
-    }
+  @Patch(':id/status')
+  @UseGuards(FirebaseAuthGuard)
+  async updateStatus(@Param('id') id: string, @Body('status') status: string) {
+    return this.contactService.updateContactStatus(id, status);
+  }
 
-    @Post(':id/respond')
-    @UseGuards(FirebaseAuthGuard)
-    async respondToContact(@Param('id') id: string, @Body('response') response: string) {
-        return this.contactService.respondToContact(id, response);
-    }
+  @Post(':id/respond')
+  @UseGuards(FirebaseAuthGuard)
+  async respondToContact(
+    @Param('id') id: string,
+    @Body('response') response: string,
+  ) {
+    return this.contactService.respondToContact(id, response);
+  }
 
-    @Post(':id/ai-suggest')
-    @UseGuards(FirebaseAuthGuard)
-    async generateAiSuggestion(
-        @Param('id') id: string,
-        @Body('language') language?: string,
-        @Body('existingText') existingText?: string,
-    ) {
-        return this.contactService.generateAiResponse(id, language, existingText);
-    }
+  @Post(':id/ai-suggest')
+  @UseGuards(FirebaseAuthGuard)
+  async generateAiSuggestion(
+    @Param('id') id: string,
+    @Body('language') language?: string,
+    @Body('existingText') existingText?: string,
+  ) {
+    return this.contactService.generateAiResponse(id, language, existingText);
+  }
 }

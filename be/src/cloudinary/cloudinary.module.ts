@@ -6,4 +6,4 @@ import { CloudinaryProvider } from './cloudinary.provider';
   providers: [CloudinaryProvider, CloudinaryService],
   exports: [CloudinaryService, CloudinaryProvider],
 })
-export class CloudinaryModule { }
+export class CloudinaryModule {}

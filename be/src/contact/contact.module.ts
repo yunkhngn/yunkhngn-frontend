@@ -6,8 +6,8 @@ import { EmailModule } from '../email/email.module';
 import { AiModule } from '../ai/ai.module';
 
 @Module({
-    imports: [EmailModule, AiModule],
-    controllers: [ContactController],
-    providers: [ContactService, PrismaService],
+  imports: [EmailModule, AiModule],
+  controllers: [ContactController],
+  providers: [ContactService, PrismaService],
 })
-export class ContactModule { }
+export class ContactModule {}

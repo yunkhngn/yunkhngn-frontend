@@ -1,4 +1,4 @@
 export class UpdateSettingsDto {
-    settingTitle: string;
-    content?: string;
+  settingTitle: string;
+  content?: string;
 }

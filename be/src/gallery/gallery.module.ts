@@ -8,4 +8,4 @@ import { CloudinaryModule } from '../cloudinary/cloudinary.module';
   controllers: [GalleryController],
   providers: [GalleryService],
 })
-export class GalleryModule { }
+export class GalleryModule {}

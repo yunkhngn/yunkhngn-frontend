@@ -22,10 +22,12 @@ import { ContactModule } from './contact/contact.module';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    ThrottlerModule.forRoot([{
-      ttl: 60000,
-      limit: 10,
-    }]),
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60000,
+        limit: 10,
+      },
+    ]),
     AuthModule,
     CloudinaryModule,
     PrismaModule,
@@ -42,4 +44,4 @@ import { ContactModule } from './contact/contact.module';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule { }
+export class AppModule {}

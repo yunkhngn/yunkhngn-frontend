@@ -4,7 +4,7 @@ import { PhotoReactionsController } from './photo-reactions.controller';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Module({
-    controllers: [PhotoReactionsController],
-    providers: [PhotoReactionsService, PrismaService],
+  controllers: [PhotoReactionsController],
+  providers: [PhotoReactionsService, PrismaService],
 })
-export class PhotoReactionsModule { }
+export class PhotoReactionsModule {}

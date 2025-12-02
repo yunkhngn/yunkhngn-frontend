@@ -3,14 +3,14 @@ import { Resend } from 'resend';
 
 @Injectable()
 export class EmailService {
-    private resend: Resend;
+  private resend: Resend;
 
-    constructor() {
-        this.resend = new Resend(process.env.RESEND_API_KEY);
-    }
+  constructor() {
+    this.resend = new Resend(process.env.RESEND_API_KEY);
+  }
 
-    private getNotificationTemplate(data: any): string {
-        return `
+  private getNotificationTemplate(data: any): string {
+    return `
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -34,17 +34,25 @@ export class EmailService {
                 </div>
             </div>
 
-            ${data.phone ? `
+            ${
+              data.phone
+                ? `
             <div style="display: grid; grid-template-columns: 100px 1fr; gap: 16px; margin-bottom: 24px;">
                 <div style="font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: 1px; padding-top: 4px;">Phone</div>
                 <div style="font-size: 15px; color: #ccc;">${data.phone}</div>
-            </div>` : ''}
+            </div>`
+                : ''
+            }
 
-            ${data.company ? `
+            ${
+              data.company
+                ? `
             <div style="display: grid; grid-template-columns: 100px 1fr; gap: 16px; margin-bottom: 24px;">
                 <div style="font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: 1px; padding-top: 4px;">Company</div>
                 <div style="font-size: 15px; color: #ccc;">${data.company}</div>
-            </div>` : ''}
+            </div>`
+                : ''
+            }
 
             <div style="display: grid; grid-template-columns: 100px 1fr; gap: 16px; margin-bottom: 24px;">
                 <div style="font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: 1px; padding-top: 4px;">Category</div>
@@ -63,10 +71,10 @@ export class EmailService {
     </div>
 </body>
 </html>`;
-    }
+  }
 
-    private getResponseTemplate(data: any): string {
-        return `
+  private getResponseTemplate(data: any): string {
+    return `
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -110,67 +118,67 @@ export class EmailService {
     </div>
 </body>
 </html>`;
+  }
+
+  async sendContactNotification(contact: any) {
+    try {
+      const html = this.getNotificationTemplate({
+        name: contact.name,
+        email: contact.email,
+        phone: contact.phone || '',
+        company: contact.company || '',
+        subject: contact.subject,
+        message: contact.message.replace(/\n/g, '<br>'),
+        category: contact.category?.toUpperCase() || 'GENERAL',
+        timestamp: new Date(contact.createdAt).toLocaleString(),
+        adminUrl: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/admin/contact`,
+      });
+
+      const { data, error } = await this.resend.emails.send({
+        from: `Portfolio Contact <noreply@${process.env.RESEND_DOMAIN}>`,
+        to: process.env.ADMIN_EMAIL || 'admin@example.com',
+        subject: `New Contact: ${contact.subject}`,
+        html,
+      });
+
+      if (error) {
+        console.error('Failed to send notification email:', error);
+        return null;
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Error sending notification email:', error);
+      return null;
     }
+  }
 
-    async sendContactNotification(contact: any) {
-        try {
-            const html = this.getNotificationTemplate({
-                name: contact.name,
-                email: contact.email,
-                phone: contact.phone || '',
-                company: contact.company || '',
-                subject: contact.subject,
-                message: contact.message.replace(/\n/g, '<br>'),
-                category: contact.category?.toUpperCase() || 'GENERAL',
-                timestamp: new Date(contact.createdAt).toLocaleString(),
-                adminUrl: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/admin/contact`,
-            });
+  async sendContactResponse(contact: any, response: string) {
+    try {
+      const html = this.getResponseTemplate({
+        name: contact.name,
+        subject: contact.subject,
+        response: response.replace(/\n/g, '<br>'),
+        originalMessage: contact.message.replace(/\n/g, '<br>'),
+      });
 
-            const { data, error } = await this.resend.emails.send({
-                from: `Portfolio Contact <noreply@${process.env.RESEND_DOMAIN}>`,
-                to: process.env.ADMIN_EMAIL || 'admin@example.com',
-                subject: `New Contact: ${contact.subject}`,
-                html,
-            });
+      const { data, error } = await this.resend.emails.send({
+        from: `Khoa Nguyen <noreply@${process.env.RESEND_DOMAIN}>`,
+        to: contact.email,
+        replyTo: process.env.ADMIN_EMAIL || 'admin@example.com',
+        subject: `Re: ${contact.subject}`,
+        html,
+      });
 
-            if (error) {
-                console.error('Failed to send notification email:', error);
-                return null;
-            }
+      if (error) {
+        console.error('Failed to send response email:', error);
+        return null;
+      }
 
-            return data;
-        } catch (error) {
-            console.error('Error sending notification email:', error);
-            return null;
-        }
+      return data;
+    } catch (error) {
+      console.error('Error sending response email:', error);
+      return null;
     }
-
-    async sendContactResponse(contact: any, response: string) {
-        try {
-            const html = this.getResponseTemplate({
-                name: contact.name,
-                subject: contact.subject,
-                response: response.replace(/\n/g, '<br>'),
-                originalMessage: contact.message.replace(/\n/g, '<br>'),
-            });
-
-            const { data, error } = await this.resend.emails.send({
-                from: `Khoa Nguyen <noreply@${process.env.RESEND_DOMAIN}>`,
-                to: contact.email,
-                replyTo: process.env.ADMIN_EMAIL || 'admin@example.com',
-                subject: `Re: ${contact.subject}`,
-                html,
-            });
-
-            if (error) {
-                console.error('Failed to send response email:', error);
-                return null;
-            }
-
-            return data;
-        } catch (error) {
-            console.error('Error sending response email:', error);
-            return null;
-        }
-    }
+  }
 }

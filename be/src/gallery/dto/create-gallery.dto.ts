@@ -1,4 +1,4 @@
 export class CreateGalleryDto {
-    imageUrl: string;
-    caption?: string;
+  imageUrl: string;
+  caption?: string;
 }
