@@ -1,13 +1,4 @@
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/router';
-import { Metadata } from "@/components/template";
-import { ChevronLeft, Github, ExternalLink, Calendar, Star, GitFork, Scale, BookOpen } from 'lucide-react';
-import Image from 'next/image';
-import { Button } from '@/components/ui/Button';
-import Link from 'next/link';
-import TipTapViewer from '@/components/ui/TipTapViewer';
-import Layout from '@/components/template/Default/Layout';
-import CommentSection from '@/components/blog/CommentSection';
+import { extractTextFromTipTap, stripHtml } from '@/lib/utils';
 
 export async function getServerSideProps(context) {
     const { id } = context.params;
@@ -22,6 +13,21 @@ export async function getServerSideProps(context) {
             ...data,
             techStack: typeof data.techStack === 'string' ? JSON.parse(data.techStack || '[]') : data.techStack,
         };
+
+        // Generate description from content if missing
+        let description = parsedProject.description;
+        if (!description) {
+            if (parsedProject.contentJSON) {
+                description = extractTextFromTipTap(parsedProject.contentJSON);
+            } else if (parsedProject.content) {
+                description = stripHtml(parsedProject.content);
+            }
+            // Truncate to 160 chars
+            if (description && description.length > 160) {
+                description = description.substring(0, 157) + '...';
+            }
+        }
+        parsedProject.description = description || `View ${parsedProject.title} on Yunkhngn`;
 
         return {
             props: {

@@ -1,17 +1,4 @@
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/router';
-import { Metadata } from "@/components/template";
-import { Calendar, Clock, ChevronLeft, Tag, Facebook, Twitter, Linkedin, Link as LinkIcon, UploadCloud, Loader2, Edit } from 'lucide-react';
-import Image from 'next/image';
-import { format } from 'date-fns';
-import { Badge } from '@/components/ui/Badge';
-import { Button } from '@/components/ui/Button';
-import Link from 'next/link';
-import TipTapViewer from '@/components/ui/TipTapViewer';
-import CommentSection from '@/components/blog/CommentSection';
-import { toast } from 'sonner';
-import { useAuth } from '@/contexts/AuthContext';
-import Layout from '@/components/template/Default/Layout';
+import { extractTextFromTipTap, stripHtml } from '@/lib/utils';
 
 export async function getServerSideProps(context) {
     const { slug } = context.params;
@@ -31,9 +18,26 @@ export async function getServerSideProps(context) {
             };
         }
 
+        // Generate description from content if missing
+        let description = foundBlog.description;
+        if (!description) {
+            if (foundBlog.contentJSON) {
+                description = extractTextFromTipTap(foundBlog.contentJSON);
+            } else if (foundBlog.content) {
+                description = stripHtml(foundBlog.content);
+            }
+            // Truncate to 160 chars
+            if (description && description.length > 160) {
+                description = description.substring(0, 157) + '...';
+            }
+        }
+
         return {
             props: {
-                blogData: foundBlog,
+                blogData: {
+                    ...foundBlog,
+                    description: description || `Read ${foundBlog.title} on Yunkhngn`
+                },
             },
         };
     } catch (error) {
