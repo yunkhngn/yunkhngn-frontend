@@ -71,16 +71,16 @@ export function ImagePreviewModal({ isOpen, onClose, imageSrc }) {
 
                     {/* Image */}
                     <div
-                        className="relative flex flex-col items-center justify-center"
+                        className="relative w-[90vw] h-[80vh] flex items-center justify-center"
                         onClick={(e) => e.stopPropagation()}
                     >
                         <Image
                             src={imageSrc}
                             alt="Preview"
-                            width={1200}
-                            height={800}
-                            className="w-auto h-auto max-w-[90vw] max-h-[80vh] object-contain rounded-lg shadow-2xl"
+                            fill
+                            className="object-contain rounded-lg shadow-2xl"
                             priority
+                            unoptimized
                         />
                     </div>
                 </div>

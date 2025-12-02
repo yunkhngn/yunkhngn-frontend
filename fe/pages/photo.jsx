@@ -182,7 +182,7 @@ export default function Photo() {
                     {viewingPhoto && (
                         <div className="relative flex flex-col items-center justify-center min-h-[50vh] max-h-[90vh] pointer-events-none">
                             {/* Wrapper to constrain caption to image width */}
-                            <div className="relative max-w-full max-h-[80vh] pointer-events-auto">
+                            <div className="relative w-full h-[80vh] pointer-events-auto">
                                 {/* Top Controls: Reactions + Close */}
                                 <div className="absolute top-4 right-4 z-50 flex items-center gap-3">
                                     {/* Reaction Panel */}
@@ -233,9 +233,18 @@ export default function Photo() {
                                     </Button>
                                 </div>
 
+                                <Image
+                                    src={viewingPhoto.imageUrl}
+                                    alt={viewingPhoto.caption}
+                                    fill
+                                    className="object-contain rounded-lg shadow-2xl"
+                                    priority
+                                    unoptimized
+                                />
+
                                 {/* Caption Overlay for Modal */}
                                 {viewingPhoto.caption && (
-                                    <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/90 via-black/50 to-transparent rounded-b-lg text-left">
+                                    <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/90 via-black/50 to-transparent rounded-b-lg text-left z-40">
                                         <p className="text-white text-base sm:text-lg font-medium leading-relaxed">{viewingPhoto.caption}</p>
                                     </div>
                                 )}
