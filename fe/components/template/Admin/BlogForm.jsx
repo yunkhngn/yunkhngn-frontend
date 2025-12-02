@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { useRouter } from 'next/router';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea'; // Not strictly needed if no description, but maybe for SEO? Schema doesn't have description.
@@ -13,6 +14,7 @@ import { useUnsavedChanges } from '@/hooks/useUnsavedChanges';
 import { UnsavedChangesModal } from '@/components/ui/UnsavedChangesModal';
 
 export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
+    const router = useRouter();
     const { user } = useAuth();
     const [formData, setFormData] = useState({
         title: '',
@@ -219,83 +221,98 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
                 </Button>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 pb-32">
-                {/* Left Column: Thumbnail */}
-                <div className="lg:col-span-1 space-y-4">
-                    <div className="space-y-2 sticky top-24">
-                        <label className="text-sm font-medium">Thumbnail</label>
-                        <div
-                            className="aspect-video relative rounded-3xl overflow-hidden group border-2 border-dashed border-muted-foreground/20 hover:border-muted-foreground/50 hover:bg-muted/50 transition-all flex items-center justify-center cursor-pointer w-full"
-                            onClick={() => fileInputRef.current?.click()}
-                        >
-                            {formData.thumbnail ? (
-                                <>
-                                    <Image src={formData.thumbnail} alt="Thumbnail" fill className="object-cover" />
-                                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white font-medium">
-                                        Change Thumbnail
-                                    </div>
-                                </>
-                            ) : (
-                                <div className="flex flex-col items-center text-muted-foreground/50 gap-2">
-                                    {uploading ? (
-                                        <Loader2 className="h-10 w-10 animate-spin text-muted-foreground" />
-                                    ) : (
-                                        <div className="p-4 rounded-full bg-muted/50 group-hover:bg-muted transition-colors">
-                                            <ImageIcon className="h-8 w-8 text-muted-foreground/70" />
-                                        </div>
-                                    )}
-                                    <span className="text-sm font-medium text-muted-foreground/70">Tap to upload or drag and drop</span>
-                                </div>
-                            )}
+            <div className="pb-32">
+                {/* Banner Thumbnail */}
+                <div className="w-full h-64 md:h-96 relative bg-muted group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
+                    {formData.thumbnail ? (
+                        <>
+                            <Image src={formData.thumbnail} alt="Thumbnail" fill className="object-cover" />
+                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white font-medium">
+                                <ImageIcon className="mr-2 h-6 w-6" /> Change Cover Image
+                            </div>
+                        </>
+                    ) : (
+                        <div className="flex flex-col items-center justify-center h-full text-muted-foreground/50 gap-2 hover:bg-muted/50 transition-colors">
+                            <ImageIcon className="h-12 w-12" />
+                            <span className="text-lg font-medium">Add Cover Image</span>
                         </div>
-                        <input
-                            type="file"
-                            ref={fileInputRef}
-                            className="hidden"
-                            accept="image/*"
-                            onChange={handleUpload}
-                        />
-                        <p className="text-xs text-muted-foreground">
-                            Recommended: 16:9 aspect ratio. The image will be cropped to fit.
-                        </p>
-                    </div>
+                    )}
+                    <input
+                        type="file"
+                        ref={fileInputRef}
+                        className="hidden"
+                        accept="image/*"
+                        onChange={handleUpload}
+                    />
+                    {uploading && (
+                        <div className="absolute inset-0 bg-background/50 flex items-center justify-center">
+                            <Loader2 className="h-8 w-8 animate-spin" />
+                        </div>
+                    )}
                 </div>
 
-                {/* Right Column: Form Fields */}
-                <div className="lg:col-span-2 space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium">Title</label>
-                            <Input
+                <div className="max-w-5xl mx-auto px-4 py-12">
+                    {/* Header Section */}
+                    <div className="text-center mb-12 space-y-6">
+                        {/* Date Placeholder */}
+                        <div className="text-sm text-muted-foreground uppercase tracking-widest">
+                            {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                        </div>
+
+                        {/* Title Input */}
+                        <div className="relative group">
+                            <Textarea
                                 value={formData.title}
                                 onChange={handleTitleChange}
                                 placeholder="Blog Title"
+                                className="text-4xl md:text-6xl font-bold text-center font-serif border-none focus-visible:ring-0 bg-transparent placeholder:text-muted-foreground/30 resize-none overflow-hidden min-h-[1.5em] leading-tight p-0 shadow-none"
+                                style={{ fontFamily: 'var(--font-playfair), serif' }}
+                                rows={1}
+                                onInput={(e) => {
+                                    e.target.style.height = 'auto';
+                                    e.target.style.height = e.target.scrollHeight + 'px';
+                                }}
                             />
                         </div>
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium">Slug</label>
-                            <Input
-                                value={formData.slug}
-                                onChange={handleSlugChange}
-                                placeholder="blog-slug"
-                            />
+
+                        {/* Slug & Tags */}
+                        <div className="max-w-xl mx-auto space-y-4">
+                            <div className="flex items-center justify-center gap-2">
+                                <Input
+                                    value={formData.slug}
+                                    onChange={handleSlugChange}
+                                    placeholder="url-slug"
+                                    className="text-center text-sm text-muted-foreground border-transparent hover:border-border focus:border-border bg-transparent h-8 w-full max-w-[300px]"
+                                />
+                            </div>
+
+                            <div className="flex justify-center">
+                                <Input
+                                    value={formData.tags}
+                                    onChange={(e) => {
+                                        setFormData({ ...formData, tags: e.target.value });
+                                        setIsDirty(true);
+                                    }}
+                                    placeholder="Tags (comma separated)"
+                                    className="text-center border-transparent hover:border-border focus:border-border bg-transparent max-w-[400px]"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Author */}
+                        <div className="flex items-center justify-center gap-4 pt-4">
+                            <div className="relative w-10 h-10 rounded-full overflow-hidden bg-muted">
+                                <Image src={user?.photoURL || "https://github.com/yunkhngn.png"} alt="Author" fill className="object-cover" />
+                            </div>
+                            <div className="text-left">
+                                <div className="font-medium text-sm">{user?.displayName || "Khoa Nguyễn"}</div>
+                                <div className="text-xs text-muted-foreground">Author & Developer</div>
+                            </div>
                         </div>
                     </div>
 
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium">Tag</label>
-                        <Input
-                            value={formData.tags}
-                            onChange={(e) => {
-                                setFormData({ ...formData, tags: e.target.value });
-                                setIsDirty(true);
-                            }}
-                            placeholder="Technology, Life, Coding..."
-                        />
-                    </div>
-
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium">Content</label>
+                    {/* Editor */}
+                    <div className="max-w-none">
                         <TipTapEditor
                             key={initialData ? initialData.id : 'new'}
                             content={formData.contentJSON}
@@ -312,6 +329,9 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
             {/* Fixed Action Bar */}
             <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border p-4 z-50">
                 <div className="container mx-auto flex gap-2 justify-end">
+                    <Button variant="ghost" onClick={() => router.back()}>
+                        Cancel
+                    </Button>
                     {!isEditing ? (
                         <Button onClick={() => handleSubmit('DRAFT')} disabled={submitting}>
                             {submitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}

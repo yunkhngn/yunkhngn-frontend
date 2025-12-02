@@ -30,6 +30,11 @@ const nextConfig = {
         hostname: 'placekitten.com',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'avatars.githubusercontent.com',
+        pathname: '/**',
+      }
     ],
   },
   async redirects() {
