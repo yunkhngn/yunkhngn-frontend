@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/Button';
-import { CheckCircle, XCircle, Loader2, RefreshCw, Server, Image, Shield } from 'lucide-react';
+import { CheckCircle, XCircle, Loader2, RefreshCw, Server, Image, Shield, Sparkles, Mail } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const StatusItem = ({ icon: Icon, label, status }) => (
@@ -38,6 +38,8 @@ export default function ServiceStatus() {
         backend: { status: 'pending', message: 'Checking...' },
         cloudinary: { status: 'pending', message: 'Checking...' },
         firebase: { status: 'pending', message: 'Checking...' },
+        gemini: { status: 'pending', message: 'Checking...' },
+        resend: { status: 'pending', message: 'Checking...' },
     });
     const [loading, setLoading] = useState(false);
 
@@ -47,6 +49,8 @@ export default function ServiceStatus() {
             backend: { status: 'pending', message: 'Checking...' },
             cloudinary: { status: 'pending', message: 'Checking...' },
             firebase: { status: 'pending', message: 'Checking...' },
+            gemini: { status: 'pending', message: 'Checking...' },
+            resend: { status: 'pending', message: 'Checking...' },
         });
 
         // 1. Check Firebase (Client-side)
@@ -56,16 +60,42 @@ export default function ServiceStatus() {
             setStatuses(prev => ({ ...prev, firebase: { status: 'error', message: 'Not Authenticated' } }));
         }
 
-        // 2. Check Backend Health
+        // 2. Check Backend Health & Services
         try {
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/health`);
             if (res.ok) {
+                const data = await res.json();
                 setStatuses(prev => ({ ...prev, backend: { status: 'success', message: 'Online' } }));
+
+                // Check Gemini
+                if (data.services?.gemini) {
+                    setStatuses(prev => ({ ...prev, gemini: { status: 'success', message: 'Configured' } }));
+                } else {
+                    setStatuses(prev => ({ ...prev, gemini: { status: 'error', message: 'Missing Key' } }));
+                }
+
+                // Check Resend
+                if (data.services?.resend) {
+                    setStatuses(prev => ({ ...prev, resend: { status: 'success', message: 'Configured' } }));
+                } else {
+                    setStatuses(prev => ({ ...prev, resend: { status: 'error', message: 'Missing Key' } }));
+                }
+
             } else {
-                setStatuses(prev => ({ ...prev, backend: { status: 'error', message: `Status: ${res.status}` } }));
+                setStatuses(prev => ({
+                    ...prev,
+                    backend: { status: 'error', message: `Status: ${res.status}` },
+                    gemini: { status: 'error', message: 'Backend Error' },
+                    resend: { status: 'error', message: 'Backend Error' }
+                }));
             }
         } catch (error) {
-            setStatuses(prev => ({ ...prev, backend: { status: 'error', message: 'Unreachable' } }));
+            setStatuses(prev => ({
+                ...prev,
+                backend: { status: 'error', message: 'Unreachable' },
+                gemini: { status: 'error', message: 'Unreachable' },
+                resend: { status: 'error', message: 'Unreachable' }
+            }));
         }
 
         // 3. Check Cloudinary Config (Client-side)
@@ -73,8 +103,6 @@ export default function ServiceStatus() {
         const apiKey = process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY;
 
         if (cloudName && apiKey) {
-            // Optional: Try a dummy signature request to backend to verify keys work there too?
-            // For now, just check if env vars are present on frontend.
             setStatuses(prev => ({ ...prev, cloudinary: { status: 'success', message: 'Configured' } }));
         } else {
             setStatuses(prev => ({ ...prev, cloudinary: { status: 'error', message: 'Missing Config' } }));
@@ -101,6 +129,8 @@ export default function ServiceStatus() {
                 <StatusItem icon={Server} label="Backend API" status={statuses.backend} />
                 <StatusItem icon={Image} label="Cloudinary" status={statuses.cloudinary} />
                 <StatusItem icon={Shield} label="Firebase Auth" status={statuses.firebase} />
+                <StatusItem icon={Sparkles} label="Gemini AI" status={statuses.gemini} />
+                <StatusItem icon={Mail} label="Resend Email" status={statuses.resend} />
             </div>
         </div>
     );

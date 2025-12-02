@@ -7,6 +7,13 @@ export class HealthController {
     @Get()
     @ApiOperation({ summary: 'Health check endpoint' })
     check() {
-        return { status: 'ok', timestamp: new Date().toISOString() };
+        return {
+            status: 'ok',
+            timestamp: new Date().toISOString(),
+            services: {
+                gemini: !!process.env.GEMINI_API_KEY,
+                resend: !!process.env.RESEND_API_KEY,
+            }
+        };
     }
 }
