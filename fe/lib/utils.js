@@ -5,6 +5,11 @@ export function cn(...inputs) {
   return twMerge(clsx(inputs));
 }
 
+export function stripHtml(html) {
+  if (!html) return "";
+  return html.replace(/<[^>]*>?/gm, "").replace(/&nbsp;/g, " ").trim();
+}
+
 export function extractTextFromTipTap(contentJSON) {
     try {
         if (!contentJSON) return '';

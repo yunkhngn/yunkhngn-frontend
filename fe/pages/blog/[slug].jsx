@@ -12,44 +12,62 @@ import CommentSection from '@/components/blog/CommentSection';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import Layout from '@/components/template/Default/Layout';
+import { extractTextFromTipTap, stripHtml } from '@/lib/utils';
 
-export default function BlogDetail() {
+export async function getServerSideProps(context) {
+    const { slug } = context.params;
+
+    try {
+        // Try to fetch all blogs and find by slug or id
+        // Ideally backend should support /blogs/slug/:slug
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/blogs`);
+        if (!res.ok) throw new Error('Failed to fetch blogs');
+        const data = await res.json();
+
+        const foundBlog = data.find(b => b.slug === slug || b.id === slug);
+
+        if (!foundBlog) {
+            return {
+                notFound: true,
+            };
+        }
+
+        // Generate description from content if missing
+        let description = foundBlog.description;
+        if (!description) {
+            if (foundBlog.contentJSON) {
+                description = extractTextFromTipTap(foundBlog.contentJSON);
+            } else if (foundBlog.content) {
+                description = stripHtml(foundBlog.content);
+            }
+            // Truncate to 160 chars
+            if (description && description.length > 160) {
+                description = description.substring(0, 157) + '...';
+            }
+        }
+
+        return {
+            props: {
+                blogData: {
+                    ...foundBlog,
+                    description: description || `Read ${foundBlog.title} on Yunkhngn`
+                },
+            },
+        };
+    } catch (error) {
+        console.error(error);
+        return {
+            notFound: true,
+        };
+    }
+}
+
+export default function BlogDetail({ blogData }) {
     const router = useRouter();
-    const { slug } = router.query;
     const { user } = useAuth();
-    const [blog, setBlog] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const [blog, setBlog] = useState(blogData);
     const [scrollProgress, setScrollProgress] = useState(0);
     const [publishing, setPublishing] = useState(false);
-
-    useEffect(() => {
-        if (!slug) return;
-
-        const fetchBlog = async () => {
-            try {
-                // Try to fetch all blogs and find by slug or id
-                // Ideally backend should support /blogs/slug/:slug
-                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/blogs`);
-                if (!res.ok) throw new Error('Failed to fetch blogs');
-                const data = await res.json();
-
-                const foundBlog = data.find(b => b.slug === slug || b.id === slug);
-
-                if (foundBlog) {
-                    setBlog(foundBlog);
-                } else {
-                    // Handle 404
-                    console.error('Blog not found');
-                }
-            } catch (error) {
-                console.error(error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchBlog();
-    }, [slug]);
 
     useEffect(() => {
         const handleScroll = () => {
@@ -63,7 +81,7 @@ export default function BlogDetail() {
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
-    const shareUrl = `https://yunkhngn.dev/blog/${slug}`;
+    const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
 
     const handleShare = (platform) => {
         let url = '';
@@ -108,14 +126,6 @@ export default function BlogDetail() {
             setPublishing(false);
         }
     };
-
-    if (loading) {
-        return (
-            <div className="flex-1 flex items-center justify-center min-h-[50vh]">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-            </div>
-        );
-    }
 
     if (!blog) {
         return (
@@ -211,12 +221,6 @@ export default function BlogDetail() {
                                 <h1 className="text-4xl md:text-6xl font-bold mb-8 leading-tight text-foreground" style={{ fontFamily: 'var(--font-playfair)' }}>
                                     {blog.title}
                                 </h1>
-
-                                {blog.description && (
-                                    <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
-                                        {blog.description}
-                                    </p>
-                                )}
 
                                 {blog.tags && (
                                     <div className="flex flex-wrap gap-2 mb-8 justify-center">

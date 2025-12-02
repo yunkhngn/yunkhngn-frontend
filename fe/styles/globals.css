@@ -216,7 +216,12 @@
 
     /* Editor Blockquote Styling */
     .editor-quote {
-        width: 50%;
+        width: 90%;
+
+        @media (min-width: 768px) {
+            width: 50%;
+        }
+
         position: relative !important;
         padding: 2.5rem 2rem 1.5rem 2rem !important;
         margin: 1.5rem auto !important;
@@ -305,5 +310,34 @@
     .tiptap li {
         margin-top: 0.25rem !important;
         margin-bottom: 0.25rem !important;
+    }
+
+    /* Responsive Iframe (YouTube) */
+    .ProseMirror iframe[src*="youtube"],
+    .prose iframe[src*="youtube"],
+    .tiptap iframe[src*="youtube"] {
+        width: 100% !important;
+        height: auto !important;
+        aspect-ratio: 16 / 9;
+        border-radius: 1rem !important;
+        /* rounded-2xl */
+        box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1) !important;
+        /* shadow-lg */
+        margin-left: auto !important;
+        margin-right: auto !important;
+        display: block !important;
+    }
+
+    /* Spotify Iframe */
+    .ProseMirror iframe[src*="spotify"],
+    .prose iframe[src*="spotify"],
+    .tiptap iframe[src*="spotify"] {
+        border-radius: 1rem !important;
+        /* rounded-2xl */
+        box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1) !important;
+        /* shadow-lg */
+        margin-left: auto !important;
+        margin-right: auto !important;
+        display: block !important;
     }
 }

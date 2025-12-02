@@ -3,25 +3,25 @@ import { useEffect } from 'react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
 import Link from '@tiptap/extension-link';
+import Youtube from '@tiptap/extension-youtube';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
 import { common, createLowlight } from 'lowlight';
 import CodeBlockComponent from './CodeBlockComponent';
 import { LinkPopover } from './LinkPopover';
 import { LinkBubbleMenu } from './LinkBubbleMenu';
+import { Spotify } from '../extensions/Spotify';
 import { Button } from '@/components/ui/Button';
 import {
     Bold, Italic, Strikethrough, Code, List, ListOrdered, Quote,
-    Undo, Redo, Image as ImageIcon, Link as LinkIcon, Heading1, Heading2, Trash2
+    Undo, Redo, Image as ImageIcon, Link as LinkIcon, Heading1, Heading2, Heading3, Trash2, Youtube as YoutubeIcon, Minus
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import BubbleMenuExtension from '@tiptap/extension-bubble-menu';
 
 const lowlight = createLowlight(common);
 
-const MenuBar = ({ editor, addImage }) => {
+const MenuBar = ({ editor, addImage, addYoutube }) => {
     if (!editor) return null;
-
-
 
     return (
         <div className="border-b p-2 flex flex-wrap gap-1 sticky top-0 bg-background z-10">
@@ -71,6 +71,15 @@ const MenuBar = ({ editor, addImage }) => {
             >
                 <Heading2 className="h-4 w-4" />
             </Button>
+            <Button
+                type="button"
+                variant="ghost" size="sm"
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+                className={cn(editor.isActive('heading', { level: 3 }) && 'bg-muted')}
+            >
+                <Heading3 className="h-4 w-4" />
+            </Button>
             <div className="w-px h-6 bg-border mx-1 my-auto" />
             <Button
                 type="button"
@@ -109,6 +118,14 @@ const MenuBar = ({ editor, addImage }) => {
             >
                 <Quote className="h-4 w-4" />
             </Button>
+            <Button
+                type="button"
+                variant="ghost" size="sm"
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => editor.chain().focus().setHorizontalRule().run()}
+            >
+                <Minus className="h-4 w-4" />
+            </Button>
             <div className="w-px h-6 bg-border mx-1 my-auto" />
             <LinkPopover editor={editor}>
                 <Button
@@ -127,6 +144,16 @@ const MenuBar = ({ editor, addImage }) => {
                 onClick={addImage}
             >
                 <ImageIcon className="h-4 w-4" />
+            </Button>
+            <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={addYoutube}
+                className={cn(editor.isActive('youtube') && 'bg-muted')}
+            >
+                <YoutubeIcon className="h-4 w-4" />
             </Button>
             <div className="flex-1" />
             <Button
@@ -204,6 +231,18 @@ export default function TipTapEditor({ content, onChange, onImageUpload }) {
         }).configure({
             openOnClick: false,
         }),
+        Youtube.configure({
+            controls: true,
+            nocookie: true,
+            HTMLAttributes: {
+                class: 'w-full aspect-video rounded-2xl shadow-lg mx-auto',
+            },
+        }),
+        Spotify.configure({
+            HTMLAttributes: {
+                class: 'w-full md:w-1/2 rounded-2xl shadow-lg mx-auto block',
+            },
+        }),
         CodeBlockLowlight.configure({
             lowlight,
             defaultLanguage: 'javascript',
@@ -225,7 +264,7 @@ export default function TipTapEditor({ content, onChange, onImageUpload }) {
         },
         editorProps: {
             attributes: {
-                class: 'prose dark:prose-invert max-w-none p-4 min-h-[300px] outline-none [&_img]:rounded-3xl [&_img]:border-4 [&_img]:border-dashed [&_img]:border-muted-foreground/20 [&_img]:p-2 [&_img]:max-w-[100%] [&_img]:mx-auto [&_img]:block prose-headings:font-serif prose-p:leading-relaxed',
+                class: 'prose dark:prose-invert max-w-none p-4 min-h-[300px] outline-none [&_img]:rounded-3xl [&_img]:border-4 [&_img]:border-dashed [&_img]:border-muted-foreground/20 [&_img]:p-2 [&_img]:max-w-[100%] [&_img]:mx-auto [&_img]:block prose-headings:font-serif prose-p:leading-relaxed [&_iframe]:w-full [&_iframe]:aspect-video [&_iframe]:rounded-2xl [&_iframe]:shadow-lg [&_iframe]:mx-auto',
                 style: 'font-family: Palatino, "Palatino Linotype", "Book Antiqua", serif; font-size: 1.2rem;',
             },
         },
@@ -297,9 +336,21 @@ export default function TipTapEditor({ content, onChange, onImageUpload }) {
         input.click();
     };
 
+    const addYoutube = () => {
+        const url = prompt('Enter YouTube URL');
+
+        if (url) {
+            editor.commands.setYoutubeVideo({
+                src: url,
+                width: 640,
+                height: 480,
+            })
+        }
+    }
+
     return (
         <div className="border rounded-md overflow-hidden bg-background">
-            <MenuBar editor={editor} addImage={addImage} />
+            <MenuBar editor={editor} addImage={addImage} addYoutube={addYoutube} />
             <LinkBubbleMenu editor={editor} />
             <EditorContent editor={editor} />
         </div>

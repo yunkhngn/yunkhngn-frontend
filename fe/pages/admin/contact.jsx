@@ -161,7 +161,7 @@ export default function AdminContact() {
                 </div>
 
                 {/* Filter Tabs */}
-                <div className="flex gap-2 mb-6">
+                <div className="flex flex-wrap gap-2 mb-6">
                     {['all', 'new', 'read', 'responded'].map((f) => (
                         <Button
                             key={f}
@@ -197,21 +197,21 @@ export default function AdminContact() {
                                     }
                                 }}
                             >
-                                <div className="flex items-start justify-between mb-2">
-                                    <div className="flex-1">
-                                        <div className="flex items-center gap-2 mb-1">
-                                            <h3 className="font-semibold">{contact.subject}</h3>
+                                <div className="flex flex-col md:flex-row md:items-start justify-between mb-2 gap-2">
+                                    <div className="flex-1 min-w-0">
+                                        <div className="flex flex-wrap items-center gap-2 mb-1">
+                                            <h3 className="font-semibold truncate">{contact.subject}</h3>
                                             {getStatusBadge(contact.status)}
                                             <Badge variant="outline" className="text-xs">
                                                 {contact.category?.toUpperCase() || 'GENERAL'}
                                             </Badge>
                                         </div>
-                                        <p className="text-sm text-muted-foreground">
+                                        <p className="text-sm text-muted-foreground truncate">
                                             From: {contact.name} ({contact.email})
                                             {contact.company && ` • ${contact.company}`}
                                         </p>
                                     </div>
-                                    <div className="text-xs text-muted-foreground">
+                                    <div className="text-xs text-muted-foreground whitespace-nowrap">
                                         {new Date(contact.createdAt).toLocaleDateString()}
                                     </div>
                                 </div>
@@ -223,7 +223,7 @@ export default function AdminContact() {
 
                 {/* Contact Detail Modal */}
                 <Dialog open={!!viewingContact} onOpenChange={(open) => !open && setViewingContact(null)}>
-                    <DialogContent className="max-w-2xl">
+                    <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
                         <DialogHeader>
                             <DialogTitle>{viewingContact?.subject}</DialogTitle>
                         </DialogHeader>

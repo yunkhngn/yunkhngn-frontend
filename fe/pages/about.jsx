@@ -96,7 +96,7 @@ export default function About() {
                     )
                 }
                 <div className="pt-8 space-y-2">
-                    <p className="italic">Vài dòng thư tay viết vội.</p>
+                    <p className="italic">Author of this website.</p>
                     <p className="font-serif text-xl text-foreground font-bold pt-4">Khoa Nguyễn</p>
                 </div>
             </div>

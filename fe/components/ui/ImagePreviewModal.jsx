@@ -11,7 +11,7 @@ const REACTIONS = [
     { id: 'laugh', icon: Laugh, label: 'Laugh', color: 'text-yellow-500' },
 ];
 
-export function ImagePreviewModal({ isOpen, onClose, imageSrc }) {
+export function ImagePreviewModal({ isOpen, onClose, imageSrc, caption }) {
     const [selectedReaction, setSelectedReaction] = useState(null);
 
     if (!imageSrc) return null;
@@ -27,33 +27,16 @@ export function ImagePreviewModal({ isOpen, onClose, imageSrc }) {
                 showCloseButton={false}
             >
                 <DialogTitle className="sr-only">Image Preview</DialogTitle>
-                <div className="relative w-full h-full flex items-center justify-center" onClick={onClose}>
-                    {/* Close button */}
-                    <button
-                        onClick={onClose}
-                        className="absolute top-4 right-4 z-50 p-2 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors"
-                    >
-                        <X className="h-6 w-6" />
-                    </button>
-
-                    {/* Image */}
+                <div className="relative w-full h-full flex flex-col items-center justify-center gap-4" onClick={onClose}>
+                    {/* Image Container with Overlays */}
                     <div
-                        className="relative w-auto h-auto max-w-[90vw] max-h-[90vh]"
+                        className="relative flex items-center justify-center pointer-events-auto"
                         onClick={(e) => e.stopPropagation()}
                     >
-                        <Image
-                            src={imageSrc}
-                            alt="Preview"
-                            fill
-                            className="object-contain rounded-lg shadow-2xl"
-                        />
-
-                        {/* Reaction Panel - Always Visible at Top */}
-                        <div
-                            className="absolute top-4 left-1/2 -translate-x-1/2 z-50"
-                            style={{ pointerEvents: 'auto' }}
-                        >
-                            <div className="flex items-center gap-3 bg-white/95 dark:bg-black/90 backdrop-blur-md rounded-full px-4 py-3 shadow-2xl border-2 border-gray-300 dark:border-white/20">
+                        {/* Top Controls: Reactions + Close */}
+                        <div className="absolute top-2 right-2 md:top-4 md:right-4 z-50 flex items-center gap-2 md:gap-3">
+                            {/* Reaction Panel */}
+                            <div className="flex items-center gap-1.5 md:gap-2 bg-black/60 backdrop-blur-md rounded-full px-2 py-1 md:px-3 md:py-1.5 shadow-lg border border-white/10">
                                 {REACTIONS.map((reaction) => {
                                     const Icon = reaction.icon;
                                     const isSelected = selectedReaction === reaction.id;
@@ -65,14 +48,14 @@ export function ImagePreviewModal({ isOpen, onClose, imageSrc }) {
                                                 e.stopPropagation();
                                                 handleReactionClick(reaction.id);
                                             }}
-                                            className={`p-2.5 rounded-full transition-all duration-200 hover:scale-125 ${isSelected
-                                                ? 'bg-gray-200 dark:bg-white/20 scale-110'
-                                                : 'hover:bg-gray-100 dark:hover:bg-white/10'
+                                            className={`p-1 md:p-1.5 rounded-full transition-all duration-200 hover:scale-125 ${isSelected
+                                                ? 'bg-white/20 scale-110'
+                                                : 'hover:bg-white/10'
                                                 }`}
                                             title={reaction.label}
                                         >
                                             <Icon
-                                                className={`h-6 w-6 ${isSelected ? reaction.color : 'text-gray-700 dark:text-white'
+                                                className={`h-4 w-4 md:h-5 md:w-5 ${isSelected ? reaction.color : 'text-white'
                                                     } transition-colors duration-200`}
                                                 fill={isSelected ? 'currentColor' : 'none'}
                                                 strokeWidth={2}
@@ -81,7 +64,28 @@ export function ImagePreviewModal({ isOpen, onClose, imageSrc }) {
                                     );
                                 })}
                             </div>
+
+                            {/* Close button */}
+                            <button
+                                onClick={onClose}
+                                className="p-1.5 md:p-2 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors backdrop-blur-sm"
+                            >
+                                <X className="h-5 w-5 md:h-6 md:w-6" />
+                            </button>
                         </div>
+
+                        <img
+                            src={imageSrc}
+                            alt="Preview"
+                            className="max-w-[95vw] max-h-[85vh] w-auto h-auto object-contain rounded-2xl shadow-2xl bg-black/20"
+                        />
+
+                        {/* Caption Overlay */}
+                        {caption && (
+                            <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6 bg-gradient-to-t from-black/90 via-black/50 to-transparent rounded-b-2xl text-left z-40">
+                                <p className="text-white text-sm md:text-lg font-medium leading-relaxed">{caption}</p>
+                            </div>
+                        )}
                     </div>
                 </div>
             </DialogContent>

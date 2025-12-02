@@ -2,11 +2,13 @@ import { useEditor, EditorContent, ReactNodeViewRenderer } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
 import Link from '@tiptap/extension-link';
+import Youtube from '@tiptap/extension-youtube';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
 import { common, createLowlight } from 'lowlight';
 import { useEffect, useState } from 'react';
 import { ImagePreviewModal } from './ImagePreviewModal';
 import CodeBlockComponent from './CodeBlockComponent';
+import { Spotify } from '../extensions/Spotify';
 
 const lowlight = createLowlight(common);
 
@@ -43,6 +45,18 @@ export default function TipTapViewer({ content }) {
             }).configure({
                 openOnClick: true,
             }),
+            Youtube.configure({
+                controls: true,
+                nocookie: true,
+                HTMLAttributes: {
+                    class: 'w-full aspect-video rounded-2xl shadow-lg mx-auto',
+                },
+            }),
+            Spotify.configure({
+                HTMLAttributes: {
+                    class: 'w-full md:w-1/2 rounded-2xl shadow-lg mx-auto block',
+                },
+            }),
             CodeBlockLowlight.extend({
                 addNodeView() {
                     return ReactNodeViewRenderer(CodeBlockComponent);
@@ -53,7 +67,11 @@ export default function TipTapViewer({ content }) {
         editable: false, // Read-only
         editorProps: {
             attributes: {
-                class: 'prose dark:prose-invert max-w-none p-4 outline-none [&_img]:rounded-3xl [&_img]:border-4 [&_img]:border-dashed [&_img]:border-muted-foreground/20 [&_img]:p-2 [&_img]:w-[100%] [&_img]:block',
+                editorProps: {
+                    attributes: {
+                        class: 'prose dark:prose-invert max-w-none p-4 outline-none [&_img]:rounded-3xl [&_img]:border-4 [&_img]:border-dashed [&_img]:border-muted-foreground/20 [&_img]:p-2 [&_img]:w-[100%] [&_img]:block [&_iframe]:w-full [&_iframe]:aspect-video [&_iframe]:rounded-2xl [&_iframe]:shadow-lg [&_iframe]:mx-auto',
+                    },
+                },
             },
         },
         immediatelyRender: false,
@@ -79,11 +97,13 @@ export default function TipTapViewer({ content }) {
     }, [content, editor]);
 
     const [previewImage, setPreviewImage] = useState(null);
+    const [previewCaption, setPreviewCaption] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const handleContentClick = (e) => {
         if (e.target.tagName === 'IMG') {
             setPreviewImage(e.target.src);
+            setPreviewCaption(e.target.alt);
             setIsModalOpen(true);
         }
     };
@@ -99,6 +119,7 @@ export default function TipTapViewer({ content }) {
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 imageSrc={previewImage}
+                caption={previewCaption}
             />
         </>
     );
