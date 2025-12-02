@@ -9,6 +9,7 @@ import { common, createLowlight } from 'lowlight';
 import CodeBlockComponent from './CodeBlockComponent';
 import { LinkPopover } from './LinkPopover';
 import { LinkBubbleMenu } from './LinkBubbleMenu';
+import { Spotify } from '../extensions/Spotify';
 import { Button } from '@/components/ui/Button';
 import {
     Bold, Italic, Strikethrough, Code, List, ListOrdered, Quote,
@@ -235,6 +236,11 @@ export default function TipTapEditor({ content, onChange, onImageUpload }) {
             nocookie: true,
             HTMLAttributes: {
                 class: 'w-full aspect-video rounded-2xl shadow-lg mx-auto',
+            },
+        }),
+        Spotify.configure({
+            HTMLAttributes: {
+                class: 'w-full md:w-1/2 rounded-2xl shadow-lg mx-auto block',
             },
         }),
         CodeBlockLowlight.configure({

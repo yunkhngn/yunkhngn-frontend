@@ -8,6 +8,7 @@ import { common, createLowlight } from 'lowlight';
 import { useEffect, useState } from 'react';
 import { ImagePreviewModal } from './ImagePreviewModal';
 import CodeBlockComponent from './CodeBlockComponent';
+import { Spotify } from '../extensions/Spotify';
 
 const lowlight = createLowlight(common);
 
@@ -49,6 +50,11 @@ export default function TipTapViewer({ content }) {
                 nocookie: true,
                 HTMLAttributes: {
                     class: 'w-full aspect-video rounded-2xl shadow-lg mx-auto',
+                },
+            }),
+            Spotify.configure({
+                HTMLAttributes: {
+                    class: 'w-full md:w-1/2 rounded-2xl shadow-lg mx-auto block',
                 },
             }),
             CodeBlockLowlight.extend({
