@@ -59,9 +59,9 @@ export default function ProjectList() {
             {/* Hero Section */}
             <div className="flex flex-col items-center text-center mb-20 space-y-6">
                 <div className="space-y-4">
-                    <div className="text-sm font-medium text-primary uppercase tracking-wider">Our Work</div>
+                    <div className="text-sm font-medium text-primary uppercase tracking-wider">My Work</div>
                     <h1 className="text-4xl md:text-6xl font-bold tracking-tight font-serif">
-                        Selected Projects
+                        Projects
                     </h1>
                     <p className="text-muted-foreground max-w-2xl mx-auto text-lg md:text-xl">
                         A collection of my work, side projects, and open source contributions.

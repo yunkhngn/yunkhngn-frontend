@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
-import { Search, Calendar, ArrowRight, ArrowUpRight } from 'lucide-react';
+import { Search, ArrowUpRight } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { format } from 'date-fns';
@@ -87,12 +87,12 @@ export default function BlogList() {
             {/* Hero Section */}
             <div className="flex flex-col items-center text-center mb-20 space-y-6">
                 <div className="space-y-4">
-                    <div className="text-sm font-medium text-primary uppercase tracking-wider">Our Blog</div>
+                    <div className="text-sm font-medium text-primary uppercase tracking-wider">My Blog</div>
                     <h1 className="text-4xl md:text-6xl font-bold tracking-tight font-serif">
-                        Stories & Ideas
+                        My Stories & Ideas
                     </h1>
                     <p className="text-muted-foreground max-w-2xl mx-auto text-lg md:text-xl">
-                        The latest news, technologies, and resources from our team.
+                        The latest news, technologies, and resources from me.
                     </p>
                 </div>
 
