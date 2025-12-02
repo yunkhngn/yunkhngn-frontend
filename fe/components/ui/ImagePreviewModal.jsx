@@ -51,7 +51,7 @@ export function ImagePreviewModal({ isOpen, onClose, imageSrc }) {
 
                     {/* Reaction Panel - Below Image */}
                     <div
-                        className="z-50"
+                        className="z-50 mt-10"
                         style={{ pointerEvents: 'auto' }}
                         onClick={(e) => e.stopPropagation()}
                     >
