@@ -50,7 +50,7 @@ export function ImagePreviewModal({ isOpen, onClose, imageSrc }) {
 
                         {/* Reaction Panel - Always Visible at Top */}
                         <div
-                            className="absolute top-4 left-1/2 -translate-x-1/2 z-50"
+                            className="absolute bottom-10 left-1/2 -translate-x-1/2 z-50"
                             style={{ pointerEvents: 'auto' }}
                         >
                             <div className="flex items-center gap-3 bg-white/95 dark:bg-black/90 backdrop-blur-md rounded-full px-4 py-3 shadow-2xl border-2 border-gray-300 dark:border-white/20">
