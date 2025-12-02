@@ -29,6 +29,8 @@ services:
       - app-network
     volumes:
       - ./be/firebase-admin-sdk.json:/app/firebase-admin-sdk.json
+    depends_on:
+      - mssql
 
   frontend:
     build:
