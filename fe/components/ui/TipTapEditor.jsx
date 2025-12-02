@@ -12,7 +12,7 @@ import { LinkBubbleMenu } from './LinkBubbleMenu';
 import { Button } from '@/components/ui/Button';
 import {
     Bold, Italic, Strikethrough, Code, List, ListOrdered, Quote,
-    Undo, Redo, Image as ImageIcon, Link as LinkIcon, Heading1, Heading2, Trash2, Youtube as YoutubeIcon
+    Undo, Redo, Image as ImageIcon, Link as LinkIcon, Heading1, Heading2, Heading3, Trash2, Youtube as YoutubeIcon, Minus
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import BubbleMenuExtension from '@tiptap/extension-bubble-menu';
@@ -70,6 +70,15 @@ const MenuBar = ({ editor, addImage, addYoutube }) => {
             >
                 <Heading2 className="h-4 w-4" />
             </Button>
+            <Button
+                type="button"
+                variant="ghost" size="sm"
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+                className={cn(editor.isActive('heading', { level: 3 }) && 'bg-muted')}
+            >
+                <Heading3 className="h-4 w-4" />
+            </Button>
             <div className="w-px h-6 bg-border mx-1 my-auto" />
             <Button
                 type="button"
@@ -107,6 +116,14 @@ const MenuBar = ({ editor, addImage, addYoutube }) => {
                 className={cn(editor.isActive('blockquote') && 'bg-muted')}
             >
                 <Quote className="h-4 w-4" />
+            </Button>
+            <Button
+                type="button"
+                variant="ghost" size="sm"
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => editor.chain().focus().setHorizontalRule().run()}
+            >
+                <Minus className="h-4 w-4" />
             </Button>
             <div className="w-px h-6 bg-border mx-1 my-auto" />
             <LinkPopover editor={editor}>
@@ -214,8 +231,11 @@ export default function TipTapEditor({ content, onChange, onImageUpload }) {
             openOnClick: false,
         }),
         Youtube.configure({
-            controls: false,
+            controls: true,
             nocookie: true,
+            HTMLAttributes: {
+                class: 'w-full aspect-video rounded-2xl shadow-lg mx-auto',
+            },
         }),
         CodeBlockLowlight.configure({
             lowlight,
@@ -238,7 +258,7 @@ export default function TipTapEditor({ content, onChange, onImageUpload }) {
         },
         editorProps: {
             attributes: {
-                class: 'prose dark:prose-invert max-w-none p-4 min-h-[300px] outline-none [&_img]:rounded-3xl [&_img]:border-4 [&_img]:border-dashed [&_img]:border-muted-foreground/20 [&_img]:p-2 [&_img]:max-w-[100%] [&_img]:mx-auto [&_img]:block prose-headings:font-serif prose-p:leading-relaxed',
+                class: 'prose dark:prose-invert max-w-none p-4 min-h-[300px] outline-none [&_img]:rounded-3xl [&_img]:border-4 [&_img]:border-dashed [&_img]:border-muted-foreground/20 [&_img]:p-2 [&_img]:max-w-[100%] [&_img]:mx-auto [&_img]:block prose-headings:font-serif prose-p:leading-relaxed [&_iframe]:w-full [&_iframe]:aspect-video [&_iframe]:rounded-2xl [&_iframe]:shadow-lg [&_iframe]:mx-auto',
                 style: 'font-family: Palatino, "Palatino Linotype", "Book Antiqua", serif; font-size: 1.2rem;',
             },
         },

@@ -311,4 +311,20 @@
         margin-top: 0.25rem !important;
         margin-bottom: 0.25rem !important;
     }
+
+    /* Responsive Iframe (YouTube) */
+    .ProseMirror iframe,
+    .prose iframe,
+    .tiptap iframe {
+        width: 100% !important;
+        height: auto !important;
+        aspect-ratio: 16 / 9;
+        border-radius: 1rem !important;
+        /* rounded-2xl */
+        box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1) !important;
+        /* shadow-lg */
+        margin-left: auto !important;
+        margin-right: auto !important;
+        display: block !important;
+    }
 }

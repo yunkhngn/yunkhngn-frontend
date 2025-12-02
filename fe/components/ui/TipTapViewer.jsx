@@ -45,8 +45,11 @@ export default function TipTapViewer({ content }) {
                 openOnClick: true,
             }),
             Youtube.configure({
-                controls: false,
+                controls: true,
                 nocookie: true,
+                HTMLAttributes: {
+                    class: 'w-full aspect-video rounded-2xl shadow-lg mx-auto',
+                },
             }),
             CodeBlockLowlight.extend({
                 addNodeView() {
@@ -58,7 +61,11 @@ export default function TipTapViewer({ content }) {
         editable: false, // Read-only
         editorProps: {
             attributes: {
-                class: 'prose dark:prose-invert max-w-none p-4 outline-none [&_img]:rounded-3xl [&_img]:border-4 [&_img]:border-dashed [&_img]:border-muted-foreground/20 [&_img]:p-2 [&_img]:w-[100%] [&_img]:block',
+                editorProps: {
+                    attributes: {
+                        class: 'prose dark:prose-invert max-w-none p-4 outline-none [&_img]:rounded-3xl [&_img]:border-4 [&_img]:border-dashed [&_img]:border-muted-foreground/20 [&_img]:p-2 [&_img]:w-[100%] [&_img]:block [&_iframe]:w-full [&_iframe]:aspect-video [&_iframe]:rounded-2xl [&_iframe]:shadow-lg [&_iframe]:mx-auto',
+                    },
+                },
             },
         },
         immediatelyRender: false,
