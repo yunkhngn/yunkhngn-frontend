@@ -67,14 +67,16 @@ jobs:
           config: p/default
 
 
-  # 2. Build & Push Docker Images
-  build:
-    needs: quality
+  # 3. Build & Push Docker Images
+  build_and_push:
+    needs: [quality, security]
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    outputs:
+      image_tag: ${{ steps.meta.outputs.version }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -86,15 +88,23 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Docker Meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-backend
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-frontend
+          tags: |
+            type=sha,format=long
+
       - name: Build and push Backend
         uses: docker/build-push-action@v5
         with:
           context: ./be
           file: ./be/Dockerfile.prod
           push: true
-          tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-backend:latest
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-backend:${{ github.sha }}
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-backend:sha-${{ github.sha }}
 
       - name: Build and push Frontend
         uses: docker/build-push-action@v5
@@ -102,9 +112,7 @@ jobs:
           context: ./fe
           file: ./fe/Dockerfile.prod
           push: true
-          tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-frontend:latest
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-frontend:${{ github.sha }}
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-frontend:sha-${{ github.sha }}
           build-args: |
             NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}
             NEXT_PUBLIC_FIREBASE_API_KEY=${{ secrets.NEXT_PUBLIC_FIREBASE_API_KEY }}
@@ -114,34 +122,85 @@ jobs:
             NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=${{ secrets.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID }}
             NEXT_PUBLIC_FIREBASE_APP_ID=${{ secrets.NEXT_PUBLIC_FIREBASE_APP_ID }}
 
-  # 3. Deploy to Server
-  deploy:
-    needs: build
+  # 4. Manual Approval
+  manual_approval:
+    needs: build_and_push
     runs-on: ubuntu-latest
+    steps:
+      - name: Wait for Approval
+        uses: trstringer/manual-approval@v1
+        with:
+          secret: ${{ secrets.GITHUB_TOKEN }}
+          approvers: yunkhngn
+          minimum-approvals: 1
+          issue-title: "🚀 Deploy to Production Approval"
+          issue-body: "Please approve or deny the deployment to production for commit ${{ github.sha }}."
+          exclude-workflow-initiator-as-approver: false
+
+  # 5. Deploy to Production
+  deploy_production:
+    needs: manual_approval
+    runs-on: ubuntu-latest
+    environment: production
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     steps:
-      - name: Deploy via SSH
+      - name: Deploy to Production Server
         uses: appleboy/ssh-action@v1.0.3
+        env:
+          IMAGE_TAG: sha-${{ github.sha }}
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           port: 22
+          envs: IMAGE_TAG
           script: |
-            # Login to GHCR on server
             echo ${{ secrets.CR_PAT }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-
-            # Navigate to project directory
             cd ~/apps/yunkhngn-website
-            
-            # Pull latest code (for docker-compose.yml updates)
             git pull origin main
             
-            # Pull latest images
-            docker compose -f docker-compose.prod.yml pull
+            # Deploy with specific tag
+            export BACKEND_IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-backend:${IMAGE_TAG}"
+            export FRONTEND_IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-frontend:${IMAGE_TAG}"
             
-            # Restart containers
             docker compose -f docker-compose.prod.yml up -d
+
+      - name: Health Check (Production)
+        run: |
+          echo "Waiting for services to start..."
+          sleep 30
+          curl -f https://${{ secrets.PRODUCTION_HOST }}/api/health || exit 1
+
+  # 6. Rollback (On Failure)
+  rollback:
+    needs: deploy_production
+    runs-on: ubuntu-latest
+    if: failure()
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Get Previous Commit SHA
+        id: prev_sha
+        run: echo "sha=$(git rev-parse HEAD~1)" >> $GITHUB_OUTPUT
+
+      - name: Rollback Deployment
+        uses: appleboy/ssh-action@v1.0.3
+        env:
+          PREV_TAG: sha-${{ steps.prev_sha.outputs.sha }}
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          port: 22
+          envs: PREV_TAG
+          script: |
+            echo "Rolling back to ${PREV_TAG}..."
+            cd ~/apps/yunkhngn-website
             
-            # Cleanup
-            docker system prune -f
+            export BACKEND_IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-backend:${PREV_TAG}"
+            export FRONTEND_IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-frontend:${PREV_TAG}"
+            
+            docker compose -f docker-compose.prod.yml up -d

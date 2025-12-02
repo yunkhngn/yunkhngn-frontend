@@ -20,7 +20,7 @@ services:
 
   # nosemgrep: yaml.docker-compose.security.writable-filesystem-service.writable-filesystem-service
   backend:
-    image: ghcr.io/yunkhngn/yunkhngn-website-backend:latest
+    image: ${BACKEND_IMAGE:-ghcr.io/yunkhngn/yunkhngn-website-backend:latest}
     # build:
     #   context: ./be
     #   dockerfile: Dockerfile.prod
@@ -41,7 +41,7 @@ services:
 
   # nosemgrep: yaml.docker-compose.security.writable-filesystem-service.writable-filesystem-service
   frontend:
-    image: ghcr.io/yunkhngn/yunkhngn-website-frontend:latest
+    image: ${FRONTEND_IMAGE:-ghcr.io/yunkhngn/yunkhngn-website-frontend:latest}
     # build:
     #   context: ./fe
     #   dockerfile: Dockerfile.prod

@@ -17,6 +17,8 @@ import { AiModule } from './ai/ai.module';
 import { PhotoReactionsModule } from './photo-reactions/photo-reactions.module';
 import { ContactModule } from './contact/contact.module';
 
+import { HealthController } from './health/health.controller';
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -41,7 +43,7 @@ import { ContactModule } from './contact/contact.module';
     PhotoReactionsModule,
     ContactModule,
   ],
-  controllers: [AppController],
+  controllers: [AppController, HealthController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }
