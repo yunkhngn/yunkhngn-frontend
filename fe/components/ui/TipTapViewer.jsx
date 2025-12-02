@@ -79,11 +79,13 @@ export default function TipTapViewer({ content }) {
     }, [content, editor]);
 
     const [previewImage, setPreviewImage] = useState(null);
+    const [previewCaption, setPreviewCaption] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const handleContentClick = (e) => {
         if (e.target.tagName === 'IMG') {
             setPreviewImage(e.target.src);
+            setPreviewCaption(e.target.alt);
             setIsModalOpen(true);
         }
     };
@@ -99,6 +101,7 @@ export default function TipTapViewer({ content }) {
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 imageSrc={previewImage}
+                caption={previewCaption}
             />
         </>
     );

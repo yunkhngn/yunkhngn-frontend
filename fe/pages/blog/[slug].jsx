@@ -222,12 +222,6 @@ export default function BlogDetail({ blogData }) {
                                     {blog.title}
                                 </h1>
 
-                                {blog.description && (
-                                    <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
-                                        {blog.description}
-                                    </p>
-                                )}
-
                                 {blog.tags && (
                                     <div className="flex flex-wrap gap-2 mb-8 justify-center">
                                         {blog.tags.split(',').map((tag, i) => (

@@ -11,7 +11,7 @@ const REACTIONS = [
     { id: 'laugh', icon: Laugh, label: 'Laugh', color: 'text-yellow-500' },
 ];
 
-export function ImagePreviewModal({ isOpen, onClose, imageSrc }) {
+export function ImagePreviewModal({ isOpen, onClose, imageSrc, caption }) {
     const [selectedReaction, setSelectedReaction] = useState(null);
 
     if (!imageSrc) return null;
@@ -30,13 +30,13 @@ export function ImagePreviewModal({ isOpen, onClose, imageSrc }) {
                 <div className="relative w-full h-full flex flex-col items-center justify-center gap-4" onClick={onClose}>
                     {/* Image Container with Overlays */}
                     <div
-                        className="relative flex items-center justify-center"
+                        className="relative flex items-center justify-center pointer-events-auto"
                         onClick={(e) => e.stopPropagation()}
                     >
                         {/* Top Controls: Reactions + Close */}
                         <div className="absolute top-2 right-2 md:top-4 md:right-4 z-50 flex items-center gap-2 md:gap-3">
                             {/* Reaction Panel */}
-                            <div className="flex items-center gap-1.5 md:gap-2 bg-white/90 dark:bg-black/80 backdrop-blur-sm rounded-full px-2 py-1 md:px-3 md:py-1.5 shadow-lg border border-gray-200 dark:border-white/10">
+                            <div className="flex items-center gap-1.5 md:gap-2 bg-black/60 backdrop-blur-md rounded-full px-2 py-1 md:px-3 md:py-1.5 shadow-lg border border-white/10">
                                 {REACTIONS.map((reaction) => {
                                     const Icon = reaction.icon;
                                     const isSelected = selectedReaction === reaction.id;
@@ -49,13 +49,13 @@ export function ImagePreviewModal({ isOpen, onClose, imageSrc }) {
                                                 handleReactionClick(reaction.id);
                                             }}
                                             className={`p-1 md:p-1.5 rounded-full transition-all duration-200 hover:scale-125 ${isSelected
-                                                ? 'bg-gray-200 dark:bg-white/20 scale-110'
-                                                : 'hover:bg-gray-100 dark:hover:bg-white/10'
+                                                ? 'bg-white/20 scale-110'
+                                                : 'hover:bg-white/10'
                                                 }`}
                                             title={reaction.label}
                                         >
                                             <Icon
-                                                className={`h-4 w-4 md:h-5 md:w-5 ${isSelected ? reaction.color : 'text-gray-700 dark:text-white'
+                                                className={`h-4 w-4 md:h-5 md:w-5 ${isSelected ? reaction.color : 'text-white'
                                                     } transition-colors duration-200`}
                                                 fill={isSelected ? 'currentColor' : 'none'}
                                                 strokeWidth={2}
@@ -77,8 +77,15 @@ export function ImagePreviewModal({ isOpen, onClose, imageSrc }) {
                         <img
                             src={imageSrc}
                             alt="Preview"
-                            className="max-w-[90vw] max-h-[80vh] w-auto h-auto object-contain rounded-2xl shadow-2xl"
+                            className="max-w-[95vw] max-h-[85vh] w-auto h-auto object-contain rounded-2xl shadow-2xl bg-black/20"
                         />
+
+                        {/* Caption Overlay */}
+                        {caption && (
+                            <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6 bg-gradient-to-t from-black/90 via-black/50 to-transparent rounded-b-2xl text-left z-40">
+                                <p className="text-white text-sm md:text-lg font-medium leading-relaxed">{caption}</p>
+                            </div>
+                        )}
                     </div>
                 </div>
             </DialogContent>
