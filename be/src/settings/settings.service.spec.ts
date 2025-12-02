@@ -4,9 +4,10 @@ import { PrismaService } from '../prisma/prisma.service';
 
 const mockPrismaService = {
     settings: {
+        findMany: jest.fn(),
+        upsert: jest.fn(),
         findUnique: jest.fn(),
-        create: jest.fn(),
-        update: jest.fn(),
+        delete: jest.fn(),
     },
 };
 
@@ -31,20 +32,19 @@ describe('SettingsService', () => {
     });
 
     describe('getSettings', () => {
-        it('should return existing settings', async () => {
-            const result = { id: 1, siteTitle: 'Title' };
-            jest.spyOn(prisma.settings, 'findUnique').mockResolvedValue(result as any);
+        it('should return all settings', async () => {
+            const result = [{ id: 1, settingTitle: 'bio', content: 'test' }];
+            jest.spyOn(prisma.settings, 'findMany').mockResolvedValue(result);
 
             expect(await service.getSettings()).toEqual(result);
+            expect(prisma.settings.findMany).toHaveBeenCalled();
         });
+    });
 
-        it('should create default settings if not found', async () => {
-            const result = { id: 1, siteTitle: 'My Developer Portfolio' };
-            jest.spyOn(prisma.settings, 'findUnique').mockResolvedValue(null);
-            jest.spyOn(prisma.settings, 'create').mockResolvedValue(result as any);
-
-            expect(await service.getSettings()).toEqual(result);
-            expect(prisma.settings.create).toHaveBeenCalled();
+    describe('onModuleInit', () => {
+        it('should initialize default settings', async () => {
+            await service.onModuleInit();
+            expect(prisma.settings.upsert).toHaveBeenCalled();
         });
     });
 });

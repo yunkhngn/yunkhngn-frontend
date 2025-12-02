@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="jest tests" tests="18" failures="0" errors="0" time="11.133">
+  <testsuite name="AppController" errors="0" failures="0" skipped="0" timestamp="2025-12-02T05:45:01" time="8.725" tests="1">
+    <testcase classname="AppController root should return &quot;Hello World!&quot;" name="AppController root should return &quot;Hello World!&quot;" time="0.01">
+    </testcase>
+  </testsuite>
+  <testsuite name="BlogService" errors="0" failures="0" skipped="0" timestamp="2025-12-02T05:45:01" time="8.735" tests="4">
+    <testcase classname="BlogService should be defined" name="BlogService should be defined" time="0.02">
+    </testcase>
+    <testcase classname="BlogService create should create a blog" name="BlogService create should create a blog" time="0.011">
+    </testcase>
+    <testcase classname="BlogService findAll should return an array of blogs" name="BlogService findAll should return an array of blogs" time="0.004">
+    </testcase>
+    <testcase classname="BlogService findOne should return a single blog" name="BlogService findOne should return a single blog" time="0.003">
+    </testcase>
+  </testsuite>
+  <testsuite name="PrismaService" errors="0" failures="0" skipped="0" timestamp="2025-12-02T05:45:01" time="8.771" tests="1">
+    <testcase classname="PrismaService should be defined" name="PrismaService should be defined" time="0.098">
+    </testcase>
+  </testsuite>
+  <testsuite name="CloudinaryService" errors="0" failures="0" skipped="0" timestamp="2025-12-02T05:45:01" time="8.855" tests="1">
+    <testcase classname="CloudinaryService should be defined" name="CloudinaryService should be defined" time="0.023">
+    </testcase>
+  </testsuite>
+  <testsuite name="GalleryService" errors="0" failures="0" skipped="0" timestamp="2025-12-02T05:45:01" time="8.938" tests="2">
+    <testcase classname="GalleryService should be defined" name="GalleryService should be defined" time="0.018">
+    </testcase>
+    <testcase classname="GalleryService getUploadSignature should return signature" name="GalleryService getUploadSignature should return signature" time="0.006">
+    </testcase>
+  </testsuite>
+  <testsuite name="ProjectService" errors="0" failures="0" skipped="0" timestamp="2025-12-02T05:45:10" time="0.194" tests="2">
+    <testcase classname="ProjectService should be defined" name="ProjectService should be defined" time="0.005">
+    </testcase>
+    <testcase classname="ProjectService create should create a project" name="ProjectService create should create a project" time="0.005">
+    </testcase>
+  </testsuite>
+  <testsuite name="ContactService" errors="0" failures="0" skipped="0" timestamp="2025-12-02T05:45:01" time="9.003" tests="4">
+    <testcase classname="ContactService should be defined" name="ContactService should be defined" time="0.02">
+    </testcase>
+    <testcase classname="ContactService createContact should create a contact and send notification" name="ContactService createContact should create a contact and send notification" time="0.004">
+    </testcase>
+    <testcase classname="ContactService respondToContact should send email and update contact status" name="ContactService respondToContact should send email and update contact status" time="0.007">
+    </testcase>
+    <testcase classname="ContactService generateAiResponse should call AI service with correct prompt" name="ContactService generateAiResponse should call AI service with correct prompt" time="0.002">
+    </testcase>
+  </testsuite>
+  <testsuite name="SettingsService" errors="0" failures="0" skipped="0" timestamp="2025-12-02T05:45:01" time="10.258" tests="3">
+    <testcase classname="SettingsService should be defined" name="SettingsService should be defined" time="0.008">
+    </testcase>
+    <testcase classname="SettingsService getSettings should return all settings" name="SettingsService getSettings should return all settings" time="0.002">
+    </testcase>
+    <testcase classname="SettingsService onModuleInit should initialize default settings" name="SettingsService onModuleInit should initialize default settings" time="0.001">
+    </testcase>
+  </testsuite>
+</testsuites>

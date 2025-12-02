@@ -34,12 +34,25 @@ describe('ProjectService', () => {
 
     describe('create', () => {
         it('should create a project', async () => {
-            const dto = { title: 'Test', description: 'Desc' };
-            const result = { id: '1', ...dto, createdAt: new Date(), techStack: null, images: null, tags: null };
+            const dto = { title: 'Test', description: 'Desc', slug: 'test-project' };
+            const result = {
+                id: '1',
+                ...dto,
+                createdAt: new Date(),
+                techStack: null,
+                tags: null,
+                cover: null,
+                repoLink: null,
+                demoLink: null,
+                contentJSON: null
+            };
 
+            jest.spyOn(prisma.project, 'findUnique').mockResolvedValue(null);
             jest.spyOn(prisma.project, 'create').mockResolvedValue(result);
 
             expect(await service.create(dto)).toEqual(result);
+            expect(prisma.project.findUnique).toHaveBeenCalledWith({ where: { slug: dto.slug } });
+            expect(prisma.project.create).toHaveBeenCalledWith({ data: dto });
         });
     });
 });

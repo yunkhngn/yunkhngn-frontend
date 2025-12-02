@@ -7,6 +7,7 @@ const mockPrismaService = {
         create: jest.fn(),
         findMany: jest.fn(),
         findUnique: jest.fn(),
+        findFirst: jest.fn(),
         update: jest.fn(),
         delete: jest.fn(),
     },
@@ -56,7 +57,7 @@ describe('BlogService', () => {
     describe('findOne', () => {
         it('should return a single blog', async () => {
             const result = { id: '1', title: 'Test', slug: 'test', contentJSON: '{}', createdAt: new Date(), updatedAt: new Date(), status: 'DRAFT', thumbnail: null, tags: null };
-            jest.spyOn(prisma.blog, 'findUnique').mockResolvedValue(result);
+            jest.spyOn(prisma.blog, 'findFirst').mockResolvedValue(result);
 
             expect(await service.findOne('test')).toEqual(result);
         });
