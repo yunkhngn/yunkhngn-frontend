@@ -3,13 +3,17 @@ import Layout from '@/components/template/Default/Layout';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/Select';
 import { toast } from 'sonner';
-import { Mail, User, MessageSquare } from 'lucide-react';
+import { Mail, User, MessageSquare, Phone, Building, Tag } from 'lucide-react';
 
 export default function Contact() {
     const [formData, setFormData] = useState({
         name: '',
         email: '',
+        phone: '',
+        company: '',
+        category: 'general',
         subject: '',
         message: '',
     });
@@ -91,6 +95,61 @@ export default function Contact() {
                             className="pl-10"
                             required
                         />
+                    </div>
+                </div>
+
+                {/* Phone */}
+                <div className="space-y-2">
+                    <label className="text-base font-semibold text-foreground">
+                        Phone (Optional)
+                    </label>
+                    <div className="relative">
+                        <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground z-10 pointer-events-none" />
+                        <Input
+                            type="tel"
+                            placeholder="+84 123 456 789"
+                            value={formData.phone}
+                            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                            className="pl-10"
+                        />
+                    </div>
+                </div>
+
+                {/* Company */}
+                <div className="space-y-2">
+                    <label className="text-base font-semibold text-foreground">
+                        Company (Optional)
+                    </label>
+                    <div className="relative">
+                        <Building className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground z-10 pointer-events-none" />
+                        <Input
+                            type="text"
+                            placeholder="Your company name"
+                            value={formData.company}
+                            onChange={(e) => setFormData({ ...formData, company: e.target.value })}
+                            className="pl-10"
+                        />
+                    </div>
+                </div>
+
+                {/* Category */}
+                <div className="space-y-2">
+                    <label className="text-base font-semibold text-foreground">
+                        Category
+                    </label>
+                    <div className="relative">
+                        <Tag className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground z-10 pointer-events-none" />
+                        <Select value={formData.category} onValueChange={(value) => setFormData({ ...formData, category: value })}>
+                            <SelectTrigger className="pl-10">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="general">General Inquiry</SelectItem>
+                                <SelectItem value="business">Business Opportunity</SelectItem>
+                                <SelectItem value="support">Technical Support</SelectItem>
+                                <SelectItem value="feedback">Feedback</SelectItem>
+                            </SelectContent>
+                        </Select>
                     </div>
                 </div>
 
