@@ -9,38 +9,42 @@ import TipTapViewer from '@/components/ui/TipTapViewer';
 import Layout from '@/components/template/Default/Layout';
 import CommentSection from '@/components/blog/CommentSection';
 
-export default function ProjectDetail() {
-    const router = useRouter();
-    const { id } = router.query;
-    const [project, setProject] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [githubStats, setGithubStats] = useState(null);
+export async function getServerSideProps(context) {
+    const { id } = context.params;
 
-    useEffect(() => {
-        if (!id) return;
+    try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/${id}`);
+        if (!res.ok) throw new Error('Failed to fetch project');
+        const data = await res.json();
 
-        const fetchProject = async () => {
-            try {
-                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/${id}`);
-                if (!res.ok) throw new Error('Failed to fetch project');
-                const data = await res.json();
-
-                // Parse techStack if it's a string
-                const parsedProject = {
-                    ...data,
-                    techStack: typeof data.techStack === 'string' ? JSON.parse(data.techStack || '[]') : data.techStack,
-                };
-
-                setProject(parsedProject);
-            } catch (error) {
-                console.error(error);
-            } finally {
-                setLoading(false);
-            }
+        // Parse techStack if it's a string
+        const parsedProject = {
+            ...data,
+            techStack: typeof data.techStack === 'string' ? JSON.parse(data.techStack || '[]') : data.techStack,
         };
 
-        fetchProject();
-    }, [id]);
+        return {
+            props: {
+                projectData: parsedProject,
+            },
+        };
+    } catch (error) {
+        console.error(error);
+        return {
+            notFound: true,
+        };
+    }
+}
+
+export default function ProjectDetail({ projectData }) {
+    const router = useRouter();
+    const [project, setProject] = useState(projectData);
+    const [githubStats, setGithubStats] = useState(null);
+
+    // Update local state if props change
+    useEffect(() => {
+        setProject(projectData);
+    }, [projectData]);
 
     useEffect(() => {
         if (!project?.repoLink) return;
@@ -70,14 +74,6 @@ export default function ProjectDetail() {
 
         fetchGithubStats();
     }, [project?.repoLink]);
-
-    if (loading) {
-        return (
-            <div className="flex-1 flex items-center justify-center min-h-[50vh]">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-            </div>
-        );
-    }
 
     if (!project) {
         return (
