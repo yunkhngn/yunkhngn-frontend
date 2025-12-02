@@ -253,4 +253,57 @@
         width: auto !important;
         height: auto !important;
     }
+
+    /* Editor Heading Styling */
+    .ProseMirror h1,
+    .prose h1,
+    .tiptap h1 {
+        font-size: 2rem !important;
+        /* text-4xl */
+        font-weight: 800 !important;
+        /* font-extrabold */
+        margin-top: 2rem !important;
+        margin-bottom: 1rem !important;
+        line-height: 1.1 !important;
+        color: var(--foreground) !important;
+    }
+
+    .ProseMirror h2,
+    .prose h2,
+    .tiptap h2 {
+        font-size: 1.875rem !important;
+        /* text-3xl */
+        font-weight: 700 !important;
+        /* font-bold */
+        margin-top: 1.75rem !important;
+        margin-bottom: 0.75rem !important;
+        line-height: 1.2 !important;
+        color: var(--foreground) !important;
+    }
+
+    /* Editor List Styling */
+    .ProseMirror ul,
+    .prose ul,
+    .tiptap ul {
+        list-style-type: disc !important;
+        padding-left: 1.5rem !important;
+        margin-top: 1rem !important;
+        margin-bottom: 1rem !important;
+    }
+
+    .ProseMirror ol,
+    .prose ol,
+    .tiptap ol {
+        list-style-type: decimal !important;
+        padding-left: 1.5rem !important;
+        margin-top: 1rem !important;
+        margin-bottom: 1rem !important;
+    }
+
+    .ProseMirror li,
+    .prose li,
+    .tiptap li {
+        margin-top: 0.25rem !important;
+        margin-bottom: 0.25rem !important;
+    }
 }
