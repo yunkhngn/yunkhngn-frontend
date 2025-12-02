@@ -44,10 +44,26 @@ jobs:
           cd ../fe && yarn lint
 
       - name: Test Backend
-        run: cd be && yarn test
+        run: |
+          cd be
+          export JEST_JUNIT_OUTPUT_DIR="reports"
+          export JEST_JUNIT_OUTPUT_NAME="be-test-report.xml"
+          yarn test
 
       - name: Test Frontend
-        run: cd fe && yarn test
+        run: |
+          cd fe
+          export JEST_JUNIT_OUTPUT_DIR="reports"
+          export JEST_JUNIT_OUTPUT_NAME="fe-test-report.xml"
+          yarn test
+
+      - name: Debug - List Files
+        if: always()
+        run: |
+          echo "Listing be/reports:"
+          ls -R be/reports || echo "be/reports not found"
+          echo "Listing fe/reports:"
+          ls -R fe/reports || echo "fe/reports not found"
 
       - name: Upload Test Reports
         if: always()
