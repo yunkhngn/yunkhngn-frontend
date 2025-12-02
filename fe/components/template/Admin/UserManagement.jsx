@@ -8,7 +8,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import { toast } from 'sonner';
 
-export default function UserManagement() {
+export default function AdminManagement() {
     const { user } = useAuth();
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -28,7 +28,8 @@ export default function UserManagement() {
             });
             if (!res.ok) throw new Error('Failed to fetch users');
             const data = await res.json();
-            setUsers(data);
+            // Filter only admins
+            setUsers(data.filter(u => u.role === 'ADMIN'));
         } catch (err) {
             console.error(err);
             setError('Failed to load users');
@@ -131,9 +132,9 @@ export default function UserManagement() {
     return (
         <div className="space-y-4">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <h2 className="text-xl font-semibold">User Management</h2>
+                <h2 className="text-xl font-semibold">Admin Management</h2>
                 <Button onClick={() => { resetForm(); setDialogOpen(true); }}>
-                    <Plus className="mr-2 h-4 w-4" /> Add User
+                    <Plus className="mr-2 h-4 w-4" /> Add Admin
                 </Button>
             </div>
 
@@ -184,7 +185,7 @@ export default function UserManagement() {
                         {users.length === 0 && (
                             <tr>
                                 <td colSpan={4} className="px-4 py-8 text-center text-muted-foreground">
-                                    No users found.
+                                    No admins found.
                                 </td>
                             </tr>
                         )}
@@ -229,7 +230,7 @@ export default function UserManagement() {
                     ))}
                     {users.length === 0 && (
                         <div className="p-8 text-center text-muted-foreground">
-                            No users found.
+                            No admins found.
                         </div>
                     )}
                 </div>
@@ -238,7 +239,7 @@ export default function UserManagement() {
             <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>{editingUser ? 'Edit User' : 'Add New User'}</DialogTitle>
+                        <DialogTitle>{editingUser ? 'Edit Admin' : 'Add New Admin'}</DialogTitle>
                     </DialogHeader>
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div className="space-y-2">
@@ -278,7 +279,7 @@ export default function UserManagement() {
                             <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
                             <Button type="submit" disabled={actionLoading}>
                                 {actionLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                {editingUser ? 'Save Changes' : 'Create User'}
+                                {editingUser ? 'Save Changes' : 'Create Admin'}
                             </Button>
                         </DialogFooter>
                     </form>
@@ -289,8 +290,8 @@ export default function UserManagement() {
                 isOpen={isDeleteModalOpen}
                 onClose={() => setIsDeleteModalOpen(false)}
                 onConfirm={confirmDelete}
-                title="Delete User"
-                description="Are you sure you want to delete this user? This action cannot be undone."
+                title="Delete Admin"
+                description="Are you sure you want to delete this admin? This action cannot be undone."
             />
         </div>
     );

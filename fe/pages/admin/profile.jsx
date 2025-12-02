@@ -1,5 +1,6 @@
 import AdminLayout from "@/components/template/Admin/Layout";
-import UserManagement from "@/components/template/Admin/UserManagement";
+import AdminManagement from "@/components/template/Admin/UserManagement";
+import ServiceStatus from "@/components/template/Admin/ServiceStatus";
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/Button';
@@ -213,7 +214,11 @@ export default function Profile() {
         </div>
 
         <div className="mt-8 bg-card text-card-foreground rounded-xl border shadow-sm p-6">
-          <UserManagement />
+          <ServiceStatus />
+        </div>
+
+        <div className="mt-8 bg-card text-card-foreground rounded-xl border shadow-sm p-6">
+          <AdminManagement />
         </div>
       </div>
     </AdminLayout>

@@ -9,8 +9,6 @@ services:
     environment:
       - ACCEPT_EULA=Y
       - MSSQL_SA_PASSWORD=Khoadeptrai1204!
-    ports:
-      - "1433:1433"
     volumes:
       - mssql_data:/var/opt/mssql
     networks:
