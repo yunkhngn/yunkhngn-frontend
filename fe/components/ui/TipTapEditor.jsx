@@ -6,28 +6,22 @@ import Link from '@tiptap/extension-link';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
 import { common, createLowlight } from 'lowlight';
 import CodeBlockComponent from './CodeBlockComponent';
+import { LinkPopover } from './LinkPopover';
+import { LinkBubbleMenu } from './LinkBubbleMenu';
 import { Button } from '@/components/ui/Button';
 import {
     Bold, Italic, Strikethrough, Code, List, ListOrdered, Quote,
     Undo, Redo, Image as ImageIcon, Link as LinkIcon, Heading1, Heading2, Trash2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import BubbleMenuExtension from '@tiptap/extension-bubble-menu';
 
 const lowlight = createLowlight(common);
 
 const MenuBar = ({ editor, addImage }) => {
     if (!editor) return null;
 
-    const setLink = () => {
-        const previousUrl = editor.getAttributes('link').href;
-        const url = window.prompt('URL', previousUrl);
-        if (url === null) return;
-        if (url === '') {
-            editor.chain().focus().extendMarkRange('link').unsetLink().run();
-            return;
-        }
-        editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
-    };
+
 
     return (
         <div className="border-b p-2 flex flex-wrap gap-1 sticky top-0 bg-background z-10">
@@ -116,16 +110,15 @@ const MenuBar = ({ editor, addImage }) => {
                 <Quote className="h-4 w-4" />
             </Button>
             <div className="w-px h-6 bg-border mx-1 my-auto" />
-            <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onMouseDown={(e) => e.preventDefault()}
-                onClick={setLink}
-                className={cn(editor.isActive('link') && 'bg-muted')}
-            >
-                <LinkIcon className="h-4 w-4" />
-            </Button>
+            <LinkPopover editor={editor}>
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    className={cn(editor.isActive('link') && 'bg-muted')}
+                >
+                    <LinkIcon className="h-4 w-4" />
+                </Button>
+            </LinkPopover>
             <Button
                 type="button"
                 variant="ghost"
@@ -177,19 +170,35 @@ const parseContent = (content) => {
 };
 
 export default function TipTapEditor({ content, onChange, onImageUpload }) {
+    const extensions = [
+        StarterKit.configure({
+            codeBlock: false, // Disable StarterKit's codeBlock to use CodeBlockLowlight
+        }),
+        Image.configure({
+            inline: true,
+            allowBase64: true,
+        }),
+        Link.configure({
+            openOnClick: false,
+            HTMLAttributes: {
+                class: 'editor-link',
+            },
+        }),
+        CodeBlockLowlight.configure({
+            lowlight,
+            defaultLanguage: 'javascript',
+        }).extend({
+            addNodeView() {
+                return ReactNodeViewRenderer(CodeBlockComponent);
+            },
+        }),
+        BubbleMenuExtension.configure({
+            pluginKey: 'bubbleMenu',
+        }),
+    ];
+
     const editor = useEditor({
-        extensions: [
-            StarterKit.configure({
-                codeBlock: false, // Disable StarterKit's codeBlock to use CodeBlockLowlight
-            }),
-            Image,
-            Link.configure({ openOnClick: false }),
-            CodeBlockLowlight.extend({
-                addNodeView() {
-                    return ReactNodeViewRenderer(CodeBlockComponent);
-                },
-            }).configure({ lowlight }),
-        ],
+        extensions: extensions,
         content: parseContent(content) || '',
         onUpdate: ({ editor }) => {
             onChange(JSON.stringify(editor.getJSON()));
@@ -261,6 +270,7 @@ export default function TipTapEditor({ content, onChange, onImageUpload }) {
     return (
         <div className="border rounded-md overflow-hidden bg-background">
             <MenuBar editor={editor} addImage={addImage} />
+            <LinkBubbleMenu editor={editor} />
             <EditorContent editor={editor} />
         </div>
     );

@@ -17,7 +17,12 @@ export default function TipTapViewer({ content }) {
                 codeBlock: false,
             }),
             Image,
-            Link.configure({ openOnClick: true }), // Allow clicking links in viewer
+            Link.configure({
+                openOnClick: true,
+                HTMLAttributes: {
+                    class: 'editor-link',
+                },
+            }),
             CodeBlockLowlight.extend({
                 addNodeView() {
                     return ReactNodeViewRenderer(CodeBlockComponent);
