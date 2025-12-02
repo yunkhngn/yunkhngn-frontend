@@ -94,7 +94,7 @@
       [
         "jest-junit",
         {
-          "outputDirectory": "../reports",
+          "outputDirectory": "reports",
           "outputName": "be-test-report.xml"
         }
       ]
