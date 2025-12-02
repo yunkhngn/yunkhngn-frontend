@@ -1,24 +1,25 @@
 # Developer Blog & Portfolio Platform
 
-A comprehensive Blog and Portfolio platform designed for developers, featuring a Codecademy-inspired UI, rich text editing, and a robust backend architecture.
+A comprehensive, enterprise-grade Blog and Portfolio platform designed for developers. It features a Codecademy-inspired UI, rich text editing, AI-powered interactions, and a robust, secure CI/CD pipeline.
 
-## 🚀 Project Overview
+## Project Overview
 
-This system is built to serve as a personal brand hub, allowing the owner to showcase projects, write technical blogs, and interact with the community through comments and donations . 
+This system serves as a personal brand hub, allowing the owner to showcase projects, write technical blogs, and interact with the community. It leverages **Google Gemini AI** for intelligent features and employs an **Enterprise CI/CD** workflow for reliable deployments.
 
 ### Key Features
-*   **Blog**: Rich text editor (TipTap) with code blocks, embeds, and image support.
+*   **AI Integration**: Powered by Google Gemini for content assistance and intelligent interactions.
+*   **Advanced Blog**: Rich text editor (TipTap) with code blocks, embeds, and image support.
 *   **Portfolio**: Showcase projects with detailed descriptions and tech stacks.
-*   **Gallery**: Image gallery powered by Cloudinary.
+*   **Gallery**: Image gallery powered by Cloudinary with **Photo Reactions**.
 *   **Interaction**: Anonymous commenting system via Firebase Auth.
 *   **Support**: BuyMeACoffee integration.
-*   **Admin Panel**: Full CMS for managing content and site settings.
+*   **Admin Panel**: Full CMS for managing content, site settings, and users.
 *   **Customization**: Editable design tokens (colors, spacing, typography).
 
-## 🛠 Tech Stack
+## Tech Stack
 
 ### Frontend (`/fe`)
-*   **Framework**: Next.js (SSR only)
+*   **Framework**: Next.js 14
 *   **Styling**: TailwindCSS + shadcn/ui
 *   **State/Auth**: Firebase Auth (Anonymous + Admin)
 *   **Editor**: TipTap
@@ -28,40 +29,46 @@ This system is built to serve as a personal brand hub, allowing the owner to sho
 *   **Framework**: NestJS
 *   **Database**: MSSQL (Microsoft SQL Server)
 *   **ORM**: Prisma
-*   **API**: RESTful API
-*   **Auth**: Firebase Admin SDK (Server-side verification)
+*   **AI**: Google Gemini API
+*   **API**: RESTful API + Swagger Docs
+*   **Auth**: Firebase Admin SDK
 
-### Infrastructure
+### Infrastructure & DevOps
 *   **Containerization**: Docker & Docker Compose
 *   **Proxy**: Caddy (Reverse Proxy)
+*   **CI/CD**: GitHub Actions
+    *   **SAST**: Semgrep Security Scanning
+    *   **Registry**: GitHub Container Registry (GHCR)
+    *   **Deployment**: SSH to VPS
 
-## 🏗 System Architecture
+## Enterprise CI/CD Pipeline
 
-### Actors
-1.  **Visitor**: Can view content, comment anonymously, and donate.
-2.  **Admin**: Full access to CMS features (CRUD Blogs, Projects, Gallery, Settings).
+The project uses an advanced CI/CD pipeline defined in `.github/workflows/ci-cd.yml`:
 
-### Database Schema Overview
-*   **Blogs**: Content, metadata, status.
-*   **Projects**: Portfolio items.
-*   **Comments**: Linked to blogs, supports anonymous users.
-*   **Gallery**: Image assets.
-*   **Settings**: Site configuration and Design Tokens.
+1.  **Quality Check**: Runs ESLint and Unit Tests for both Frontend and Backend.
+2.  **Security Scan (SAST)**: Uses **Semgrep** to scan for security vulnerabilities (OWASP Top 10).
+3.  **Build & Push**: Builds Docker images and pushes them to GHCR with unique SHA tags.
+4.  **Deploy Production**: Deploys the approved images to the production server via SSH.
+    *   **Health Check**: Automatically verifies the deployment via a `/health` endpoint.
+5.  **Rollback**: Automatically reverts to the previous stable image tag if the production deployment fails.
 
-## 📦 Setup & Installation
+## Setup & Installation
 
 ### Prerequisites
 *   Docker & Docker Compose
-*   Node.js (v18+)
+*   Node.js (v20+)
+*   Yarn
 
 ### Environment Variables
 Create `.env` files in `/fe` and `/be` based on the examples.
 
 **Backend (`/be/.env`)**
 ```env
-DATABASE_URL="sqlserver://mssql:1433;database=mydb;user=sa;password=..."
+DATABASE_URL="sqlserver://mssql:1433;database=mydb;..."
 FIREBASE_CREDENTIALS="..."
 CLOUDINARY_URL="..."
+GEMINI_API_KEY="..."
+CORS_ORIGIN="..."
 ```
 
 **Frontend (`/fe/.env`)**
@@ -70,7 +77,7 @@ NEXT_PUBLIC_FIREBASE_CONFIG="..."
 NEXT_PUBLIC_API_URL="http://localhost:3000"
 ```
 
-### Running the Project
+### Running Locally
 ```bash
 # Start all services
 docker-compose up -d
@@ -78,14 +85,10 @@ docker-compose up -d
 # The application will be available at:
 # Frontend: http://localhost
 # Backend API: http://localhost/api
+# Swagger Docs: http://localhost/api/docs
 ```
 
-## 🎨 UI/UX Design
-*   **Style**: Codecademy-inspired (Pastel background, White cards, Purple accents).
-*   **Typography**: Inter font family.
-*   **Responsiveness**: Mobile-first design.
-
-## 🤝 Contributing
+## Contributing
 1.  Fork the repository
 2.  Create your feature branch (`git checkout -b feat/amazing-feature`)
 3.  Commit your changes (`git commit -m 'feat: add some amazing feature'`)

@@ -1,4 +1,4 @@
-name: Advanced CI/CD Pipeline
+name: CI/CD
 
 on:
   push:
@@ -18,6 +18,10 @@ jobs:
   # 1. Quality Check (Lint & Test)
   quality:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -53,6 +57,16 @@ jobs:
           path: |
             be/reports/*.xml
             fe/reports/*.xml
+
+      - name: Publish Test Report
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Test Results
+          path: |
+            be/reports/*.xml
+            fe/reports/*.xml
+          reporter: java-junit
 
   # 2. Security Check (SAST)
   security:
@@ -122,24 +136,9 @@ jobs:
             NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=${{ secrets.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID }}
             NEXT_PUBLIC_FIREBASE_APP_ID=${{ secrets.NEXT_PUBLIC_FIREBASE_APP_ID }}
 
-  # 4. Manual Approval
-  manual_approval:
-    needs: build_and_push
-    runs-on: ubuntu-latest
-    steps:
-      - name: Wait for Approval
-        uses: trstringer/manual-approval@v1
-        with:
-          secret: ${{ secrets.GITHUB_TOKEN }}
-          approvers: yunkhngn
-          minimum-approvals: 1
-          issue-title: "🚀 Deploy to Production Approval"
-          issue-body: "Please approve or deny the deployment to production for commit ${{ github.sha }}."
-          exclude-workflow-initiator-as-approver: false
-
-  # 5. Deploy to Production
+  # 4. Deploy to Production
   deploy_production:
-    needs: manual_approval
+    needs: build_and_push
     runs-on: ubuntu-latest
     environment: production
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
