@@ -9,6 +9,14 @@ const nextConfig = {
   /* config options here */
   reactStrictMode: false,
   images: {
+    domains: [
+      'res.cloudinary.com', 
+      'github.com', 
+      'avatars.githubusercontent.com', 
+      'lh3.googleusercontent.com',
+      'cataas.com',
+      'placekitten.com'
+    ],
     remotePatterns: [
       {
         protocol: 'https',
