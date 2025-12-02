@@ -1,37 +1,37 @@
 import Head from 'next/head';
 
 export default function Metadata({
-    title = "Khoa Nguyễn - Software Developer",
-    description = "Software Developer building beautiful web experiences. Welcome to my digital garden.",
+    title = "Khoa Nguyễn",
+    description = "Xin chào, tớ là Khoa Nguyễn. Tớ là sinh viên chuyên ngành Kỹ thuật phần mềm tại Đại học FPT. Hiện tại tớ cũng đang là freelancer thiết kế đồ hoạ và phát triển một số dự án cá nhân.",
     image = "/image/thumbnail.jpg",
     url = "https://yunkhngn.dev",
 }) {
     const fullTitle = title.includes("Khoa Nguyễn") ? title : `${title} - Khoa Nguyễn`;
+    const fullUrl = url.startsWith("http") ? url : `https://yunkhngn.dev${url}`;
 
     return (
         <Head>
-            {/* Primary Meta Tags */}
+            <meta charSet="utf-8" />
             <title>{fullTitle}</title>
+            <meta name="viewport" content="width=device-width, initial-scale=1.0" />
             <meta name="title" content={fullTitle} />
             <meta name="description" content={description} />
-            <meta name="viewport" content="width=device-width, initial-scale=1" />
-            <meta charSet="utf-8" />
+            <meta name="keywords" content="Blog, Khoa Nguyen, Khoa Nguyễn, Khoa Nguyn, Nguyễn Đăng Khoa, Post , React, Nextjs, Next JS, Typescript, Cpp, Coding, Language, JavaScript, Reactjs, Khoa Nguyen Blog, Software Development, Software Engineer, Frontend Developer, Frontend Engineer, Web Developer, KhoaNguyen, Khoa Nguyen Dev, Graphic Designer, Nodejs, Khoa Nguyen Codes" />
+            <meta name="author" content="Khoa Nguyễn" />
+            <meta name="robots" content="index, follow" />
+            <meta name="revisit-after" content="1 days" />
+            <meta name="language" content="vi" />
+            <meta name="copyright" content="Khoa Nguyen" />
+            <meta name="application-name" content="Khoa Nguyen" />
+            <meta name="theme-color" content="#000000" />
+            <meta name="msapplication-TileColor" content="#000000" />
+            <meta name="msapplication-TileImage" content="/ms-icon-144x144.png" />
+            <meta name="msapplication-config" content="/browserconfig.xml" />
 
-            {/* Open Graph / Facebook */}
-            <meta property="og:type" content="website" />
-            <meta property="og:url" content={url} />
-            <meta property="og:title" content={fullTitle} />
-            <meta property="og:description" content={description} />
-            <meta property="og:image" content={image} />
-
-            {/* Twitter */}
-            <meta property="twitter:card" content="summary_large_image" />
-            <meta property="twitter:url" content={url} />
-            <meta property="twitter:title" content={fullTitle} />
-            <meta property="twitter:description" content={description} />
-            <meta property="twitter:image" content={image} />
+            <link rel="canonical" href={fullUrl} />
 
             {/* Favicons & Icons */}
+            <link rel="icon" type="image/x-icon" href="/favicon.ico" />
             <link rel="apple-touch-icon" sizes="57x57" href="/apple-icon-57x57.png" />
             <link rel="apple-touch-icon" sizes="60x60" href="/apple-icon-60x60.png" />
             <link rel="apple-touch-icon" sizes="72x72" href="/apple-icon-72x72.png" />
@@ -41,14 +41,40 @@ export default function Metadata({
             <link rel="apple-touch-icon" sizes="144x144" href="/apple-icon-144x144.png" />
             <link rel="apple-touch-icon" sizes="152x152" href="/apple-icon-152x152.png" />
             <link rel="apple-touch-icon" sizes="180x180" href="/apple-icon-180x180.png" />
-            <link rel="icon" type="image/png" sizes="192x192" href="/android-icon-192x192.png" />
-            <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+            <link rel="icon" type="image/png" sizes="36x36" href="/favicon-36x36.png" />
+            <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png" />
+            <link rel="icon" type="image/png" sizes="72x72" href="/favicon-72x72.png" />
             <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png" />
-            <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+            <link rel="icon" type="image/png" sizes="144x144" href="/favicon-144x144.png" />
+            <link rel="icon" href="/favicon-16x16.png" sizes="16x16" type="image/png" />
+            <link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png" />
+            <link rel="icon" href="/favicon-96x96.png" sizes="96x96" type="image/png" />
             <link rel="manifest" href="/manifest.json" />
-            <meta name="msapplication-TileColor" content="#ffffff" />
-            <meta name="msapplication-TileImage" content="/ms-icon-144x144.png" />
-            <meta name="theme-color" content="#ffffff" />
+
+            {/* Open Graph / Facebook */}
+            <meta property="og:site_name" content="Khoa Nguyen" />
+            <meta property="og:type" content="website" />
+            <meta property="og:url" content={fullUrl} />
+            <meta property="og:title" content={fullTitle} />
+            <meta property="og:description" content={description} />
+            <meta property="og:image" content={image} />
+            <meta property="og:image:alt" content="Khoa Nguyen" />
+            <meta property="og:image:width" content="1200" />
+            <meta property="og:image:height" content="630" />
+            <meta property="fb:app_id" content="1881282985689458" />
+
+            {/* Twitter */}
+            <meta property="twitter:card" content="summary_large_image" />
+            <meta property="twitter:url" content={fullUrl} />
+            <meta property="twitter:title" content={fullTitle} />
+            <meta property="twitter:description" content={description} />
+            <meta property="twitter:image" content={image} />
+            <meta property="twitter:image:alt" content="Khoa Nguyen" />
+            <meta property="twitter:image:width" content="1200" />
+            <meta property="twitter:image:height" content="630" />
+
+            {/* SEO */}
+            <meta name="googlebot" content="notranslate" />
         </Head>
     );
 }
