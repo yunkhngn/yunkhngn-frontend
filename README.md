@@ -4,7 +4,7 @@ A comprehensive Blog and Portfolio platform designed for developers, featuring a
 
 ## 🚀 Project Overview
 
-This system is built to serve as a personal brand hub, allowing the owner to showcase projects, write technical blogs, and interact with the community through comments and donations.
+This system is built to serve as a personal brand hub, allowing the owner to showcase projects, write technical blogs, and interact with the community through comments and donations . 
 
 ### Key Features
 *   **Blog**: Rich text editor (TipTap) with code blocks, embeds, and image support.
