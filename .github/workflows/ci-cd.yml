@@ -41,6 +41,15 @@ jobs:
       - name: Test Frontend
         run: cd fe && yarn test
 
+      - name: Upload Test Reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports
+          path: |
+            be/reports/*.xml
+            fe/reports/*.xml
+
   # 2. Build & Push Docker Images
   build:
     needs: quality
