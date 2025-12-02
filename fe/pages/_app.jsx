@@ -5,7 +5,7 @@ import FloatingControls from "@/components/ui/FloatingControls";
 import { CommandMenu } from "@/components/ui/CommandMenu";
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
-import { Playfair_Display } from 'next/font/google';
+import { Playfair_Display, JetBrains_Mono } from 'next/font/google';
 import { AppProgressBar as ProgressBar } from 'next-nprogress-bar';
 import { AnimatePresence, motion } from 'framer-motion';
 
@@ -14,6 +14,11 @@ import { Toaster } from 'sonner';
 const playfair = Playfair_Display({
   subsets: ['latin'],
   variable: '--font-playfair',
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ['latin'],
+  variable: '--font-jetbrains-mono',
 });
 
 function AuthGuard({ children }) {
@@ -53,7 +58,7 @@ export default function App({ Component, pageProps }) {
           shallowRouting
         />
         <AuthGuard>
-          <main className={playfair.variable}>
+          <main className={`${playfair.variable} ${jetbrainsMono.variable} font-sans`}>
             {getLayout(
               isAdminRoute ? (
                 <Component {...pageProps} />

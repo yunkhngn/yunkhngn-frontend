@@ -1,10 +1,11 @@
-import { useEditor, EditorContent, BubbleMenu } from '@tiptap/react';
+import { useEditor, EditorContent, BubbleMenu, ReactNodeViewRenderer } from '@tiptap/react';
 import { useEffect } from 'react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
 import Link from '@tiptap/extension-link';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
 import { common, createLowlight } from 'lowlight';
+import CodeBlockComponent from './CodeBlockComponent';
 import { Button } from '@/components/ui/Button';
 import {
     Bold, Italic, Strikethrough, Code, List, ListOrdered, Quote,
@@ -183,7 +184,11 @@ export default function TipTapEditor({ content, onChange, onImageUpload }) {
             }),
             Image,
             Link.configure({ openOnClick: false }),
-            CodeBlockLowlight.configure({ lowlight }),
+            CodeBlockLowlight.extend({
+                addNodeView() {
+                    return ReactNodeViewRenderer(CodeBlockComponent);
+                },
+            }).configure({ lowlight }),
         ],
         content: parseContent(content) || '',
         onUpdate: ({ editor }) => {

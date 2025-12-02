@@ -1,4 +1,4 @@
-import { useEditor, EditorContent } from '@tiptap/react';
+import { useEditor, EditorContent, ReactNodeViewRenderer } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
 import Link from '@tiptap/extension-link';
@@ -6,22 +6,29 @@ import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
 import { common, createLowlight } from 'lowlight';
 import { useEffect, useState } from 'react';
 import { ImagePreviewModal } from './ImagePreviewModal';
+import CodeBlockComponent from './CodeBlockComponent';
 
 const lowlight = createLowlight(common);
 
 export default function TipTapViewer({ content }) {
     const editor = useEditor({
         extensions: [
-            StarterKit,
+            StarterKit.configure({
+                codeBlock: false,
+            }),
             Image,
             Link.configure({ openOnClick: true }), // Allow clicking links in viewer
-            CodeBlockLowlight.configure({ lowlight }),
+            CodeBlockLowlight.extend({
+                addNodeView() {
+                    return ReactNodeViewRenderer(CodeBlockComponent);
+                },
+            }).configure({ lowlight }),
         ],
         content: content || '',
         editable: false, // Read-only
         editorProps: {
             attributes: {
-                class: 'prose dark:prose-invert max-w-none p-4 outline-none [&_img]:rounded-3xl [&_img]:border-4 [&_img]:border-dashed [&_img]:border-muted-foreground/20 [&_img]:p-2 [&_img]:max-w-[100%] [&_img]:mx-auto [&_img]:block',
+                class: 'prose dark:prose-invert max-w-none p-4 outline-none [&_img]:rounded-3xl [&_img]:border-4 [&_img]:border-dashed [&_img]:border-muted-foreground/20 [&_img]:p-2 [&_img]:w-[100%] [&_img]:block',
             },
         },
         immediatelyRender: false,

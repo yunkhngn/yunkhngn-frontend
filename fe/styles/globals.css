@@ -87,16 +87,18 @@
         @apply bg-transparent p-0 text-inherit rounded-none;
     }
 
-    /* Lowlight/Highlight.js styles */
+    /* Lowlight/Highlight.js styles - Atom One Dark */
     .hljs-comment,
     .hljs-quote {
-        @apply text-muted-foreground italic;
+        color: #5c6370 !important;
+        font-style: italic !important;
     }
 
     .hljs-doctag,
     .hljs-keyword,
     .hljs-formula {
-        @apply text-purple-500;
+        color: #c678dd !important;
+        /* Purple */
     }
 
     .hljs-section,
@@ -104,11 +106,13 @@
     .hljs-selector-tag,
     .hljs-deletion,
     .hljs-subst {
-        @apply text-red-500;
+        color: #e06c75 !important;
+        /* Red */
     }
 
     .hljs-literal {
-        @apply text-blue-500;
+        color: #56b6c2 !important;
+        /* Cyan */
     }
 
     .hljs-string,
@@ -116,11 +120,47 @@
     .hljs-addition,
     .hljs-attribute,
     .hljs-meta-string {
-        @apply text-green-500;
+        color: #98c379 !important;
+        /* Green */
     }
 
     .hljs-built_in,
     .hljs-class .hljs-title {
-        @apply text-yellow-600;
+        color: #e5c07b !important;
+        /* Yellow */
+    }
+
+    .hljs-attr,
+    .hljs-variable,
+    .hljs-template-variable,
+    .hljs-type,
+    .hljs-selector-class,
+    .hljs-selector-attr,
+    .hljs-selector-pseudo,
+    .hljs-number {
+        color: #d19a66 !important;
+        /* Orange */
+    }
+
+    .hljs-symbol,
+    .hljs-bullet,
+    .hljs-link,
+    .hljs-meta,
+    .hljs-selector-id,
+    .hljs-title {
+        color: #61aeee !important;
+        /* Blue */
+    }
+
+    .hljs-emphasis {
+        font-style: italic !important;
+    }
+
+    .hljs-strong {
+        font-weight: bold !important;
+    }
+
+    .hljs-link {
+        text-decoration: underline !important;
     }
 }
