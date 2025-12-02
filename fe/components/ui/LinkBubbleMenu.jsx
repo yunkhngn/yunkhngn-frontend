@@ -9,32 +9,22 @@ export function LinkBubbleMenu({ editor }) {
     const [showInput, setShowInput] = useState(false);
 
     // Update url and text when selection changes or link state changes
+    /* eslint-disable react-hooks/set-state-in-effect */
     useEffect(() => {
         if (editor && editor.isActive('link')) {
-            setUrl(editor.getAttributes('link').href || '');
+            const newUrl = editor.getAttributes('link').href || '';
+            if (url !== newUrl) setUrl(newUrl);
 
             // Get selected text or full text of the link
             const { from, to } = editor.state.selection;
             const textContent = editor.state.doc.textBetween(from, to, ' ');
+            if (text !== textContent) setText(textContent);
 
-            // If selection is empty (cursor inside link), get the whole link text
-            if (editor.state.selection.empty) {
-                const { from, to } = editor.getAttributes('link'); // This doesn't give range
-                // TipTap doesn't easily give mark range. 
-                // We'll rely on current selection text if not empty, otherwise we might need extendMarkRange
-                // But for now, let's just use what we have or empty if it's a new link
-            }
-
-            // Better approach: extend selection to mark range to get full text
-            // But we don't want to change selection just by opening menu?
-            // Actually, for editing text, we probably want to select the whole link.
-
-            setText(textContent);
             setShowInput(true);
         } else {
             setShowInput(false);
-            setUrl('');
-            setText('');
+            if (url !== '') setUrl('');
+            if (text !== '') setText('');
         }
     }, [editor, editor?.state?.selection]);
 

@@ -237,7 +237,7 @@ export default function Search() {
                     <SearchIcon className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
                     <h3 className="text-xl font-semibold mb-2">Start searching</h3>
                     <p className="text-muted-foreground">
-                        Search across blogs, projects, and photos to find what you're looking for
+                        Search across blogs, projects, and photos to find what you&apos;re looking for
                     </p>
                 </div>
             )}

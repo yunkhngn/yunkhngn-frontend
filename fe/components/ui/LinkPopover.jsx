@@ -10,7 +10,9 @@ export function LinkPopover({ editor, children }) {
     useEffect(() => {
         if (isOpen && editor) {
             const previousUrl = editor.getAttributes('link').href;
-            setUrl(previousUrl || '');
+            const newUrl = previousUrl || '';
+            // eslint-disable-next-line react-hooks/set-state-in-effect
+            if (url !== newUrl) setUrl(newUrl);
         }
     }, [isOpen, editor]);
 

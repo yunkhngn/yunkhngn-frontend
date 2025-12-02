@@ -73,7 +73,7 @@ export default function ReportModal({ commentId, onReport }) {
                     <DialogHeader>
                         <DialogTitle>Report Comment</DialogTitle>
                         <DialogDescription>
-                            Please describe why you're reporting this comment.
+                            Please describe why you&apos;re reporting this comment.
                         </DialogDescription>
                     </DialogHeader>
                     <Textarea

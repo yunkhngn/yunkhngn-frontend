@@ -381,7 +381,7 @@ export default function AdminComments() {
                                                 <TableCell>
                                                     <div className="flex flex-col gap-1">
                                                         <p className="text-sm line-clamp-2 text-muted-foreground italic">
-                                                            "{report.comment?.content}"
+                                                            &quot;{report.comment?.content}&quot;
                                                         </p>
                                                         <div className="flex items-center gap-2 text-xs">
                                                             <span className="font-medium">{report.comment?.displayName}</span>

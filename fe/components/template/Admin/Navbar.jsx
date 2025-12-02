@@ -30,12 +30,7 @@ export default function AdminNavbar() {
     const { theme, setTheme } = useTheme();
     const { user, signOut } = useAuth();
     const router = useRouter();
-    const [mounted, setMounted] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-    useEffect(() => {
-        setMounted(true);
-    }, []);
 
     const handleLogout = async () => {
         await signOut();

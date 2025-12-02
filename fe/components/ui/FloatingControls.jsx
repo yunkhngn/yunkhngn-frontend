@@ -6,12 +6,9 @@ import { Button } from '@/components/ui/Button';
 
 export default function FloatingControls() {
     const { theme, setTheme } = useTheme();
-    const [mounted, setMounted] = useState(false);
     const [showScrollTop, setShowScrollTop] = useState(false);
 
     useEffect(() => {
-        setMounted(true);
-
         const handleScroll = () => {
             if (window.scrollY > 300) {
                 setShowScrollTop(true);
@@ -27,8 +24,6 @@ export default function FloatingControls() {
     const scrollToTop = () => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
-
-    if (!mounted) return null;
 
     return (
         <div className="fixed bottom-8 right-8 flex flex-col gap-4 z-50 items-end">
