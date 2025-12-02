@@ -9,10 +9,6 @@ export default function CommentSection({ blogId, projectId }) {
     const [comments, setComments] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        fetchComments();
-    }, [fetchComments]);
-
     const fetchComments = useCallback(async () => {
         try {
             const queryParam = blogId ? `blogId=${blogId}` : `projectId=${projectId}`;
@@ -28,6 +24,10 @@ export default function CommentSection({ blogId, projectId }) {
             setLoading(false);
         }
     }, [blogId, projectId]);
+
+    useEffect(() => {
+        fetchComments();
+    }, [fetchComments]);
 
     const handleCommentAdded = (newComment) => {
         setComments([newComment, ...comments]);
