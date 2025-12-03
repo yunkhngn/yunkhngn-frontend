@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/Textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/Select';
 import { toast } from 'sonner';
 import { Mail, Clock, CheckCircle, Send, Sparkles, Phone, Building, Trash2 } from 'lucide-react';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 export default function AdminContact() {
     const { user } = useAuth();
@@ -19,6 +20,7 @@ export default function AdminContact() {
     const [responding, setResponding] = useState(false);
     const [aiGenerating, setAiGenerating] = useState(false);
     const [aiLanguage, setAiLanguage] = useState('en'); // en or vi
+    const [selectedContacts, setSelectedContacts] = useState([]);
 
     const fetchContacts = useCallback(async () => {
         if (!user) return;
@@ -97,8 +99,6 @@ export default function AdminContact() {
         }
     };
 
-
-
     const handleDelete = async (e, id) => {
         e.stopPropagation();
         if (!confirm('Are you sure you want to delete this contact?')) return;
@@ -122,6 +122,43 @@ export default function AdminContact() {
         } catch (error) {
             console.error(error);
             toast.error('Failed to delete contact');
+        }
+    };
+
+    const handleSelectAll = (checked) => {
+        if (checked) {
+            setSelectedContacts(filteredContacts.map(c => c.id));
+        } else {
+            setSelectedContacts([]);
+        }
+    };
+
+    const handleSelectContact = (contactId, checked) => {
+        if (checked) {
+            setSelectedContacts(prev => [...prev, contactId]);
+        } else {
+            setSelectedContacts(prev => prev.filter(id => id !== contactId));
+        }
+    };
+
+    const handleBulkDelete = async () => {
+        if (!confirm(`Are you sure you want to delete ${selectedContacts.length} contacts?`)) return;
+
+        try {
+            const token = await user.getIdToken();
+            await Promise.all(selectedContacts.map(id =>
+                fetch(`${process.env.NEXT_PUBLIC_API_URL}/contact/${id}`, {
+                    method: 'DELETE',
+                    headers: { Authorization: `Bearer ${token}` }
+                })
+            ));
+
+            setContacts(contacts.filter(c => !selectedContacts.includes(c.id)));
+            setSelectedContacts([]);
+            toast.success('Contacts deleted');
+        } catch (error) {
+            console.error(error);
+            toast.error('Failed to delete contacts');
         }
     };
 
@@ -209,6 +246,25 @@ export default function AdminContact() {
 
                 {/* Contacts List */}
                 <div className="space-y-4">
+                    {selectedContacts.length > 0 && (
+                        <div className="bg-muted/50 p-4 rounded-lg flex items-center justify-between animate-in fade-in slide-in-from-top-2">
+                            <span className="text-sm font-medium">
+                                {selectedContacts.length} selected
+                            </span>
+                            <Button size="sm" variant="destructive" onClick={handleBulkDelete}>
+                                <Trash2 className="mr-2 h-4 w-4" /> Delete Selected
+                            </Button>
+                        </div>
+                    )}
+
+                    <div className="flex items-center gap-2 px-4 py-2 border rounded-lg bg-muted/20 mb-2">
+                        <Checkbox
+                            checked={selectedContacts.length === filteredContacts.length && filteredContacts.length > 0}
+                            onCheckedChange={handleSelectAll}
+                        />
+                        <span className="text-sm font-medium text-muted-foreground">Select All</span>
+                    </div>
+
                     {filteredContacts.length === 0 ? (
                         <div className="text-center py-12 text-muted-foreground">
                             No contacts found
@@ -225,33 +281,43 @@ export default function AdminContact() {
                                     }
                                 }}
                             >
-                                <div className="flex flex-col md:flex-row md:items-start justify-between mb-2 gap-2">
+                                <div className="flex items-start gap-4">
+                                    <div className="pt-1" onClick={(e) => e.stopPropagation()}>
+                                        <Checkbox
+                                            checked={selectedContacts.includes(contact.id)}
+                                            onCheckedChange={(checked) => handleSelectContact(contact.id, checked)}
+                                        />
+                                    </div>
                                     <div className="flex-1 min-w-0">
-                                        <div className="flex flex-wrap items-center gap-2 mb-1">
-                                            <h3 className="font-semibold truncate">{contact.subject}</h3>
-                                            {getStatusBadge(contact.status)}
-                                            <Badge variant="outline" className="text-xs">
-                                                {contact.category?.toUpperCase() || 'GENERAL'}
-                                            </Badge>
+                                        <div className="flex flex-col md:flex-row md:items-start justify-between mb-2 gap-2">
+                                            <div className="flex-1 min-w-0">
+                                                <div className="flex flex-wrap items-center gap-2 mb-1">
+                                                    <h3 className="font-semibold truncate">{contact.subject}</h3>
+                                                    {getStatusBadge(contact.status)}
+                                                    <Badge variant="outline" className="text-xs">
+                                                        {contact.category?.toUpperCase() || 'GENERAL'}
+                                                    </Badge>
+                                                </div>
+                                                <p className="text-sm text-muted-foreground truncate">
+                                                    From: {contact.name} ({contact.email})
+                                                    {contact.company && ` • ${contact.company}`}
+                                                </p>
+                                            </div>
+                                            <div className="text-xs text-muted-foreground whitespace-nowrap">
+                                                {new Date(contact.createdAt).toLocaleDateString()}
+                                            </div>
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-8 w-8 text-muted-foreground hover:text-destructive shrink-0"
+                                                onClick={(e) => handleDelete(e, contact.id)}
+                                            >
+                                                <Trash2 className="h-4 w-4" />
+                                            </Button>
                                         </div>
-                                        <p className="text-sm text-muted-foreground truncate">
-                                            From: {contact.name} ({contact.email})
-                                            {contact.company && ` • ${contact.company}`}
-                                        </p>
                                     </div>
-                                    <div className="text-xs text-muted-foreground whitespace-nowrap">
-                                        {new Date(contact.createdAt).toLocaleDateString()}
-                                    </div>
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        className="h-8 w-8 text-muted-foreground hover:text-destructive shrink-0"
-                                        onClick={(e) => handleDelete(e, contact.id)}
-                                    >
-                                        <Trash2 className="h-4 w-4" />
-                                    </Button>
+                                    <p className="text-sm line-clamp-2 pl-8">{contact.message}</p>
                                 </div>
-                                <p className="text-sm line-clamp-2">{contact.message}</p>
                             </div>
                         ))
                     )}
