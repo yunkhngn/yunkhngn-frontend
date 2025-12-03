@@ -254,16 +254,16 @@ export default function AdminComments() {
         }
     };
 
-    const handleDismissReportClick = (reportId) => {
+    const handleRejectReportClick = (reportId) => {
         setConfirmConfig({
             isOpen: true,
-            title: 'Dismiss Report',
-            description: 'Are you sure you want to delete this report? This action cannot be undone.',
-            action: () => dismissReport(reportId)
+            title: 'Reject Report',
+            description: 'Are you sure you want to reject this report? This will remove the report but keep the comment.',
+            action: () => rejectReport(reportId)
         });
     };
 
-    const dismissReport = async (reportId) => {
+    const rejectReport = async (reportId) => {
         setConfirmConfig(prev => ({ ...prev, loading: true }));
         try {
             const token = await user.getIdToken();
@@ -275,11 +275,12 @@ export default function AdminComments() {
             if (!res.ok) throw new Error('Failed to delete report');
 
             setReports(reports.filter(r => r.id !== reportId));
-            toast.success('Report deleted');
+            setReports(reports.filter(r => r.id !== reportId));
+            toast.success('Report rejected');
             setConfirmConfig(prev => ({ ...prev, isOpen: false }));
         } catch (error) {
-            console.error('Error deleting report:', error);
-            toast.error('Failed to delete report');
+            console.error('Error rejecting report:', error);
+            toast.error('Failed to reject report');
             setConfirmConfig(prev => ({ ...prev, loading: false }));
         }
     };
@@ -308,16 +309,16 @@ export default function AdminComments() {
         }
     };
 
-    const handleBulkDismissReportsClick = () => {
+    const handleBulkRejectReportsClick = () => {
         setConfirmConfig({
             isOpen: true,
-            title: 'Dismiss Reports',
-            description: `Are you sure you want to delete ${selectedReports.length} reports? This action cannot be undone.`,
-            action: bulkDismissReports
+            title: 'Reject Reports',
+            description: `Are you sure you want to reject ${selectedReports.length} reports? This will remove the reports but keep the comments.`,
+            action: bulkRejectReports
         });
     };
 
-    const bulkDismissReports = async () => {
+    const bulkRejectReports = async () => {
         setConfirmConfig(prev => ({ ...prev, loading: true }));
         try {
             const token = await user.getIdToken();
@@ -330,11 +331,13 @@ export default function AdminComments() {
 
             setReports(reports.filter(r => !selectedReports.includes(r.id)));
             setSelectedReports([]);
-            toast.success('Reports deleted');
+            setReports(reports.filter(r => !selectedReports.includes(r.id)));
+            setSelectedReports([]);
+            toast.success('Reports rejected');
             setConfirmConfig(prev => ({ ...prev, isOpen: false }));
         } catch (error) {
-            console.error('Error deleting reports:', error);
-            toast.error('Failed to delete reports');
+            console.error('Error rejecting reports:', error);
+            toast.error('Failed to reject reports');
             setConfirmConfig(prev => ({ ...prev, loading: false }));
         }
     };
@@ -391,8 +394,8 @@ export default function AdminComments() {
                             <Button size="sm" variant="outline" onClick={handleBulkResolveReportsClick}>
                                 <CheckCircle2 className="mr-2 h-4 w-4" /> Mark Resolved
                             </Button>
-                            <Button size="sm" variant="destructive" onClick={handleBulkDismissReportsClick}>
-                                <XCircle className="mr-2 h-4 w-4" /> Dismiss Selected
+                            <Button size="sm" variant="destructive" onClick={handleBulkRejectReportsClick}>
+                                <XCircle className="mr-2 h-4 w-4" /> Reject Selected
                             </Button>
                         </div>
                     </div>
@@ -633,7 +636,7 @@ export default function AdminComments() {
                                                 <TableCell>
                                                     <Badge variant={
                                                         report.status === 'resolved' ? 'default' :
-                                                            report.status === 'dismissed' ? 'secondary' :
+                                                            report.status === 'rejected' ? 'secondary' :
                                                                 'destructive'
                                                     }>
                                                         {report.status}
@@ -653,8 +656,8 @@ export default function AdminComments() {
                                                             <DropdownMenuItem onClick={() => handleUpdateReportStatus(report.id, 'resolved')}>
                                                                 <CheckCircle2 className="mr-2 h-4 w-4" /> Mark Resolved
                                                             </DropdownMenuItem>
-                                                            <DropdownMenuItem onClick={() => handleDismissReportClick(report.id)}>
-                                                                <XCircle className="mr-2 h-4 w-4" /> Dismiss (Delete)
+                                                            <DropdownMenuItem onClick={() => handleRejectReportClick(report.id)}>
+                                                                <XCircle className="mr-2 h-4 w-4" /> Reject (Delete Report)
                                                             </DropdownMenuItem>
                                                             <DropdownMenuItem
                                                                 onClick={() => handleDeleteClick(report.commentId)}

@@ -343,8 +343,8 @@ export default function AdminContact() {
                                                 <Trash2 className="h-4 w-4" />
                                             </Button>
                                         </div>
+                                        <p className="text-sm line-clamp-2">{contact.message}</p>
                                     </div>
-                                    <p className="text-sm line-clamp-2 pl-8">{contact.message}</p>
                                 </div>
                             </div>
                         ))

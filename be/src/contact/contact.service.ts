@@ -9,7 +9,7 @@ export class ContactService {
     private prisma: PrismaService,
     private emailService: EmailService,
     private aiService: AiService,
-  ) { }
+  ) {}
 
   async createContact(data: {
     name: string;

@@ -14,6 +14,8 @@ import { Send, Bot, User, Loader2, Sparkles, Trash2, Languages, Zap, PenTool, Ba
 import ReactMarkdown from 'react-markdown';
 import { Textarea } from "@/components/ui/Textarea";
 
+import Image from 'next/image';
+
 export default function AdminChat() {
     const { user } = useAuth();
     // Initialize with NO visible messages to show Welcome Screen first
@@ -202,9 +204,11 @@ export default function AdminChat() {
                                         {msg.role === 'user' && (
                                             <div className="h-8 w-8 rounded-full overflow-hidden flex-shrink-0 shadow-sm border border-gray-200 dark:border-gray-700">
                                                 {user?.photoURL ? (
-                                                    <img
+                                                    <Image
                                                         src={user.photoURL}
                                                         alt={user.displayName || 'User'}
+                                                        width={32}
+                                                        height={32}
                                                         className="h-full w-full object-cover"
                                                     />
                                                 ) : (

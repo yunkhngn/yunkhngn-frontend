@@ -21,7 +21,7 @@ interface RequestWithUser extends Request {
 
 @Controller('photo-reactions')
 export class PhotoReactionsController {
-  constructor(private readonly photoReactionsService: PhotoReactionsService) { }
+  constructor(private readonly photoReactionsService: PhotoReactionsService) {}
 
   @Post(':photoId')
   @UseGuards(FirebaseAuthGuard)

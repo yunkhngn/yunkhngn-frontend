@@ -21,7 +21,7 @@ import { FirebaseAuthGuard } from '../auth/firebase-auth.guard';
 
 @Controller('comments')
 export class CommentsController {
-  constructor(private readonly commentsService: CommentsService) { }
+  constructor(private readonly commentsService: CommentsService) {}
 
   @Post()
   @UseGuards(FirebaseAuthGuard)

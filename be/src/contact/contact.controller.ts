@@ -16,7 +16,7 @@ import { RolesGuard } from '../auth/roles.guard';
 
 @Controller('contact')
 export class ContactController {
-  constructor(private readonly contactService: ContactService) { }
+  constructor(private readonly contactService: ContactService) {}
 
   @Post()
   @Throttle({ default: { limit: 3, ttl: 3600000 } }) // 3 requests per hour
