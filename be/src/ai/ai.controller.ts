@@ -51,14 +51,23 @@ export class AiController {
     @Body('recentActivities') recentActivities: any[],
     @Body('language') language: string,
   ) {
-    if (!stats) {
-      throw new Error('Stats are required');
-    }
     const summary = await this.aiService.generateDashboardSummary(
       stats,
       recentActivities || [],
       language,
     );
     return { summary };
+  }
+
+  @Post('chat')
+  @UseGuards(FirebaseAuthGuard)
+  async chatWithSystem(
+    @Body() data: { message: string; history: any[]; language?: string },
+  ) {
+    return this.aiService.chatWithSystem(
+      data.message,
+      data.history || [],
+      data.language,
+    );
   }
 }

@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/Select";
 import { Send, Bot, User, Loader2, Sparkles, Trash2, Languages, Zap, PenTool, BarChart3 } from "lucide-react";
 import ReactMarkdown from 'react-markdown';
+import { Textarea } from "@/components/ui/Textarea";
 
 export default function AdminChat() {
     const { user } = useAuth();
@@ -41,6 +42,13 @@ export default function AdminChat() {
     useEffect(() => {
         scrollToBottom();
     }, [messages]);
+
+    const handleKeyDown = (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            handleSend(e);
+        }
+    };
 
     const handleSend = async (e) => {
         e.preventDefault();
@@ -101,13 +109,13 @@ export default function AdminChat() {
     );
 
     return (
-        <AdminLayout title="AI Chatbot">
-            <div className="h-[calc(100vh-8rem)] flex flex-col relative">
+        <AdminLayout title="AI Chatbot" fullScreen={true}>
+            <div className="flex-1 flex flex-col relative h-full">
 
-                {/* Header Controls (Absolute top-right or integrated) */}
-                <div className="absolute top-0 right-0 z-10 flex items-center gap-2 p-4">
+                {/* Header Controls (Absolute top-right) */}
+                <div className="absolute top-4 right-4 z-10 flex items-center gap-2">
                     <Select value={language} onValueChange={handleLanguageChange}>
-                        <SelectTrigger className="w-[140px] bg-background/80 backdrop-blur-sm">
+                        <SelectTrigger className="w-[140px] bg-background/80 backdrop-blur-sm shadow-sm">
                             <Languages className="h-4 w-4 mr-2" />
                             <SelectValue placeholder="Language" />
                         </SelectTrigger>
@@ -117,20 +125,20 @@ export default function AdminChat() {
                         </SelectContent>
                     </Select>
                     {messages.length > 0 && (
-                        <Button variant="outline" onClick={handleClearChat} size="icon" className="bg-background/80 backdrop-blur-sm">
+                        <Button variant="outline" onClick={handleClearChat} size="icon" className="bg-background/80 backdrop-blur-sm shadow-sm">
                             <Trash2 className="h-4 w-4" />
                         </Button>
                     )}
                 </div>
 
                 {/* Main Content Area */}
-                <div className="flex-1 overflow-y-auto p-4 md:p-8 scrollbar-hide">
-                    <div className="max-w-4xl mx-auto min-h-full flex flex-col">
+                <div className="flex-1 overflow-y-auto scrollbar-hide">
+                    <div className="max-w-4xl mx-auto min-h-full flex flex-col justify-end p-4 md:p-8 pb-48">
 
                         {messages.length === 0 ? (
                             /* Welcome State */
-                            <div className="flex-1 flex flex-col items-center justify-center text-center space-y-8 py-10">
-                                <div className="space-y-2 max-w-2xl">
+                            <div className="flex-1 flex flex-col items-center justify-center text-center space-y-8 py-20">
+                                <div className="space-y-4 max-w-2xl">
                                     <div className="relative mb-8">
                                         <div className="h-24 w-24 mx-auto bg-gradient-to-tr from-blue-100 via-purple-100 to-blue-50 dark:from-blue-900/40 dark:via-purple-900/40 dark:to-blue-900/40 rounded-full flex items-center justify-center shadow-sm">
                                             <Bot className="h-10 w-10 text-blue-600 dark:text-blue-400 fill-blue-600/20" />
@@ -144,7 +152,7 @@ export default function AdminChat() {
                                     </h1>
                                 </div>
 
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full text-left">
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full text-left pt-8">
                                     <FeatureCard
                                         icon={BarChart3}
                                         title="Content Analysis"
@@ -164,7 +172,7 @@ export default function AdminChat() {
                             </div>
                         ) : (
                             /* Chat History */
-                            <div className="space-y-6 pb-24 pt-10">
+                            <div className="space-y-6 pt-16">
                                 {messages.map((msg, index) => (
                                     <div
                                         key={index}
@@ -210,8 +218,8 @@ export default function AdminChat() {
                                 ))}
                                 {loading && (
                                     <div className="flex gap-4 justify-start">
-                                        <div className="h-8 w-8 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center flex-shrink-0 shadow-sm">
-                                            <Bot className="h-5 w-5 text-white" />
+                                        <div className="h-8 w-8 rounded-full bg-gradient-to-tr from-blue-100 via-purple-100 to-blue-50 dark:from-blue-900/40 dark:via-purple-900/40 dark:to-blue-900/40 flex items-center justify-center flex-shrink-0 shadow-sm">
+                                            <Bot className="h-5 w-5 text-blue-600 dark:text-blue-400 fill-blue-600/20" />
                                         </div>
                                         <div className="bg-card border rounded-2xl p-4 flex items-center shadow-sm">
                                             <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
@@ -225,25 +233,26 @@ export default function AdminChat() {
                     </div>
                 </div>
 
-                {/* Floating Input Area */}
-                <div className="p-4 md:p-8 pt-0">
+                {/* Fixed Input Area (Absolute) */}
+                <div className="absolute bottom-0 left-0 right-0 p-4 md:p-8 bg-background border-t z-50">
                     <div className="max-w-4xl mx-auto">
                         <form
                             onSubmit={handleSend}
-                            className="relative flex items-center p-2 bg-background border-2 border-primary/20 focus-within:border-primary rounded-2xl shadow-lg transition-all duration-300"
+                            className="relative flex items-end p-2 bg-background dark:bg-secondary/10 border border-gray-200 dark:border-gray-700 focus-within:ring-2 focus-within:ring-blue-500/20 focus-within:border-blue-500/50 rounded-2xl shadow-sm transition-all duration-300"
                         >
-                            <Input
+                            <Textarea
                                 value={input}
                                 onChange={(e) => setInput(e.target.value)}
+                                onKeyDown={handleKeyDown}
                                 placeholder="Ask me anything..."
                                 disabled={loading}
-                                className="flex-1 border-none shadow-none focus-visible:ring-0 text-base py-6 px-4 bg-transparent"
+                                className="flex-1 border-none shadow-none focus-visible:ring-0 text-base py-4 px-4 bg-transparent min-h-[60px] max-h-[200px] resize-none placeholder:text-muted-foreground"
                             />
                             <Button
                                 type="submit"
                                 disabled={loading || !input.trim()}
                                 size="icon"
-                                className="h-10 w-10 rounded-xl mr-1"
+                                className="h-10 w-10 rounded-xl mr-1 mb-1 transition-all duration-200 hover:scale-105 active:scale-95"
                             >
                                 {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
                                 <span className="sr-only">Send</span>

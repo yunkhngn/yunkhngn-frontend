@@ -4,7 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 
-export default function AdminLayout({ children, title = "Admin Dashboard" }) {
+export default function AdminLayout({ children, title = "Admin Dashboard", fullScreen = false }) {
     const { user, loading } = useAuth();
     const router = useRouter();
 
@@ -27,11 +27,17 @@ export default function AdminLayout({ children, title = "Admin Dashboard" }) {
                 robots="noindex, nofollow"
             />
             <AdminNavbar />
-            <main className="flex-1 p-1 md:p-8 mt-4 mb-24">
-                <div className="mx-2 md:container mx-auto">
+            {fullScreen ? (
+                <main className="flex-1 flex flex-col h-[calc(100vh-4rem)] overflow-hidden">
                     {children}
-                </div>
-            </main>
+                </main>
+            ) : (
+                <main className="flex-1 p-1 md:p-8 mt-4 mb-24">
+                    <div className="mx-2 md:container mx-auto">
+                        {children}
+                    </div>
+                </main>
+            )}
         </div>
     );
 }
