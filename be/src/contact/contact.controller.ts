@@ -8,6 +8,7 @@ import {
   UseGuards,
   Delete,
 } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { ContactService } from './contact.service';
 import { FirebaseAuthGuard } from '../auth/firebase-auth.guard';
 import { Roles } from '../auth/roles.decorator';
@@ -18,6 +19,7 @@ export class ContactController {
   constructor(private readonly contactService: ContactService) { }
 
   @Post()
+  @Throttle({ default: { limit: 3, ttl: 3600000 } }) // 3 requests per hour
   async createContact(
     @Body()
     data: {

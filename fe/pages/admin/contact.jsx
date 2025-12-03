@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { toast } from 'sonner';
 import { Mail, Clock, CheckCircle, Send, Sparkles, Phone, Building, Trash2 } from 'lucide-react';
 import { Checkbox } from '@/components/ui/Checkbox';
+import { ConfirmModal } from '@/components/ui/ConfirmModal';
 
 export default function AdminContact() {
     const { user } = useAuth();
@@ -21,6 +22,13 @@ export default function AdminContact() {
     const [aiGenerating, setAiGenerating] = useState(false);
     const [aiLanguage, setAiLanguage] = useState('en'); // en or vi
     const [selectedContacts, setSelectedContacts] = useState([]);
+    const [confirmConfig, setConfirmConfig] = useState({
+        isOpen: false,
+        title: '',
+        description: '',
+        action: null,
+        loading: false
+    });
 
     const fetchContacts = useCallback(async () => {
         if (!user) return;
@@ -99,10 +107,18 @@ export default function AdminContact() {
         }
     };
 
-    const handleDelete = async (e, id) => {
+    const handleDeleteClick = (e, id) => {
         e.stopPropagation();
-        if (!confirm('Are you sure you want to delete this contact?')) return;
+        setConfirmConfig({
+            isOpen: true,
+            title: 'Delete Contact',
+            description: 'Are you sure you want to delete this contact? This action cannot be undone.',
+            action: () => deleteContact(id)
+        });
+    };
 
+    const deleteContact = async (id) => {
+        setConfirmConfig(prev => ({ ...prev, loading: true }));
         try {
             const token = await user.getIdToken();
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/contact/${id}`, {
@@ -116,12 +132,14 @@ export default function AdminContact() {
                 if (viewingContact?.id === id) {
                     setViewingContact(null);
                 }
+                setConfirmConfig(prev => ({ ...prev, isOpen: false }));
             } else {
                 throw new Error('Failed to delete');
             }
         } catch (error) {
             console.error(error);
             toast.error('Failed to delete contact');
+            setConfirmConfig(prev => ({ ...prev, loading: false }));
         }
     };
 
@@ -141,9 +159,17 @@ export default function AdminContact() {
         }
     };
 
-    const handleBulkDelete = async () => {
-        if (!confirm(`Are you sure you want to delete ${selectedContacts.length} contacts?`)) return;
+    const handleBulkDeleteClick = () => {
+        setConfirmConfig({
+            isOpen: true,
+            title: 'Delete Contacts',
+            description: `Are you sure you want to delete ${selectedContacts.length} contacts? This action cannot be undone.`,
+            action: bulkDeleteContacts
+        });
+    };
 
+    const bulkDeleteContacts = async () => {
+        setConfirmConfig(prev => ({ ...prev, loading: true }));
         try {
             const token = await user.getIdToken();
             await Promise.all(selectedContacts.map(id =>
@@ -156,9 +182,11 @@ export default function AdminContact() {
             setContacts(contacts.filter(c => !selectedContacts.includes(c.id)));
             setSelectedContacts([]);
             toast.success('Contacts deleted');
+            setConfirmConfig(prev => ({ ...prev, isOpen: false }));
         } catch (error) {
             console.error(error);
             toast.error('Failed to delete contacts');
+            setConfirmConfig(prev => ({ ...prev, loading: false }));
         }
     };
 
@@ -251,7 +279,7 @@ export default function AdminContact() {
                             <span className="text-sm font-medium">
                                 {selectedContacts.length} selected
                             </span>
-                            <Button size="sm" variant="destructive" onClick={handleBulkDelete}>
+                            <Button size="sm" variant="destructive" onClick={handleBulkDeleteClick}>
                                 <Trash2 className="mr-2 h-4 w-4" /> Delete Selected
                             </Button>
                         </div>
@@ -310,7 +338,7 @@ export default function AdminContact() {
                                                 variant="ghost"
                                                 size="icon"
                                                 className="h-8 w-8 text-muted-foreground hover:text-destructive shrink-0"
-                                                onClick={(e) => handleDelete(e, contact.id)}
+                                                onClick={(e) => handleDeleteClick(e, contact.id)}
                                             >
                                                 <Trash2 className="h-4 w-4" />
                                             </Button>
@@ -430,6 +458,15 @@ export default function AdminContact() {
                     </DialogContent>
                 </Dialog>
             </div>
+
+            <ConfirmModal
+                isOpen={confirmConfig.isOpen}
+                onClose={() => setConfirmConfig(prev => ({ ...prev, isOpen: false }))}
+                onConfirm={confirmConfig.action}
+                title={confirmConfig.title}
+                description={confirmConfig.description}
+                loading={confirmConfig.loading}
+            />
         </AdminLayout>
     );
 }
