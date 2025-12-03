@@ -19,18 +19,21 @@ interface RequestWithUser extends Request {
   };
 }
 
+import { CreateReactionDto } from './dto/create-reaction.dto';
+
 @Controller('photo-reactions')
 export class PhotoReactionsController {
-  constructor(private readonly photoReactionsService: PhotoReactionsService) {}
+  constructor(private readonly photoReactionsService: PhotoReactionsService) { }
 
   @Post(':photoId')
   @UseGuards(FirebaseAuthGuard)
   @Throttle({ default: { limit: 10, ttl: 60000 } }) // 10 per minute
   async addReaction(
     @Param('photoId') photoId: string,
-    @Body('reactionType') reactionType: string,
+    @Body() data: CreateReactionDto,
     @Req() req: RequestWithUser,
   ) {
+    const reactionType = data.reactionType;
     const uid = req.user?.uid;
     if (!uid) throw new Error('User not authenticated');
 

@@ -14,24 +14,15 @@ import { FirebaseAuthGuard } from '../auth/firebase-auth.guard';
 import { Roles } from '../auth/roles.decorator';
 import { RolesGuard } from '../auth/roles.guard';
 
+import { CreateContactDto } from './dto/create-contact.dto';
+
 @Controller('contact')
 export class ContactController {
-  constructor(private readonly contactService: ContactService) {}
+  constructor(private readonly contactService: ContactService) { }
 
   @Post()
   @Throttle({ default: { limit: 3, ttl: 3600000 } }) // 3 requests per hour
-  async createContact(
-    @Body()
-    data: {
-      name: string;
-      email: string;
-      phone?: string;
-      company?: string;
-      subject: string;
-      message: string;
-      category?: string;
-    },
-  ) {
+  async createContact(@Body() data: CreateContactDto) {
     return this.contactService.createContact(data);
   }
 
