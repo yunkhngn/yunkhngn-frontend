@@ -1,24 +1,9 @@
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/Dialog";
 import Image from "next/image";
-import { X, ThumbsUp, Heart, Cat, Flame, Laugh } from "lucide-react";
-import { useState } from "react";
-
-const REACTIONS = [
-    { id: 'like', icon: ThumbsUp, label: 'Like', color: 'text-blue-500' },
-    { id: 'heart', icon: Heart, label: 'Heart', color: 'text-red-500' },
-    { id: 'cat', icon: Cat, label: 'Cat', color: 'text-purple-500' },
-    { id: 'fire', icon: Flame, label: 'Fire', color: 'text-orange-500' },
-    { id: 'laugh', icon: Laugh, label: 'Laugh', color: 'text-yellow-500' },
-];
+import { X } from "lucide-react";
 
 export function ImagePreviewModal({ isOpen, onClose, imageSrc, caption }) {
-    const [selectedReaction, setSelectedReaction] = useState(null);
-
     if (!imageSrc) return null;
-
-    const handleReactionClick = (reactionId) => {
-        setSelectedReaction(selectedReaction === reactionId ? null : reactionId);
-    };
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
@@ -33,38 +18,8 @@ export function ImagePreviewModal({ isOpen, onClose, imageSrc, caption }) {
                         className="relative flex items-center justify-center pointer-events-auto"
                         onClick={(e) => e.stopPropagation()}
                     >
-                        {/* Top Controls: Reactions + Close */}
+                        {/* Top Controls: Close */}
                         <div className="absolute top-2 right-2 md:top-4 md:right-4 z-50 flex items-center gap-2 md:gap-3">
-                            {/* Reaction Panel */}
-                            <div className="flex items-center gap-1.5 md:gap-2 bg-black/60 backdrop-blur-md rounded-full px-2 py-1 md:px-3 md:py-1.5 shadow-lg border border-white/10">
-                                {REACTIONS.map((reaction) => {
-                                    const Icon = reaction.icon;
-                                    const isSelected = selectedReaction === reaction.id;
-
-                                    return (
-                                        <button
-                                            key={reaction.id}
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                handleReactionClick(reaction.id);
-                                            }}
-                                            className={`p-1 md:p-1.5 rounded-full transition-all duration-200 hover:scale-125 ${isSelected
-                                                ? 'bg-white/20 scale-110'
-                                                : 'hover:bg-white/10'
-                                                }`}
-                                            title={reaction.label}
-                                        >
-                                            <Icon
-                                                className={`h-4 w-4 md:h-5 md:w-5 ${isSelected ? reaction.color : 'text-white'
-                                                    } transition-colors duration-200`}
-                                                fill={isSelected ? 'currentColor' : 'none'}
-                                                strokeWidth={2}
-                                            />
-                                        </button>
-                                    );
-                                })}
-                            </div>
-
                             {/* Close button */}
                             <button
                                 onClick={onClose}
@@ -93,7 +48,6 @@ export function ImagePreviewModal({ isOpen, onClose, imageSrc, caption }) {
                     </div>
                 </div>
             </DialogContent>
-        </Dialog >
+        </Dialog>
     );
 }
-
