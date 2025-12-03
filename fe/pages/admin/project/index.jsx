@@ -13,6 +13,7 @@ import { Pagination } from '@/components/ui/Pagination';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/Select';
 import { Badge } from '@/components/ui/Badge';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 export default function ProjectList() {
     const { user } = useAuth();
@@ -25,6 +26,7 @@ export default function ProjectList() {
     const [itemsPerPage, setItemsPerPage] = useState(9);
     const [deleteId, setDeleteId] = useState(null);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [selectedProjects, setSelectedProjects] = useState([]);
 
     useEffect(() => {
         const savedViewMode = localStorage.getItem('admin_project_view_mode');
@@ -80,6 +82,46 @@ export default function ProjectList() {
         } finally {
             setIsDeleteModalOpen(false);
             setDeleteId(null);
+        }
+    };
+
+
+
+    const handleSelectAll = (checked) => {
+        if (checked) {
+            setSelectedProjects(paginatedProjects.map(p => p.id));
+        } else {
+            setSelectedProjects([]);
+        }
+    };
+
+    const handleSelectProject = (projectId, checked) => {
+        if (checked) {
+            setSelectedProjects(prev => [...prev, projectId]);
+        } else {
+            setSelectedProjects(prev => prev.filter(id => id !== projectId));
+        }
+    };
+
+    const handleBulkDelete = async () => {
+        if (!confirm(`Are you sure you want to delete ${selectedProjects.length} projects?`)) return;
+
+        try {
+            const token = await user.getIdToken();
+            await Promise.all(selectedProjects.map(id =>
+                fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/${id}`, {
+                    method: 'DELETE',
+                    headers: { Authorization: `Bearer ${token}` }
+                })
+            ));
+
+            setProjects(projects.filter(p => !selectedProjects.includes(p.id)));
+            setSelectedProjects([]);
+            toast.success('Projects deleted');
+            fetchProjects();
+        } catch (error) {
+            console.error(error);
+            toast.error('Failed to delete projects');
         }
     };
 
@@ -173,6 +215,19 @@ export default function ProjectList() {
                         </div>
                     </div>
                 </div>
+
+                {selectedProjects.length > 0 && (
+                    <div className="bg-muted/50 p-4 rounded-lg flex items-center justify-between animate-in fade-in slide-in-from-top-2">
+                        <span className="text-sm font-medium">
+                            {selectedProjects.length} selected
+                        </span>
+                        <div className="flex items-center gap-2">
+                            <Button size="sm" variant="destructive" onClick={handleBulkDelete}>
+                                <Trash2 className="mr-2 h-4 w-4" /> Delete
+                            </Button>
+                        </div>
+                    </div>
+                )}
 
                 {loading ? (
                     <div className="text-center py-12">Loading...</div>
@@ -289,6 +344,12 @@ export default function ProjectList() {
                                 <table className="w-full text-sm text-left">
                                     <thead className="bg-muted/50 text-muted-foreground border-b">
                                         <tr>
+                                            <th className="px-4 py-3 w-[50px]">
+                                                <Checkbox
+                                                    checked={selectedProjects.length === paginatedProjects.length && paginatedProjects.length > 0}
+                                                    onCheckedChange={handleSelectAll}
+                                                />
+                                            </th>
                                             <th className="px-4 py-3 font-medium">Project</th>
                                             <th className="px-4 py-3 font-medium">Tech Stack</th>
                                             <th className="px-4 py-3 font-medium">Tags</th>
@@ -303,6 +364,12 @@ export default function ProjectList() {
                                                 className="hover:bg-muted/50 transition-colors cursor-pointer"
                                                 onClick={() => router.push(`/admin/project/${project.slug || project.id}`)}
                                             >
+                                                <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                                                    <Checkbox
+                                                        checked={selectedProjects.includes(project.id)}
+                                                        onCheckedChange={(checked) => handleSelectProject(project.id, checked)}
+                                                    />
+                                                </td>
                                                 <td className="px-4 py-3">
                                                     <div className="flex items-center gap-3">
                                                         <div className="relative h-10 w-16 bg-muted rounded overflow-hidden shrink-0">

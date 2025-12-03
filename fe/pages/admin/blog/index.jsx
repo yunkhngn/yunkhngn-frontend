@@ -15,6 +15,7 @@ import { extractTextFromTipTap } from '@/lib/utils';
 import { Pagination } from '@/components/ui/Pagination';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/Select';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 export default function BlogList() {
     const [blogs, setBlogs] = useState([]);
@@ -27,6 +28,7 @@ export default function BlogList() {
     const router = useRouter();
     const [deleteId, setDeleteId] = useState(null);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [selectedBlogs, setSelectedBlogs] = useState([]);
 
     useEffect(() => {
         const savedViewMode = localStorage.getItem('admin_blog_view_mode');
@@ -89,6 +91,64 @@ export default function BlogList() {
         } catch (error) {
             console.error(error);
             toast.error('Failed to publish blog');
+        }
+    };
+
+
+
+    const handleSelectAll = (checked) => {
+        if (checked) {
+            setSelectedBlogs(paginatedBlogs.map(b => b.id));
+        } else {
+            setSelectedBlogs([]);
+        }
+    };
+
+    const handleSelectBlog = (blogId, checked) => {
+        if (checked) {
+            setSelectedBlogs(prev => [...prev, blogId]);
+        } else {
+            setSelectedBlogs(prev => prev.filter(id => id !== blogId));
+        }
+    };
+
+    const handleBulkDelete = async () => {
+        if (!confirm(`Are you sure you want to delete ${selectedBlogs.length} blogs?`)) return;
+
+        try {
+            const token = await user.getIdToken();
+            await Promise.all(selectedBlogs.map(id =>
+                axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/blogs/${id}`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                })
+            ));
+
+            setBlogs(blogs.filter(b => !selectedBlogs.includes(b.id)));
+            setSelectedBlogs([]);
+            toast.success('Blogs deleted');
+        } catch (error) {
+            console.error(error);
+            toast.error('Failed to delete blogs');
+        }
+    };
+
+    const handleBulkPublish = async (status) => {
+        try {
+            const token = await user.getIdToken();
+            await Promise.all(selectedBlogs.map(id =>
+                axios.patch(`${process.env.NEXT_PUBLIC_API_URL}/blogs/${id}`, { status }, {
+                    headers: { Authorization: `Bearer ${token}` }
+                })
+            ));
+
+            setBlogs(blogs.map(b =>
+                selectedBlogs.includes(b.id) ? { ...b, status } : b
+            ));
+            setSelectedBlogs([]);
+            toast.success(`Blogs ${status === 'PUBLISHED' ? 'published' : 'drafted'}`);
+        } catch (error) {
+            console.error(error);
+            toast.error('Failed to update blogs');
         }
     };
 
@@ -182,6 +242,25 @@ export default function BlogList() {
                         </div>
                     </div>
                 </div>
+
+                {selectedBlogs.length > 0 && (
+                    <div className="bg-muted/50 p-4 rounded-lg flex items-center justify-between animate-in fade-in slide-in-from-top-2">
+                        <span className="text-sm font-medium">
+                            {selectedBlogs.length} selected
+                        </span>
+                        <div className="flex items-center gap-2">
+                            <Button size="sm" variant="outline" onClick={() => handleBulkPublish('DRAFT')}>
+                                <Eye className="mr-2 h-4 w-4" /> Set Draft
+                            </Button>
+                            <Button size="sm" variant="outline" onClick={() => handleBulkPublish('PUBLISHED')}>
+                                <UploadCloud className="mr-2 h-4 w-4" /> Publish
+                            </Button>
+                            <Button size="sm" variant="destructive" onClick={handleBulkDelete}>
+                                <Trash2 className="mr-2 h-4 w-4" /> Delete
+                            </Button>
+                        </div>
+                    </div>
+                )}
 
                 {loading ? (
                     <div className="text-center py-10">Loading...</div>
@@ -279,6 +358,12 @@ export default function BlogList() {
                                 <table className="w-full text-sm text-left min-w-[600px]">
                                     <thead className="bg-muted/50 text-muted-foreground border-b">
                                         <tr>
+                                            <th className="px-4 py-3 w-[50px]">
+                                                <Checkbox
+                                                    checked={selectedBlogs.length === paginatedBlogs.length && paginatedBlogs.length > 0}
+                                                    onCheckedChange={handleSelectAll}
+                                                />
+                                            </th>
                                             <th className="px-4 py-3 font-medium">Title</th>
                                             <th className="px-4 py-3 font-medium">Status</th>
                                             <th className="px-4 py-3 font-medium">Date</th>
@@ -292,6 +377,12 @@ export default function BlogList() {
                                                 className="hover:bg-muted/50 transition-colors cursor-pointer"
                                                 onClick={() => router.push(`/admin/blog/${blog.slug}`)}
                                             >
+                                                <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                                                    <Checkbox
+                                                        checked={selectedBlogs.includes(blog.id)}
+                                                        onCheckedChange={(checked) => handleSelectBlog(blog.id, checked)}
+                                                    />
+                                                </td>
                                                 <td className="px-4 py-3">
                                                     <div className="flex items-center gap-3">
                                                         <div className="relative h-10 w-16 bg-muted rounded overflow-hidden shrink-0">

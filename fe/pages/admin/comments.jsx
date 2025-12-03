@@ -4,6 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { Checkbox } from "@/components/ui/Checkbox";
 import {
     Table,
     TableBody,
@@ -36,6 +37,7 @@ export default function AdminComments() {
     const [comments, setComments] = useState([]);
     const [reports, setReports] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [selectedComments, setSelectedComments] = useState([]);
 
     // Pagination state
     const [page, setPage] = useState(1);
@@ -117,6 +119,66 @@ export default function AdminComments() {
         } catch (error) {
             console.error('Error toggling visibility:', error);
             toast.error('Failed to update comment status');
+        }
+    };
+
+    const handleSelectAll = (checked) => {
+        if (checked) {
+            setSelectedComments(comments.map(c => c.id));
+        } else {
+            setSelectedComments([]);
+        }
+    };
+
+    const handleSelectComment = (commentId, checked) => {
+        if (checked) {
+            setSelectedComments(prev => [...prev, commentId]);
+        } else {
+            setSelectedComments(prev => prev.filter(id => id !== commentId));
+        }
+    };
+
+    const handleBulkDelete = async () => {
+        if (!confirm(`Are you sure you want to delete ${selectedComments.length} comments?`)) return;
+
+        try {
+            const token = await user.getIdToken();
+            await Promise.all(selectedComments.map(id =>
+                fetch(`${process.env.NEXT_PUBLIC_API_URL}/comments/${id}`, {
+                    method: 'DELETE',
+                    headers: { Authorization: `Bearer ${token}` }
+                })
+            ));
+
+            setComments(comments.filter(c => !selectedComments.includes(c.id)));
+            setSelectedComments([]);
+            toast.success('Comments deleted');
+        } catch (error) {
+            console.error('Error deleting comments:', error);
+            toast.error('Failed to delete comments');
+        }
+    };
+
+    const handleBulkHide = async (hide) => {
+        try {
+            const token = await user.getIdToken();
+            const endpoint = hide ? 'hide' : 'unhide';
+
+            await Promise.all(selectedComments.map(id =>
+                fetch(`${process.env.NEXT_PUBLIC_API_URL}/comments/${id}/${endpoint}`, {
+                    method: 'POST',
+                    headers: { Authorization: `Bearer ${token}` }
+                })
+            ));
+
+            setComments(comments.map(c =>
+                selectedComments.includes(c.id) ? { ...c, hidden: hide } : c
+            ));
+            setSelectedComments([]);
+            toast.success(`Comments ${hide ? 'hidden' : 'visible'}`);
+        } catch (error) {
+            console.error('Error updating comments:', error);
+            toast.error('Failed to update comments');
         }
     };
 
@@ -213,6 +275,25 @@ export default function AdminComments() {
                     </div>
                 </div>
 
+                {selectedComments.length > 0 && (
+                    <div className="bg-muted/50 p-4 rounded-lg flex items-center justify-between animate-in fade-in slide-in-from-top-2">
+                        <span className="text-sm font-medium">
+                            {selectedComments.length} selected
+                        </span>
+                        <div className="flex items-center gap-2">
+                            <Button size="sm" variant="outline" onClick={() => handleBulkHide(true)}>
+                                <EyeOff className="mr-2 h-4 w-4" /> Hide
+                            </Button>
+                            <Button size="sm" variant="outline" onClick={() => handleBulkHide(false)}>
+                                <Eye className="mr-2 h-4 w-4" /> Unhide
+                            </Button>
+                            <Button size="sm" variant="destructive" onClick={handleBulkDelete}>
+                                <Trash2 className="mr-2 h-4 w-4" /> Delete
+                            </Button>
+                        </div>
+                    </div>
+                )}
+
                 <Tabs defaultValue="comments" className="space-y-4">
                     <TabsList>
                         <TabsTrigger value="comments" className="flex items-center gap-2">
@@ -239,6 +320,12 @@ export default function AdminComments() {
                                 <Table>
                                     <TableHeader>
                                         <TableRow>
+                                            <TableHead className="w-[50px]">
+                                                <Checkbox
+                                                    checked={selectedComments.length === comments.length && comments.length > 0}
+                                                    onCheckedChange={handleSelectAll}
+                                                />
+                                            </TableHead>
                                             <TableHead>Author</TableHead>
                                             <TableHead className="w-[40%]">Content</TableHead>
                                             <TableHead>Blog Post</TableHead>
@@ -250,6 +337,12 @@ export default function AdminComments() {
                                     <TableBody>
                                         {comments.map((comment) => (
                                             <TableRow key={comment.id}>
+                                                <TableCell>
+                                                    <Checkbox
+                                                        checked={selectedComments.includes(comment.id)}
+                                                        onCheckedChange={(checked) => handleSelectComment(comment.id, checked)}
+                                                    />
+                                                </TableCell>
                                                 <TableCell>
                                                     <div className="flex items-center gap-2">
                                                         <Avatar className="h-8 w-8">

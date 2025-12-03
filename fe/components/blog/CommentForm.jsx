@@ -117,12 +117,12 @@ export default function CommentForm({ blogId, projectId, onCommentAdded }) {
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
                     rows={4}
-                    maxLength={500}
+                    maxLength={200}
                     required
                 />
                 <div className="flex justify-end mt-1">
                     <span className={`text-xs ${content.length >= 500 ? 'text-red-500' : 'text-muted-foreground'}`}>
-                        {content.length}/500
+                        {content.length}/200
                     </span>
                 </div>
             </div>

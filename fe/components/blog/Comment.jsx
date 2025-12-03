@@ -119,7 +119,7 @@ export default function Comment({ comment, onUpdate, onDelete }) {
                 </AvatarFallback>
             </Avatar>
 
-            <div className="flex-1 space-y-2">
+            <div className="flex-1 space-y-2 min-w-0">
                 <div className="flex items-start justify-between">
                     <div>
                         <div className="flex items-center gap-2">
@@ -141,7 +141,7 @@ export default function Comment({ comment, onUpdate, onDelete }) {
                     </div>
                 </div>
 
-                <p className="text-foreground whitespace-pre-wrap break-words">{comment.content}</p>
+                <p className="text-foreground whitespace-pre-wrap break-words" style={{ overflowWrap: 'anywhere' }}>{comment.content}</p>
 
                 <div className="flex items-center gap-4">
                     <div className="flex items-center gap-2">
