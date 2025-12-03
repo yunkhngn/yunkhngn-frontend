@@ -280,8 +280,8 @@ export default function Home() {
 Home.getLayout = function getLayout(page) {
   return (
     <Layout
-      title="Khoa Nguyễn - Graphic Designer / Software Engineer"
-      description="Portfolio of Khoa Nguyễn (yun.khngn)"
+      title="Khoa Nguyễn - Software Developer / Graphic Designer"
+      description="Xin chào, tớ là Khoa Nguyễn. Tớ là sinh viên chuyên ngành Kỹ thuật phần mềm tại Đại học FPT. Hiện tại tớ cũng đang là freelancer thiết kế đồ hoạ và phát triển một số dự án cá nhân."
     >
       {page}
     </Layout>
