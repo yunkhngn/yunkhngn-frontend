@@ -20,6 +20,8 @@ import { ContactModule } from './contact/contact.module';
 
 import { HealthController } from './health/health.controller';
 
+import { NotificationsModule } from './notifications/notifications.module';
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -43,6 +45,7 @@ import { HealthController } from './health/health.controller';
     AiModule,
     PhotoReactionsModule,
     ContactModule,
+    NotificationsModule,
   ],
   controllers: [AppController, HealthController],
   providers: [
@@ -53,4 +56,4 @@ import { HealthController } from './health/health.controller';
     },
   ],
 })
-export class AppModule {}
+export class AppModule { }

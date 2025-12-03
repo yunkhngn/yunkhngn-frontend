@@ -14,6 +14,7 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/DropdownMenu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/Avatar";
+import NotificationDropdown from "@/components/ui/NotificationDropdown";
 
 const ADMIN_NAV_ITEMS = [
     { label: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
@@ -109,6 +110,7 @@ export default function AdminNavbar() {
                             </DropdownMenuContent>
                         </DropdownMenu>
                     )}
+                    <NotificationDropdown />
                     <Button
                         variant="ghost"
                         size="icon"

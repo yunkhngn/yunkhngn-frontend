@@ -14,6 +14,8 @@ import { UpdateReportDto } from './dto/update-report.dto';
 import * as sanitizeHtml from 'sanitize-html';
 import { SettingsService } from '../settings/settings.service';
 
+import { NotificationsService } from '../notifications/notifications.service';
+
 @Injectable()
 export class CommentsService {
   private readonly rateLimitMap = new Map<string, number>();
@@ -21,6 +23,7 @@ export class CommentsService {
   constructor(
     private prisma: PrismaService,
     private settingsService: SettingsService,
+    private notificationsService: NotificationsService,
   ) { }
 
   // Rate limiting: 1 comment per 10 seconds per UID
@@ -89,6 +92,17 @@ export class CommentsService {
         uid,
       },
     });
+
+    // Send real-time notification
+    this.notificationsService
+      .create(
+        'COMMENT',
+        `New comment from ${createCommentDto.displayName}: ${cleanContent.substring(0, 50)}...`,
+        `/admin/comments`,
+      )
+      .catch((err) =>
+        console.error('Failed to send real-time notification:', err),
+      );
 
     return this.attachUserDetails([comment]).then((comments) => comments[0]);
   }
