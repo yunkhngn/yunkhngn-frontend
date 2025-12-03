@@ -13,11 +13,12 @@ const SYSTEM_SETTINGS = [
   'homepage_description',
   'footer_description',
   'about_content',
+  'comment_forbidden_keywords',
 ];
 
 @Injectable()
 export class SettingsService implements OnModuleInit {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async onModuleInit() {
     for (const title of SYSTEM_SETTINGS) {

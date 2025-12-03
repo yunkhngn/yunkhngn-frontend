@@ -1,55 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="jest tests" tests="18" failures="0" errors="0" time="6.865">
-  <testsuite name="CloudinaryService" errors="0" failures="0" skipped="0" timestamp="2025-12-03T17:56:23" time="5.404" tests="1">
-    <testcase classname="CloudinaryService should be defined" name="CloudinaryService should be defined" time="0.015">
+<testsuites name="jest tests" tests="8" failures="0" errors="0" time="5.908">
+  <testsuite name="CommentsService" errors="0" failures="0" skipped="0" timestamp="2025-12-03T23:22:53" time="5.59" tests="8">
+    <testcase classname="CommentsService should be defined" name="CommentsService should be defined" time="0.006">
     </testcase>
-  </testsuite>
-  <testsuite name="SettingsService" errors="0" failures="0" skipped="0" timestamp="2025-12-03T17:56:23" time="5.517" tests="3">
-    <testcase classname="SettingsService should be defined" name="SettingsService should be defined" time="0.092">
+    <testcase classname="CommentsService create should create a comment" name="CommentsService create should create a comment" time="0.003">
     </testcase>
-    <testcase classname="SettingsService getSettings should return all settings" name="SettingsService getSettings should return all settings" time="0.012">
+    <testcase classname="CommentsService create should sanitize XSS" name="CommentsService create should sanitize XSS" time="0.005">
     </testcase>
-    <testcase classname="SettingsService onModuleInit should initialize default settings" name="SettingsService onModuleInit should initialize default settings" time="0.004">
+    <testcase classname="CommentsService create should reject empty content after sanitization" name="CommentsService create should reject empty content after sanitization" time="0.025">
     </testcase>
-  </testsuite>
-  <testsuite name="PrismaService" errors="0" failures="0" skipped="0" timestamp="2025-12-03T17:56:23" time="5.617" tests="1">
-    <testcase classname="PrismaService should be defined" name="PrismaService should be defined" time="0.087">
+    <testcase classname="CommentsService create should reject repeated punctuation" name="CommentsService create should reject repeated punctuation" time="0.004">
     </testcase>
-  </testsuite>
-  <testsuite name="BlogService" errors="0" failures="0" skipped="0" timestamp="2025-12-03T17:56:23" time="5.69" tests="4">
-    <testcase classname="BlogService should be defined" name="BlogService should be defined" time="0.013">
+    <testcase classname="CommentsService create should accept allowed repeated punctuation" name="CommentsService create should accept allowed repeated punctuation" time="0.004">
     </testcase>
-    <testcase classname="BlogService create should create a blog" name="BlogService create should create a blog" time="0.004">
+    <testcase classname="CommentsService create should reject excessive repeated characters" name="CommentsService create should reject excessive repeated characters" time="0.002">
     </testcase>
-    <testcase classname="BlogService findAll should return an array of blogs" name="BlogService findAll should return an array of blogs" time="0.004">
-    </testcase>
-    <testcase classname="BlogService findOne should return a single blog" name="BlogService findOne should return a single blog" time="0.003">
-    </testcase>
-  </testsuite>
-  <testsuite name="ContactService" errors="0" failures="0" skipped="0" timestamp="2025-12-03T17:56:23" time="5.704" tests="4">
-    <testcase classname="ContactService should be defined" name="ContactService should be defined" time="0.017">
-    </testcase>
-    <testcase classname="ContactService createContact should create a contact and send notification" name="ContactService createContact should create a contact and send notification" time="0.009">
-    </testcase>
-    <testcase classname="ContactService respondToContact should send email and update contact status" name="ContactService respondToContact should send email and update contact status" time="0.003">
-    </testcase>
-    <testcase classname="ContactService generateAiResponse should call AI service with correct prompt" name="ContactService generateAiResponse should call AI service with correct prompt" time="0.002">
-    </testcase>
-  </testsuite>
-  <testsuite name="AppController" errors="0" failures="0" skipped="0" timestamp="2025-12-03T17:56:24" time="5.678" tests="1">
-    <testcase classname="AppController root should return &quot;Hello World!&quot;" name="AppController root should return &quot;Hello World!&quot;" time="0.027">
-    </testcase>
-  </testsuite>
-  <testsuite name="ProjectService" errors="0" failures="0" skipped="0" timestamp="2025-12-03T17:56:29" time="0.549" tests="2">
-    <testcase classname="ProjectService should be defined" name="ProjectService should be defined" time="0.003">
-    </testcase>
-    <testcase classname="ProjectService create should create a project" name="ProjectService create should create a project" time="0.002">
-    </testcase>
-  </testsuite>
-  <testsuite name="GalleryService" errors="0" failures="0" skipped="0" timestamp="2025-12-03T17:56:24" time="5.901" tests="2">
-    <testcase classname="GalleryService should be defined" name="GalleryService should be defined" time="0.007">
-    </testcase>
-    <testcase classname="GalleryService getUploadSignature should return signature" name="GalleryService getUploadSignature should return signature" time="0.002">
+    <testcase classname="CommentsService create should reject forbidden keywords" name="CommentsService create should reject forbidden keywords" time="0.004">
     </testcase>
   </testsuite>
 </testsuites>
