@@ -9,7 +9,7 @@ export class ContactService {
     private prisma: PrismaService,
     private emailService: EmailService,
     private aiService: AiService,
-  ) {}
+  ) { }
 
   async createContact(data: {
     name: string;
@@ -141,5 +141,11 @@ IMPORTANT: Respond in ${lang}. Do not include a subject line.`;
 
     const aiResponse = await this.aiService.generateText(prompt);
     return { suggestion: aiResponse };
+  }
+
+  async remove(id: string) {
+    return this.prisma.contact.delete({
+      where: { id },
+    });
   }
 }

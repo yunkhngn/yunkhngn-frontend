@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Textarea } from '@/components/ui/Textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/Select';
 import { toast } from 'sonner';
-import { Mail, Clock, CheckCircle, Send, Sparkles, Phone, Building } from 'lucide-react';
+import { Mail, Clock, CheckCircle, Send, Sparkles, Phone, Building, Trash2 } from 'lucide-react';
 
 export default function AdminContact() {
     const { user } = useAuth();
@@ -94,6 +94,34 @@ export default function AdminContact() {
             toast.error('Failed to send response');
         } finally {
             setResponding(false);
+        }
+    };
+
+
+
+    const handleDelete = async (e, id) => {
+        e.stopPropagation();
+        if (!confirm('Are you sure you want to delete this contact?')) return;
+
+        try {
+            const token = await user.getIdToken();
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/contact/${id}`, {
+                method: 'DELETE',
+                headers: { Authorization: `Bearer ${token}` },
+            });
+
+            if (res.ok) {
+                toast.success('Contact deleted');
+                fetchContacts();
+                if (viewingContact?.id === id) {
+                    setViewingContact(null);
+                }
+            } else {
+                throw new Error('Failed to delete');
+            }
+        } catch (error) {
+            console.error(error);
+            toast.error('Failed to delete contact');
         }
     };
 
@@ -214,6 +242,14 @@ export default function AdminContact() {
                                     <div className="text-xs text-muted-foreground whitespace-nowrap">
                                         {new Date(contact.createdAt).toLocaleDateString()}
                                     </div>
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-8 w-8 text-muted-foreground hover:text-destructive shrink-0"
+                                        onClick={(e) => handleDelete(e, contact.id)}
+                                    >
+                                        <Trash2 className="h-4 w-4" />
+                                    </Button>
                                 </div>
                                 <p className="text-sm line-clamp-2">{contact.message}</p>
                             </div>

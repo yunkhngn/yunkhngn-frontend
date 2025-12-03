@@ -6,13 +6,16 @@ import {
   Body,
   Param,
   UseGuards,
+  Delete,
 } from '@nestjs/common';
 import { ContactService } from './contact.service';
 import { FirebaseAuthGuard } from '../auth/firebase-auth.guard';
+import { Roles } from '../auth/roles.decorator';
+import { RolesGuard } from '../auth/roles.guard';
 
 @Controller('contact')
 export class ContactController {
-  constructor(private readonly contactService: ContactService) {}
+  constructor(private readonly contactService: ContactService) { }
 
   @Post()
   async createContact(
@@ -65,5 +68,12 @@ export class ContactController {
     @Body('existingText') existingText?: string,
   ) {
     return this.contactService.generateAiResponse(id, language, existingText);
+  }
+
+  @Delete(':id')
+  @UseGuards(FirebaseAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  async remove(@Param('id') id: string) {
+    return this.contactService.remove(id);
   }
 }
