@@ -141,7 +141,7 @@ export default function Comment({ comment, onUpdate, onDelete }) {
                     </div>
                 </div>
 
-                <p className="text-foreground whitespace-pre-wrap">{comment.content}</p>
+                <p className="text-foreground whitespace-pre-wrap break-words">{comment.content}</p>
 
                 <div className="flex items-center gap-4">
                     <div className="flex items-center gap-2">

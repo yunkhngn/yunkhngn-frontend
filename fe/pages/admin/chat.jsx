@@ -132,8 +132,8 @@ export default function AdminChat() {
                 </div>
 
                 {/* Main Content Area */}
-                <div className="flex-1 overflow-y-auto scrollbar-hide">
-                    <div className="max-w-4xl mx-auto min-h-full flex flex-col justify-end p-4 md:p-8 pb-48">
+                <div className="flex-1 overflow-y-auto">
+                    <div className="max-w-4xl mx-auto min-h-full flex flex-col p-4 md:p-8 pb-48">
 
                         {messages.length === 0 ? (
                             /* Welcome State */
@@ -172,7 +172,7 @@ export default function AdminChat() {
                             </div>
                         ) : (
                             /* Chat History */
-                            <div className="space-y-6 pt-16">
+                            <div className="mt-auto space-y-6 pt-16">
                                 {messages.map((msg, index) => (
                                     <div
                                         key={index}

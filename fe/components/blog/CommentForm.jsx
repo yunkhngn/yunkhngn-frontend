@@ -117,9 +117,14 @@ export default function CommentForm({ blogId, projectId, onCommentAdded }) {
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
                     rows={4}
-                    maxLength={1000}
+                    maxLength={500}
                     required
                 />
+                <div className="flex justify-end mt-1">
+                    <span className={`text-xs ${content.length >= 500 ? 'text-red-500' : 'text-muted-foreground'}`}>
+                        {content.length}/500
+                    </span>
+                </div>
             </div>
             <div className="flex justify-end">
                 <Button type="submit" disabled={loading}>
