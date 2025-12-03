@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { GoogleGenerativeAI, GenerativeModel } from '@google/generative-ai';
+import { PrismaService } from '../prisma/prisma.service';
 
 export interface ProjectInfo {
   title: string;
@@ -16,7 +17,10 @@ export class AiService {
   private genAI: GoogleGenerativeAI;
   private model: GenerativeModel;
 
-  constructor(private configService: ConfigService) {
+  constructor(
+    private configService: ConfigService,
+    private prisma: PrismaService,
+  ) {
     const apiKey = this.configService.get<string>('GEMINI_API_KEY');
     if (!apiKey) {
       throw new Error('GEMINI_API_KEY is not defined');
@@ -149,5 +153,128 @@ export class AiService {
       console.error('Error generating blog content:', error);
       throw new Error('Failed to generate blog content');
     }
+  }
+  async generateDashboardSummary(
+    stats: any,
+    recentActivities: any[],
+    language: string = 'vi',
+  ): Promise<string> {
+    try {
+      const prompt = `
+        Analyze the following dashboard data for a personal blog/portfolio website and generate a "Weekly Summary" and "Future Direction".
+        
+        Data:
+        - Total Blogs: ${stats.blogs} (${stats.blogsPublished} published, ${stats.blogsDraft} drafts)
+        - Total Projects: ${stats.projects}
+        - Total Photos: ${stats.gallery}
+        - Total Comments: ${stats.comments}
+        - Mail System: ${stats.mailTotal} total interactions (${stats.mailReceived} received, ${stats.mailSent} responded)
+        
+        Recent Activity (Last few items):
+        ${recentActivities
+          .map(
+            (a) =>
+              `- [${a.type.toUpperCase()}] ${a.action}: ${a.title} (${new Date(a.timestamp).toLocaleDateString()})`,
+          )
+          .join('\n')}
+        
+        Task:
+        1. Generate a "Weekly Summary" (HTML <ul>) highlighting key achievements and metrics.
+        2. Provide "Strategic Suggestions" (HTML <ul>) for next week based on the data.
+        
+        Format:
+        <h3>Weekly Summary</h3>
+        <ul>...</ul>
+        <h3>Future Direction</h3>
+        <ul>...</ul>
+        
+        IMPORTANT: Respond in ${language === 'vi' ? 'Vietnamese' : 'English'}. Keep it professional but encouraging.
+        `;
+
+      const result = await this.model.generateContent(prompt);
+      const response = result.response;
+      let text = response.text();
+
+      // Clean up markdown code blocks if present
+      text = text.replace(/```html\n?|\n?```/g, '').trim();
+
+      return text;
+    } catch (error) {
+      console.error('Error generating dashboard summary:', error);
+      throw new Error('Failed to generate dashboard summary');
+    }
+  }
+  async chatWithSystem(
+    message: string,
+    history: any[],
+    language: string = 'vi',
+  ) {
+    // 1. Fetch all relevant data from DB
+    const [blogs, projects, gallery] = await Promise.all([
+      this.prisma.blog.findMany({
+        select: { title: true, contentJSON: true, slug: true, status: true },
+      }),
+      this.prisma.project.findMany({
+        select: { title: true, description: true, techStack: true },
+      }),
+      this.prisma.gallery.findMany({
+        select: { caption: true, createdAt: true },
+      }),
+    ]);
+
+    const langInstruction =
+      language === 'vi'
+        ? 'IMPORTANT: Always respond in Vietnamese.'
+        : 'IMPORTANT: Always respond in English.';
+
+    // 2. Construct System Context
+    const systemContext = `
+    You are the AI Assistant for the Admin Panel of Khoa Nguyen's Portfolio Website. You are going to assist Khoa Nguyễn, just call me Khoa.
+    You have access to the full database of content. Use this to answer the user's questions accurately.
+
+    Database Content:
+    
+    [BLOGS]
+    ${blogs.map((b) => `- ${b.title} (${b.status}): ${b.contentJSON.substring(0, 200)}...`).join('\n')}
+
+    [PROJECTS]
+    ${projects.map((p) => `- ${p.title}: ${p.description} (Tech: ${p.techStack})`).join('\n')}
+
+    [GALLERY]
+    ${gallery.map((g) => `- Photo: ${g.caption} (${g.createdAt})`).join('\n')}
+
+    Instructions:
+    - Answer based on the provided content.
+    - If asked about something not in the DB, say you don't have that info.
+    - Be helpful, concise, and professional.
+    - You can help draft content, analyze trends, or find specific info.
+    - ${langInstruction}
+    `;
+
+    // 3. Construct Chat History for Gemini
+    const chatHistory = [
+      {
+        role: 'user',
+        parts: [{ text: systemContext }],
+      },
+      {
+        role: 'model',
+        parts: [{ text: 'Understood. I am ready to assist you with the system data.' }],
+      },
+      ...history.map((msg) => ({
+        role: msg.role === 'user' ? 'user' : 'model',
+        parts: [{ text: msg.content }],
+      })),
+    ];
+
+    // 4. Call Gemini API with chat history
+    const chat = this.model.startChat({
+      history: chatHistory,
+    });
+
+    const result = await chat.sendMessage(message);
+    const response = result.response.text();
+
+    return { response };
   }
 }

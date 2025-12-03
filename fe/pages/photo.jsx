@@ -127,7 +127,7 @@ export default function Photo() {
                     Gallery
                 </div>
                 <h1 className="text-5xl md:text-7xl font-bold mb-6 text-foreground" style={{ fontFamily: 'var(--font-playfair)' }}>
-                    Captured Moments
+                    Locket Library
                 </h1>
                 <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
                     A collection of memories, places, and little things that inspire me.

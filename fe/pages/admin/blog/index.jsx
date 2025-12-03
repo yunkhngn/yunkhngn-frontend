@@ -219,7 +219,7 @@ export default function BlogList() {
                                                 <h3 className="font-semibold text-lg line-clamp-1 group-hover:text-primary transition-colors">
                                                     {blog.title}
                                                 </h3>
-                                                <p className="text-xs text-muted-foreground line-clamp-1 mb-1">{blog.slug}</p>
+
                                                 <p className="text-sm text-muted-foreground line-clamp-2">
                                                     {extractTextFromTipTap(blog.contentJSON)}
                                                 </p>

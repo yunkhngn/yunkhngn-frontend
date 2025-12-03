@@ -363,7 +363,7 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
                                 value={formData.title}
                                 onChange={handleTitleChange}
                                 placeholder="Blog Title"
-                                className="text-4xl md:text-6xl font-bold text-center font-serif border-none focus-visible:ring-0 bg-transparent placeholder:text-muted-foreground/30 resize-none overflow-hidden min-h-[1.5em] leading-tight p-0 shadow-none"
+                                className="text-4xl md:text-6xl font-bold text-center font-serif border-none focus-visible:ring-0 bg-transparent dark:bg-transparent placeholder:text-muted-foreground/30 resize-none overflow-hidden min-h-[1.5em] leading-tight p-0 shadow-none"
                                 style={{ fontFamily: 'var(--font-playfair), serif' }}
                                 rows={1}
                                 onInput={(e) => {

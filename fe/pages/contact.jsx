@@ -65,13 +65,13 @@ export default function Contact() {
                 {/* Name */}
                 <div className="space-y-2">
                     <label className="text-base font-semibold text-foreground">
-                        Họ và tên
+                        Your name
                     </label>
                     <div className="relative">
                         <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground z-10 pointer-events-none" />
                         <Input
                             type="text"
-                            placeholder="Họ và tên của bạn"
+                            placeholder="Your full name"
                             value={formData.name}
                             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                             className="pl-10"
@@ -156,13 +156,13 @@ export default function Contact() {
                 {/* Subject */}
                 <div className="space-y-2">
                     <label className="text-base font-semibold text-foreground">
-                        Tiêu đề
+                        Subject
                     </label>
                     <div className="relative">
                         <MessageSquare className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground z-10 pointer-events-none" />
                         <Input
                             type="text"
-                            placeholder="Tiêu đề"
+                            placeholder="Subject"
                             value={formData.subject}
                             onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
                             className="pl-10"
@@ -174,10 +174,10 @@ export default function Contact() {
                 {/* Message */}
                 <div className="space-y-2">
                     <label className="text-base font-semibold text-foreground">
-                        Nội dung
+                        Message
                     </label>
                     <Textarea
-                        placeholder="Nội dung của bạn..."
+                        placeholder="Your message..."
                         value={formData.message}
                         onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                         rows={8}

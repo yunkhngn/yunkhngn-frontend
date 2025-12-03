@@ -92,7 +92,7 @@ export default function BlogList() {
                         My Stories & Ideas
                     </h1>
                     <p className="text-muted-foreground max-w-2xl mx-auto text-lg md:text-xl">
-                        The latest news, technologies, and resources from me.
+                        The latest writings, news, technologies, and resources from me.
                     </p>
                 </div>
 
