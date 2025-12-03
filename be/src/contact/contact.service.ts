@@ -142,4 +142,10 @@ IMPORTANT: Respond in ${lang}. Do not include a subject line.`;
     const aiResponse = await this.aiService.generateText(prompt);
     return { suggestion: aiResponse };
   }
+
+  async remove(id: string) {
+    return this.prisma.contact.delete({
+      where: { id },
+    });
+  }
 }

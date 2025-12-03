@@ -4,6 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { Checkbox } from "@/components/ui/Checkbox";
 import {
     Table,
     TableBody,
@@ -30,12 +31,22 @@ import { toast } from 'sonner';
 import { formatDistanceToNow } from 'date-fns';
 import { MoreHorizontal, Eye, EyeOff, Trash2, CheckCircle2, XCircle, MessageSquare, Flag } from 'lucide-react';
 import Link from 'next/link';
+import { ConfirmModal } from '@/components/ui/ConfirmModal';
 
 export default function AdminComments() {
     const { user } = useAuth();
     const [comments, setComments] = useState([]);
     const [reports, setReports] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [selectedComments, setSelectedComments] = useState([]);
+    const [selectedReports, setSelectedReports] = useState([]);
+    const [confirmConfig, setConfirmConfig] = useState({
+        isOpen: false,
+        title: '',
+        description: '',
+        action: null,
+        loading: false
+    });
 
     // Pagination state
     const [page, setPage] = useState(1);
@@ -120,9 +131,103 @@ export default function AdminComments() {
         }
     };
 
-    const handleDelete = async (commentId) => {
-        if (!confirm('Are you sure you want to delete this comment permanently?')) return;
+    const handleSelectAll = (checked) => {
+        if (checked) {
+            setSelectedComments(comments.map(c => c.id));
+        } else {
+            setSelectedComments([]);
+        }
+    };
 
+    const handleSelectComment = (commentId, checked) => {
+        if (checked) {
+            setSelectedComments(prev => [...prev, commentId]);
+        } else {
+            setSelectedComments(prev => prev.filter(id => id !== commentId));
+        }
+    };
+
+    const handleSelectAllReports = (checked) => {
+        if (checked) {
+            setSelectedReports(reports.map(r => r.id));
+        } else {
+            setSelectedReports([]);
+        }
+    };
+
+    const handleSelectReport = (reportId, checked) => {
+        if (checked) {
+            setSelectedReports(prev => [...prev, reportId]);
+        } else {
+            setSelectedReports(prev => prev.filter(id => id !== reportId));
+        }
+    };
+
+    const handleBulkDeleteClick = () => {
+        setConfirmConfig({
+            isOpen: true,
+            title: 'Delete Comments',
+            description: `Are you sure you want to delete ${selectedComments.length} comments? This action cannot be undone.`,
+            action: bulkDeleteComments
+        });
+    };
+
+    const bulkDeleteComments = async () => {
+        setConfirmConfig(prev => ({ ...prev, loading: true }));
+        try {
+            const token = await user.getIdToken();
+            await Promise.all(selectedComments.map(id =>
+                fetch(`${process.env.NEXT_PUBLIC_API_URL}/comments/${id}`, {
+                    method: 'DELETE',
+                    headers: { Authorization: `Bearer ${token}` }
+                })
+            ));
+
+            setComments(comments.filter(c => !selectedComments.includes(c.id)));
+            setSelectedComments([]);
+            toast.success('Comments deleted');
+            setConfirmConfig(prev => ({ ...prev, isOpen: false }));
+        } catch (error) {
+            console.error('Error deleting comments:', error);
+            toast.error('Failed to delete comments');
+            setConfirmConfig(prev => ({ ...prev, loading: false }));
+        }
+    };
+
+    const handleBulkHide = async (hide) => {
+        try {
+            const token = await user.getIdToken();
+            const endpoint = hide ? 'hide' : 'unhide';
+
+            await Promise.all(selectedComments.map(id =>
+                fetch(`${process.env.NEXT_PUBLIC_API_URL}/comments/${id}/${endpoint}`, {
+                    method: 'POST',
+                    headers: { Authorization: `Bearer ${token}` }
+                })
+            ));
+
+            setComments(comments.map(c =>
+                selectedComments.includes(c.id) ? { ...c, hidden: hide } : c
+            ));
+            setSelectedComments([]);
+            toast.success(`Comments ${hide ? 'hidden' : 'visible'}`);
+        } catch (error) {
+            console.error('Error updating comments:', error);
+            toast.error('Failed to update comments');
+        }
+    };
+
+    const handleDeleteClick = (commentId) => {
+        setConfirmConfig({
+            isOpen: true,
+            title: 'Delete Comment',
+            description: 'Are you sure you want to delete this comment permanently? This action cannot be undone.',
+            action: () => deleteComment(commentId)
+        });
+    };
+
+    const deleteComment = async (commentId) => {
+        setConfirmConfig(prev => ({ ...prev, loading: true }));
         try {
             const token = await user.getIdToken();
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/comments/${commentId}`, {
@@ -141,15 +246,25 @@ export default function AdminComments() {
             ));
 
             toast.success('Comment deleted and reports resolved');
+            setConfirmConfig(prev => ({ ...prev, isOpen: false }));
         } catch (error) {
             console.error('Error deleting comment:', error);
             toast.error('Failed to delete comment');
+            setConfirmConfig(prev => ({ ...prev, loading: false }));
         }
     };
 
-    const handleDismissReport = async (reportId) => {
-        if (!confirm('Are you sure you want to delete this report?')) return;
+    const handleRejectReportClick = (reportId) => {
+        setConfirmConfig({
+            isOpen: true,
+            title: 'Reject Report',
+            description: 'Are you sure you want to reject this report? This will remove the report but keep the comment.',
+            action: () => rejectReport(reportId)
+        });
+    };
 
+    const rejectReport = async (reportId) => {
+        setConfirmConfig(prev => ({ ...prev, loading: true }));
         try {
             const token = await user.getIdToken();
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/comments/admin/reports/${reportId}`, {
@@ -160,10 +275,13 @@ export default function AdminComments() {
             if (!res.ok) throw new Error('Failed to delete report');
 
             setReports(reports.filter(r => r.id !== reportId));
-            toast.success('Report deleted');
+            setReports(reports.filter(r => r.id !== reportId));
+            toast.success('Report rejected');
+            setConfirmConfig(prev => ({ ...prev, isOpen: false }));
         } catch (error) {
-            console.error('Error deleting report:', error);
-            toast.error('Failed to delete report');
+            console.error('Error rejecting report:', error);
+            toast.error('Failed to reject report');
+            setConfirmConfig(prev => ({ ...prev, loading: false }));
         }
     };
 
@@ -191,6 +309,67 @@ export default function AdminComments() {
         }
     };
 
+    const handleBulkRejectReportsClick = () => {
+        setConfirmConfig({
+            isOpen: true,
+            title: 'Reject Reports',
+            description: `Are you sure you want to reject ${selectedReports.length} reports? This will remove the reports but keep the comments.`,
+            action: bulkRejectReports
+        });
+    };
+
+    const bulkRejectReports = async () => {
+        setConfirmConfig(prev => ({ ...prev, loading: true }));
+        try {
+            const token = await user.getIdToken();
+            await Promise.all(selectedReports.map(id =>
+                fetch(`${process.env.NEXT_PUBLIC_API_URL}/comments/admin/reports/${id}`, {
+                    method: 'DELETE',
+                    headers: { Authorization: `Bearer ${token}` }
+                })
+            ));
+
+            setReports(reports.filter(r => !selectedReports.includes(r.id)));
+            setSelectedReports([]);
+            setReports(reports.filter(r => !selectedReports.includes(r.id)));
+            setSelectedReports([]);
+            toast.success('Reports rejected');
+            setConfirmConfig(prev => ({ ...prev, isOpen: false }));
+        } catch (error) {
+            console.error('Error rejecting reports:', error);
+            toast.error('Failed to reject reports');
+            setConfirmConfig(prev => ({ ...prev, loading: false }));
+        }
+    };
+
+    const handleBulkResolveReportsClick = async () => {
+        setConfirmConfig(prev => ({ ...prev, loading: true })); // Reuse loading state if needed, or just run immediately as it's less destructive
+        // For resolve, maybe we don't need a confirm modal? Or maybe we do. Let's skip modal for resolve as it's reversible.
+        // Actually, let's just do it directly.
+        try {
+            const token = await user.getIdToken();
+            await Promise.all(selectedReports.map(id =>
+                fetch(`${process.env.NEXT_PUBLIC_API_URL}/comments/admin/reports/${id}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ status: 'resolved' })
+                })
+            ));
+
+            setReports(reports.map(r =>
+                selectedReports.includes(r.id) ? { ...r, status: 'resolved' } : r
+            ));
+            setSelectedReports([]);
+            toast.success('Reports marked as resolved');
+        } catch (error) {
+            console.error('Error updating reports:', error);
+            toast.error('Failed to update reports');
+        }
+    };
+
     if (loading) {
         return (
             <AdminLayout title="Comments & Reports">
@@ -204,6 +383,24 @@ export default function AdminComments() {
     return (
         <AdminLayout title="Comments & Reports">
             <div className="space-y-6">
+
+
+                {selectedReports.length > 0 && (
+                    <div className="bg-muted/50 p-4 rounded-lg flex items-center justify-between animate-in fade-in slide-in-from-top-2">
+                        <span className="text-sm font-medium">
+                            {selectedReports.length} reports selected
+                        </span>
+                        <div className="flex items-center gap-2">
+                            <Button size="sm" variant="outline" onClick={handleBulkResolveReportsClick}>
+                                <CheckCircle2 className="mr-2 h-4 w-4" /> Mark Resolved
+                            </Button>
+                            <Button size="sm" variant="destructive" onClick={handleBulkRejectReportsClick}>
+                                <XCircle className="mr-2 h-4 w-4" /> Reject Selected
+                            </Button>
+                        </div>
+                    </div>
+                )}
+
                 <div className="flex items-center justify-between">
                     <div>
                         <h1 className="text-3xl font-bold tracking-tight">Comments & Reports</h1>
@@ -212,6 +409,25 @@ export default function AdminComments() {
                         </p>
                     </div>
                 </div>
+
+                {selectedComments.length > 0 && (
+                    <div className="bg-muted/50 p-4 rounded-lg flex items-center justify-between animate-in fade-in slide-in-from-top-2">
+                        <span className="text-sm font-medium">
+                            {selectedComments.length} selected
+                        </span>
+                        <div className="flex items-center gap-2">
+                            <Button size="sm" variant="outline" onClick={() => handleBulkHide(true)}>
+                                <EyeOff className="mr-2 h-4 w-4" /> Hide
+                            </Button>
+                            <Button size="sm" variant="outline" onClick={() => handleBulkHide(false)}>
+                                <Eye className="mr-2 h-4 w-4" /> Unhide
+                            </Button>
+                            <Button size="sm" variant="destructive" onClick={handleBulkDeleteClick}>
+                                <Trash2 className="mr-2 h-4 w-4" /> Delete
+                            </Button>
+                        </div>
+                    </div>
+                )}
 
                 <Tabs defaultValue="comments" className="space-y-4">
                     <TabsList>
@@ -239,6 +455,12 @@ export default function AdminComments() {
                                 <Table>
                                     <TableHeader>
                                         <TableRow>
+                                            <TableHead className="w-[50px]">
+                                                <Checkbox
+                                                    checked={selectedComments.length === comments.length && comments.length > 0}
+                                                    onCheckedChange={handleSelectAll}
+                                                />
+                                            </TableHead>
                                             <TableHead>Author</TableHead>
                                             <TableHead className="w-[40%]">Content</TableHead>
                                             <TableHead>Blog Post</TableHead>
@@ -250,6 +472,12 @@ export default function AdminComments() {
                                     <TableBody>
                                         {comments.map((comment) => (
                                             <TableRow key={comment.id}>
+                                                <TableCell>
+                                                    <Checkbox
+                                                        checked={selectedComments.includes(comment.id)}
+                                                        onCheckedChange={(checked) => handleSelectComment(comment.id, checked)}
+                                                    />
+                                                </TableCell>
                                                 <TableCell>
                                                     <div className="flex items-center gap-2">
                                                         <Avatar className="h-8 w-8">
@@ -306,7 +534,7 @@ export default function AdminComments() {
                                                                 )}
                                                             </DropdownMenuItem>
                                                             <DropdownMenuItem
-                                                                onClick={() => handleDelete(comment.id)}
+                                                                onClick={() => handleDeleteClick(comment.id)}
                                                                 className="text-destructive focus:text-destructive"
                                                             >
                                                                 <Trash2 className="mr-2 h-4 w-4" /> Delete
@@ -363,6 +591,12 @@ export default function AdminComments() {
                                 <Table>
                                     <TableHeader>
                                         <TableRow>
+                                            <TableHead className="w-[50px]">
+                                                <Checkbox
+                                                    checked={selectedReports.length === reports.length && reports.length > 0}
+                                                    onCheckedChange={handleSelectAllReports}
+                                                />
+                                            </TableHead>
                                             <TableHead>Reporter</TableHead>
                                             <TableHead>Reason</TableHead>
                                             <TableHead className="w-[30%]">Comment Content</TableHead>
@@ -374,6 +608,12 @@ export default function AdminComments() {
                                     <TableBody>
                                         {reports.map((report) => (
                                             <TableRow key={report.id}>
+                                                <TableCell>
+                                                    <Checkbox
+                                                        checked={selectedReports.includes(report.id)}
+                                                        onCheckedChange={(checked) => handleSelectReport(report.id, checked)}
+                                                    />
+                                                </TableCell>
                                                 <TableCell className="font-medium text-sm">
                                                     {report.reporterUid.slice(0, 8)}...
                                                 </TableCell>
@@ -396,7 +636,7 @@ export default function AdminComments() {
                                                 <TableCell>
                                                     <Badge variant={
                                                         report.status === 'resolved' ? 'default' :
-                                                            report.status === 'dismissed' ? 'secondary' :
+                                                            report.status === 'rejected' ? 'secondary' :
                                                                 'destructive'
                                                     }>
                                                         {report.status}
@@ -416,11 +656,11 @@ export default function AdminComments() {
                                                             <DropdownMenuItem onClick={() => handleUpdateReportStatus(report.id, 'resolved')}>
                                                                 <CheckCircle2 className="mr-2 h-4 w-4" /> Mark Resolved
                                                             </DropdownMenuItem>
-                                                            <DropdownMenuItem onClick={() => handleDismissReport(report.id)}>
-                                                                <XCircle className="mr-2 h-4 w-4" /> Dismiss (Delete)
+                                                            <DropdownMenuItem onClick={() => handleRejectReportClick(report.id)}>
+                                                                <XCircle className="mr-2 h-4 w-4" /> Reject (Delete Report)
                                                             </DropdownMenuItem>
                                                             <DropdownMenuItem
-                                                                onClick={() => handleDelete(report.commentId)}
+                                                                onClick={() => handleDeleteClick(report.commentId)}
                                                                 className="text-destructive focus:text-destructive"
                                                             >
                                                                 <Trash2 className="mr-2 h-4 w-4" /> Delete Comment
@@ -469,6 +709,14 @@ export default function AdminComments() {
                     </TabsContent>
                 </Tabs>
             </div>
-        </AdminLayout>
+            <ConfirmModal
+                isOpen={confirmConfig.isOpen}
+                onClose={() => setConfirmConfig(prev => ({ ...prev, isOpen: false }))}
+                onConfirm={confirmConfig.action}
+                title={confirmConfig.title}
+                description={confirmConfig.description}
+                loading={confirmConfig.loading}
+            />
+        </AdminLayout >
     );
 }

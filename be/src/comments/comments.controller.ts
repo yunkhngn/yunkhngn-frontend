@@ -10,6 +10,7 @@ import {
   UseGuards,
   Request,
 } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { CommentsService } from './comments.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
@@ -24,6 +25,7 @@ export class CommentsController {
 
   @Post()
   @UseGuards(FirebaseAuthGuard)
+  @Throttle({ default: { limit: 5, ttl: 60000 } }) // 5 per minute
   create(@Body() createCommentDto: CreateCommentDto, @Request() req) {
     return this.commentsService.create(createCommentDto, req.user.uid);
   }
@@ -97,6 +99,7 @@ export class CommentsController {
 
   @Post(':id/vote')
   @UseGuards(FirebaseAuthGuard)
+  @Throttle({ default: { limit: 10, ttl: 60000 } }) // 10 per minute
   vote(@Param('id') id: string, @Body() voteDto: VoteDto, @Request() req) {
     return this.commentsService.vote(id, voteDto, req.user.uid);
   }
@@ -115,6 +118,7 @@ export class CommentsController {
 
   @Post(':id/report')
   @UseGuards(FirebaseAuthGuard)
+  @Throttle({ default: { limit: 5, ttl: 60000 } }) // 5 per minute
   report(
     @Param('id') id: string,
     @Body() reportDto: ReportCommentDto,

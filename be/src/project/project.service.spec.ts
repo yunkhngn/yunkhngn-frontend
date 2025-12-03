@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ProjectService } from './project.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { CreateProjectDto } from './dto/create-project.dto';
 
 const mockPrismaService = {
   project: {
@@ -34,7 +35,12 @@ describe('ProjectService', () => {
 
   describe('create', () => {
     it('should create a project', async () => {
-      const dto = { title: 'Test', description: 'Desc', slug: 'test-project' };
+      const dto: CreateProjectDto = {
+        title: 'Test Project',
+        description: 'Test Description',
+        slug: 'test-project',
+        contentJSON: '{}',
+      };
       const result = {
         id: '1',
         ...dto,
