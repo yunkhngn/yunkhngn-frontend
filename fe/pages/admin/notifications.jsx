@@ -1,5 +1,5 @@
 import AdminLayout from "@/components/template/Admin/Layout";
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/Button';
 import { Loader2, Trash2, CheckCheck } from 'lucide-react';
@@ -24,7 +24,7 @@ export default function Notifications() {
     const [totalPages, setTotalPages] = useState(1);
     const router = useRouter();
 
-    const fetchAllNotifications = async () => {
+    const fetchAllNotifications = React.useCallback(async () => {
         try {
             setLoading(true);
             const token = await user.getIdToken();
@@ -41,13 +41,13 @@ export default function Notifications() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [user, page]);
 
     useEffect(() => {
         if (user) {
             fetchAllNotifications();
         }
-    }, [user, page]);
+    }, [user, fetchAllNotifications]);
 
     const handleDelete = async (id) => {
         if (!confirm('Are you sure you want to delete this notification?')) return;
@@ -129,8 +129,8 @@ export default function Notifications() {
                                     >
                                         <TableCell>
                                             <span className={`px-2 py-1 rounded-full text-xs font-semibold ${notification.type === 'CONTACT' ? 'bg-blue-100 text-blue-800' :
-                                                    notification.type === 'COMMENT' ? 'bg-green-100 text-green-800' :
-                                                        'bg-purple-100 text-purple-800'
+                                                notification.type === 'COMMENT' ? 'bg-green-100 text-green-800' :
+                                                    'bg-purple-100 text-purple-800'
                                                 }`}>
                                                 {notification.type}
                                             </span>

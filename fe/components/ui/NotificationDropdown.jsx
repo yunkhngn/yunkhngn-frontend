@@ -11,7 +11,6 @@ import {
 } from '@/components/ui/DropdownMenu';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
-import { ScrollArea } from '@/components/ui/ScrollArea';
 import { formatDistanceToNow } from 'date-fns';
 import { useRouter } from 'next/router';
 

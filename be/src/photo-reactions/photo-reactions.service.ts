@@ -9,7 +9,7 @@ export class PhotoReactionsService {
   constructor(
     private prisma: PrismaService,
     private notificationsService: NotificationsService,
-  ) { }
+  ) {}
 
   async addOrUpdateReaction(
     photoId: string,
@@ -39,11 +39,7 @@ export class PhotoReactionsService {
     // Let's just notify.
 
     this.notificationsService
-      .create(
-        'LIKE',
-        `New ${reactionType} reaction on photo`,
-        `/admin/photo`,
-      )
+      .create('LIKE', `New ${reactionType} reaction on photo`, `/admin/photo`)
       .catch((err) =>
         console.error('Failed to send real-time notification:', err),
       );

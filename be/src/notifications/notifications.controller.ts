@@ -1,12 +1,11 @@
 import {
-    Controller,
-    Get,
-    Patch,
-    Delete,
-    Param,
-    Query,
-    UseGuards,
-    Post,
+  Controller,
+  Get,
+  Patch,
+  Delete,
+  Param,
+  Query,
+  UseGuards,
 } from '@nestjs/common';
 import { NotificationsService } from './notifications.service';
 import { FirebaseAuthGuard } from '../auth/firebase-auth.guard';
@@ -17,25 +16,25 @@ import { Roles } from '../auth/roles.decorator';
 @UseGuards(FirebaseAuthGuard, RolesGuard)
 @Roles('ADMIN')
 export class NotificationsController {
-    constructor(private readonly notificationsService: NotificationsService) { }
+  constructor(private readonly notificationsService: NotificationsService) {}
 
-    @Get()
-    findAll(@Query('page') page: string, @Query('limit') limit: string) {
-        return this.notificationsService.findAll(+page || 1, +limit || 20);
-    }
+  @Get()
+  findAll(@Query('page') page: string, @Query('limit') limit: string) {
+    return this.notificationsService.findAll(+page || 1, +limit || 20);
+  }
 
-    @Patch('read-all')
-    markAllAsRead() {
-        return this.notificationsService.markAllAsRead();
-    }
+  @Patch('read-all')
+  markAllAsRead() {
+    return this.notificationsService.markAllAsRead();
+  }
 
-    @Patch(':id/read')
-    markAsRead(@Param('id') id: string) {
-        return this.notificationsService.markAsRead(id);
-    }
+  @Patch(':id/read')
+  markAsRead(@Param('id') id: string) {
+    return this.notificationsService.markAsRead(id);
+  }
 
-    @Delete(':id')
-    remove(@Param('id') id: string) {
-        return this.notificationsService.remove(id);
-    }
+  @Delete(':id')
+  remove(@Param('id') id: string) {
+    return this.notificationsService.remove(id);
+  }
 }

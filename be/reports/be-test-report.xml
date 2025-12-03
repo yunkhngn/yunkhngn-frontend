@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="jest tests" tests="8" failures="0" errors="0" time="5.908">
-  <testsuite name="CommentsService" errors="0" failures="0" skipped="0" timestamp="2025-12-03T23:22:53" time="5.59" tests="8">
+<testsuites name="jest tests" tests="8" failures="0" errors="0" time="2.415">
+  <testsuite name="CommentsService" errors="0" failures="0" skipped="0" timestamp="2025-12-03T23:45:28" time="2.028" tests="8">
     <testcase classname="CommentsService should be defined" name="CommentsService should be defined" time="0.006">
     </testcase>
     <testcase classname="CommentsService create should create a comment" name="CommentsService create should create a comment" time="0.003">
     </testcase>
-    <testcase classname="CommentsService create should sanitize XSS" name="CommentsService create should sanitize XSS" time="0.005">
+    <testcase classname="CommentsService create should sanitize XSS" name="CommentsService create should sanitize XSS" time="0.002">
     </testcase>
-    <testcase classname="CommentsService create should reject empty content after sanitization" name="CommentsService create should reject empty content after sanitization" time="0.025">
+    <testcase classname="CommentsService create should reject empty content after sanitization" name="CommentsService create should reject empty content after sanitization" time="0.008">
     </testcase>
-    <testcase classname="CommentsService create should reject repeated punctuation" name="CommentsService create should reject repeated punctuation" time="0.004">
+    <testcase classname="CommentsService create should reject repeated punctuation" name="CommentsService create should reject repeated punctuation" time="0.002">
     </testcase>
-    <testcase classname="CommentsService create should accept allowed repeated punctuation" name="CommentsService create should accept allowed repeated punctuation" time="0.004">
+    <testcase classname="CommentsService create should accept allowed repeated punctuation" name="CommentsService create should accept allowed repeated punctuation" time="0.002">
     </testcase>
-    <testcase classname="CommentsService create should reject excessive repeated characters" name="CommentsService create should reject excessive repeated characters" time="0.002">
+    <testcase classname="CommentsService create should reject excessive repeated characters" name="CommentsService create should reject excessive repeated characters" time="0.001">
     </testcase>
-    <testcase classname="CommentsService create should reject forbidden keywords" name="CommentsService create should reject forbidden keywords" time="0.004">
+    <testcase classname="CommentsService create should reject forbidden keywords" name="CommentsService create should reject forbidden keywords" time="0.001">
     </testcase>
   </testsuite>
 </testsuites>

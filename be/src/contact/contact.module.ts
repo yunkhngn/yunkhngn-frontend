@@ -12,4 +12,4 @@ import { NotificationsModule } from '../notifications/notifications.module';
   controllers: [ContactController],
   providers: [ContactService, PrismaService],
 })
-export class ContactModule { }
+export class ContactModule {}

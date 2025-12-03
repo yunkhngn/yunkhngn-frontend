@@ -18,7 +18,7 @@ import { CreateContactDto } from './dto/create-contact.dto';
 
 @Controller('contact')
 export class ContactController {
-  constructor(private readonly contactService: ContactService) { }
+  constructor(private readonly contactService: ContactService) {}
 
   @Post()
   @Throttle({ default: { limit: 3, ttl: 3600000 } }) // 3 requests per hour

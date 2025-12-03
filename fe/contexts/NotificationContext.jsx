@@ -55,13 +55,7 @@ export function NotificationProvider({ children }) {
         };
     }, [socket]);
 
-    useEffect(() => {
-        if (user) {
-            fetchNotifications();
-        }
-    }, [user]);
-
-    const fetchNotifications = async () => {
+    const fetchNotifications = React.useCallback(async () => {
         try {
             const token = await user.getIdToken();
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/notifications?limit=5`, {
@@ -75,7 +69,13 @@ export function NotificationProvider({ children }) {
         } catch (error) {
             console.error('Failed to fetch notifications', error);
         }
-    };
+    }, [user]);
+
+    useEffect(() => {
+        if (user) {
+            fetchNotifications();
+        }
+    }, [user, fetchNotifications]);
 
     const markAsRead = async (id) => {
         try {

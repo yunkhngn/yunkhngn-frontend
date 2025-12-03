@@ -24,7 +24,7 @@ export class CommentsService {
     private prisma: PrismaService,
     private settingsService: SettingsService,
     private notificationsService: NotificationsService,
-  ) { }
+  ) {}
 
   // Rate limiting: 1 comment per 10 seconds per UID
   private checkRateLimit(uid: string): void {
@@ -318,9 +318,9 @@ export class CommentsService {
           existingVote.value === 1
             ? { upvoteCount: { decrement: 1 }, downvoteCount: { increment: 1 } }
             : {
-              downvoteCount: { decrement: 1 },
-              upvoteCount: { increment: 1 },
-            };
+                downvoteCount: { decrement: 1 },
+                upvoteCount: { increment: 1 },
+              };
 
         const updatedComment = await this.prisma.comment.update({
           where: { id: commentId },

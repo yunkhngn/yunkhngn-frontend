@@ -6,9 +6,9 @@ import { PrismaModule } from '../prisma/prisma.module';
 
 @Global()
 @Module({
-    imports: [PrismaModule],
-    controllers: [NotificationsController],
-    providers: [NotificationsService, NotificationsGateway],
-    exports: [NotificationsService],
+  imports: [PrismaModule],
+  controllers: [NotificationsController],
+  providers: [NotificationsService, NotificationsGateway],
+  exports: [NotificationsService],
 })
-export class NotificationsModule { }
+export class NotificationsModule {}

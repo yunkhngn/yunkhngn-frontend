@@ -10,4 +10,4 @@ import { NotificationsModule } from '../notifications/notifications.module';
   controllers: [PhotoReactionsController],
   providers: [PhotoReactionsService, PrismaService],
 })
-export class PhotoReactionsModule { }
+export class PhotoReactionsModule {}
