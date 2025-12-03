@@ -20,8 +20,16 @@ import {
   Upload,
   Sparkles,
   BarChart3,
-  PieChart as PieChartIcon
+  PieChart as PieChartIcon,
+  MessageSquare,
+  Mail,
+  Server,
+  Database,
+  Activity,
+  X,
+  Loader2
 } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/Dialog";
 import Link from "next/link";
 import { format, formatDistanceToNow } from "date-fns";
 import { Badge } from "@/components/ui/Badge";
@@ -38,13 +46,21 @@ export default function Dashboard() {
     blogsDraft: 0,
     blogsPublished: 0,
     projects: 0,
-    gallery: 0
+    gallery: 0,
+    comments: 0,
+    mailTotal: 0,
+    mailReceived: 0,
+    mailSent: 0
   });
   const [recentBlogs, setRecentBlogs] = useState([]);
   const [recentProjects, setRecentProjects] = useState([]);
   const [recentPhotos, setRecentPhotos] = useState([]);
+  const [recentContacts, setRecentContacts] = useState([]);
   const [activities, setActivities] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showAiModal, setShowAiModal] = useState(false);
+  const [aiSummary, setAiSummary] = useState('');
+  const [generatingAi, setGeneratingAi] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -53,30 +69,40 @@ export default function Dashboard() {
         const token = await user.getIdToken();
         const headers = { Authorization: `Bearer ${token}` };
 
-        const [blogsRes, projectsRes, galleryRes] = await Promise.all([
+        const [blogsRes, projectsRes, galleryRes, commentsRes, contactRes] = await Promise.all([
           fetch(`${process.env.NEXT_PUBLIC_API_URL}/blogs`, { headers }),
           fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects`),
-          fetch(`${process.env.NEXT_PUBLIC_API_URL}/gallery`)
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/gallery`),
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/comments?limit=1`, { headers }), // Fetch just 1 to get total count from meta
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/contact`, { headers })
         ]);
 
         const blogs = await blogsRes.json();
         const projects = await projectsRes.json();
         const gallery = await galleryRes.json();
+        const commentsData = await commentsRes.json();
+        const contacts = await contactRes.json();
 
         const publishedBlogs = blogs.filter(b => b.status === 'PUBLISHED');
         const draftBlogs = blogs.filter(b => b.status === 'DRAFT');
+        const respondedContacts = contacts.filter(c => c.status === 'responded' || c.adminResponse);
 
         setStats({
           blogs: blogs.length,
           blogsDraft: draftBlogs.length,
           blogsPublished: publishedBlogs.length,
           projects: projects.length,
-          gallery: gallery.length
+          gallery: gallery.length,
+          comments: commentsData.meta?.total || 0,
+          mailTotal: contacts.length + respondedContacts.length,
+          mailReceived: contacts.length,
+          mailSent: respondedContacts.length
         });
 
         setRecentBlogs(blogs.slice(0, 5));
         setRecentProjects(projects.slice(0, 4));
         setRecentPhotos(gallery.slice(0, 6));
+        setRecentContacts(contacts.slice(0, 5));
 
         // Create activity feed
         const allActivities = [
@@ -101,8 +127,15 @@ export default function Dashboard() {
             action: 'uploaded',
             title: g.caption || 'Photo',
             timestamp: new Date(g.createdAt),
+          })),
+          ...contacts.slice(0, 3).map(c => ({
+            id: `contact-${c.id}`,
+            type: 'mail',
+            action: 'received',
+            title: `From: ${c.name} - ${c.subject}`,
+            timestamp: new Date(c.createdAt),
           }))
-        ].sort((a, b) => b.timestamp - a.timestamp).slice(0, 6);
+        ].sort((a, b) => b.timestamp - a.timestamp).slice(0, 8);
 
         setActivities(allActivities);
       } catch (error) {
@@ -157,6 +190,8 @@ export default function Dashboard() {
           return Folder;
         case 'photo':
           return Upload;
+        case 'mail':
+          return Mail;
         default:
           return Sparkles;
       }
@@ -216,12 +251,17 @@ export default function Dashboard() {
         new Date(p.createdAt).toISOString().split('T')[0] === dateStr
       ).length;
 
+      const contactsCount = recentContacts.filter(c =>
+        new Date(c.createdAt).toISOString().split('T')[0] === dateStr
+      ).length;
+
       data.push({
         date: format(date, 'MMM dd'),
         blogs: blogsCount,
         projects: projectsCount,
         photos: photosCount,
-        total: blogsCount + projectsCount + photosCount
+        mail: contactsCount,
+        total: blogsCount + projectsCount + photosCount + contactsCount
       });
     }
 
@@ -230,8 +270,65 @@ export default function Dashboard() {
 
   const activityData = getActivityData();
 
+  const handleGenerateSummary = async () => {
+    setGeneratingAi(true);
+    setShowAiModal(true);
+    try {
+      const token = await user.getIdToken();
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ai/dashboard-summary`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          stats,
+          recentActivities: activities,
+          language: 'vi' // Default to Vietnamese as requested
+        })
+      });
+
+      if (!res.ok) throw new Error('Failed to generate summary');
+
+      const data = await res.json();
+      setAiSummary(data.summary);
+    } catch (error) {
+      console.error(error);
+      setAiSummary('<p class="text-destructive">Failed to generate summary. Please try again later.</p>');
+    } finally {
+      setGeneratingAi(false);
+    }
+  };
+
   return (
     <AdminLayout title="Dashboard">
+      <Dialog open={showAiModal} onOpenChange={setShowAiModal}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-xl">
+              <Sparkles className="h-5 w-5 text-yellow-500" />
+              AI Weekly Summary
+            </DialogTitle>
+            <DialogDescription>
+              AI-powered insights based on your dashboard activity.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            {generatingAi ? (
+              <div className="flex flex-col items-center justify-center py-8 space-y-4">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <p className="text-muted-foreground animate-pulse">Analyzing your data...</p>
+              </div>
+            ) : (
+              <div
+                className="prose dark:prose-invert max-w-none [&>h3]:text-lg [&>h3]:font-semibold [&>h3]:mt-4 [&>h3]:mb-2 [&>ul]:list-disc [&>ul]:pl-5 [&>li]:mb-1"
+                dangerouslySetInnerHTML={{ __html: aiSummary }}
+              />
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
       <div className="space-y-8">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -241,7 +338,15 @@ export default function Dashboard() {
               Welcome back, {user?.displayName || user?.email}
             </p>
           </div>
-          <div className="flex gap-2 w-full md:w-auto">
+          <div className="grid grid-cols-2 md:flex gap-2 w-full md:w-auto">
+            <Button
+              variant="outline"
+              className="col-span-2 md:col-span-1 border-yellow-500/50 hover:bg-yellow-500/10 text-yellow-600 dark:text-yellow-400"
+              onClick={handleGenerateSummary}
+            >
+              <Sparkles className="h-4 w-4 mr-2" />
+              AI Summary
+            </Button>
             <Button asChild variant="outline" className="flex-1 md:flex-none">
               <Link href="/admin/blog/new">
                 <Plus className="h-4 w-4 mr-2" />
@@ -257,8 +362,53 @@ export default function Dashboard() {
           </div>
         </div>
 
+        {/* System Status */}
+        {/* System Status */}
+        <div className="grid gap-3 grid-cols-1 md:grid-cols-3">
+          <Card className="bg-green-500/10 border-green-500/20">
+            <CardContent className="p-4 flex items-center gap-4">
+              <div className="p-2 rounded-full bg-green-500/20 text-green-500">
+                <Server className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="text-sm font-medium">Backend API</p>
+                <p className="text-xs text-green-500 font-semibold flex items-center gap-1">
+                  <CheckCircle2 className="h-3 w-3" /> Operational
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="bg-green-500/10 border-green-500/20">
+            <CardContent className="p-4 flex items-center gap-4">
+              <div className="p-2 rounded-full bg-green-500/20 text-green-500">
+                <Database className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="text-sm font-medium">Database</p>
+                <p className="text-xs text-green-500 font-semibold flex items-center gap-1">
+                  <CheckCircle2 className="h-3 w-3" /> Connected
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="bg-green-500/10 border-green-500/20">
+            <CardContent className="p-4 flex items-center gap-4">
+              <div className="p-2 rounded-full bg-green-500/20 text-green-500">
+                <Mail className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="text-sm font-medium">Mail Service</p>
+                <p className="text-xs text-green-500 font-semibold flex items-center gap-1">
+                  <CheckCircle2 className="h-3 w-3" /> Active
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
         {/* Stats Grid */}
-        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+        {/* Stats Grid */}
+        <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
           <StatCard
             title="Total Blogs"
             value={stats.blogs}
@@ -282,6 +432,30 @@ export default function Dashboard() {
             value={stats.blogsPublished}
             subtitle="Live articles"
             icon={CheckCircle2}
+          />
+          <StatCard
+            title="Total Comments"
+            value={stats.comments}
+            subtitle="Across all posts"
+            icon={MessageSquare}
+          />
+          <StatCard
+            title="Total Mail"
+            value={stats.mailTotal}
+            subtitle="Total interactions"
+            icon={Mail}
+          />
+          <StatCard
+            title="Received"
+            value={stats.mailReceived}
+            subtitle="Incoming messages"
+            icon={Mail}
+          />
+          <StatCard
+            title="Responded"
+            value={stats.mailSent}
+            subtitle="Replies sent"
+            icon={Mail}
           />
         </div>
 

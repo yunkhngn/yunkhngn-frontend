@@ -150,4 +150,51 @@ export class AiService {
       throw new Error('Failed to generate blog content');
     }
   }
+  async generateDashboardSummary(
+    stats: any,
+    recentActivities: any[],
+    language: string = 'vi',
+  ): Promise<string> {
+    try {
+      const prompt = `
+        Analyze the following dashboard data for a personal blog/portfolio website and generate a "Weekly Summary" and "Future Direction".
+        
+        Data:
+        - Total Blogs: ${stats.blogs} (${stats.blogsPublished} published, ${stats.blogsDraft} drafts)
+        - Total Projects: ${stats.projects}
+        - Total Photos: ${stats.gallery}
+        - Total Comments: ${stats.comments}
+        - Mail System: ${stats.mailTotal} total interactions (${stats.mailReceived} received, ${stats.mailSent} responded)
+        
+        Recent Activity (Last few items):
+        ${recentActivities
+          .map(
+            (a) =>
+              `- [${a.type.toUpperCase()}] ${a.action}: "${a.title}" (${a.timestamp})`,
+          )
+          .join('\n')}
+        
+        Output Requirements:
+        1. Write in ${language === 'vi' ? 'Vietnamese' : 'English'}.
+        2. Tone: Professional, encouraging, and insightful (like a personal assistant).
+        3. Format: HTML (TipTap-compatible). Use <h3> for section titles, <ul>/<li> for lists, <p> for text.
+        4. Sections:
+           - <h3>Tóm tắt tuần qua (Weekly Summary)</h3>: Summarize the key activities and progress. Mention specific recent items if relevant.
+           - <h3>Định hướng sắp tới (Future Direction)</h3>: Suggest 2-3 actionable steps based on the current state (e.g., if many drafts, suggest publishing; if few projects, suggest adding one; if low engagement, suggest sharing).
+        5. Do NOT wrap in markdown code blocks. Return raw HTML.
+      `;
+
+      const result = await this.model.generateContent(prompt);
+      const response = result.response;
+      let text = response.text();
+
+      // Clean up markdown code blocks if present
+      text = text.replace(/```html\n?|\n?```/g, '').trim();
+
+      return text;
+    } catch (error) {
+      console.error('Error generating dashboard summary:', error);
+      throw new Error('Failed to generate dashboard summary');
+    }
+  }
 }

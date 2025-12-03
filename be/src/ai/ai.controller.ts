@@ -4,7 +4,7 @@ import { FirebaseAuthGuard } from '../auth/firebase-auth.guard';
 
 @Controller('ai')
 export class AiController {
-  constructor(private readonly aiService: AiService) {}
+  constructor(private readonly aiService: AiService) { }
 
   @Post('generate')
   @UseGuards(FirebaseAuthGuard)
@@ -43,5 +43,22 @@ export class AiController {
       language,
     );
     return { content };
+  }
+  @Post('dashboard-summary')
+  @UseGuards(FirebaseAuthGuard)
+  async generateDashboardSummary(
+    @Body('stats') stats: any,
+    @Body('recentActivities') recentActivities: any[],
+    @Body('language') language: string,
+  ) {
+    if (!stats) {
+      throw new Error('Stats are required');
+    }
+    const summary = await this.aiService.generateDashboardSummary(
+      stats,
+      recentActivities || [],
+      language,
+    );
+    return { summary };
   }
 }
