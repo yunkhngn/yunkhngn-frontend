@@ -28,7 +28,7 @@ export default function AdminLayout({ children, title = "Admin Dashboard" }) {
             />
             <AdminNavbar />
             <main className="flex-1 p-1 md:p-8 mt-4 mb-24">
-                <div className="container mx-auto">
+                <div className="mx-2 md:container mx-auto">
                     {children}
                 </div>
             </main>
