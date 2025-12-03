@@ -241,7 +241,7 @@ export class AiService {
     ${projects.map((p) => `- ${p.title}: ${p.description} (Tech: ${p.techStack})`).join('\n')}
 
     [GALLERY]
-    ${gallery.map((g) => `- Photo: ${g.caption} (${g.createdAt})`).join('\n')}
+    ${gallery.map((g) => `- Photo: ${g.caption} (${g.createdAt.toISOString()})`).join('\n')}
 
     Instructions:
     - Answer based on the provided content.
@@ -259,7 +259,11 @@ export class AiService {
       },
       {
         role: 'model',
-        parts: [{ text: 'Understood. I am ready to assist you with the system data.' }],
+        parts: [
+          {
+            text: 'Understood. I am ready to assist you with the system data.',
+          },
+        ],
       },
       ...history.map((msg) => ({
         role: msg.role === 'user' ? 'user' : 'model',
