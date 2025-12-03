@@ -3,7 +3,6 @@ import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { Card, CardContent } from "@/components/ui/Card";
 import {
     Select,
     SelectContent,
@@ -131,16 +130,18 @@ export default function AdminChat() {
                         {messages.length === 0 ? (
                             /* Welcome State */
                             <div className="flex-1 flex flex-col items-center justify-center text-center space-y-8 py-10">
-                                <div className="space-y-4 max-w-2xl">
-                                    <div className="h-16 w-16 mx-auto bg-gradient-to-br from-yellow-400 to-orange-500 rounded-2xl flex items-center justify-center shadow-lg shadow-orange-500/20">
-                                        <Sparkles className="h-8 w-8 text-white" />
+                                <div className="space-y-2 max-w-2xl">
+                                    <div className="relative mb-8">
+                                        <div className="h-24 w-24 mx-auto bg-gradient-to-tr from-blue-100 via-purple-100 to-blue-50 dark:from-blue-900/40 dark:via-purple-900/40 dark:to-blue-900/40 rounded-full flex items-center justify-center shadow-sm">
+                                            <Bot className="h-10 w-10 text-blue-600 dark:text-blue-400 fill-blue-600/20" />
+                                        </div>
                                     </div>
-                                    <h1 className="text-4xl font-bold tracking-tight">
-                                        Welcome to System Chatbot
+                                    <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-foreground">
+                                        Good Morning, {user?.displayName?.split(' ')[0] || 'Admin'}
                                     </h1>
-                                    <p className="text-lg text-muted-foreground">
-                                        Get started by asking a question. I can analyze your content, help you write, or provide system insights.
-                                    </p>
+                                    <h1 className="text-4xl md:text-5xl font-bold tracking-tight">
+                                        How Can I <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">Assist You Today?</span>
+                                    </h1>
                                 </div>
 
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full text-left">
@@ -170,15 +171,15 @@ export default function AdminChat() {
                                         className={`flex gap-4 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
                                     >
                                         {msg.role === 'model' && (
-                                            <div className="h-8 w-8 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center flex-shrink-0 shadow-sm">
-                                                <Bot className="h-5 w-5 text-white" />
+                                            <div className="h-8 w-8 rounded-full bg-gradient-to-tr from-blue-100 via-purple-100 to-blue-50 dark:from-blue-900/40 dark:via-purple-900/40 dark:to-blue-900/40 flex items-center justify-center flex-shrink-0 shadow-sm border border-white/20">
+                                                <Bot className="h-5 w-5 text-blue-600 dark:text-blue-400 fill-blue-600/20" />
                                             </div>
                                         )}
 
                                         <div
                                             className={`max-w-[85%] rounded-2xl p-4 shadow-sm ${msg.role === 'user'
-                                                    ? 'bg-primary text-primary-foreground'
-                                                    : 'bg-card border'
+                                                ? 'bg-primary text-primary-foreground'
+                                                : 'bg-card border'
                                                 }`}
                                         >
                                             {msg.role === 'model' ? (
@@ -191,8 +192,18 @@ export default function AdminChat() {
                                         </div>
 
                                         {msg.role === 'user' && (
-                                            <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0 shadow-sm">
-                                                <User className="h-5 w-5 text-primary-foreground" />
+                                            <div className="h-8 w-8 rounded-full overflow-hidden flex-shrink-0 shadow-sm border border-gray-200 dark:border-gray-700">
+                                                {user?.photoURL ? (
+                                                    <img
+                                                        src={user.photoURL}
+                                                        alt={user.displayName || 'User'}
+                                                        className="h-full w-full object-cover"
+                                                    />
+                                                ) : (
+                                                    <div className="h-full w-full bg-primary flex items-center justify-center">
+                                                        <User className="h-5 w-5 text-primary-foreground" />
+                                                    </div>
+                                                )}
                                             </div>
                                         )}
                                     </div>
