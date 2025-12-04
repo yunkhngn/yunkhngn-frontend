@@ -481,7 +481,6 @@ export default function PhotoManager() {
                             image={tempImgUrl}
                             crop={crop}
                             zoom={zoom}
-                            aspect={1}
                             onCropChange={setCrop}
                             onCropComplete={onCropComplete}
                             onZoomChange={setZoom}

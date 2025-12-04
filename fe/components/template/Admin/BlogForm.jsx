@@ -13,7 +13,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useUnsavedChanges } from '@/hooks/useUnsavedChanges';
 import { UnsavedChangesModal } from '@/components/ui/UnsavedChangesModal';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/Dialog';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, Crop as CropIcon } from 'lucide-react';
+import Cropper from 'react-easy-crop';
+import getCroppedImg from '@/lib/cropImage';
 
 export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
     const router = useRouter();
@@ -35,6 +37,11 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
     const [aiLanguage, setAiLanguage] = useState('vi');
     const [generatingAi, setGeneratingAi] = useState(false);
     const [isDragging, setIsDragging] = useState(false);
+    const [isCropOpen, setIsCropOpen] = useState(false);
+    const [tempImgUrl, setTempImgUrl] = useState('');
+    const [crop, setCrop] = useState({ x: 0, y: 0 });
+    const [zoom, setZoom] = useState(1);
+    const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
     const fileInputRef = useRef(null);
 
     const { showModal, setShowModal, confirmNavigation } = useUnsavedChanges(isDirty);
@@ -106,10 +113,25 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
         setIsDirty(true);
     };
 
-    const handleUpload = async (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
+    const onCropComplete = (croppedArea, croppedAreaPixels) => {
+        setCroppedAreaPixels(croppedAreaPixels);
+    };
 
+    const handleCropDone = async () => {
+        try {
+            const croppedImageBlob = await getCroppedImg(tempImgUrl, croppedAreaPixels);
+            setSelectedFile(croppedImageBlob);
+            setIsCropOpen(false);
+
+            // Auto-upload after crop
+            await uploadCroppedImage(croppedImageBlob);
+        } catch (e) {
+            console.error(e);
+            toast.error('Failed to crop image');
+        }
+    };
+
+    const uploadCroppedImage = async (blob) => {
         setUploading(true);
         try {
             const token = await user.getIdToken();
@@ -122,7 +144,7 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
 
             // Upload to Cloudinary
             const formData = new FormData();
-            formData.append('file', file);
+            formData.append('file', blob);
             formData.append('api_key', process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY);
             formData.append('timestamp', timestamp);
             formData.append('signature', signature);
@@ -151,6 +173,19 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
             setUploading(false);
             if (fileInputRef.current) fileInputRef.current.value = '';
         }
+    };
+
+    const handleUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        // Open crop dialog instead of uploading directly
+        const reader = new FileReader();
+        reader.onload = () => {
+            setTempImgUrl(reader.result);
+            setIsCropOpen(true);
+        };
+        reader.readAsDataURL(file);
     };
 
     const handleDragOver = (e) => {
@@ -333,6 +368,59 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
                             ) : (
                                 <>
                                     <Sparkles className="mr-2 h-4 w-4" /> Generate
+                                </>
+                            )}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            {/* Crop Image Dialog */}
+            <Dialog open={isCropOpen} onOpenChange={setIsCropOpen}>
+                <DialogContent className="max-w-2xl">
+                    <DialogHeader>
+                        <DialogTitle>Crop Thumbnail</DialogTitle>
+                        <DialogDescription>
+                            Adjust the crop area for your blog thumbnail (landscape recommended)
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="relative w-full h-96 bg-black rounded-md overflow-hidden">
+                        <Cropper
+                            image={tempImgUrl}
+                            crop={crop}
+                            zoom={zoom}
+                            aspect={16 / 9}
+                            onCropChange={setCrop}
+                            onCropComplete={onCropComplete}
+                            onZoomChange={setZoom}
+                        />
+                    </div>
+                    <div className="py-4">
+                        <div className="flex items-center gap-2">
+                            <span className="text-sm font-medium">Zoom</span>
+                            <input
+                                type="range"
+                                min={1}
+                                max={3}
+                                step={0.1}
+                                value={zoom}
+                                onChange={(e) => setZoom(parseFloat(e.target.value))}
+                                className="flex-1"
+                            />
+                        </div>
+                    </div>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setIsCropOpen(false)}>
+                            Cancel
+                        </Button>
+                        <Button onClick={handleCropDone} disabled={uploading}>
+                            {uploading ? (
+                                <>
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Uploading...
+                                </>
+                            ) : (
+                                <>
+                                    <CropIcon className="mr-2 h-4 w-4" /> Crop & Upload
                                 </>
                             )}
                         </Button>

@@ -10,6 +10,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { useUnsavedChanges } from '@/hooks/useUnsavedChanges';
 import { UnsavedChangesModal } from '@/components/ui/UnsavedChangesModal';
+import Cropper from 'react-easy-crop';
+import getCroppedImg from '@/lib/cropImage';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/Dialog';
 
 export default function ProjectForm({ initialData, onSubmit, isEditing = false }) {
     const { user } = useAuth();
@@ -29,6 +32,11 @@ export default function ProjectForm({ initialData, onSubmit, isEditing = false }
     const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
     const [isDirty, setIsDirty] = useState(false);
     const [isDragging, setIsDragging] = useState(false);
+    const [isCropOpen, setIsCropOpen] = useState(false);
+    const [tempImgUrl, setTempImgUrl] = useState('');
+    const [crop, setCrop] = useState({ x: 0, y: 0 });
+    const [zoom, setZoom] = useState(1);
+    const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
     const fileInputRef = useRef(null);
 
     const { showModal, setShowModal, confirmNavigation } = useUnsavedChanges(isDirty);
@@ -148,23 +156,32 @@ export default function ProjectForm({ initialData, onSubmit, isEditing = false }
         }
     };
 
-    const handleUpload = async (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
+    const onCropComplete = (croppedArea, croppedAreaPixels) => {
+        setCroppedAreaPixels(croppedAreaPixels);
+    };
 
+    const handleCropDone = async () => {
+        try {
+            const croppedImageBlob = await getCroppedImg(tempImgUrl, croppedAreaPixels);
+            setIsCropOpen(false);
+            await uploadCroppedImage(croppedImageBlob);
+        } catch (e) {
+            console.error(e);
+            toast.error('Failed to crop image');
+        }
+    };
+
+    const uploadCroppedImage = async (blob) => {
         setUploading(true);
         try {
             const token = await user.getIdToken();
-
-            // Get signature
             const sigRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/gallery/signature?folder=blog-portfolio/projects`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             const { signature, timestamp } = await sigRes.json();
 
-            // Upload to Cloudinary
             const formData = new FormData();
-            formData.append('file', file);
+            formData.append('file', blob);
             formData.append('api_key', process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY);
             formData.append('timestamp', timestamp);
             formData.append('signature', signature);
@@ -193,6 +210,20 @@ export default function ProjectForm({ initialData, onSubmit, isEditing = false }
             setUploading(false);
             if (fileInputRef.current) fileInputRef.current.value = '';
         }
+    };
+
+
+    const handleUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        // Open crop dialog instead of uploading directly
+        const reader = new FileReader();
+        reader.onload = () => {
+            setTempImgUrl(reader.result);
+            setIsCropOpen(true);
+        };
+        reader.readAsDataURL(file);
     };
 
     const handleDragOver = (e) => {
@@ -285,6 +316,58 @@ export default function ProjectForm({ initialData, onSubmit, isEditing = false }
                 onOpenChange={setShowModal}
                 onConfirm={confirmNavigation}
             />
+
+            {/* Crop Image Dialog */}
+            <Dialog open={isCropOpen} onOpenChange={setIsCropOpen}>
+                <DialogContent className="max-w-2xl">
+                    <DialogHeader>
+                        <DialogTitle>Crop Cover Image</DialogTitle>
+                        <DialogDescription>
+                            Adjust the crop area for your project cover (landscape recommended)
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="relative w-full h-96 bg-black rounded-md overflow-hidden">
+                        <Cropper
+                            image={tempImgUrl}
+                            crop={crop}
+                            zoom={zoom}
+                            aspect={16 / 9}
+                            onCropChange={setCrop}
+                            onCropComplete={onCropComplete}
+                            onZoomChange={setZoom}
+                        />
+                    </div>
+                    <div className="py-4">
+                        <div className="flex items-center gap-2">
+                            <span className="text-sm font-medium">Zoom</span>
+                            <input
+                                type="range"
+                                min={1}
+                                max={3}
+                                step={0.1}
+                                value={zoom}
+                                onChange={(e) => setZoom(parseFloat(e.target.value))}
+                                className="flex-1"
+                            />
+                        </div>
+                    </div>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setIsCropOpen(false)}>
+                            Cancel
+                        </Button>
+                        <Button onClick={handleCropDone} disabled={uploading}>
+                            {uploading ? (
+                                <>
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Uploading...
+                                </>
+                            ) : (
+                                'Crop & Upload'
+                            )}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
             <div className="flex items-center justify-between sticky top-0 bg-background z-10 py-2 border-b">
                 <h2 className="text-xl font-bold">
                     {isEditing ? 'Edit Project' : 'New Project'}
