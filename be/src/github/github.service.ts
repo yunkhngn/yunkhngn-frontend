@@ -79,7 +79,11 @@ export class GithubService implements OnModuleInit {
                     : 0
             }));
         } catch (error) {
-            this.logger.error('Failed to fetch workflow runs', error);
+            if (error.status === 404) {
+                this.logger.warn(`Repository ${this.username}/${this.repoName} not found or token lacks permissions. Check GITHUB_REPO_NAME and token scopes.`);
+            } else {
+                this.logger.error('Failed to fetch workflow runs', error);
+            }
             return [];
         }
     }

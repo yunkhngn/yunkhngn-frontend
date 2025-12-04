@@ -1,16 +1,48 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/Button';
-import { Github, Facebook, Instagram, Linkedin, ArrowRight, FileUser } from 'lucide-react';
+import {
+  Github,
+  Facebook,
+  Linkedin,
+  Mail,
+  FileText,
+  Star,
+  GitFork,
+  Instagram,
+  FileUser,
+  ArrowRight
+} from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/Badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { extractTextFromTipTap } from '@/lib/utils';
 import Layout from '@/components/template/Default/Layout';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/Tooltip';
 
 export default function Home() {
   const [recentBlogs, setRecentBlogs] = useState([]);
+  const [featuredRepos, setFeaturedRepos] = useState([]);
+
+  useEffect(() => {
+    const fetchRepos = async () => {
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/github/repos`);
+        if (res.ok) {
+          const data = await res.json();
+          // Sort by stars and take top 3
+          const topRepos = data
+            .sort((a, b) => b.stargazers_count - a.stargazers_count)
+            .slice(0, 3);
+          setFeaturedRepos(topRepos);
+        }
+      } catch (error) {
+        console.error('Failed to fetch repos', error);
+      }
+    };
+    fetchRepos();
+  }, []);
   const [featuredProjects, setFeaturedProjects] = useState([]);
   const [galleryPhotos, setGalleryPhotos] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -242,6 +274,63 @@ export default function Home() {
               </div>
             </Link>
           ))}
+        </div>
+      </section>
+
+      {/* Open Source Section */}
+      <section className="container mx-auto px-4 py-20">
+        <h2 className="text-3xl font-bold mb-12 text-center flex items-center justify-center gap-3">
+          <Github className="h-8 w-8" />
+          Featured Open Source
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {featuredRepos.map((repo) => (
+            <a
+              key={repo.id}
+              href={repo.html_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group block h-full"
+            >
+              <Card className="h-full hover:border-primary transition-colors">
+                <CardHeader>
+                  <CardTitle className="flex items-center justify-between text-lg">
+                    <span className="group-hover:text-primary transition-colors line-clamp-1">{repo.name}</span>
+                    <Badge variant="secondary" className="font-normal text-xs">
+                      {repo.language || 'Code'}
+                    </Badge>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <p className="text-muted-foreground text-sm line-clamp-2 h-10">
+                    {repo.description || 'No description available.'}
+                  </p>
+                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-1">
+                      <Star className="h-4 w-4 text-yellow-500" />
+                      {repo.stargazers_count}
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <GitFork className="h-4 w-4 text-blue-500" />
+                      {repo.forks_count}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </a>
+          ))}
+          {featuredRepos.length === 0 && (
+            <div className="col-span-full text-center text-muted-foreground py-8">
+              {loading ? 'Loading repositories...' : 'No featured repositories found.'}
+            </div>
+          )}
+        </div>
+        <div className="text-center mt-10">
+          <Link href="https://github.com/yunkhngn?tab=repositories" target="_blank" rel="noopener noreferrer">
+            <Button variant="outline" size="lg" className="gap-2">
+              View All Repositories <ArrowRight className="h-4 w-4" />
+            </Button>
+          </Link>
         </div>
       </section>
 

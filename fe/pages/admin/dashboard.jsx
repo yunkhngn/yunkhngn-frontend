@@ -28,8 +28,7 @@ import {
   Database,
   Activity,
   X,
-  Loader2,
-  Terminal
+  Loader2
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/Dialog";
 import Link from "next/link";
@@ -66,7 +65,7 @@ export default function Dashboard() {
 
   const [analyticsData, setAnalyticsData] = useState(null);
   const [analyticsPeriod, setAnalyticsPeriod] = useState('24h');
-  const [deployments, setDeployments] = useState([]);
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -81,8 +80,7 @@ export default function Dashboard() {
           fetch(`${process.env.NEXT_PUBLIC_API_URL}/gallery`),
           fetch(`${process.env.NEXT_PUBLIC_API_URL}/comments?limit=1`, { headers }), // Fetch just 1 to get total count from meta
           fetch(`${process.env.NEXT_PUBLIC_API_URL}/contact`, { headers }),
-          fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/analytics?period=${analyticsPeriod}`, { headers }),
-          fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/github/deployments`, { headers })
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/analytics?period=${analyticsPeriod}`, { headers })
         ]);
 
         const blogs = await blogsRes.json();
@@ -96,10 +94,7 @@ export default function Dashboard() {
           setAnalyticsData(analytics);
         }
 
-        if (deploymentsRes.ok) {
-          const deploymentsData = await deploymentsRes.json();
-          setDeployments(deploymentsData);
-        }
+
 
         const publishedBlogs = blogs.filter(b => b.status === 'PUBLISHED');
         const draftBlogs = blogs.filter(b => b.status === 'DRAFT');
@@ -437,53 +432,6 @@ export default function Dashboard() {
           </Card>
         </div>
 
-        {/* Deployment Status */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Terminal className="h-5 w-5" />
-              Recent Deployments (GitHub Actions)
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {deployments.map((run) => (
-                <div key={run.id} className="flex items-center justify-between p-3 border rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <div className={`p-2 rounded-full ${run.conclusion === 'success' ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'}`}>
-                      {run.conclusion === 'success' ? <CheckCircle2 className="h-4 w-4" /> : <X className="h-4 w-4" />}
-                    </div>
-                    <div>
-                      <p className="font-medium text-sm">{run.display_title || run.name}</p>
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <span>#{run.run_number}</span>
-                        <span>•</span>
-                        <span>{run.actor?.login}</span>
-                        <span>•</span>
-                        <span>{formatDistanceToNow(new Date(run.updated_at), { addSuffix: true })}</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <Badge variant={run.status === 'completed' ? 'outline' : 'secondary'}>
-                      {run.status}
-                    </Badge>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {Math.floor(run.duration / 1000)}s
-                    </p>
-                  </div>
-                </div>
-              ))}
-              {deployments.length === 0 && (
-                <div className="text-center text-muted-foreground py-4">
-                  No recent deployments found.
-                </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Stats Grid */}
         {/* Stats Grid */}
         <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
           <StatCard
@@ -605,7 +553,6 @@ export default function Dashboard() {
             </CardContent>
           </Card>
         )}
-
         {/* Charts Section */}
         <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
           {/* Content Distribution Chart */}
@@ -900,7 +847,7 @@ export default function Dashboard() {
             </CardContent>
           </Card>
         </div>
-      </div>
-    </AdminLayout>
+      </div >
+    </AdminLayout >
   );
 }

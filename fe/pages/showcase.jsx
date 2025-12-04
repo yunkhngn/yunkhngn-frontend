@@ -19,25 +19,7 @@ import {
     FileText
 } from 'lucide-react';
 
-import { useState, useEffect } from 'react';
-
 export default function Showcase() {
-    const [repos, setRepos] = useState([]);
-
-    useEffect(() => {
-        const fetchRepos = async () => {
-            try {
-                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/github/repos`);
-                if (res.ok) {
-                    const data = await res.json();
-                    setRepos(data);
-                }
-            } catch (error) {
-                console.error('Failed to fetch repos', error);
-            }
-        };
-        fetchRepos();
-    }, []);
     const techStack = [
         {
             category: 'Frontend',
@@ -145,56 +127,6 @@ export default function Showcase() {
                                 </CardContent>
                             </Card>
                         ))}
-                    </div>
-                </section>
-
-                {/* Open Source Projects */}
-                <section>
-                    <h2 className="text-3xl font-bold mb-10 text-center flex items-center justify-center gap-3">
-                        <Globe className="h-8 w-8 text-primary" />
-                        Open Source
-                    </h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {repos.map((repo) => (
-                            <a
-                                key={repo.id}
-                                href={repo.html_url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="group block h-full"
-                            >
-                                <Card className="h-full hover:border-primary transition-colors">
-                                    <CardHeader>
-                                        <CardTitle className="flex items-center justify-between">
-                                            <span className="group-hover:text-primary transition-colors">{repo.name}</span>
-                                            <Badge variant="secondary" className="font-normal">
-                                                {repo.language || 'Code'}
-                                            </Badge>
-                                        </CardTitle>
-                                    </CardHeader>
-                                    <CardContent className="space-y-4">
-                                        <p className="text-muted-foreground text-sm line-clamp-2">
-                                            {repo.description || 'No description available.'}
-                                        </p>
-                                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                                            <div className="flex items-center gap-1">
-                                                <span className="w-3 h-3 rounded-full bg-yellow-500" />
-                                                {repo.stargazers_count} Stars
-                                            </div>
-                                            <div className="flex items-center gap-1">
-                                                <span className="w-3 h-3 rounded-full bg-blue-500" />
-                                                {repo.forks_count} Forks
-                                            </div>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                            </a>
-                        ))}
-                        {repos.length === 0 && (
-                            <div className="col-span-full text-center text-muted-foreground py-8">
-                                Loading repositories...
-                            </div>
-                        )}
                     </div>
                 </section>
 
