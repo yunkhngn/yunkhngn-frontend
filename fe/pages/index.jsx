@@ -288,14 +288,14 @@ export default function Home() {
                   className="object-cover transition-transform duration-700 group-hover:scale-105"
                 />
               )}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
 
-              <div className="absolute bottom-0 left-0 p-6 w-full">
-                <h3 className={`font-bold text-white mb-2 ${i === 0 ? 'text-2xl md:text-3xl' : 'text-lg'}`}>
+              <div className="absolute bottom-0 left-0 p-4 md:p-6 w-full">
+                <h3 className={`font-bold text-white mb-1 md:mb-2 ${i === 0 ? 'text-xl md:text-2xl lg:text-3xl' : 'text-base md:text-lg'}`}>
                   {project.title}
                 </h3>
                 {i === 0 && (
-                  <p className="text-gray-200 line-clamp-2 mb-3 max-w-md">
+                  <p className="text-gray-200 text-sm md:text-base line-clamp-2 mb-2 md:mb-3 max-w-md">
                     {project.description}
                   </p>
                 )}
@@ -316,7 +316,7 @@ export default function Home() {
       <section className="container mx-auto px-4 py-20">
         <h2 className="text-3xl font-bold mb-12 text-center flex items-center justify-center gap-3">
           <Github className="h-8 w-8" />
-          Featured Open Source
+          Open Source
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {featuredRepos.map((repo) => (
@@ -372,7 +372,7 @@ export default function Home() {
       {/* Gallery - Masonry */}
       <section className="space-y-8">
         <div className="flex items-center justify-between">
-          <h2 className="text-3xl font-bold font-serif">Captured Moments</h2>
+          <h2 className="text-3xl font-bold font-serif">Locket Gallery</h2>
           <Link href="/photo" className="text-sm text-muted-foreground hover:text-primary flex items-center gap-1 transition-colors">
             View gallery <ArrowRight className="h-4 w-4" />
           </Link>

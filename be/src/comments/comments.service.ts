@@ -24,7 +24,7 @@ export class CommentsService {
     private prisma: PrismaService,
     private settingsService: SettingsService,
     private notificationsService: NotificationsService,
-  ) {}
+  ) { }
 
   // Rate limiting: 1 comment per 10 seconds per UID
   private checkRateLimit(uid: string): void {
@@ -93,12 +93,27 @@ export class CommentsService {
       },
     });
 
+    // Generate notification link based on comment type
+    let notificationLink = '/admin/comments';
+    if (createCommentDto.blogId) {
+      // For blog comments, we need to fetch the blog slug
+      const blog = await this.prisma.blog.findUnique({
+        where: { id: createCommentDto.blogId },
+        select: { slug: true },
+      });
+      if (blog) {
+        notificationLink = `/blog/${blog.slug}#comment-${comment.id}`;
+      }
+    } else if (createCommentDto.projectId) {
+      notificationLink = `/project/${createCommentDto.projectId}#comment-${comment.id}`;
+    }
+
     // Send real-time notification
     this.notificationsService
       .create(
         'COMMENT',
         `New comment from ${createCommentDto.displayName}: ${cleanContent.substring(0, 50)}...`,
-        `/admin/comments`,
+        notificationLink,
       )
       .catch((err) =>
         console.error('Failed to send real-time notification:', err),
@@ -318,9 +333,9 @@ export class CommentsService {
           existingVote.value === 1
             ? { upvoteCount: { decrement: 1 }, downvoteCount: { increment: 1 } }
             : {
-                downvoteCount: { decrement: 1 },
-                upvoteCount: { increment: 1 },
-              };
+              downvoteCount: { decrement: 1 },
+              upvoteCount: { increment: 1 },
+            };
 
         const updatedComment = await this.prisma.comment.update({
           where: { id: commentId },

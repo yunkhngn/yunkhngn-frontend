@@ -173,7 +173,7 @@ export default function BlogDetail({ blogData }) {
             <div className="relative">
                 {/* Full Width Banner */}
                 {blog.thumbnail && (
-                    <div className="w-full h-64 md:h-100 relative bg-muted">
+                    <div className="w-full h-64 md:h-96 relative bg-muted overflow-hidden">
                         <Image
                             src={blog.thumbnail}
                             alt={blog.title}
@@ -262,8 +262,8 @@ export default function BlogDetail({ blogData }) {
                             </header>
 
                             <article
-                                className="prose prose-lg dark:prose-invert max-w-none prose-headings:font-serif prose-p:leading-relaxed"
-                                style={{ fontFamily: 'Palatino, "Palatino Linotype", "Book Antiqua", serif', fontSize: '1.2rem' }}
+                                className="prose prose-base md:prose-lg dark:prose-invert max-w-none prose-headings:font-serif prose-p:leading-relaxed"
+                                style={{ fontFamily: 'Palatino, "Palatino Linotype", "Book Antiqua", serif' }}
                             >
                                 <TipTapViewer content={blog.contentJSON || blog.content} />
                             </article>

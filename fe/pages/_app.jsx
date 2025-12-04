@@ -89,7 +89,7 @@ export default function App({ Component, pageProps }) {
                 </kbd>
                 <span>to search</span>
               </div>
-              <Toaster position="top-right" />
+              <Toaster position="top-right" offset="80px" />
             </main>
           </AuthGuard>
         </ThemeProvider>
