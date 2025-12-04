@@ -21,6 +21,10 @@ export function NotificationProvider({ children }) {
     }, [user]);
 
     useEffect(() => {
+        // Socket.io is temporarily disabled until backend WebSocket server is set up
+        // Uncomment when backend has socket.io endpoint ready
+
+        /*
         // Only connect if user is admin
         if (!user || user.role !== 'ADMIN') {
             return;
@@ -54,6 +58,7 @@ export function NotificationProvider({ children }) {
         return () => {
             newSocket.close();
         };
+        */
     }, [user]);
 
     const fetchNotifications = useCallback(async () => {
