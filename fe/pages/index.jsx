@@ -1,15 +1,49 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/Button';
-import { Github, Facebook, Instagram, Linkedin, ArrowRight, Command } from 'lucide-react';
+import {
+  Github,
+  Facebook,
+  Linkedin,
+  Mail,
+  FileText,
+  Star,
+  GitFork,
+  Instagram,
+  FileUser,
+  ArrowRight
+} from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/Badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { extractTextFromTipTap } from '@/lib/utils';
 import Layout from '@/components/template/Default/Layout';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/Tooltip';
+import JsonLd from '@/components/seo/JsonLd';
 
 export default function Home() {
   const [recentBlogs, setRecentBlogs] = useState([]);
+  const [featuredRepos, setFeaturedRepos] = useState([]);
+
+  useEffect(() => {
+    const fetchRepos = async () => {
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/github/repos`);
+        if (res.ok) {
+          const data = await res.json();
+          // Sort by stars and take top 3
+          const topRepos = data
+            .sort((a, b) => b.stargazers_count - a.stargazers_count)
+            .slice(0, 3);
+          setFeaturedRepos(topRepos);
+        }
+      } catch (error) {
+        console.error('Failed to fetch repos', error);
+      }
+    };
+    fetchRepos();
+  }, []);
   const [featuredProjects, setFeaturedProjects] = useState([]);
   const [galleryPhotos, setGalleryPhotos] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -65,8 +99,41 @@ export default function Home() {
     fetchData();
   }, []);
 
+  const jsonLdData = [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'WebSite',
+      name: 'Khoa Nguyễn (yunkhngn)',
+      url: 'https://yunkhngn.dev', // Replace with actual domain
+      potentialAction: {
+        '@type': 'SearchAction',
+        target: 'https://yunkhngn.dev/search?q={search_term_string}',
+        'query-input': 'required name=search_term_string'
+      }
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Person',
+      name: 'Khoa Nguyễn',
+      url: 'https://yunkhngn.dev',
+      image: 'https://github.com/yunkhngn.png',
+      sameAs: [
+        settings.facebook || 'https://facebook.com/yunkhngn',
+        settings.instagram || 'https://instagram.com/yunkhngn',
+        settings.github || 'https://github.com/yunkhngn',
+        settings.linkedin || 'https://linkedin.com/in/yunkhngn'
+      ],
+      jobTitle: 'Software Developer',
+      worksFor: {
+        '@type': 'Organization',
+        name: 'FPT University'
+      }
+    }
+  ];
+
   return (
     <div className="container mx-auto px-4 py-12 md:py-24 max-w-7xl space-y-32">
+      <JsonLd data={jsonLdData} />
       {/* Hero Section */}
       <section className="flex flex-col items-center text-center justify-center space-y-8 py-20 md:py-32 max-w-4xl mx-auto">
 
@@ -87,26 +154,27 @@ export default function Home() {
         </div>
 
         <div className="flex flex-wrap items-center justify-center gap-6 pt-8 relative z-10">
-          <Link href="/resume">
+          <Link href="/showcase">
             <Button className="rounded-full px-8 h-12 text-base">
-              Resume
+              Showcase
             </Button>
           </Link>
 
           <div className="flex gap-6">
             {(settings.facebook || settings.instagram || settings.github || settings.linkedin) ? (
               <>
-                {settings.facebook && <SocialLink href={settings.facebook} icon={<Facebook size={24} />} />}
-                {settings.instagram && <SocialLink href={settings.instagram} icon={<Instagram size={24} />} />}
-                {settings.github && <SocialLink href={settings.github} icon={<Github size={24} />} />}
-                {settings.linkedin && <SocialLink href={settings.linkedin} icon={<Linkedin size={24} />} />}
+                {settings.facebook && <SocialLink href={settings.facebook} icon={<Facebook size={24} />} label="Facebook" />}
+                {settings.instagram && <SocialLink href={settings.instagram} icon={<Instagram size={24} />} label="Instagram" />}
+                {settings.github && <SocialLink href={settings.github} icon={<Github size={24} />} label="GitHub" />}
+                {settings.linkedin && <SocialLink href={settings.linkedin} icon={<Linkedin size={24} />} label="LinkedIn" />}
               </>
             ) : (
               <>
-                <SocialLink href="https://facebook.com/yunkhngn" icon={<Facebook size={24} />} />
-                <SocialLink href="https://instagram.com/yunkhngn" icon={<Instagram size={24} />} />
-                <SocialLink href="https://github.com/yunkhngn" icon={<Github size={24} />} />
-                <SocialLink href="https://linkedin.com/in/yunkhngn" icon={<Linkedin size={24} />} />
+                <SocialLink href="https://facebook.com/yunkhngn" icon={<Facebook size={24} />} label="Facebook" />
+                <SocialLink href="https://instagram.com/yunkhngn" icon={<Instagram size={24} />} label="Instagram" />
+                <SocialLink href="https://github.com/yunkhngn" icon={<Github size={24} />} label="GitHub" />
+                <SocialLink href="https://linkedin.com/in/yunkhngn" icon={<Linkedin size={24} />} label="LinkedIn" />
+                <SocialLink href="https://yunkhngn.dev/resume" icon={<FileUser size={24} />} label="Resume" />
               </>
             )}
           </div>
@@ -243,6 +311,63 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Open Source Section */}
+      <section className="container mx-auto px-4 py-20">
+        <h2 className="text-3xl font-bold mb-12 text-center flex items-center justify-center gap-3">
+          <Github className="h-8 w-8" />
+          Featured Open Source
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {featuredRepos.map((repo) => (
+            <a
+              key={repo.id}
+              href={repo.html_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group block h-full"
+            >
+              <Card className="h-full hover:border-primary transition-colors">
+                <CardHeader>
+                  <CardTitle className="flex items-center justify-between text-lg">
+                    <span className="group-hover:text-primary transition-colors line-clamp-1">{repo.name}</span>
+                    <Badge variant="secondary" className="font-normal text-xs">
+                      {repo.language || 'Code'}
+                    </Badge>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <p className="text-muted-foreground text-sm line-clamp-2 h-10">
+                    {repo.description || 'No description available.'}
+                  </p>
+                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-1">
+                      <Star className="h-4 w-4 text-yellow-500" />
+                      {repo.stargazers_count}
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <GitFork className="h-4 w-4 text-blue-500" />
+                      {repo.forks_count}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </a>
+          ))}
+          {featuredRepos.length === 0 && (
+            <div className="col-span-full text-center text-muted-foreground py-8">
+              {loading ? 'Loading repositories...' : 'No featured repositories found.'}
+            </div>
+          )}
+        </div>
+        <div className="text-center mt-10">
+          <Link href="https://github.com/yunkhngn?tab=repositories" target="_blank" rel="noopener noreferrer">
+            <Button variant="outline" size="lg" className="gap-2">
+              View All Repositories <ArrowRight className="h-4 w-4" />
+            </Button>
+          </Link>
+        </div>
+      </section>
+
       {/* Gallery - Masonry */}
       <section className="space-y-8">
         <div className="flex items-center justify-between">
@@ -288,15 +413,24 @@ Home.getLayout = function getLayout(page) {
   );
 };
 
-function SocialLink({ href, icon }) {
+function SocialLink({ href, icon, label }) {
   return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="text-muted-foreground hover:text-foreground transition-colors p-1"
-    >
-      {icon}
-    </a>
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <a
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-muted-foreground hover:text-foreground transition-colors p-1"
+          >
+            {icon}
+          </a>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>{label}</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
 }

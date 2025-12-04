@@ -66,6 +66,7 @@ export default function Dashboard() {
   const [analyticsData, setAnalyticsData] = useState(null);
   const [analyticsPeriod, setAnalyticsPeriod] = useState('24h');
 
+
   useEffect(() => {
     const fetchData = async () => {
       if (!user) return;
@@ -73,7 +74,7 @@ export default function Dashboard() {
         const token = await user.getIdToken();
         const headers = { Authorization: `Bearer ${token}` };
 
-        const [blogsRes, projectsRes, galleryRes, commentsRes, contactRes, analyticsRes] = await Promise.all([
+        const [blogsRes, projectsRes, galleryRes, commentsRes, contactRes, analyticsRes, deploymentsRes] = await Promise.all([
           fetch(`${process.env.NEXT_PUBLIC_API_URL}/blogs`, { headers }),
           fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects`),
           fetch(`${process.env.NEXT_PUBLIC_API_URL}/gallery`),
@@ -92,6 +93,8 @@ export default function Dashboard() {
           const analytics = await analyticsRes.json();
           setAnalyticsData(analytics);
         }
+
+
 
         const publishedBlogs = blogs.filter(b => b.status === 'PUBLISHED');
         const draftBlogs = blogs.filter(b => b.status === 'DRAFT');
@@ -430,7 +433,6 @@ export default function Dashboard() {
         </div>
 
         {/* Stats Grid */}
-        {/* Stats Grid */}
         <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
           <StatCard
             title="Total Blogs"
@@ -551,7 +553,6 @@ export default function Dashboard() {
             </CardContent>
           </Card>
         )}
-
         {/* Charts Section */}
         <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
           {/* Content Distribution Chart */}
@@ -846,7 +847,7 @@ export default function Dashboard() {
             </CardContent>
           </Card>
         </div>
-      </div>
-    </AdminLayout>
+      </div >
+    </AdminLayout >
   );
 }

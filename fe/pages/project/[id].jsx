@@ -9,6 +9,7 @@ import TipTapViewer from '@/components/ui/TipTapViewer';
 import Layout from '@/components/template/Default/Layout';
 import CommentSection from '@/components/blog/CommentSection';
 import { extractTextFromTipTap, stripHtml } from '@/lib/utils';
+import JsonLd from '@/components/seo/JsonLd';
 
 export async function getServerSideProps(context) {
     const { id } = context.params;
@@ -104,8 +105,26 @@ export default function ProjectDetail({ projectData }) {
 
 
 
+    const jsonLdData = {
+        '@context': 'https://schema.org',
+        '@type': 'SoftwareSourceCode',
+        name: project.title,
+        description: project.description,
+        image: project.cover ? [project.cover] : [],
+        author: {
+            '@type': 'Person',
+            name: 'Khoa Nguyễn',
+            url: 'https://yunkhngn.dev'
+        },
+        programmingLanguage: Array.isArray(project.techStack) ? project.techStack.join(', ') : project.techStack,
+        codeRepository: project.repoLink,
+        datePublished: project.createdAt,
+        dateModified: project.updatedAt || project.createdAt
+    };
+
     return (
         <div className="bg-background text-foreground">
+            <JsonLd data={jsonLdData} />
             <Metadata
                 title={project.title}
                 description={project.description}

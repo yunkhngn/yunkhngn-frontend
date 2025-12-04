@@ -81,6 +81,7 @@ export default function Footer() {
                                 <FooterLink href="/blog">Blog</FooterLink>
                                 <FooterLink href="/photo">Photo</FooterLink>
                                 <FooterLink href="/about">About Me</FooterLink>
+                                <FooterLink href="/showcase">Showcase</FooterLink>
                             </ul>
                         </div>
 
@@ -102,7 +103,7 @@ export default function Footer() {
 
                 {/* Bottom Section */}
                 <div className="pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
-                    <p>© {new Date().getFullYear()} Yunkhngn. All rights reserved.</p>
+                    <p>© {new Date().getFullYear()} Khoa Nguyen. All rights reserved.</p>
                     <div className="flex gap-6">
                         <Link href="/privacy" className="hover:text-primary transition-colors">Privacy Policy</Link>
                         <Link href="/terms" className="hover:text-primary transition-colors">Terms of Service</Link>

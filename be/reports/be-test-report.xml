@@ -1,15 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="jest tests" tests="5" failures="0" errors="0" time="2.756">
-  <testsuite name="CloudflareService" errors="0" failures="0" skipped="0" timestamp="2025-12-04T00:09:14" time="2.452" tests="5">
-    <testcase classname="CloudflareService should be defined" name="CloudflareService should be defined" time="0.015">
+<testsuites name="jest tests" tests="8" failures="0" errors="0" time="1.906">
+  <testsuite name="GithubService" errors="0" failures="0" skipped="0" timestamp="2025-12-04T01:13:57" time="1.672" tests="8">
+    <testcase classname="GithubService should be defined" name="GithubService should be defined" time="0.005">
     </testcase>
-    <testcase classname="CloudflareService getAnalytics should return analytics data when API call is successful" name="CloudflareService getAnalytics should return analytics data when API call is successful" time="0.004">
+    <testcase classname="GithubService getPublicRepos should return repositories on success" name="GithubService getPublicRepos should return repositories on success" time="0.001">
     </testcase>
-    <testcase classname="CloudflareService getAnalytics should throw error when API call fails" name="CloudflareService getAnalytics should throw error when API call fails" time="0.012">
+    <testcase classname="GithubService getPublicRepos should return empty array if octokit is not initialized" name="GithubService getPublicRepos should return empty array if octokit is not initialized" time="0.001">
     </testcase>
-    <testcase classname="CloudflareService getAnalytics should throw error when GraphQL returns errors" name="CloudflareService getAnalytics should throw error when GraphQL returns errors" time="0.003">
+    <testcase classname="GithubService getPublicRepos should return empty array and log error on failure" name="GithubService getPublicRepos should return empty array and log error on failure" time="0.002">
     </testcase>
-    <testcase classname="CloudflareService getAnalytics should return null if credentials are missing" name="CloudflareService getAnalytics should return null if credentials are missing" time="0.008">
+    <testcase classname="GithubService getWorkflowRuns should return mapped workflow runs on success" name="GithubService getWorkflowRuns should return mapped workflow runs on success" time="0.002">
+    </testcase>
+    <testcase classname="GithubService getWorkflowRuns should return empty array if octokit is not initialized" name="GithubService getWorkflowRuns should return empty array if octokit is not initialized" time="0.001">
+    </testcase>
+    <testcase classname="GithubService getWorkflowRuns should return empty array and log warning on 404" name="GithubService getWorkflowRuns should return empty array and log warning on 404" time="0.001">
+    </testcase>
+    <testcase classname="GithubService getWorkflowRuns should return empty array and log error on other errors" name="GithubService getWorkflowRuns should return empty array and log error on other errors" time="0.001">
     </testcase>
   </testsuite>
 </testsuites>

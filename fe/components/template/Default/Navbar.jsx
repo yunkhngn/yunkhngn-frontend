@@ -23,7 +23,7 @@ const NAV_ITEMS = [
     { label: "Project", href: "/project" },
     { label: "Blog", href: "/blog" },
     { label: "Photo", href: "/photo" },
-    { label: "About", href: "/about" },
+    { label: "About Me", href: "/about" },
     { label: "Contact", href: "/contact" },
 ];
 
@@ -100,7 +100,7 @@ export default function Navbar() {
                 </div>
 
                 {/* Right: Actions */}
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-1 md:gap-4">
                     {/* Desktop Search Box - Hidden on mobile */}
                     <form onSubmit={handleSearch} className="hidden md:block">
                         <div className="relative">
@@ -131,7 +131,7 @@ export default function Navbar() {
                     {user && (
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                                <Button variant="ghost" className="hidden md:flex relative h-10 w-10 rounded-full">
                                     <Avatar className="h-10 w-10">
                                         <AvatarImage
                                             src={user.isAnonymous ? "https://cataas.com/cat" : (user.avatarUrl || user.photoURL)}
@@ -212,7 +212,7 @@ export default function Navbar() {
                     {/* Theme Toggle Button */}
                     <button
                         onClick={toggleTheme}
-                        className="p-2 hover:bg-accent rounded-full text-muted-foreground transition-colors"
+                        className="hidden md:flex p-2 hover:bg-accent rounded-full text-muted-foreground transition-colors"
                         aria-label="Toggle theme"
                     >
                         {mounted && theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
@@ -250,6 +250,51 @@ export default function Navbar() {
                         >
                             Log In
                         </Link>
+                    )}
+
+                    {/* Mobile User Actions */}
+                    <div className="flex items-center justify-between py-2">
+                        <span className="text-sm font-medium">Theme</span>
+                        <button
+                            onClick={toggleTheme}
+                            className="p-2 hover:bg-accent rounded-full text-muted-foreground transition-colors"
+                        >
+                            {mounted && theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+                        </button>
+                    </div>
+
+                    {user && (
+                        <>
+                            <hr className="border-border" />
+                            <div className="flex flex-col gap-2">
+                                <div className="flex items-center gap-2 py-2">
+                                    <Avatar className="h-8 w-8">
+                                        <AvatarImage src={user.avatarUrl || user.photoURL} />
+                                        <AvatarFallback>{user.displayName?.[0] || "U"}</AvatarFallback>
+                                    </Avatar>
+                                    <div className="flex flex-col">
+                                        <span className="text-sm font-medium">{user.displayName}</span>
+                                        <span className="text-xs text-muted-foreground">{user.email}</span>
+                                    </div>
+                                </div>
+                                {user.role === 'ADMIN' && (
+                                    <>
+                                        <Link href="/admin/dashboard" className="text-sm hover:text-primary py-1" onClick={() => setIsMobileMenuOpen(false)}>
+                                            Dashboard
+                                        </Link>
+                                        <Link href="/admin/settings" className="text-sm hover:text-primary py-1" onClick={() => setIsMobileMenuOpen(false)}>
+                                            Settings
+                                        </Link>
+                                    </>
+                                )}
+                                <button
+                                    onClick={() => { handleLogout(); setIsMobileMenuOpen(false); }}
+                                    className="text-sm text-red-600 hover:text-red-700 text-left py-1"
+                                >
+                                    Log out
+                                </button>
+                            </div>
+                        </>
                     )}
                 </div>
             )}
