@@ -8,19 +8,19 @@ import { Roles } from '../auth/roles.decorator';
 @ApiTags('Github')
 @Controller('admin/github')
 export class GithubController {
-    constructor(private readonly githubService: GithubService) { }
+  constructor(private readonly githubService: GithubService) {}
 
-    @Get('repos')
-    @ApiOperation({ summary: 'Get public repositories' })
-    getPublicRepos() {
-        return this.githubService.getPublicRepos();
-    }
+  @Get('repos')
+  @ApiOperation({ summary: 'Get public repositories' })
+  getPublicRepos() {
+    return this.githubService.getPublicRepos();
+  }
 
-    @Get('deployments')
-    @UseGuards(FirebaseAuthGuard, RolesGuard)
-    @Roles('ADMIN')
-    @ApiOperation({ summary: 'Get deployment status (workflow runs)' })
-    getDeployments() {
-        return this.githubService.getWorkflowRuns();
-    }
+  @Get('deployments')
+  @UseGuards(FirebaseAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  @ApiOperation({ summary: 'Get deployment status (workflow runs)' })
+  getDeployments() {
+    return this.githubService.getWorkflowRuns();
+  }
 }

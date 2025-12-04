@@ -1,7 +1,13 @@
 import { Button } from "@/components/ui/Button";
 import Image from "next/image";
 import Link from "next/link";
-import { Github, Facebook, Instagram, Linkedin, Mail } from "lucide-react";
+import { Github, Facebook, Instagram, Linkedin, Mail, Database, Code2, Terminal, Layout as LayoutIcon } from "lucide-react";
+import {
+    SiJavascript, SiTypescript, SiJava, SiCsharp,
+    SiReact, SiNextdotjs, SiNestjs, SiNodedotjs, SiTailwindcss,
+    SiGit, SiDocker, SiFigma, SiVisualstudiocode, SiPostgresql, SiMongodb,
+    SiVercel, SiRailway
+} from "react-icons/si";
 import { useState, useEffect } from 'react';
 import Layout from '@/components/template/Default/Layout';
 
@@ -159,12 +165,16 @@ export default function About() {
                             JSON.parse(settings.skills).map((skillGroup, index) => (
                                 <div key={index} className="bg-card border rounded-xl p-6 hover:border-primary transition-colors">
                                     <h4 className="text-lg font-bold mb-4 text-foreground">{skillGroup.category}</h4>
-                                    <div className="flex flex-wrap gap-2">
-                                        {skillGroup.items.map((item, i) => (
-                                            <span key={i} className="px-3 py-1 bg-secondary text-secondary-foreground rounded-md text-sm">
-                                                {item}
-                                            </span>
-                                        ))}
+                                    <div className="flex flex-wrap gap-3">
+                                        {skillGroup.items.map((item, i) => {
+                                            const Icon = getSkillIcon(item);
+                                            return (
+                                                <div key={i} className="flex items-center gap-2 px-3 py-2 bg-secondary text-secondary-foreground rounded-md text-sm font-medium transition-colors hover:bg-secondary/80">
+                                                    <Icon className="h-4 w-4" />
+                                                    <span>{item}</span>
+                                                </div>
+                                            );
+                                        })}
                                     </div>
                                 </div>
                             ))
@@ -172,18 +182,30 @@ export default function About() {
                             <>
                                 <div className="bg-card border rounded-xl p-6">
                                     <h4 className="text-lg font-bold mb-4 text-foreground">Languages</h4>
-                                    <div className="flex flex-wrap gap-2">
-                                        {['JavaScript', 'TypeScript', 'Java', 'C#', 'SQL'].map((item, i) => (
-                                            <span key={i} className="px-3 py-1 bg-secondary text-secondary-foreground rounded-md text-sm">{item}</span>
-                                        ))}
+                                    <div className="flex flex-wrap gap-3">
+                                        {['JavaScript', 'TypeScript', 'Java', 'C#', 'SQL'].map((item, i) => {
+                                            const Icon = getSkillIcon(item);
+                                            return (
+                                                <div key={i} className="flex items-center gap-2 px-3 py-2 bg-secondary text-secondary-foreground rounded-md text-sm font-medium">
+                                                    <Icon className="h-4 w-4" />
+                                                    <span>{item}</span>
+                                                </div>
+                                            );
+                                        })}
                                     </div>
                                 </div>
                                 <div className="bg-card border rounded-xl p-6">
                                     <h4 className="text-lg font-bold mb-4 text-foreground">Frameworks & Libraries</h4>
-                                    <div className="flex flex-wrap gap-2">
-                                        {['React', 'Next.js', 'NestJS', 'Node.js', 'Tailwind CSS'].map((item, i) => (
-                                            <span key={i} className="px-3 py-1 bg-secondary text-secondary-foreground rounded-md text-sm">{item}</span>
-                                        ))}
+                                    <div className="flex flex-wrap gap-3">
+                                        {['React', 'Next.js', 'NestJS', 'Node.js', 'Tailwind CSS'].map((item, i) => {
+                                            const Icon = getSkillIcon(item);
+                                            return (
+                                                <div key={i} className="flex items-center gap-2 px-3 py-2 bg-secondary text-secondary-foreground rounded-md text-sm font-medium">
+                                                    <Icon className="h-4 w-4" />
+                                                    <span>{item}</span>
+                                                </div>
+                                            );
+                                        })}
                                     </div>
                                 </div>
                             </>
@@ -217,4 +239,43 @@ function SocialLink({ href, icon }) {
             {icon}
         </a>
     );
+}
+
+function getSkillIcon(skillName) {
+    const normalized = skillName.toLowerCase().replace(/\s+/g, '');
+
+    const icons = {
+        'javascript': SiJavascript,
+        'js': SiJavascript,
+        'typescript': SiTypescript,
+        'ts': SiTypescript,
+        'java': SiJava,
+        'c#': SiCsharp,
+        'csharp': SiCsharp,
+        'sql': Database,
+        'postgresql': SiPostgresql,
+        'mysql': Database,
+        'mongodb': SiMongodb,
+        'react': SiReact,
+        'reactjs': SiReact,
+        'next.js': SiNextdotjs,
+        'nextjs': SiNextdotjs,
+        'nestjs': SiNestjs,
+        'node.js': SiNodedotjs,
+        'nodejs': SiNodedotjs,
+        'tailwindcss': SiTailwindcss,
+        'tailwind': SiTailwindcss,
+        'git': SiGit,
+        'docker': SiDocker,
+        'figma': SiFigma,
+        'vscode': SiVisualstudiocode,
+        'visualstudiocode': SiVisualstudiocode,
+        'vercel': SiVercel,
+        'railway': SiRailway,
+        'html': Code2,
+        'css': LayoutIcon,
+        'terminal': Terminal
+    };
+
+    return icons[normalized] || Code2; // Default to Code2 icon
 }

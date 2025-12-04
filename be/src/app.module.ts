@@ -60,4 +60,4 @@ import { GithubModule } from './github/github.module';
     },
   ],
 })
-export class AppModule { }
+export class AppModule {}

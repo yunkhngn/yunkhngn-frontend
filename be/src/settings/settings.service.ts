@@ -21,7 +21,7 @@ const SYSTEM_SETTINGS = [
 
 @Injectable()
 export class SettingsService implements OnModuleInit {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
   async onModuleInit() {
     for (const title of SYSTEM_SETTINGS) {
