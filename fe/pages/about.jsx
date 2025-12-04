@@ -1,7 +1,5 @@
-import { Button } from "@/components/ui/Button";
 import Image from "next/image";
-import Link from "next/link";
-import { Github, Facebook, Instagram, Linkedin, Mail, Database, Code2, Terminal, Layout as LayoutIcon, Server, Settings, Video, Palette, Layers } from "lucide-react";
+import { Github, Facebook, Instagram, Linkedin, Mail, Database, Code2, Terminal, Layout as LayoutIcon, Server, Settings, Video, Palette, Layers, GraduationCap, Briefcase } from "lucide-react";
 import {
     SiJavascript, SiTypescript, SiJava, SiCsharp, SiPython, SiCplusplus, SiHtml5, SiCss3,
     SiReact, SiNextdotjs, SiNestjs, SiNodedotjs, SiExpress, SiPrisma, SiTypeorm, SiTailwindcss, SiShadcnui,
@@ -11,7 +9,9 @@ import {
     SiVercel, SiRailway
 } from "react-icons/si";
 import { useState, useEffect } from 'react';
+
 import Layout from '@/components/template/Default/Layout';
+import Metadata from '@/components/template/Metadata';
 
 export default function About() {
     const [settings, setSettings] = useState({});
@@ -37,13 +37,18 @@ export default function About() {
 
     return (
         <Layout>
+            <Metadata
+                title="About - Khoa Nguyễn"
+                description="Learn more about Khoa Nguyễn - Fullstack Developer & UI/UX Designer. Explore my education, experience, and tech stack."
+                url="https://yunkhngn.dev/about"
+            />
             <div className="container mx-auto px-4 py-12 max-w-4xl">
                 {/* Hero Section */}
-                <div className="flex flex-col md:flex-row items-center gap-8 mb-16">
+                <div className="flex flex-col items-center gap-8 mb-16">
                     <div className="relative w-48 h-48 shrink-0">
                         <div className="absolute inset-0 bg-gradient-to-br from-primary to-purple-600 rounded-full blur-2xl opacity-20 animate-pulse" />
                         <Image
-                            src={settings.avatar || "/images/avatar-placeholder.jpg"}
+                            src={settings.avatar || "https://github.com/yunkhngn.png"}
                             alt="Profile"
                             fill
                             className="object-cover rounded-full border-4 border-background shadow-xl"
@@ -51,13 +56,13 @@ export default function About() {
                         />
                     </div>
                     <div className="text-center md:text-left space-y-4">
-                        <h1 className="text-4xl md:text-5xl font-bold tracking-tight">
+                        <h1 className="text-4xl md:text-5xl text-center font-bold tracking-tight">
                             {settings.name || "Khoa Nguyễn"}
                         </h1>
-                        <p className="text-xl text-muted-foreground">
+                        <p className="text-xl text-center text-muted-foreground">
                             {settings.title || "Fullstack Developer & UI/UX Designer"}
                         </p>
-                        <div className="flex items-center justify-center md:justify-start gap-4">
+                        <div className="flex items-center justify-center gap-4">
                             <SocialLink href={settings.github || "https://github.com/yunkhngn"} icon={<Github className="w-5 h-5" />} />
                             <SocialLink href={settings.facebook || "https://facebook.com/yunkhngn"} icon={<Facebook className="w-5 h-5" />} />
                             <SocialLink href={settings.instagram || "https://instagram.com/yunkhngn"} icon={<Instagram className="w-5 h-5" />} />
@@ -81,21 +86,32 @@ export default function About() {
                     <blockquote className="border-l-4 border-primary pl-6 py-2 italic text-xl text-foreground font-serif">
                         {settings.quote || '"Tương lai thuộc về những người tin vào vẻ đẹp trong chính những giấc mơ, hoài bão to lớn của mình..."'}
                     </blockquote>
+                    {
+                        settings.about_content && (
+                            <div dangerouslySetInnerHTML={{ __html: settings.about_content }} className="whitespace-pre-wrap" />
+                        )
+                    }
+                    <div className="pt-8 space-y-2 text-center">
+                        <p className="italic">Author of this website.</p>
+                        <p className="font-serif text-xl text-foreground font-bold pt-4">Khoa Nguyễn</p>
+                    </div>
 
                     {/* Education & Experience Timeline */}
                     <div className="grid md:grid-cols-2 gap-12 pt-12">
                         {/* Education */}
                         <div className="space-y-8">
-                            <h3 className="text-2xl font-bold flex items-center gap-2 text-foreground">
-                                <span className="p-2 bg-primary/10 rounded-lg text-primary">🎓</span>
+                            <h3 className="text-2xl font-bold flex items-center justify-center gap-2 text-foreground">
+                                <span className="p-2 bg-primary/10 rounded-lg text-primary">
+                                    <GraduationCap className="h-5 w-5" />
+                                </span>
                                 Education
                             </h3>
                             <div className="relative border-l-2 border-muted pl-8 space-y-10">
                                 {settings.education ? (
                                     JSON.parse(settings.education).map((edu, index) => (
                                         <div key={index} className="relative">
-                                            <div className="absolute -left-[39px] p-2 bg-background border-2 border-primary rounded-full">
-                                                <div className="w-2 h-2 bg-primary rounded-full" />
+                                            <div className="absolute -left-[41px] w-4 h-4 bg-background border-2 border-primary rounded-full flex items-center justify-center">
+                                                <div className="w-1.5 h-1.5 bg-primary rounded-full" />
                                             </div>
                                             <span className="text-sm text-muted-foreground font-mono">{edu.date}</span>
                                             <h4 className="text-lg font-bold text-foreground mt-1">{edu.school}</h4>
@@ -105,8 +121,8 @@ export default function About() {
                                     ))
                                 ) : (
                                     <div className="relative">
-                                        <div className="absolute -left-[39px] p-2 bg-background border-2 border-primary rounded-full">
-                                            <div className="w-2 h-2 bg-primary rounded-full" />
+                                        <div className="absolute -left-[41px] w-4 h-4 bg-background border-2 border-primary rounded-full flex items-center justify-center">
+                                            <div className="w-1.5 h-1.5 bg-primary rounded-full" />
                                         </div>
                                         <span className="text-sm text-muted-foreground font-mono">2020 - 2024</span>
                                         <h4 className="text-lg font-bold text-foreground mt-1">FPT University</h4>
@@ -118,16 +134,18 @@ export default function About() {
 
                         {/* Experience */}
                         <div className="space-y-8">
-                            <h3 className="text-2xl font-bold flex items-center gap-2 text-foreground">
-                                <span className="p-2 bg-primary/10 rounded-lg text-primary">💼</span>
+                            <h3 className="text-2xl font-bold flex items-center justify-center gap-2 text-foreground">
+                                <span className="p-2 bg-primary/10 rounded-lg text-primary">
+                                    <Briefcase className="h-5 w-5" />
+                                </span>
                                 Experience
                             </h3>
                             <div className="relative border-l-2 border-muted pl-8 space-y-10">
                                 {settings.experience ? (
                                     JSON.parse(settings.experience).map((exp, index) => (
                                         <div key={index} className="relative">
-                                            <div className="absolute -left-[39px] p-2 bg-background border-2 border-primary rounded-full">
-                                                <div className="w-2 h-2 bg-primary rounded-full" />
+                                            <div className="absolute -left-[41px] w-4 h-4 bg-background border-2 border-primary rounded-full flex items-center justify-center">
+                                                <div className="w-1.5 h-1.5 bg-primary rounded-full" />
                                             </div>
                                             <span className="text-sm text-muted-foreground font-mono">{exp.date}</span>
                                             <h4 className="text-lg font-bold text-foreground mt-1">{exp.company}</h4>
@@ -137,8 +155,8 @@ export default function About() {
                                     ))
                                 ) : (
                                     <div className="relative">
-                                        <div className="absolute -left-[39px] p-2 bg-background border-2 border-primary rounded-full">
-                                            <div className="w-2 h-2 bg-primary rounded-full" />
+                                        <div className="absolute -left-[41px] w-4 h-4 bg-background border-2 border-primary rounded-full flex items-center justify-center">
+                                            <div className="w-1.5 h-1.5 bg-primary rounded-full" />
                                         </div>
                                         <span className="text-sm text-muted-foreground font-mono">2023 - Present</span>
                                         <h4 className="text-lg font-bold text-foreground mt-1">Freelance</h4>
@@ -214,16 +232,6 @@ export default function About() {
                                 ))
                             )}
                         </div>
-                    </div>
-
-                    {
-                        settings.about_content && (
-                            <div dangerouslySetInnerHTML={{ __html: settings.about_content }} className="whitespace-pre-wrap pt-12" />
-                        )
-                    }
-                    <div className="pt-8 space-y-2 text-center">
-                        <p className="italic">Author of this website.</p>
-                        <p className="font-serif text-xl text-foreground font-bold pt-4">Khoa Nguyễn</p>
                     </div>
                 </div>
             </div>

@@ -1,13 +1,23 @@
-yunkhngn.dev {
+yunkhngn.dev, www.yunkhngn.dev {
     header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
-    reverse_proxy frontend:3000
-}
+    
+    # Optional: Enable access logs
+    log {
+        output file /var/log/caddy/access.log
+    }
 
-www.yunkhngn.dev {
-    redir https://yunkhngn.dev{uri}
-}
+    @api path /api/*
+    handle @api {
+        uri strip_prefix /api
+        reverse_proxy backend:3001
+    }
 
-yunkhngn.dev/api/* {
-    uri strip_prefix /api
-    reverse_proxy backend:3001
+    @www host www.yunkhngn.dev
+    handle @www {
+        redir https://yunkhngn.dev{uri} permanent
+    }
+
+    handle {
+        reverse_proxy frontend:3000
+    }
 }
