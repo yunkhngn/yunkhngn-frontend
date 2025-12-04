@@ -288,14 +288,14 @@ export default function Home() {
                   className="object-cover transition-transform duration-700 group-hover:scale-105"
                 />
               )}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
 
-              <div className="absolute bottom-0 left-0 p-6 w-full">
-                <h3 className={`font-bold text-white mb-2 ${i === 0 ? 'text-2xl md:text-3xl' : 'text-lg'}`}>
+              <div className="absolute bottom-0 left-0 p-4 md:p-6 w-full">
+                <h3 className={`font-bold text-white mb-1 md:mb-2 ${i === 0 ? 'text-xl md:text-2xl lg:text-3xl' : 'text-base md:text-lg'}`}>
                   {project.title}
                 </h3>
                 {i === 0 && (
-                  <p className="text-gray-200 line-clamp-2 mb-3 max-w-md">
+                  <p className="text-gray-200 text-sm md:text-base line-clamp-2 mb-2 md:mb-3 max-w-md">
                     {project.description}
                   </p>
                 )}
