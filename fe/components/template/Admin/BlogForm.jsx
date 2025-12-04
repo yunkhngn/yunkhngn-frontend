@@ -34,6 +34,7 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
     const [aiPrompt, setAiPrompt] = useState('');
     const [aiLanguage, setAiLanguage] = useState('vi');
     const [generatingAi, setGeneratingAi] = useState(false);
+    const [isDragging, setIsDragging] = useState(false);
     const fileInputRef = useRef(null);
 
     const { showModal, setShowModal, confirmNavigation } = useUnsavedChanges(isDirty);
@@ -149,6 +150,36 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
         } finally {
             setUploading(false);
             if (fileInputRef.current) fileInputRef.current.value = '';
+        }
+    };
+
+    const handleDragOver = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragging(true);
+    };
+
+    const handleDragLeave = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragging(false);
+    };
+
+    const handleDrop = async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragging(false);
+
+        const files = e.dataTransfer.files;
+        if (files && files[0]) {
+            const file = files[0];
+            if (file.type.startsWith('image/')) {
+                // Simulate file input change
+                const fakeEvent = { target: { files: [file] } };
+                await handleUpload(fakeEvent);
+            } else {
+                toast.error('Please drop an image file');
+            }
         }
     };
 
@@ -323,7 +354,14 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
 
             <div className="pb-32">
                 {/* Banner Thumbnail */}
-                <div className="w-full h-64 md:h-96 relative bg-muted group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
+                <div
+                    className={`w-full h-64 md:h-96 relative bg-muted group cursor-pointer transition-all ${isDragging ? 'ring-4 ring-primary ring-offset-2 scale-[0.98]' : ''
+                        }`}
+                    onClick={() => fileInputRef.current?.click()}
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
+                >
                     {formData.thumbnail ? (
                         <>
                             <Image src={formData.thumbnail} alt="Thumbnail" fill className="object-cover" />

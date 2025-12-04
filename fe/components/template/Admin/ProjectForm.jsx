@@ -28,6 +28,7 @@ export default function ProjectForm({ initialData, onSubmit, isEditing = false }
     const [uploading, setUploading] = useState(false);
     const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
     const [isDirty, setIsDirty] = useState(false);
+    const [isDragging, setIsDragging] = useState(false);
     const fileInputRef = useRef(null);
 
     const { showModal, setShowModal, confirmNavigation } = useUnsavedChanges(isDirty);
@@ -191,6 +192,35 @@ export default function ProjectForm({ initialData, onSubmit, isEditing = false }
         } finally {
             setUploading(false);
             if (fileInputRef.current) fileInputRef.current.value = '';
+        }
+    };
+
+    const handleDragOver = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragging(true);
+    };
+
+    const handleDragLeave = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragging(false);
+    };
+
+    const handleDrop = async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragging(false);
+
+        const files = e.dataTransfer.files;
+        if (files && files[0]) {
+            const file = files[0];
+            if (file.type.startsWith('image/')) {
+                const fakeEvent = { target: { files: [file] } };
+                await handleUpload(fakeEvent);
+            } else {
+                toast.error('Please drop an image file');
+            }
         }
     };
 
@@ -371,8 +401,12 @@ export default function ProjectForm({ initialData, onSubmit, isEditing = false }
                 <div className="space-y-2">
                     <label className="text-sm font-medium">Cover Image</label>
                     <div
-                        className="aspect-video relative rounded-lg overflow-hidden group border border-dashed flex items-center justify-center cursor-pointer hover:bg-muted/50 transition-colors max-w-md"
+                        className={`aspect-video relative rounded-lg overflow-hidden group border border-dashed flex items-center justify-center cursor-pointer hover:bg-muted/50 transition-all max-w-md ${isDragging ? 'ring-4 ring-primary ring-offset-2 scale-[0.98]' : ''
+                            }`}
                         onClick={() => fileInputRef.current?.click()}
+                        onDragOver={handleDragOver}
+                        onDragLeave={handleDragLeave}
+                        onDrop={handleDrop}
                     >
                         {formData.cover ? (
                             <>

@@ -272,6 +272,53 @@ export default function TipTapEditor({ content, onChange, onImageUpload }) {
                 class: 'prose dark:prose-invert max-w-none p-4 min-h-[300px] outline-none [&_img]:rounded-3xl [&_img]:border-4 [&_img]:border-dashed [&_img]:border-muted-foreground/20 [&_img]:p-2 [&_img]:max-w-[100%] [&_img]:mx-auto [&_img]:block prose-headings:font-serif prose-p:leading-relaxed [&_iframe]:w-full [&_iframe]:aspect-video [&_iframe]:rounded-2xl [&_iframe]:shadow-lg [&_iframe]:mx-auto',
                 style: 'font-family: Palatino, "Palatino Linotype", "Book Antiqua", serif; font-size: 1.2rem;',
             },
+            handleDrop: (view, event, slice, moved) => {
+                if (!moved && event.dataTransfer && event.dataTransfer.files && event.dataTransfer.files[0]) {
+                    const file = event.dataTransfer.files[0];
+                    const fileType = file.type;
+
+                    // Only handle images
+                    if (fileType.startsWith('image/')) {
+                        event.preventDefault();
+
+                        if (onImageUpload) {
+                            onImageUpload(file).then(url => {
+                                if (url) {
+                                    const { schema } = view.state;
+                                    const coordinates = view.posAtCoords({ left: event.clientX, top: event.clientY });
+                                    const node = schema.nodes.image.create({ src: url });
+                                    const transaction = view.state.tr.insert(coordinates.pos, node);
+                                    view.dispatch(transaction);
+                                }
+                            });
+                        }
+                        return true;
+                    }
+                }
+                return false;
+            },
+            handlePaste: (view, event, slice) => {
+                const items = Array.from(event.clipboardData?.items || []);
+                const imageItem = items.find(item => item.type.startsWith('image/'));
+
+                if (imageItem) {
+                    event.preventDefault();
+                    const file = imageItem.getAsFile();
+
+                    if (file && onImageUpload) {
+                        onImageUpload(file).then(url => {
+                            if (url) {
+                                const { schema } = view.state;
+                                const node = schema.nodes.image.create({ src: url });
+                                const transaction = view.state.tr.replaceSelectionWith(node);
+                                view.dispatch(transaction);
+                            }
+                        });
+                    }
+                    return true;
+                }
+                return false;
+            },
         },
         immediatelyRender: false,
     });
