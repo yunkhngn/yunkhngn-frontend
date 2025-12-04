@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/Button';
-import { Github, Facebook, Instagram, Linkedin, ArrowRight, Command } from 'lucide-react';
+import { Github, Facebook, Instagram, Linkedin, ArrowRight, FileUser } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/Badge';
 import { extractTextFromTipTap } from '@/lib/utils';
 import Layout from '@/components/template/Default/Layout';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/Tooltip';
 
 export default function Home() {
   const [recentBlogs, setRecentBlogs] = useState([]);
@@ -87,26 +88,27 @@ export default function Home() {
         </div>
 
         <div className="flex flex-wrap items-center justify-center gap-6 pt-8 relative z-10">
-          <Link href="/resume">
+          <Link href="/showcase">
             <Button className="rounded-full px-8 h-12 text-base">
-              Resume
+              Showcase
             </Button>
           </Link>
 
           <div className="flex gap-6">
             {(settings.facebook || settings.instagram || settings.github || settings.linkedin) ? (
               <>
-                {settings.facebook && <SocialLink href={settings.facebook} icon={<Facebook size={24} />} />}
-                {settings.instagram && <SocialLink href={settings.instagram} icon={<Instagram size={24} />} />}
-                {settings.github && <SocialLink href={settings.github} icon={<Github size={24} />} />}
-                {settings.linkedin && <SocialLink href={settings.linkedin} icon={<Linkedin size={24} />} />}
+                {settings.facebook && <SocialLink href={settings.facebook} icon={<Facebook size={24} />} label="Facebook" />}
+                {settings.instagram && <SocialLink href={settings.instagram} icon={<Instagram size={24} />} label="Instagram" />}
+                {settings.github && <SocialLink href={settings.github} icon={<Github size={24} />} label="GitHub" />}
+                {settings.linkedin && <SocialLink href={settings.linkedin} icon={<Linkedin size={24} />} label="LinkedIn" />}
               </>
             ) : (
               <>
-                <SocialLink href="https://facebook.com/yunkhngn" icon={<Facebook size={24} />} />
-                <SocialLink href="https://instagram.com/yunkhngn" icon={<Instagram size={24} />} />
-                <SocialLink href="https://github.com/yunkhngn" icon={<Github size={24} />} />
-                <SocialLink href="https://linkedin.com/in/yunkhngn" icon={<Linkedin size={24} />} />
+                <SocialLink href="https://facebook.com/yunkhngn" icon={<Facebook size={24} />} label="Facebook" />
+                <SocialLink href="https://instagram.com/yunkhngn" icon={<Instagram size={24} />} label="Instagram" />
+                <SocialLink href="https://github.com/yunkhngn" icon={<Github size={24} />} label="GitHub" />
+                <SocialLink href="https://linkedin.com/in/yunkhngn" icon={<Linkedin size={24} />} label="LinkedIn" />
+                <SocialLink href="https://yunkhngn.dev/resume" icon={<FileUser size={24} />} label="Resume" />
               </>
             )}
           </div>
@@ -288,15 +290,24 @@ Home.getLayout = function getLayout(page) {
   );
 };
 
-function SocialLink({ href, icon }) {
+function SocialLink({ href, icon, label }) {
   return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="text-muted-foreground hover:text-foreground transition-colors p-1"
-    >
-      {icon}
-    </a>
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <a
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-muted-foreground hover:text-foreground transition-colors p-1"
+          >
+            {icon}
+          </a>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>{label}</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
 }

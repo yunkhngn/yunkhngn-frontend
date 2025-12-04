@@ -15,8 +15,8 @@ import {
     Smartphone,
     Search,
     Bot,
-    Mail,
-    Activity
+    Activity,
+    FileText
 } from 'lucide-react';
 
 export default function Showcase() {
@@ -25,28 +25,27 @@ export default function Showcase() {
             category: 'Frontend',
             icon: LayoutIcon,
             color: 'text-blue-500',
-            items: ['Next.js 14', 'React', 'Tailwind CSS', 'Shadcn UI', 'Framer Motion', 'Lucide Icons']
+            items: ['Next.js 16', 'React 19', 'Tailwind CSS', 'Shadcn UI', 'TipTap (Rich Text)', 'Recharts']
         },
         {
             category: 'Backend',
             icon: Server,
             color: 'text-green-500',
-            items: ['NestJS', 'TypeScript', 'Prisma ORM', 'Socket.io', 'Passport.js', 'Swagger']
+            items: ['NestJS 11', 'TypeScript', 'Prisma ORM', 'Socket.io', 'Firebase Admin', 'Swagger']
         },
         {
             category: 'Database & Storage',
             icon: Database,
             color: 'text-yellow-500',
-            items: ['PostgreSQL', 'Cloudinary (Media)', 'Redis (Caching)']
+            items: ['SQL Server', 'Cloudinary (Media)', 'Redis (Caching)']
         },
         {
             category: 'Infrastructure',
             icon: Cloud,
             color: 'text-purple-500',
-            items: ['Vercel (Frontend)', 'Railway (Backend)', 'Cloudflare (DNS/CDN)', 'Docker']
+            items: ['Vercel (Frontend)', 'Railway (Backend)', 'Cloudflare (DNS/CDN)', 'Resend (Email)']
         }
     ];
-
     const features = [
         {
             title: 'Real-time Interactions',
@@ -70,13 +69,13 @@ export default function Showcase() {
         },
         {
             title: 'Secure Authentication',
-            description: 'Robust user management with Firebase Auth and JWT validation.',
+            description: 'Robust user management with Firebase Auth and Role-based Access Control (RBAC).',
             icon: Shield
         },
         {
-            title: 'Email Service',
-            description: 'Transactional emails and newsletters integrated via Resend.',
-            icon: Mail
+            title: 'Rich Text Editor',
+            description: 'Advanced content creation with TipTap, supporting code blocks, images, and formatting.',
+            icon: FileText
         }
     ];
 
@@ -194,7 +193,7 @@ export default function Showcase() {
                                 <Database className="h-10 w-10 text-yellow-500" />
                                 <div>
                                     <h3 className="font-bold text-lg">Database</h3>
-                                    <p className="text-sm text-muted-foreground">PostgreSQL</p>
+                                    <p className="text-sm text-muted-foreground">SQL Server</p>
                                 </div>
                             </div>
 

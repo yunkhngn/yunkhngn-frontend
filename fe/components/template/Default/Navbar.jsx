@@ -23,7 +23,7 @@ const NAV_ITEMS = [
     { label: "Project", href: "/project" },
     { label: "Blog", href: "/blog" },
     { label: "Photo", href: "/photo" },
-    { label: "About", href: "/about" },
+    { label: "About Me", href: "/about" },
     { label: "Contact", href: "/contact" },
 ];
 
