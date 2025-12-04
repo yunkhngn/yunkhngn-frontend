@@ -167,6 +167,7 @@ export default function Home() {
                 {settings.instagram && <SocialLink href={settings.instagram} icon={<Instagram size={24} />} label="Instagram" />}
                 {settings.github && <SocialLink href={settings.github} icon={<Github size={24} />} label="GitHub" />}
                 {settings.linkedin && <SocialLink href={settings.linkedin} icon={<Linkedin size={24} />} label="LinkedIn" />}
+                <SocialLink href="https://yunkhngn.dev/resume" icon={<FileUser size={24} />} label="Resume" />
               </>
             ) : (
               <>

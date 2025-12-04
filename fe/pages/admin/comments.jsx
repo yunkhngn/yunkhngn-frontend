@@ -502,6 +502,10 @@ export default function AdminComments() {
                                                         <Link href={`/blog/${comment.blog.slug}`} className="text-sm text-primary hover:underline line-clamp-1">
                                                             {comment.blog.title}
                                                         </Link>
+                                                    ) : comment.project ? (
+                                                        <Link href={`/project/${comment.project.slug}`} className="text-sm text-primary hover:underline line-clamp-1">
+                                                            {comment.project.title}
+                                                        </Link>
                                                     ) : (
                                                         <span className="text-sm text-muted-foreground">Unknown</span>
                                                     )}
@@ -625,11 +629,15 @@ export default function AdminComments() {
                                                         </p>
                                                         <div className="flex items-center gap-2 text-xs">
                                                             <span className="font-medium">{report.comment?.displayName}</span>
-                                                            {report.comment?.blogId && (
-                                                                <Link href={`/blog/${report.comment.blogId}`} className="text-primary hover:underline">
+                                                            {report.comment?.blog ? (
+                                                                <Link href={`/blog/${report.comment.blog.slug}`} className="text-primary hover:underline">
                                                                     View Post
                                                                 </Link>
-                                                            )}
+                                                            ) : report.comment?.project ? (
+                                                                <Link href={`/project/${report.comment.project.slug}`} className="text-primary hover:underline">
+                                                                    View Post
+                                                                </Link>
+                                                            ) : null}
                                                         </div>
                                                     </div>
                                                 </TableCell>
