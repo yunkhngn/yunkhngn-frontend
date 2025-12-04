@@ -138,6 +138,7 @@ export default function Settings() {
                     </Table>
                 </div>
 
+                {/* Edit Dialog */}
                 <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                     <DialogContent className="w-[95vw] max-w-3xl">
                         <DialogHeader>

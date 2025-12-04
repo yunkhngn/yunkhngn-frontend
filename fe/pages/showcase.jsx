@@ -43,7 +43,7 @@ export default function Showcase() {
             category: 'Infrastructure',
             icon: Cloud,
             color: 'text-purple-500',
-            items: ['Vercel (Frontend)', 'Railway (Backend)', 'Cloudflare (DNS/CDN)', 'Resend (Email)']
+            items: ['Digital Ocean (Droplet)', 'Docker (Containerized)', 'GitHub Actions (CI/CD)', 'Cloudflare (DNS/CDN)', 'Resend (Email)']
         }
     ];
     const features = [

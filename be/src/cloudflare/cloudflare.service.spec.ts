@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CloudflareService } from './cloudflare.service';
 import { ConfigService } from '@nestjs/config';
+import { Logger } from '@nestjs/common';
 
 describe('CloudflareService', () => {
   let service: CloudflareService;
@@ -32,6 +33,10 @@ describe('CloudflareService', () => {
 
     // Mock global fetch
     global.fetch = jest.fn();
+
+    // Mock Logger to prevent console noise
+    jest.spyOn(Logger.prototype, 'error').mockImplementation(() => { });
+    jest.spyOn(Logger.prototype, 'warn').mockImplementation(() => { });
   });
 
   afterEach(() => {

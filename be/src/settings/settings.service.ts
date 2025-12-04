@@ -14,6 +14,9 @@ const SYSTEM_SETTINGS = [
   'footer_description',
   'about_content',
   'comment_forbidden_keywords',
+  'education',
+  'experience',
+  'skills',
 ];
 
 @Injectable()
