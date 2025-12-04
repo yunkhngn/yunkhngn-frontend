@@ -2,12 +2,9 @@ import AdminLayout from "@/components/template/Admin/Layout";
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
-import { Loader2, Upload, Trash2, Pencil, X, Save, Image as ImageIcon, Crop as CropIcon, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Loader2, Upload, Trash2, Pencil, X, Image as ImageIcon, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/Dialog';
-import Cropper from 'react-easy-crop';
-import getCroppedImg from '@/lib/cropImage';
 import Image from 'next/image';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import { toast } from 'sonner';
@@ -17,21 +14,16 @@ export default function PhotoManager() {
     const [photos, setPhotos] = useState([]);
     const [loading, setLoading] = useState(true);
     const [uploading, setUploading] = useState(false);
-    const [caption, setCaption] = useState('');
-    const [selectedFile, setSelectedFile] = useState(null);
-    const [previewUrl, setPreviewUrl] = useState('');
+
+    // Bulk Upload State
+    const [stagedPhotos, setStagedPhotos] = useState([]); // Array<{ id: string, file: File, preview: string, caption: string }>
+    const [uploadProgress, setUploadProgress] = useState({ current: 0, total: 0 });
+
     const [viewingPhoto, setViewingPhoto] = useState(null);
 
     // Pagination state
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 9;
-
-    // Crop state
-    const [crop, setCrop] = useState({ x: 0, y: 0 });
-    const [zoom, setZoom] = useState(1);
-    const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
-    const [isCropOpen, setIsCropOpen] = useState(false);
-    const [tempImgUrl, setTempImgUrl] = useState('');
 
     // Drag state
     const [isDragging, setIsDragging] = useState(false);
@@ -64,7 +56,7 @@ export default function PhotoManager() {
         fetchPhotos();
     }, []);
 
-    // Reset to page 1 when photos change (optional, but good practice if filtering)
+    // Reset to page 1 when photos change
     useEffect(() => setCurrentPage(1), [photos]);
 
     // Calculate pagination
@@ -73,20 +65,23 @@ export default function PhotoManager() {
     const currentPhotos = photos.slice(indexOfFirstPhoto, indexOfLastPhoto);
     const totalPages = Math.ceil(photos.length / itemsPerPage);
 
-    const processFile = (file) => {
-        if (file && file.type.startsWith('image/')) {
-            const url = URL.createObjectURL(file);
-            setTempImgUrl(url);
-            setSelectedFile(file);
-            setPreviewUrl(url);
-            setCrop({ x: 0, y: 0 });
-            setZoom(1);
-        }
+    const processFiles = (files) => {
+        if (!files || files.length === 0) return;
+
+        const newStaged = Array.from(files)
+            .filter(file => file.type.startsWith('image/'))
+            .map(file => ({
+                id: Math.random().toString(36).substr(2, 9),
+                file,
+                preview: URL.createObjectURL(file),
+                caption: ''
+            }));
+
+        setStagedPhotos(prev => [...prev, ...newStaged]);
     };
 
     const handleFileSelect = (e) => {
-        const file = e.target.files[0];
-        processFile(file);
+        processFiles(e.target.files);
         e.target.value = '';
     };
 
@@ -103,85 +98,90 @@ export default function PhotoManager() {
     const handleDrop = (e) => {
         e.preventDefault();
         setIsDragging(false);
-        const file = e.dataTransfer.files[0];
-        processFile(file);
+        processFiles(e.dataTransfer.files);
     };
 
-    const onCropComplete = (croppedArea, croppedAreaPixels) => {
-        setCroppedAreaPixels(croppedAreaPixels);
+    const removeStagedPhoto = (id) => {
+        setStagedPhotos(prev => prev.filter(p => p.id !== id));
     };
 
-    const performCrop = async () => {
-        try {
-            const croppedImageBlob = await getCroppedImg(tempImgUrl, croppedAreaPixels);
-            const croppedImageUrl = URL.createObjectURL(croppedImageBlob);
-
-            setPreviewUrl(croppedImageUrl);
-            setSelectedFile(croppedImageBlob); // Upload the cropped blob
-            setIsCropOpen(false);
-        } catch (e) {
-            console.error(e);
-            toast.error('Failed to crop image');
-        }
+    const updateStagedCaption = (id, caption) => {
+        setStagedPhotos(prev => prev.map(p => p.id === id ? { ...p, caption } : p));
     };
 
-    const handleUpload = async () => {
-        if (!selectedFile) return;
+    const clearStagedPhotos = () => {
+        stagedPhotos.forEach(p => URL.revokeObjectURL(p.preview));
+        setStagedPhotos([]);
+        setUploadProgress({ current: 0, total: 0 });
+    };
+
+    const handleBulkUpload = async () => {
+        if (stagedPhotos.length === 0) return;
         setUploading(true);
+        setUploadProgress({ current: 0, total: stagedPhotos.length });
 
         try {
             const token = await user.getIdToken();
-
-            // 1. Get signature
-            const sigRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/gallery/signature`, {
-                headers: { Authorization: `Bearer ${token} ` }
-            });
-            if (!sigRes.ok) throw new Error('Failed to get signature');
-            const { signature, timestamp } = await sigRes.json();
-
-            // 2. Upload to Cloudinary
-            const formData = new FormData();
-            formData.append('file', selectedFile);
-            formData.append('api_key', process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY);
-            formData.append('timestamp', timestamp);
-            formData.append('signature', signature);
-            formData.append('folder', 'blog-portfolio/gallery');
-
             const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
-            const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
-                method: 'POST',
-                body: formData
-            });
 
-            if (!uploadRes.ok) throw new Error('Upload failed');
-            const uploadData = await uploadRes.json();
+            for (let i = 0; i < stagedPhotos.length; i++) {
+                const photo = stagedPhotos[i];
 
-            // 3. Save to Backend
-            const saveRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/gallery`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    imageUrl: uploadData.secure_url,
-                    caption: caption
-                })
-            });
+                try {
+                    // 1. Get signature
+                    const sigRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/gallery/signature`, {
+                        headers: { Authorization: `Bearer ${token} ` }
+                    });
+                    if (!sigRes.ok) throw new Error('Failed to get signature');
+                    const { signature, timestamp } = await sigRes.json();
 
-            if (!saveRes.ok) throw new Error('Failed to save photo');
+                    // 2. Upload to Cloudinary
+                    const formData = new FormData();
+                    formData.append('file', photo.file);
+                    formData.append('api_key', process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY);
+                    formData.append('timestamp', timestamp);
+                    formData.append('signature', signature);
+                    formData.append('folder', 'blog-portfolio/gallery');
 
-            // Reset form
-            setSelectedFile(null);
-            setPreviewUrl('');
-            setCaption('');
+                    const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (!uploadRes.ok) throw new Error('Upload failed');
+                    const uploadData = await uploadRes.json();
+
+                    // 3. Save to Backend
+                    const saveRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/gallery`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            Authorization: `Bearer ${token}`
+                        },
+                        body: JSON.stringify({
+                            imageUrl: uploadData.secure_url,
+                            caption: photo.caption
+                        })
+                    });
+
+                    if (!saveRes.ok) throw new Error('Failed to save photo');
+
+                    setUploadProgress(prev => ({ ...prev, current: prev.current + 1 }));
+
+                } catch (err) {
+                    console.error(`Failed to upload photo ${i + 1}`, err);
+                    toast.error(`Failed to upload photo ${i + 1}`);
+                }
+            }
+
+            toast.success('Upload completed');
+            clearStagedPhotos();
             fetchPhotos();
-            // Optional: Go to page 1 after upload
             setCurrentPage(1);
 
         } catch (error) {
             console.error(error);
-            toast.error('Failed to upload photo');
+            toast.error('Bulk upload failed');
         } finally {
             setUploading(false);
         }
@@ -241,100 +241,97 @@ export default function PhotoManager() {
         }
     };
 
-    const clearPreview = () => {
-        setSelectedFile(null);
-        setPreviewUrl('');
-        if (fileInputRef.current) fileInputRef.current.value = '';
-    };
-
-    const openCropForCurrent = () => {
-        if (previewUrl) {
-            setIsCropOpen(true);
-        }
-    };
-
     return (
         <AdminLayout title="Photo Gallery">
             <div className="space-y-6">
                 <h1 className="text-2xl font-bold">Photo Gallery</h1>
 
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-                    {/* Left Column: Upload (30% approx - 4/12) */}
+                    {/* Left Column: Upload (4/12) */}
                     <div className="lg:col-span-4 space-y-6">
                         <div className="bg-card text-card-foreground rounded-xl border shadow-sm p-6 sticky top-4">
-                            <h2 className="text-lg font-semibold mb-4">Locket</h2>
-                            <div className="space-y-4">
-                                <div
-                                    className={`w-full aspect-square border-2 border-dashed rounded-xl flex flex-col items-center justify-center cursor-pointer hover:bg-muted/50 transition-colors relative overflow-hidden group bg-muted/20 ${isDragging ? 'border-primary bg-primary/10' : 'border-border'}`}
-                                    onClick={() => !previewUrl && fileInputRef.current?.click()}
-                                    onDragOver={handleDragOver}
-                                    onDragLeave={handleDragLeave}
-                                    onDrop={handleDrop}
-                                >
-                                    {previewUrl ? (
-                                        <div className="relative w-full h-full">
-                                            <Image
-                                                src={previewUrl}
-                                                alt="Preview"
-                                                fill
-                                                className="object-cover"
-                                                unoptimized
-                                            />
-                                            <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity gap-3 z-10">
-                                                <Button
-                                                    size="sm"
-                                                    variant="secondary"
-                                                    onClick={(e) => { e.stopPropagation(); openCropForCurrent(); }}
-                                                >
-                                                    <CropIcon className="h-4 w-4 mr-2" /> Crop
-                                                </Button>
-                                                <Button
-                                                    size="sm"
-                                                    variant="destructive"
-                                                    onClick={(e) => { e.stopPropagation(); clearPreview(); }}
-                                                >
-                                                    <Trash2 className="h-4 w-4 mr-2" /> Delete
-                                                </Button>
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        <>
-                                            <ImageIcon className="h-12 w-12 text-muted-foreground/50 mb-2" />
-                                            <span className="text-sm text-muted-foreground text-center px-4">Tap to upload or drag and drop</span>
-                                        </>
-                                    )}
-                                    <input
-                                        type="file"
-                                        ref={fileInputRef}
-                                        className="hidden"
-                                        accept="image/*"
-                                        onChange={handleFileSelect}
-                                    />
-                                </div>
+                            <h2 className="text-lg font-semibold mb-4">Upload Photos</h2>
 
-                                <div className="space-y-2">
-                                    <Textarea
-                                        placeholder="Write a caption..."
-                                        value={caption}
-                                        onChange={(e) => setCaption(e.target.value)}
-                                        rows={3}
-                                        maxLength={50}
-                                        className="resize-none bg-muted/30"
-                                    />
-                                    <div className="flex justify-between items-center">
-                                        <span className="text-xs text-muted-foreground">{caption.length}/50</span>
-                                        <Button onClick={handleUpload} disabled={!selectedFile || uploading} size="sm">
-                                            {uploading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                            {!uploading && <Upload className="mr-2 h-4 w-4" />}
-                                            Post
+                            {/* Drag & Drop Area */}
+                            <div
+                                className={`w-full aspect-[4/3] border-2 border-dashed rounded-xl flex flex-col items-center justify-center cursor-pointer hover:bg-muted/50 transition-colors relative overflow-hidden group bg-muted/20 ${isDragging ? 'border-primary bg-primary/10' : 'border-border'}`}
+                                onClick={() => fileInputRef.current?.click()}
+                                onDragOver={handleDragOver}
+                                onDragLeave={handleDragLeave}
+                                onDrop={handleDrop}
+                            >
+                                <ImageIcon className="h-12 w-12 text-muted-foreground/50 mb-2" />
+                                <span className="text-sm text-muted-foreground text-center px-4">
+                                    Tap to upload or drag and drop<br />
+                                    <span className="text-xs opacity-70">(Multiple files supported)</span>
+                                </span>
+                                <input
+                                    type="file"
+                                    ref={fileInputRef}
+                                    className="hidden"
+                                    accept="image/*"
+                                    multiple
+                                    onChange={handleFileSelect}
+                                />
+                            </div>
+
+                            {/* Staging Area */}
+                            {stagedPhotos.length > 0 && (
+                                <div className="mt-6 space-y-4 animate-in fade-in slide-in-from-top-2">
+                                    <div className="flex items-center justify-between">
+                                        <h3 className="text-sm font-medium">Selected ({stagedPhotos.length})</h3>
+                                        <Button variant="ghost" size="sm" onClick={clearStagedPhotos} disabled={uploading}>
+                                            Clear All
                                         </Button>
                                     </div>
+
+                                    <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2">
+                                        {stagedPhotos.map((photo, index) => (
+                                            <div key={photo.id} className="flex gap-3 items-start bg-muted/30 p-2 rounded-lg border">
+                                                <div className="relative w-16 h-16 rounded-md overflow-hidden flex-shrink-0 bg-muted">
+                                                    <Image src={photo.preview} alt="Preview" fill className="object-cover" />
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <Textarea
+                                                        placeholder="Caption..."
+                                                        value={photo.caption}
+                                                        onChange={(e) => updateStagedCaption(photo.id, e.target.value)}
+                                                        rows={2}
+                                                        className="text-xs min-h-[60px] resize-none"
+                                                    />
+                                                </div>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className="h-6 w-6 text-muted-foreground hover:text-destructive"
+                                                    onClick={() => removeStagedPhoto(photo.id)}
+                                                    disabled={uploading}
+                                                >
+                                                    <X className="h-4 w-4" />
+                                                </Button>
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    <Button className="w-full" onClick={handleBulkUpload} disabled={uploading}>
+                                        {uploading ? (
+                                            <>
+                                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                                Uploading {uploadProgress.current}/{uploadProgress.total}
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Upload className="mr-2 h-4 w-4" />
+                                                Upload All
+                                            </>
+                                        )}
+                                    </Button>
                                 </div>
-                            </div>
+                            )}
                         </div>
                     </div>
 
-                    {/* Right Column: Gallery (70% approx - 8/12) */}
+                    {/* Right Column: Gallery (8/12) */}
                     <div className="lg:col-span-8">
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                             {currentPhotos.map((photo) => (
@@ -466,43 +463,6 @@ export default function PhotoManager() {
                     <DialogFooter>
                         <Button variant="outline" onClick={() => setEditDialogOpen(false)}>Cancel</Button>
                         <Button onClick={handleUpdateCaption}>Save Changes</Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
-
-            {/* Crop Dialog */}
-            <Dialog open={isCropOpen} onOpenChange={setIsCropOpen}>
-                <DialogContent className="max-w-xl">
-                    <DialogHeader>
-                        <DialogTitle>Crop Image</DialogTitle>
-                    </DialogHeader>
-                    <div className="relative w-full h-96 bg-black rounded-md overflow-hidden">
-                        <Cropper
-                            image={tempImgUrl}
-                            crop={crop}
-                            zoom={zoom}
-                            onCropChange={setCrop}
-                            onCropComplete={onCropComplete}
-                            onZoomChange={setZoom}
-                        />
-                    </div>
-                    <div className="py-4">
-                        <div className="flex items-center gap-2">
-                            <span className="text-sm font-medium">Zoom</span>
-                            <input
-                                type="range"
-                                min={1}
-                                max={3}
-                                step={0.1}
-                                value={zoom}
-                                onChange={(e) => setZoom(Number(e.target.value))}
-                                className="w-full h-2 bg-secondary rounded-lg appearance-none cursor-pointer"
-                            />
-                        </div>
-                    </div>
-                    <DialogFooter>
-                        <Button variant="outline" onClick={() => setIsCropOpen(false)}>Cancel</Button>
-                        <Button onClick={performCrop}>Apply Crop</Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
