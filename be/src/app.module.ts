@@ -58,4 +58,4 @@ import { CloudflareModule } from './cloudflare/cloudflare.module';
     },
   ],
 })
-export class AppModule { }
+export class AppModule {}

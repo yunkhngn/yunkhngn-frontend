@@ -374,7 +374,7 @@ export default function Dashboard() {
 
         {/* System Status */}
         {/* System Status */}
-        <div className="grid gap-3 grid-cols-1 md:grid-cols-3">
+        <div className="grid gap-3 grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
           <Card className="bg-green-500/10 border-green-500/20">
             <CardContent className="p-4 flex items-center gap-4">
               <div className="p-2 rounded-full bg-green-500/20 text-green-500">
@@ -410,6 +410,19 @@ export default function Dashboard() {
                 <p className="text-sm font-medium">Mail Service</p>
                 <p className="text-xs text-green-500 font-semibold flex items-center gap-1">
                   <CheckCircle2 className="h-3 w-3" /> Active
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="bg-orange-500/10 border-orange-500/20">
+            <CardContent className="p-4 flex items-center gap-4">
+              <div className="p-2 rounded-full bg-orange-500/20 text-orange-500">
+                <Activity className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="text-sm font-medium">Cloudflare</p>
+                <p className="text-xs text-orange-500 font-semibold flex items-center gap-1">
+                  <CheckCircle2 className="h-3 w-3" /> Connected
                 </p>
               </div>
             </CardContent>
@@ -530,8 +543,8 @@ export default function Dashboard() {
                       }}
                     />
                     <Legend />
-                    <Line type="monotone" dataKey="requests" stroke={isDark ? "#f5f5f5" : "#171717"} name="Requests" strokeWidth={2} dot={false} />
-                    <Line type="monotone" dataKey="pageViews" stroke={isDark ? "#a3a3a3" : "#737373"} name="Page Views" strokeWidth={2} dot={false} />
+                    <Line type="monotone" dataKey="requests" stroke="#8884d8" name="Requests" strokeWidth={2} dot={false} />
+                    <Line type="monotone" dataKey="pageViews" stroke="#82ca9d" name="Page Views" strokeWidth={2} dot={false} />
                   </LineChart>
                 </ResponsiveContainer>
               </div>

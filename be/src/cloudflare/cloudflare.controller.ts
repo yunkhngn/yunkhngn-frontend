@@ -8,10 +8,10 @@ import { Roles } from '../auth/roles.decorator';
 @UseGuards(FirebaseAuthGuard, RolesGuard)
 @Roles('ADMIN')
 export class CloudflareController {
-    constructor(private readonly cloudflareService: CloudflareService) { }
+  constructor(private readonly cloudflareService: CloudflareService) {}
 
-    @Get()
-    async getAnalytics(@Query('period') period: '24h' | '7d' | '30d') {
-        return this.cloudflareService.getAnalytics(period);
-    }
+  @Get()
+  async getAnalytics(@Query('period') period: '24h' | '7d' | '30d') {
+    return this.cloudflareService.getAnalytics(period);
+  }
 }
