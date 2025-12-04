@@ -82,40 +82,6 @@ export default function Settings() {
         setIsDialogOpen(true);
     };
 
-    const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-    const [newSetting, setNewSetting] = useState({ settingTitle: '', content: '' });
-    const [creating, setCreating] = useState(false);
-
-    const handleCreate = async (e) => {
-        e.preventDefault();
-        if (!user) return;
-        setCreating(true);
-
-        try {
-            const token = await user.getIdToken();
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/settings`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`
-                },
-                body: JSON.stringify(newSetting)
-            });
-
-            if (res.ok) {
-                await fetchSettings();
-                setIsCreateDialogOpen(false);
-                setNewSetting({ settingTitle: '', content: '' });
-            } else {
-                console.error("Failed to create setting");
-            }
-        } catch (error) {
-            console.error(error);
-        } finally {
-            setCreating(false);
-        }
-    };
-
     if (loading) {
         return (
             <AdminLayout title="Site Settings">
@@ -131,9 +97,6 @@ export default function Settings() {
             <div className="space-y-6">
                 <div className="flex justify-between items-center">
                     <h1 className="text-2xl font-bold">Configuration</h1>
-                    <Button onClick={() => setIsCreateDialogOpen(true)}>
-                        Create New Setting
-                    </Button>
                 </div>
 
                 <div className="bg-card rounded-md border">
@@ -206,45 +169,6 @@ export default function Settings() {
                                 <Button type="submit" disabled={saving}>
                                     {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                                     Save
-                                </Button>
-                            </div>
-                        </form>
-                    </DialogContent>
-                </Dialog>
-
-                {/* Create Dialog */}
-                <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-                    <DialogContent className="w-[95vw] max-w-3xl">
-                        <DialogHeader>
-                            <DialogTitle>Create New Setting</DialogTitle>
-                        </DialogHeader>
-                        <form onSubmit={handleCreate} className="space-y-4">
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium">Setting Key (Title)</label>
-                                <Input
-                                    value={newSetting.settingTitle}
-                                    onChange={(e) => setNewSetting({ ...newSetting, settingTitle: e.target.value })}
-                                    placeholder="e.g., education, experience, skills"
-                                    required
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium">Content</label>
-                                <Textarea
-                                    value={newSetting.content}
-                                    onChange={(e) => setNewSetting({ ...newSetting, content: e.target.value })}
-                                    placeholder="Value (can be JSON)..."
-                                    rows={10}
-                                    required
-                                />
-                            </div>
-                            <div className="flex justify-end gap-2">
-                                <Button type="button" variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
-                                    Cancel
-                                </Button>
-                                <Button type="submit" disabled={creating}>
-                                    {creating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                    Create
                                 </Button>
                             </div>
                         </form>

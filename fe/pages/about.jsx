@@ -71,40 +71,29 @@ export default function About() {
             </div>
 
             <div className="space-y-12 text-lg leading-relaxed text-gray-600 dark:text-gray-300 font-medium">
-                {/* Skill Badges */}
-                <div className="flex flex-wrap justify-center gap-4">
-                    <div className="flex items-center gap-2 px-4 py-2 bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded-full border border-blue-500/20">
-                        <span className="font-bold">Fullstack Developer</span>
-                        <span className="text-sm opacity-80">| Web & Mobile</span>
-                    </div>
-                    <div className="flex items-center gap-2 px-4 py-2 bg-green-500/10 text-green-600 dark:text-green-400 rounded-full border border-green-500/20">
-                        <span className="font-bold">Database Management</span>
-                        <span className="text-sm opacity-80">| SQL & NoSQL</span>
-                    </div>
-                </div>
-
                 {settings.bio ? (
-                    <div dangerouslySetInnerHTML={{ __html: settings.bio }} className="whitespace-pre-wrap text-center" />
+                    <div dangerouslySetInnerHTML={{ __html: settings.bio }} className="whitespace-pre-wrap" />
                 ) : (
-                    <p className="text-center">
+                    <p className="whitespace-pre-wrap">
                         Xin chào, tớ là <strong className="text-foreground">Khoa Nguyễn (yun.khngn)</strong>, sinh viên chuyên ngành Kỹ thuật phần mềm tại Đại học FPT.
                         Tớ đang là freelancer thiết kế đồ hoạ và là một guitarist.
                         Tớ đang hướng tới trở thành một <strong className="text-foreground">Fullstack Developer</strong> và thực hiện thêm nhiều ước mơ phía trước.
                     </p>
                 )}
-
-                {/* Gradient Banner */}
-                <div className="relative w-full h-64 md:h-80 rounded-3xl overflow-hidden flex items-center justify-center my-12">
-                    <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-900 via-blue-900 to-black opacity-90" />
-                    <div className="absolute inset-0 bg-gradient-to-tr from-yellow-500/20 via-transparent to-transparent mix-blend-overlay" />
-                    <h2 className="relative z-10 text-4xl md:text-6xl font-bold text-white tracking-tight font-serif">
-                        Eat. Learn. Code.
-                    </h2>
-                </div>
-
                 <blockquote className="border-l-4 border-primary pl-6 py-2 italic text-xl text-foreground font-serif">
                     {settings.quote || '"Tương lai thuộc về những người tin vào vẻ đẹp trong chính những giấc mơ, hoài bão to lớn của mình..."'}
                 </blockquote>
+
+                {
+                    settings.about_content && (
+                        <div dangerouslySetInnerHTML={{ __html: settings.about_content }} className="whitespace-pre-wrap pt-2" />
+                    )
+                }
+
+                <div className="pt-8 space-y-2 text-center">
+                    <p className="italic">Author of this website.</p>
+                    <p className="font-serif text-xl text-foreground font-bold pt-4">Khoa Nguyễn</p>
+                </div>
 
                 {/* Education & Experience Timeline */}
                 <div className="grid md:grid-cols-2 gap-12 pt-12">
@@ -162,7 +151,6 @@ export default function About() {
                         </div>
                     </div>
                 </div>
-
                 {/* Tech Stack & Skills */}
                 <div className="pt-16 space-y-8">
                     <h3 className="text-3xl font-bold text-center text-foreground">Tech Stack & Skills</h3>
@@ -201,16 +189,6 @@ export default function About() {
                             </>
                         )}
                     </div>
-                </div>
-
-                {
-                    settings.about_content && (
-                        <div dangerouslySetInnerHTML={{ __html: settings.about_content }} className="whitespace-pre-wrap pt-12" />
-                    )
-                }
-                <div className="pt-8 space-y-2 text-center">
-                    <p className="italic">Author of this website.</p>
-                    <p className="font-serif text-xl text-foreground font-bold pt-4">Khoa Nguyễn</p>
                 </div>
             </div>
         </div>
