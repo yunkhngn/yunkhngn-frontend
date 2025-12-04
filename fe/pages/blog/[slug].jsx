@@ -163,6 +163,13 @@ export default function BlogDetail({ blogData }) {
                     style={{ height: `${scrollProgress * 100}%` }}
                 />
             </div>
+            <Metadata
+                title={blog.title}
+                description={blog.description || `Read ${blog.title} on Yunkhngn`}
+                image={blog.thumbnail}
+                url={`https://yunkhngn.dev/blog/${blog.slug}`}
+            />
+
             <div className="relative">
                 {/* Full Width Banner */}
                 {blog.thumbnail && (
@@ -299,16 +306,8 @@ export default function BlogDetail({ blogData }) {
 }
 
 BlogDetail.getLayout = function getLayout(page) {
-    const blog = page.props.blogData;
-    const url = typeof window !== 'undefined' ? window.location.href : `https://yunkhngn.dev/blog/${blog.slug}`;
-
     return (
-        <Layout
-            title={blog.title}
-            description={blog.description || `Read ${blog.title} on Yunkhngn`}
-            image={blog.thumbnail}
-            url={url}
-        >
+        <Layout>
             {page}
         </Layout>
     );

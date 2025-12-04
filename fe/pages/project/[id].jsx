@@ -125,6 +125,12 @@ export default function ProjectDetail({ projectData }) {
     return (
         <div className="bg-background text-foreground">
             <JsonLd data={jsonLdData} />
+            <Metadata
+                title={project.title}
+                description={project.description}
+                image={project.cover}
+                url={`https://yunkhngn.dev/project/${project.id}`}
+            />
 
             <div className="container mx-auto px-4 py-12 max-w-5xl">
                 <Link href="/project" className="inline-block mb-8">
@@ -253,16 +259,8 @@ export default function ProjectDetail({ projectData }) {
 }
 
 ProjectDetail.getLayout = function getLayout(page) {
-    const project = page.props.projectData;
-    const url = typeof window !== 'undefined' ? window.location.href : `https://yunkhngn.dev/project/${project.id}`;
-
     return (
-        <Layout
-            title={project.title}
-            description={project.description}
-            image={project.cover}
-            url={url}
-        >
+        <Layout>
             {page}
         </Layout>
     );
