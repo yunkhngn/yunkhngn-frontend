@@ -22,6 +22,7 @@ import { HealthController } from './health/health.controller';
 
 import { NotificationsModule } from './notifications/notifications.module';
 import { CloudflareModule } from './cloudflare/cloudflare.module';
+import { GithubModule } from './github/github.module';
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import { CloudflareModule } from './cloudflare/cloudflare.module';
     ContactModule,
     NotificationsModule,
     CloudflareModule,
+    GithubModule,
   ],
   controllers: [AppController, HealthController],
   providers: [
@@ -58,4 +60,4 @@ import { CloudflareModule } from './cloudflare/cloudflare.module';
     },
   ],
 })
-export class AppModule {}
+export class AppModule { }

@@ -38,6 +38,7 @@
     "dotenv": "^17.2.3",
     "firebase-admin": "^13.6.0",
     "mssql": "^12.1.1",
+    "octokit": "^5.0.5",
     "passport": "^0.7.0",
     "passport-http-bearer": "^1.0.1",
     "reflect-metadata": "^0.2.2",
