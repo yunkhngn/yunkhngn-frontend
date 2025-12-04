@@ -14,6 +14,9 @@ const mockPrismaService = {
   user: {
     findMany: jest.fn().mockResolvedValue([]),
   },
+  blog: {
+    findUnique: jest.fn().mockResolvedValue({ slug: 'test-blog' }),
+  },
 };
 
 const mockSettingsService = {
