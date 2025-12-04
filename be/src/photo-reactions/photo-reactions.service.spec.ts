@@ -59,7 +59,7 @@ describe('PhotoReactionsService', () => {
       expect(notificationsService.create).toHaveBeenCalledWith(
         'LIKE',
         expect.stringContaining(reactionType),
-        '/admin/photo',
+        `/photo#photo-${photoId}`,
       );
     });
   });
