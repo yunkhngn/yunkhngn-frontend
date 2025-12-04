@@ -8,6 +8,7 @@ export default function Metadata({
 }) {
     const fullTitle = title.includes("Khoa Nguyễn") ? title : `${title} - Khoa Nguyễn`;
     const fullUrl = url.startsWith("http") ? url : `https://yunkhngn.dev${url}`;
+    const fullImage = image.startsWith("http") ? image : `https://yunkhngn.dev${image}`;
 
     return (
         <Head>
@@ -57,7 +58,7 @@ export default function Metadata({
             <meta property="og:url" content={fullUrl} />
             <meta property="og:title" content={fullTitle} />
             <meta property="og:description" content={description} />
-            <meta property="og:image" content={image} />
+            <meta property="og:image" content={fullImage} />
             <meta property="og:image:alt" content="Khoa Nguyen" />
             <meta property="og:image:width" content="1200" />
             <meta property="og:image:height" content="630" />
@@ -68,7 +69,7 @@ export default function Metadata({
             <meta property="twitter:url" content={fullUrl} />
             <meta property="twitter:title" content={fullTitle} />
             <meta property="twitter:description" content={description} />
-            <meta property="twitter:image" content={image} />
+            <meta property="twitter:image" content={fullImage} />
             <meta property="twitter:image:alt" content="Khoa Nguyen" />
             <meta property="twitter:image:width" content="1200" />
             <meta property="twitter:image:height" content="630" />
