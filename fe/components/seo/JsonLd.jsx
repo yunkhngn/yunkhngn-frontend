@@ -11,6 +11,7 @@ export default function JsonLd({ data }) {
         <Head>
             <script
                 type="application/ld+json"
+                // nosemgrep: typescript.react.security.audit.react-dangerouslysetinnerhtml.react-dangerouslysetinnerhtml
                 dangerouslySetInnerHTML={{ __html: safeJsonLd }}
             />
         </Head>
