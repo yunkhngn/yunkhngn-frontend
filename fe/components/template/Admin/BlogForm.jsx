@@ -192,11 +192,13 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
         setSubmitting(true);
         setIsDirty(false); // Disable warning for submit
         try {
+            // Only send fields allowed by UpdateBlogDto
             const payload = {
-                ...(initialData || {}),
-                ...formData,
-                content: formData.contentJSON,
+                title: formData.title,
+                slug: formData.slug,
+                thumbnail: formData.thumbnail,
                 tags: formData.tags,
+                contentJSON: formData.contentJSON,
                 status: statusOverride || formData.status || 'DRAFT'
             };
             await onSubmit(payload);

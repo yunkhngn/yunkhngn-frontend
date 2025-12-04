@@ -121,7 +121,7 @@ export default function PhotoManager() {
             setIsCropOpen(false);
         } catch (e) {
             console.error(e);
-            alert('Failed to crop image');
+            toast.error('Failed to crop image');
         }
     };
 
@@ -181,7 +181,7 @@ export default function PhotoManager() {
 
         } catch (error) {
             console.error(error);
-            alert('Failed to upload photo');
+            toast.error('Failed to upload photo');
         } finally {
             setUploading(false);
         }
@@ -237,7 +237,7 @@ export default function PhotoManager() {
             fetchPhotos();
         } catch (error) {
             console.error(error);
-            alert('Failed to update caption');
+            toast.error('Failed to update caption');
         }
     };
 
@@ -318,11 +318,11 @@ export default function PhotoManager() {
                                         value={caption}
                                         onChange={(e) => setCaption(e.target.value)}
                                         rows={3}
-                                        maxLength={150}
+                                        maxLength={50}
                                         className="resize-none bg-muted/30"
                                     />
                                     <div className="flex justify-between items-center">
-                                        <span className="text-xs text-muted-foreground">{caption.length}/150</span>
+                                        <span className="text-xs text-muted-foreground">{caption.length}/50</span>
                                         <Button onClick={handleUpload} disabled={!selectedFile || uploading} size="sm">
                                             {uploading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                                             {!uploading && <Upload className="mr-2 h-4 w-4" />}

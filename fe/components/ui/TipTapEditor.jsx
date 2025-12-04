@@ -1,5 +1,5 @@
 import { useEditor, EditorContent, BubbleMenu, ReactNodeViewRenderer } from '@tiptap/react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
 import Link from '@tiptap/extension-link';
@@ -11,6 +11,8 @@ import { LinkPopover } from './LinkPopover';
 import { LinkBubbleMenu } from './LinkBubbleMenu';
 import { Spotify } from '../extensions/Spotify';
 import { Button } from '@/components/ui/Button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/Dialog';
+import { Input } from '@/components/ui/Input';
 import {
     Bold, Italic, Strikethrough, Code, List, ListOrdered, Quote,
     Undo, Redo, Image as ImageIcon, Link as LinkIcon, Heading1, Heading2, Heading3, Trash2, Youtube as YoutubeIcon, Minus
@@ -197,6 +199,9 @@ const parseContent = (content) => {
 };
 
 export default function TipTapEditor({ content, onChange, onImageUpload }) {
+    const [youtubeDialogOpen, setYoutubeDialogOpen] = useState(false);
+    const [youtubeUrl, setYoutubeUrl] = useState('');
+
     const extensions = [
         StarterKit.configure({
             codeBlock: false, // Disable StarterKit's codeBlock to use CodeBlockLowlight
@@ -337,22 +342,57 @@ export default function TipTapEditor({ content, onChange, onImageUpload }) {
     };
 
     const addYoutube = () => {
-        const url = prompt('Enter YouTube URL');
+        setYoutubeDialogOpen(true);
+    };
 
-        if (url) {
+    const handleYoutubeSubmit = () => {
+        if (youtubeUrl) {
             editor.commands.setYoutubeVideo({
-                src: url,
+                src: youtubeUrl,
                 width: 640,
                 height: 480,
-            })
+            });
+            setYoutubeUrl('');
+            setYoutubeDialogOpen(false);
         }
-    }
+    };
 
     return (
-        <div className="border rounded-md overflow-hidden bg-background">
-            <MenuBar editor={editor} addImage={addImage} addYoutube={addYoutube} />
-            <LinkBubbleMenu editor={editor} />
-            <EditorContent editor={editor} />
-        </div>
+        <>
+            <div className="border rounded-md overflow-hidden bg-background">
+                <MenuBar editor={editor} addImage={addImage} addYoutube={addYoutube} />
+                <LinkBubbleMenu editor={editor} />
+                <EditorContent editor={editor} />
+            </div>
+
+            {/* YouTube URL Dialog */}
+            <Dialog open={youtubeDialogOpen} onOpenChange={setYoutubeDialogOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Add YouTube Video</DialogTitle>
+                    </DialogHeader>
+                    <div className="py-4">
+                        <Input
+                            placeholder="Enter YouTube URL"
+                            value={youtubeUrl}
+                            onChange={(e) => setYoutubeUrl(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                    handleYoutubeSubmit();
+                                }
+                            }}
+                        />
+                    </div>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setYoutubeDialogOpen(false)}>
+                            Cancel
+                        </Button>
+                        <Button onClick={handleYoutubeSubmit} disabled={!youtubeUrl}>
+                            Add Video
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+        </>
     );
 }

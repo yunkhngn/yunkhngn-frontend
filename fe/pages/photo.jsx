@@ -147,6 +147,7 @@ export default function Photo() {
                     {photos.map((photo) => (
                         <div
                             key={photo.id}
+                            id={`photo-${photo.id}`}
                             className="break-inside-avoid relative group cursor-pointer rounded-xl overflow-hidden bg-muted"
                             onClick={() => setViewingPhoto(photo)}
                         >
