@@ -71,31 +71,144 @@ export default function About() {
             </div>
 
             <div className="space-y-12 text-lg leading-relaxed text-gray-600 dark:text-gray-300 font-medium">
+                {/* Skill Badges */}
+                <div className="flex flex-wrap justify-center gap-4">
+                    <div className="flex items-center gap-2 px-4 py-2 bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded-full border border-blue-500/20">
+                        <span className="font-bold">Fullstack Developer</span>
+                        <span className="text-sm opacity-80">| Web & Mobile</span>
+                    </div>
+                    <div className="flex items-center gap-2 px-4 py-2 bg-green-500/10 text-green-600 dark:text-green-400 rounded-full border border-green-500/20">
+                        <span className="font-bold">Database Management</span>
+                        <span className="text-sm opacity-80">| SQL & NoSQL</span>
+                    </div>
+                </div>
+
                 {settings.bio ? (
-                    <div dangerouslySetInnerHTML={{ __html: settings.bio }} className="whitespace-pre-wrap" />
+                    <div dangerouslySetInnerHTML={{ __html: settings.bio }} className="whitespace-pre-wrap text-center" />
                 ) : (
-                    <p>
+                    <p className="text-center">
                         Xin chào, tớ là <strong className="text-foreground">Khoa Nguyễn (yun.khngn)</strong>, sinh viên chuyên ngành Kỹ thuật phần mềm tại Đại học FPT.
                         Tớ đang là freelancer thiết kế đồ hoạ và là một guitarist.
                         Tớ đang hướng tới trở thành một <strong className="text-foreground">Fullstack Developer</strong> và thực hiện thêm nhiều ước mơ phía trước.
                     </p>
                 )}
 
+                {/* Gradient Banner */}
+                <div className="relative w-full h-64 md:h-80 rounded-3xl overflow-hidden flex items-center justify-center my-12">
+                    <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-900 via-blue-900 to-black opacity-90" />
+                    <div className="absolute inset-0 bg-gradient-to-tr from-yellow-500/20 via-transparent to-transparent mix-blend-overlay" />
+                    <h2 className="relative z-10 text-4xl md:text-6xl font-bold text-white tracking-tight font-serif">
+                        Eat. Learn. Code.
+                    </h2>
+                </div>
+
                 <blockquote className="border-l-4 border-primary pl-6 py-2 italic text-xl text-foreground font-serif">
                     {settings.quote || '"Tương lai thuộc về những người tin vào vẻ đẹp trong chính những giấc mơ, hoài bão to lớn của mình..."'}
                 </blockquote>
+
+                {/* Education & Experience Timeline */}
+                <div className="grid md:grid-cols-2 gap-12 pt-12">
+                    {/* Education */}
+                    <div className="space-y-8">
+                        <h3 className="text-2xl font-bold flex items-center gap-2 text-foreground">
+                            Education
+                        </h3>
+                        <div className="space-y-8 border-l-2 border-border pl-8 relative">
+                            {settings.education ? (
+                                JSON.parse(settings.education).map((edu, index) => (
+                                    <div key={index} className="relative">
+                                        <span className="absolute -left-[39px] top-1 h-5 w-5 rounded-full border-4 border-background bg-primary" />
+                                        <span className="text-sm text-muted-foreground font-mono">{edu.date}</span>
+                                        <h4 className="text-lg font-bold text-foreground mt-1">{edu.school}</h4>
+                                        <p className="text-primary font-medium">{edu.degree}</p>
+                                        {edu.description && <p className="text-sm mt-2">{edu.description}</p>}
+                                    </div>
+                                ))
+                            ) : (
+                                <div className="relative">
+                                    <span className="absolute -left-[39px] top-1 h-5 w-5 rounded-full border-4 border-background bg-primary" />
+                                    <span className="text-sm text-muted-foreground font-mono">2020 - 2024</span>
+                                    <h4 className="text-lg font-bold text-foreground mt-1">FPT University</h4>
+                                    <p className="text-primary font-medium">Software Engineering</p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Experience */}
+                    <div className="space-y-8">
+                        <h3 className="text-2xl font-bold flex items-center gap-2 text-foreground">
+                            Experience
+                        </h3>
+                        <div className="space-y-8 border-l-2 border-border pl-8 relative">
+                            {settings.experience ? (
+                                JSON.parse(settings.experience).map((exp, index) => (
+                                    <div key={index} className="relative">
+                                        <span className="absolute -left-[39px] top-1 h-5 w-5 rounded-full border-4 border-background bg-primary" />
+                                        <span className="text-sm text-muted-foreground font-mono">{exp.date}</span>
+                                        <h4 className="text-lg font-bold text-foreground mt-1">{exp.company}</h4>
+                                        <p className="text-primary font-medium">{exp.role}</p>
+                                        {exp.description && <p className="text-sm mt-2">{exp.description}</p>}
+                                    </div>
+                                ))
+                            ) : (
+                                <div className="relative">
+                                    <span className="absolute -left-[39px] top-1 h-5 w-5 rounded-full border-4 border-background bg-primary" />
+                                    <span className="text-sm text-muted-foreground font-mono">2021 - Present</span>
+                                    <h4 className="text-lg font-bold text-foreground mt-1">Freelancer</h4>
+                                    <p className="text-primary font-medium">Graphic Designer & Web Developer</p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+
+                {/* Tech Stack & Skills */}
+                <div className="pt-16 space-y-8">
+                    <h3 className="text-3xl font-bold text-center text-foreground">Tech Stack & Skills</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {settings.skills ? (
+                            JSON.parse(settings.skills).map((skillGroup, index) => (
+                                <div key={index} className="bg-card border rounded-xl p-6 hover:border-primary transition-colors">
+                                    <h4 className="text-lg font-bold mb-4 text-foreground">{skillGroup.category}</h4>
+                                    <div className="flex flex-wrap gap-2">
+                                        {skillGroup.items.map((item, i) => (
+                                            <span key={i} className="px-3 py-1 bg-secondary text-secondary-foreground rounded-md text-sm">
+                                                {item}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+                            ))
+                        ) : (
+                            <>
+                                <div className="bg-card border rounded-xl p-6">
+                                    <h4 className="text-lg font-bold mb-4 text-foreground">Languages</h4>
+                                    <div className="flex flex-wrap gap-2">
+                                        {['JavaScript', 'TypeScript', 'Java', 'C#', 'SQL'].map((item, i) => (
+                                            <span key={i} className="px-3 py-1 bg-secondary text-secondary-foreground rounded-md text-sm">{item}</span>
+                                        ))}
+                                    </div>
+                                </div>
+                                <div className="bg-card border rounded-xl p-6">
+                                    <h4 className="text-lg font-bold mb-4 text-foreground">Frameworks & Libraries</h4>
+                                    <div className="flex flex-wrap gap-2">
+                                        {['React', 'Next.js', 'NestJS', 'Node.js', 'Tailwind CSS'].map((item, i) => (
+                                            <span key={i} className="px-3 py-1 bg-secondary text-secondary-foreground rounded-md text-sm">{item}</span>
+                                        ))}
+                                    </div>
+                                </div>
+                            </>
+                        )}
+                    </div>
+                </div>
+
                 {
-                    settings.about_content ? (
-                        <div dangerouslySetInnerHTML={{ __html: settings.about_content }} className="whitespace-pre-wrap" />
-                    ) : (
-                        <p>
-                            Xin chào, tớ là <strong className="text-foreground">Khoa Nguyễn (yun.khngn)</strong>, sinh viên chuyên ngành Kỹ thuật phần mềm tại Đại học FPT.
-                            Tớ đang là freelancer thiết kế đồ hoạ và là một guitarist.
-                            Tớ đang hướng tới trở thành một <strong className="text-foreground">Fullstack Developer</strong> và thực hiện thêm nhiều ước mơ phía trước.
-                        </p>
+                    settings.about_content && (
+                        <div dangerouslySetInnerHTML={{ __html: settings.about_content }} className="whitespace-pre-wrap pt-12" />
                     )
                 }
-                <div className="pt-8 space-y-2">
+                <div className="pt-8 space-y-2 text-center">
                     <p className="italic">Author of this website.</p>
                     <p className="font-serif text-xl text-foreground font-bold pt-4">Khoa Nguyễn</p>
                 </div>
