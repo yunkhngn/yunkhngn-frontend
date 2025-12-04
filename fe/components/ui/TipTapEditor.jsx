@@ -1,5 +1,5 @@
 import { useEditor, EditorContent, BubbleMenu, ReactNodeViewRenderer } from '@tiptap/react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
 import Link from '@tiptap/extension-link';
@@ -11,6 +11,8 @@ import { LinkPopover } from './LinkPopover';
 import { LinkBubbleMenu } from './LinkBubbleMenu';
 import { Spotify } from '../extensions/Spotify';
 import { Button } from '@/components/ui/Button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/Dialog';
+import { Input } from '@/components/ui/Input';
 import {
     Bold, Italic, Strikethrough, Code, List, ListOrdered, Quote,
     Undo, Redo, Image as ImageIcon, Link as LinkIcon, Heading1, Heading2, Heading3, Trash2, Youtube as YoutubeIcon, Minus
@@ -197,6 +199,9 @@ const parseContent = (content) => {
 };
 
 export default function TipTapEditor({ content, onChange, onImageUpload }) {
+    const [youtubeDialogOpen, setYoutubeDialogOpen] = useState(false);
+    const [youtubeUrl, setYoutubeUrl] = useState('');
+
     const extensions = [
         StarterKit.configure({
             codeBlock: false, // Disable StarterKit's codeBlock to use CodeBlockLowlight
@@ -266,6 +271,53 @@ export default function TipTapEditor({ content, onChange, onImageUpload }) {
             attributes: {
                 class: 'prose dark:prose-invert max-w-none p-4 min-h-[300px] outline-none [&_img]:rounded-3xl [&_img]:border-4 [&_img]:border-dashed [&_img]:border-muted-foreground/20 [&_img]:p-2 [&_img]:max-w-[100%] [&_img]:mx-auto [&_img]:block prose-headings:font-serif prose-p:leading-relaxed [&_iframe]:w-full [&_iframe]:aspect-video [&_iframe]:rounded-2xl [&_iframe]:shadow-lg [&_iframe]:mx-auto',
                 style: 'font-family: Palatino, "Palatino Linotype", "Book Antiqua", serif; font-size: 1.2rem;',
+            },
+            handleDrop: (view, event, slice, moved) => {
+                if (!moved && event.dataTransfer && event.dataTransfer.files && event.dataTransfer.files[0]) {
+                    const file = event.dataTransfer.files[0];
+                    const fileType = file.type;
+
+                    // Only handle images
+                    if (fileType.startsWith('image/')) {
+                        event.preventDefault();
+
+                        if (onImageUpload) {
+                            onImageUpload(file).then(url => {
+                                if (url) {
+                                    const { schema } = view.state;
+                                    const coordinates = view.posAtCoords({ left: event.clientX, top: event.clientY });
+                                    const node = schema.nodes.image.create({ src: url });
+                                    const transaction = view.state.tr.insert(coordinates.pos, node);
+                                    view.dispatch(transaction);
+                                }
+                            });
+                        }
+                        return true;
+                    }
+                }
+                return false;
+            },
+            handlePaste: (view, event, slice) => {
+                const items = Array.from(event.clipboardData?.items || []);
+                const imageItem = items.find(item => item.type.startsWith('image/'));
+
+                if (imageItem) {
+                    event.preventDefault();
+                    const file = imageItem.getAsFile();
+
+                    if (file && onImageUpload) {
+                        onImageUpload(file).then(url => {
+                            if (url) {
+                                const { schema } = view.state;
+                                const node = schema.nodes.image.create({ src: url });
+                                const transaction = view.state.tr.replaceSelectionWith(node);
+                                view.dispatch(transaction);
+                            }
+                        });
+                    }
+                    return true;
+                }
+                return false;
             },
         },
         immediatelyRender: false,
@@ -337,22 +389,57 @@ export default function TipTapEditor({ content, onChange, onImageUpload }) {
     };
 
     const addYoutube = () => {
-        const url = prompt('Enter YouTube URL');
+        setYoutubeDialogOpen(true);
+    };
 
-        if (url) {
+    const handleYoutubeSubmit = () => {
+        if (youtubeUrl) {
             editor.commands.setYoutubeVideo({
-                src: url,
+                src: youtubeUrl,
                 width: 640,
                 height: 480,
-            })
+            });
+            setYoutubeUrl('');
+            setYoutubeDialogOpen(false);
         }
-    }
+    };
 
     return (
-        <div className="border rounded-md overflow-hidden bg-background">
-            <MenuBar editor={editor} addImage={addImage} addYoutube={addYoutube} />
-            <LinkBubbleMenu editor={editor} />
-            <EditorContent editor={editor} />
-        </div>
+        <>
+            <div className="border rounded-md overflow-hidden bg-background">
+                <MenuBar editor={editor} addImage={addImage} addYoutube={addYoutube} />
+                <LinkBubbleMenu editor={editor} />
+                <EditorContent editor={editor} />
+            </div>
+
+            {/* YouTube URL Dialog */}
+            <Dialog open={youtubeDialogOpen} onOpenChange={setYoutubeDialogOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Add YouTube Video</DialogTitle>
+                    </DialogHeader>
+                    <div className="py-4">
+                        <Input
+                            placeholder="Enter YouTube URL"
+                            value={youtubeUrl}
+                            onChange={(e) => setYoutubeUrl(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                    handleYoutubeSubmit();
+                                }
+                            }}
+                        />
+                    </div>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setYoutubeDialogOpen(false)}>
+                            Cancel
+                        </Button>
+                        <Button onClick={handleYoutubeSubmit} disabled={!youtubeUrl}>
+                            Add Video
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+        </>
     );
 }

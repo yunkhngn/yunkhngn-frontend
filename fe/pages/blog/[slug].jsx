@@ -184,7 +184,7 @@ export default function BlogDetail({ blogData }) {
                     </div>
                 )}
 
-                <div className="container mx-auto px-4 py-12 md:py-20 relative">
+                <div className="container mx-auto px-4 py-12 md:py-20 relative overflow-x-hidden">
                     {/* Back Button */}
                     <div className="absolute top-0 left-4 md:left-8 mt-10">
                         <Link href="/blog">

@@ -43,6 +43,13 @@ const CommentForm = forwardRef(({ blogId, projectId, onCommentAdded }, ref) => {
             return;
         }
 
+        // Check for multiple mentions (only allow 1 mention per comment)
+        const mentions = content.match(/@\w+/g) || [];
+        if (mentions.length > 1) {
+            toast.error('You can only mention one person per comment');
+            return;
+        }
+
         if (!displayName.trim() && !isAdmin) {
             toast.error('Please enter your name');
             return;
