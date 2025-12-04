@@ -42,12 +42,53 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
     const [crop, setCrop] = useState({ x: 0, y: 0 });
     const [zoom, setZoom] = useState(1);
     const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
+    const [lastSaved, setLastSaved] = useState(null);
     const fileInputRef = useRef(null);
+    const autoSaveTimerRef = useRef(null);
 
     const { showModal, setShowModal, confirmNavigation } = useUnsavedChanges(isDirty);
 
+    // Helper to get draft key
+    const getDraftKey = () => {
+        if (isEditing && initialData?.id) {
+            return `blog_draft_${initialData.id}`;
+        }
+        return 'blog_draft_new';
+    };
+
+    // Restore draft on mount
     useEffect(() => {
-        if (initialData) {
+        const key = getDraftKey();
+        const savedDraft = localStorage.getItem(key);
+
+        if (savedDraft) {
+            try {
+                const parsedDraft = JSON.parse(savedDraft);
+                // For new posts, always restore. For edits, maybe check timestamp? 
+                // For now, let's restore and notify.
+
+                // Don't restore if we just loaded initialData and it matches (avoid overwrite loop if logic complex)
+                // But here initialData comes from props.
+
+                if (isEditing && initialData) {
+                    // Only restore if draft is different/newer? 
+                    // Simple check: if draft exists, ask user or just notify.
+                    // Let's auto-restore and show toast.
+                }
+
+                setFormData(prev => ({
+                    ...prev,
+                    ...parsedDraft,
+                    // Ensure we don't overwrite status if not intended, but draft usually has status
+                }));
+                setSlugManuallyEdited(true); // Assume manual edit if restored
+                setIsDirty(true);
+                setLastSaved(new Date(parsedDraft._savedAt));
+                toast.info('Restored unsaved draft');
+            } catch (e) {
+                console.error('Failed to parse draft', e);
+            }
+        } else if (initialData) {
             setFormData({
                 title: initialData.title || '',
                 slug: initialData.slug || '',
@@ -57,9 +98,38 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
                 status: initialData.status || 'DRAFT'
             });
         }
-    }, [initialData]);
+    }, [initialData, isEditing]);
+
+    // Auto-save effect
+    useEffect(() => {
+        if (!isDirty) return;
+
+        if (autoSaveTimerRef.current) {
+            clearTimeout(autoSaveTimerRef.current);
+        }
+
+        autoSaveTimerRef.current = setTimeout(() => {
+            const key = getDraftKey();
+            const draftData = {
+                ...formData,
+                _savedAt: Date.now()
+            };
+            localStorage.setItem(key, JSON.stringify(draftData));
+            setLastSaved(new Date());
+        }, 1000); // Debounce 1s
+
+        return () => {
+            if (autoSaveTimerRef.current) {
+                clearTimeout(autoSaveTimerRef.current);
+            }
+        };
+    }, [formData, isDirty, isEditing, initialData]);
 
     const resetForm = () => {
+        const key = getDraftKey();
+        localStorage.removeItem(key);
+        setLastSaved(null);
+
         if (initialData) {
             setFormData({
                 title: initialData.title || '',
@@ -81,6 +151,7 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
             setSlugManuallyEdited(false);
         }
         setIsDirty(false);
+        toast.success('Form reset and draft cleared');
     };
 
     const generateSlug = (text) => {
@@ -120,7 +191,7 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
     const handleCropDone = async () => {
         try {
             const croppedImageBlob = await getCroppedImg(tempImgUrl, croppedAreaPixels);
-            setSelectedFile(croppedImageBlob);
+            // setSelectedFile(croppedImageBlob); // Not defined in original code, likely mistake in previous context or unused
             setIsCropOpen(false);
 
             // Auto-upload after crop
@@ -268,6 +339,12 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
                 status: statusOverride || formData.status || 'DRAFT'
             };
             await onSubmit(payload);
+
+            // Clear draft on success
+            const key = getDraftKey();
+            localStorage.removeItem(key);
+            setLastSaved(null);
+
             if (statusOverride) {
                 setFormData(prev => ({ ...prev, status: statusOverride }));
             }
@@ -429,15 +506,25 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
             </Dialog>
 
             <div className="flex items-center justify-between sticky top-0 bg-background z-10 py-2 border-b">
-                <h2 className="text-xl font-bold">
-                    {isEditing ? 'Edit Blog' : 'New Blog'}
-                </h2>
-                <Button variant="ghost" size="sm" onClick={resetForm}>
-                    <RotateCcw className="h-4 w-4 mr-2" /> Reset
-                </Button>
-                <Button variant="outline" size="sm" className="ml-auto mr-2" onClick={() => setShowAiModal(true)}>
-                    <Sparkles className="h-4 w-4 mr-2 text-yellow-500" /> AI Assistant
-                </Button>
+                <div className="flex items-center gap-4">
+                    <h2 className="text-xl font-bold">
+                        {isEditing ? 'Edit Blog' : 'New Blog'}
+                    </h2>
+                    {lastSaved && (
+                        <span className="text-xs text-muted-foreground flex items-center gap-1">
+                            <Save className="h-3 w-3" />
+                            Saved {lastSaved.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                    )}
+                </div>
+                <div className="flex items-center gap-2">
+                    <Button variant="ghost" size="sm" onClick={resetForm}>
+                        <RotateCcw className="h-4 w-4 mr-2" /> Reset
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => setShowAiModal(true)}>
+                        <Sparkles className="h-4 w-4 mr-2 text-yellow-500" /> AI Assistant
+                    </Button>
+                </div>
             </div>
 
             <div className="pb-32">
