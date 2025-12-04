@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/DropdownMenu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/Avatar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/Dialog";
+import NotificationDropdown from "@/components/ui/NotificationDropdown";
 
 const NAV_ITEMS = [
     { label: "Project", href: "/project" },
@@ -122,6 +123,10 @@ export default function Navbar() {
                     >
                         <Search size={20} />
                     </button>
+
+                    {user && user.role === 'ADMIN' && (
+                        <NotificationDropdown />
+                    )}
 
                     {user && (
                         <DropdownMenu>

@@ -5,8 +5,10 @@ import { PrismaService } from '../prisma/prisma.service';
 import { EmailModule } from '../email/email.module';
 import { AiModule } from '../ai/ai.module';
 
+import { NotificationsModule } from '../notifications/notifications.module';
+
 @Module({
-  imports: [EmailModule, AiModule],
+  imports: [EmailModule, AiModule, NotificationsModule],
   controllers: [ContactController],
   providers: [ContactService, PrismaService],
 })

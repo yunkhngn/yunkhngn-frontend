@@ -11,11 +11,20 @@ import { VoteDto } from './dto/vote.dto';
 import { ReportCommentDto } from './dto/report-comment.dto';
 import { UpdateReportDto } from './dto/update-report.dto';
 
+import * as sanitizeHtml from 'sanitize-html';
+import { SettingsService } from '../settings/settings.service';
+
+import { NotificationsService } from '../notifications/notifications.service';
+
 @Injectable()
 export class CommentsService {
   private readonly rateLimitMap = new Map<string, number>();
 
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private settingsService: SettingsService,
+    private notificationsService: NotificationsService,
+  ) {}
 
   // Rate limiting: 1 comment per 10 seconds per UID
   private checkRateLimit(uid: string): void {
@@ -38,12 +47,62 @@ export class CommentsService {
       throw new Error('Either blogId or projectId must be provided');
     }
 
+    // 1. Sanitize XSS
+    const cleanContent = sanitizeHtml(createCommentDto.content, {
+      allowedTags: [],
+      allowedAttributes: {},
+    });
+
+    if (cleanContent.trim().length === 0) {
+      throw new BadRequestException('Comment cannot be empty');
+    }
+
+    // 2. Check repetition
+    // Check for >3 consecutive same punctuation
+    if (/([.?!])\1{3,}/.test(cleanContent)) {
+      throw new BadRequestException('Too many repeated punctuation marks');
+    }
+    // Check for excessive repeated characters (e.g. aaaaaa) - > 10
+    if (/(.)\1{9,}/.test(cleanContent)) {
+      throw new BadRequestException('Too many repeated characters');
+    }
+
+    // 3. Check forbidden keywords
+    const settings = await this.settingsService.getSettings();
+    const forbiddenSetting = settings.find(
+      (s) => s.settingTitle === 'comment_forbidden_keywords',
+    );
+    if (forbiddenSetting && forbiddenSetting.content) {
+      const keywords = forbiddenSetting.content
+        .split(',')
+        .map((k) => k.trim())
+        .filter((k) => k);
+      const lowerContent = cleanContent.toLowerCase();
+      for (const keyword of keywords) {
+        if (lowerContent.includes(keyword.toLowerCase())) {
+          throw new BadRequestException('Comment contains forbidden keywords');
+        }
+      }
+    }
+
     const comment = await this.prisma.comment.create({
       data: {
         ...createCommentDto,
+        content: cleanContent,
         uid,
       },
     });
+
+    // Send real-time notification
+    this.notificationsService
+      .create(
+        'COMMENT',
+        `New comment from ${createCommentDto.displayName}: ${cleanContent.substring(0, 50)}...`,
+        `/admin/comments`,
+      )
+      .catch((err) =>
+        console.error('Failed to send real-time notification:', err),
+      );
 
     return this.attachUserDetails([comment]).then((comments) => comments[0]);
   }

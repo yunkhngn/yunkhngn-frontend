@@ -3,6 +3,7 @@ import { ContactService } from './contact.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { EmailService } from '../email/email.service';
 import { AiService } from '../ai/ai.service';
+import { NotificationsService } from '../notifications/notifications.service';
 
 describe('ContactService', () => {
   let service: ContactService;
@@ -28,6 +29,10 @@ describe('ContactService', () => {
     generateText: jest.fn(),
   };
 
+  const mockNotificationsService = {
+    create: jest.fn().mockResolvedValue({}),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -35,6 +40,7 @@ describe('ContactService', () => {
         { provide: PrismaService, useValue: mockPrismaService },
         { provide: EmailService, useValue: mockEmailService },
         { provide: AiService, useValue: mockAiService },
+        { provide: NotificationsService, useValue: mockNotificationsService },
       ],
     }).compile();
 

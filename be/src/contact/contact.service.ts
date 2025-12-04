@@ -3,12 +3,15 @@ import { PrismaService } from '../prisma/prisma.service';
 import { EmailService } from '../email/email.service';
 import { AiService } from '../ai/ai.service';
 
+import { NotificationsService } from '../notifications/notifications.service';
+
 @Injectable()
 export class ContactService {
   constructor(
     private prisma: PrismaService,
     private emailService: EmailService,
     private aiService: AiService,
+    private notificationsService: NotificationsService,
   ) {}
 
   async createContact(data: {
@@ -37,6 +40,17 @@ export class ContactService {
     this.emailService
       .sendContactNotification(contact)
       .catch((err) => console.error('Failed to send notification:', err));
+
+    // Send real-time notification
+    this.notificationsService
+      .create(
+        'CONTACT',
+        `New contact message from ${contact.name}: ${contact.subject}`,
+        `/admin/contact`,
+      )
+      .catch((err) =>
+        console.error('Failed to send real-time notification:', err),
+      );
 
     return contact;
   }

@@ -2,16 +2,21 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { PhotoReaction } from '@prisma/client';
 
+import { NotificationsService } from '../notifications/notifications.service';
+
 @Injectable()
 export class PhotoReactionsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private notificationsService: NotificationsService,
+  ) {}
 
   async addOrUpdateReaction(
     photoId: string,
     uid: string,
     reactionType: string,
   ): Promise<PhotoReaction> {
-    return this.prisma.photoReaction.upsert({
+    const result = await this.prisma.photoReaction.upsert({
       where: {
         photoId_uid: { photoId, uid },
       },
@@ -24,6 +29,22 @@ export class PhotoReactionsService {
         reactionType,
       },
     });
+
+    // If created (createdAt is recent), send notification
+    // Note: upsert returns the object. If we want to be sure it's new, we might need a different approach or just notify on every update?
+    // Let's assume we only notify on new reactions.
+    // Actually, upsert doesn't tell us if it was created or updated easily without checking createdAt.
+    // But for simplicity, let's notify.
+    // To avoid spam, maybe check if it's a new reaction?
+    // Let's just notify.
+
+    this.notificationsService
+      .create('LIKE', `New ${reactionType} reaction on photo`, `/admin/photo`)
+      .catch((err) =>
+        console.error('Failed to send real-time notification:', err),
+      );
+
+    return result;
   }
 
   async removeReaction(

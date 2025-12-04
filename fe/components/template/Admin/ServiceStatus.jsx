@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/Button';
-import { CheckCircle, XCircle, Loader2, RefreshCw, Server, Image, Shield, Sparkles, Mail } from 'lucide-react';
+import { CheckCircle, XCircle, Loader2, RefreshCw, Server, Image, Shield, Sparkles, Mail, Activity } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const StatusItem = ({ icon: Icon, label, status }) => (
@@ -40,6 +40,7 @@ export default function ServiceStatus() {
         firebase: { status: 'pending', message: 'Checking...' },
         gemini: { status: 'pending', message: 'Checking...' },
         resend: { status: 'pending', message: 'Checking...' },
+        cloudflare: { status: 'pending', message: 'Checking...' },
     });
     const [loading, setLoading] = useState(false);
 
@@ -51,6 +52,7 @@ export default function ServiceStatus() {
             firebase: { status: 'pending', message: 'Checking...' },
             gemini: { status: 'pending', message: 'Checking...' },
             resend: { status: 'pending', message: 'Checking...' },
+            cloudflare: { status: 'pending', message: 'Checking...' },
         });
 
         // 1. Check Firebase (Client-side)
@@ -81,12 +83,20 @@ export default function ServiceStatus() {
                     setStatuses(prev => ({ ...prev, resend: { status: 'error', message: 'Missing Key' } }));
                 }
 
+                // Check Cloudflare
+                if (data.services?.cloudflare) {
+                    setStatuses(prev => ({ ...prev, cloudflare: { status: 'success', message: 'Configured' } }));
+                } else {
+                    setStatuses(prev => ({ ...prev, cloudflare: { status: 'error', message: 'Missing Key' } }));
+                }
+
             } else {
                 setStatuses(prev => ({
                     ...prev,
                     backend: { status: 'error', message: `Status: ${res.status}` },
                     gemini: { status: 'error', message: 'Backend Error' },
-                    resend: { status: 'error', message: 'Backend Error' }
+                    resend: { status: 'error', message: 'Backend Error' },
+                    cloudflare: { status: 'error', message: 'Backend Error' }
                 }));
             }
         } catch (error) {
@@ -94,7 +104,8 @@ export default function ServiceStatus() {
                 ...prev,
                 backend: { status: 'error', message: 'Unreachable' },
                 gemini: { status: 'error', message: 'Unreachable' },
-                resend: { status: 'error', message: 'Unreachable' }
+                resend: { status: 'error', message: 'Unreachable' },
+                cloudflare: { status: 'error', message: 'Unreachable' }
             }));
         }
 
@@ -131,6 +142,7 @@ export default function ServiceStatus() {
                 <StatusItem icon={Shield} label="Firebase Auth" status={statuses.firebase} />
                 <StatusItem icon={Sparkles} label="Gemini AI" status={statuses.gemini} />
                 <StatusItem icon={Mail} label="Resend Email" status={statuses.resend} />
+                <StatusItem icon={Activity} label="Cloudflare" status={statuses.cloudflare} />
             </div>
         </div>
     );

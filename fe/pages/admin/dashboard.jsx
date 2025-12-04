@@ -1,4 +1,5 @@
 import AdminLayout from "@/components/template/Admin/Layout";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/Select";
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from 'next-themes';
@@ -35,7 +36,7 @@ import { format, formatDistanceToNow } from "date-fns";
 import { Badge } from "@/components/ui/Badge";
 import { useRouter } from "next/router";
 import Image from "next/image";
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid, AreaChart, Area } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid, AreaChart, Area, LineChart, Line } from 'recharts';
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -62,6 +63,9 @@ export default function Dashboard() {
   const [aiSummary, setAiSummary] = useState('');
   const [generatingAi, setGeneratingAi] = useState(false);
 
+  const [analyticsData, setAnalyticsData] = useState(null);
+  const [analyticsPeriod, setAnalyticsPeriod] = useState('24h');
+
   useEffect(() => {
     const fetchData = async () => {
       if (!user) return;
@@ -69,12 +73,13 @@ export default function Dashboard() {
         const token = await user.getIdToken();
         const headers = { Authorization: `Bearer ${token}` };
 
-        const [blogsRes, projectsRes, galleryRes, commentsRes, contactRes] = await Promise.all([
+        const [blogsRes, projectsRes, galleryRes, commentsRes, contactRes, analyticsRes] = await Promise.all([
           fetch(`${process.env.NEXT_PUBLIC_API_URL}/blogs`, { headers }),
           fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects`),
           fetch(`${process.env.NEXT_PUBLIC_API_URL}/gallery`),
           fetch(`${process.env.NEXT_PUBLIC_API_URL}/comments?limit=1`, { headers }), // Fetch just 1 to get total count from meta
-          fetch(`${process.env.NEXT_PUBLIC_API_URL}/contact`, { headers })
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/contact`, { headers }),
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/analytics?period=${analyticsPeriod}`, { headers })
         ]);
 
         const blogs = await blogsRes.json();
@@ -82,6 +87,11 @@ export default function Dashboard() {
         const gallery = await galleryRes.json();
         const commentsData = await commentsRes.json();
         const contacts = await contactRes.json();
+
+        if (analyticsRes.ok) {
+          const analytics = await analyticsRes.json();
+          setAnalyticsData(analytics);
+        }
 
         const publishedBlogs = blogs.filter(b => b.status === 'PUBLISHED');
         const draftBlogs = blogs.filter(b => b.status === 'DRAFT');
@@ -146,7 +156,7 @@ export default function Dashboard() {
     };
 
     fetchData();
-  }, [user]);
+  }, [user, analyticsPeriod]);
 
   if (loading) {
     return (
@@ -364,7 +374,7 @@ export default function Dashboard() {
 
         {/* System Status */}
         {/* System Status */}
-        <div className="grid gap-3 grid-cols-1 md:grid-cols-3">
+        <div className="grid gap-3 grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
           <Card className="bg-green-500/10 border-green-500/20">
             <CardContent className="p-4 flex items-center gap-4">
               <div className="p-2 rounded-full bg-green-500/20 text-green-500">
@@ -400,6 +410,19 @@ export default function Dashboard() {
                 <p className="text-sm font-medium">Mail Service</p>
                 <p className="text-xs text-green-500 font-semibold flex items-center gap-1">
                   <CheckCircle2 className="h-3 w-3" /> Active
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="bg-orange-500/10 border-orange-500/20">
+            <CardContent className="p-4 flex items-center gap-4">
+              <div className="p-2 rounded-full bg-orange-500/20 text-orange-500">
+                <Activity className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="text-sm font-medium">Cloudflare</p>
+                <p className="text-xs text-orange-500 font-semibold flex items-center gap-1">
+                  <CheckCircle2 className="h-3 w-3" /> Connected
                 </p>
               </div>
             </CardContent>
@@ -458,6 +481,76 @@ export default function Dashboard() {
             icon={Mail}
           />
         </div>
+
+        {/* Analytics Section */}
+        {analyticsData && (
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle className="flex items-center gap-2">
+                <Activity className="h-5 w-5" />
+                Web Analytics
+              </CardTitle>
+              <Select value={analyticsPeriod} onValueChange={setAnalyticsPeriod}>
+                <SelectTrigger className="w-[120px]">
+                  <SelectValue placeholder="Period" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="24h">Last 24h</SelectItem>
+                  <SelectItem value="7d">Last 7 Days</SelectItem>
+                  <SelectItem value="30d">Last 30 Days</SelectItem>
+                </SelectContent>
+              </Select>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                <div className="p-4 rounded-lg bg-muted/50">
+                  <p className="text-sm text-muted-foreground">Total Requests</p>
+                  <p className="text-2xl font-bold">{analyticsData.totals.requests.toLocaleString()}</p>
+                </div>
+                <div className="p-4 rounded-lg bg-muted/50">
+                  <p className="text-sm text-muted-foreground">Data Transfer</p>
+                  <p className="text-2xl font-bold">{(analyticsData.totals.bytes / 1024 / 1024).toFixed(2)} MB</p>
+                </div>
+                <div className="p-4 rounded-lg bg-muted/50">
+                  <p className="text-sm text-muted-foreground">Page Views</p>
+                  <p className="text-2xl font-bold">{analyticsData.totals.pageViews.toLocaleString()}</p>
+                </div>
+                <div className="p-4 rounded-lg bg-muted/50">
+                  <p className="text-sm text-muted-foreground">Threats Blocked</p>
+                  <p className="text-2xl font-bold">{analyticsData.totals.threats.toLocaleString()}</p>
+                </div>
+              </div>
+              <div className="h-[300px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={analyticsData.chartData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke={isDark ? "#404040" : "#e5e5e5"} />
+                    <XAxis
+                      dataKey="time"
+                      tickFormatter={(time) => format(new Date(time), analyticsPeriod === '24h' ? 'HH:mm' : 'MMM dd')}
+                      stroke={isDark ? "#a3a3a3" : "#737373"}
+                      style={{ fontSize: '12px' }}
+                    />
+                    <YAxis
+                      stroke={isDark ? "#a3a3a3" : "#737373"}
+                      style={{ fontSize: '12px' }}
+                    />
+                    <Tooltip
+                      labelFormatter={(label) => format(new Date(label), 'MMM dd, HH:mm')}
+                      contentStyle={{
+                        backgroundColor: isDark ? '#171717' : '#ffffff',
+                        border: `1px solid ${isDark ? '#404040' : '#e5e5e5'}`,
+                        borderRadius: '8px'
+                      }}
+                    />
+                    <Legend />
+                    <Line type="monotone" dataKey="requests" stroke="#8884d8" name="Requests" strokeWidth={2} dot={false} />
+                    <Line type="monotone" dataKey="pageViews" stroke="#82ca9d" name="Page Views" strokeWidth={2} dot={false} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Charts Section */}
         <div className="grid gap-4 grid-cols-1 md:grid-cols-2">

@@ -13,6 +13,7 @@ const SYSTEM_SETTINGS = [
   'homepage_description',
   'footer_description',
   'about_content',
+  'comment_forbidden_keywords',
 ];
 
 @Injectable()

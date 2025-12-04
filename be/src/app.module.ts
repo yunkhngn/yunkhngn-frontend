@@ -20,6 +20,9 @@ import { ContactModule } from './contact/contact.module';
 
 import { HealthController } from './health/health.controller';
 
+import { NotificationsModule } from './notifications/notifications.module';
+import { CloudflareModule } from './cloudflare/cloudflare.module';
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -43,6 +46,8 @@ import { HealthController } from './health/health.controller';
     AiModule,
     PhotoReactionsModule,
     ContactModule,
+    NotificationsModule,
+    CloudflareModule,
   ],
   controllers: [AppController, HealthController],
   providers: [

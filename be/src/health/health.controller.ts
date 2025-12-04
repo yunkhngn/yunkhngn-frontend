@@ -13,6 +13,7 @@ export class HealthController {
       services: {
         gemini: !!process.env.GEMINI_API_KEY,
         resend: !!process.env.RESEND_API_KEY,
+        cloudflare: !!(process.env.CLOUDFLARE_ZONE_ID && process.env.CLOUDFLARE_API_TOKEN),
       },
     };
   }
