@@ -21,11 +21,23 @@ export function NotificationProvider({ children }) {
     }, [user]);
 
     useEffect(() => {
-        // Only connect if user is admin (or if we want public notifications, but usually admin)
-        const newSocket = io(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001');
+        // Only connect if user is admin
+        if (!user || user.role !== 'ADMIN') {
+            return;
+        }
+
+        const newSocket = io(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001', {
+            reconnection: true,
+            reconnectionDelay: 1000,
+            reconnectionAttempts: 5,
+        });
 
         newSocket.on('connect', () => {
             console.log('Connected to socket server');
+        });
+
+        newSocket.on('connect_error', (error) => {
+            console.warn('Socket connection error:', error.message);
         });
 
         newSocket.on('newNotification', (notification) => {
@@ -42,7 +54,7 @@ export function NotificationProvider({ children }) {
         return () => {
             newSocket.close();
         };
-    }, []);
+    }, [user]);
 
     const fetchNotifications = useCallback(async () => {
         const currentUser = userRef.current;

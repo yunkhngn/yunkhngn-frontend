@@ -136,7 +136,7 @@ export default function Comment({ comment, onUpdate, onDelete, onReply, onMentio
             id={`comment-${comment.id}`}
             className="border-b border-border pb-4 last:border-0 flex gap-4 transition-colors duration-500 rounded-lg p-2"
         >
-            <Avatar className="h-10 w-10">
+            <Avatar className="h-10 w-10 flex-shrink-0">
                 {isCommentAdmin && comment.user?.avatarUrl && (
                     <AvatarImage src={comment.user.avatarUrl} alt={comment.displayName} />
                 )}
@@ -171,27 +171,29 @@ export default function Comment({ comment, onUpdate, onDelete, onReply, onMentio
                     {renderContent(comment.content)}
                 </p>
 
-                <div className="flex items-center gap-4">
-                    <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1 md:gap-4 flex-wrap">
+                    <div className="flex items-center gap-1">
                         <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => handleVote(1)}
                             disabled={voting}
-                            className={userVote === 1 ? 'text-primary' : ''}
+                            className={`px-2 ${userVote === 1 ? 'text-primary' : ''}`}
                         >
-                            <ThumbsUp className="h-4 w-4 mr-1" />
-                            {comment.upvoteCount || 0}
+                            <ThumbsUp className="h-4 w-4 md:mr-1" />
+                            <span className="hidden md:inline">{comment.upvoteCount || 0}</span>
+                            <span className="md:hidden ml-1">{comment.upvoteCount || 0}</span>
                         </Button>
                         <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => handleVote(-1)}
                             disabled={voting}
-                            className={userVote === -1 ? 'text-primary' : ''}
+                            className={`px-2 ${userVote === -1 ? 'text-primary' : ''}`}
                         >
-                            <ThumbsDown className="h-4 w-4 mr-1" />
-                            {comment.downvoteCount || 0}
+                            <ThumbsDown className="h-4 w-4 md:mr-1" />
+                            <span className="hidden md:inline">{comment.downvoteCount || 0}</span>
+                            <span className="md:hidden ml-1">{comment.downvoteCount || 0}</span>
                         </Button>
                     </div>
 
@@ -199,10 +201,10 @@ export default function Comment({ comment, onUpdate, onDelete, onReply, onMentio
                         variant="ghost"
                         size="sm"
                         onClick={() => onReply && onReply(comment.displayName)}
-                        className="text-muted-foreground hover:text-foreground"
+                        className="text-muted-foreground hover:text-foreground px-2"
                     >
-                        <Reply className="h-4 w-4 mr-1" />
-                        Reply
+                        <Reply className="h-4 w-4 md:mr-1" />
+                        <span className="hidden md:inline">Reply</span>
                     </Button>
 
                     {!isOwner && !isCommentAdmin && (

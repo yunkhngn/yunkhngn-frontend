@@ -67,7 +67,7 @@ export default function TipTapViewer({ content }) {
         editable: false, // Read-only
         editorProps: {
             attributes: {
-                class: 'prose dark:prose-invert max-w-none p-4 outline-none [&_img]:rounded-3xl [&_img]:border-4 [&_img]:border-dashed [&_img]:border-muted-foreground/20 [&_img]:p-2 [&_img]:w-[100%] [&_img]:block [&_iframe]:max-w-3xl [&_iframe]:w-full [&_iframe]:aspect-video [&_iframe]:rounded-2xl [&_iframe]:shadow-lg [&_iframe]:mx-auto [&_iframe]:my-6',
+                class: 'prose dark:prose-invert max-w-none p-4 outline-none [&_img]:rounded-3xl [&_img]:border-4 [&_img]:border-dashed [&_img]:border-muted-foreground/20 [&_img]:p-2 [&_img]:w-[100%] [&_img]:block [&_iframe]:max-w-full [&_iframe]:w-[calc(100%-2rem)] [&_iframe]:aspect-video [&_iframe]:rounded-2xl [&_iframe]:shadow-lg [&_iframe]:mx-auto [&_iframe]:my-6',
             },
         },
         immediatelyRender: false,
