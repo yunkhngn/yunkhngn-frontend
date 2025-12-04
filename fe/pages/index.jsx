@@ -316,7 +316,7 @@ export default function Home() {
       <section className="container mx-auto px-4 py-20">
         <h2 className="text-3xl font-bold mb-12 text-center flex items-center justify-center gap-3">
           <Github className="h-8 w-8" />
-          Featured Open Source
+          Open Source
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {featuredRepos.map((repo) => (
@@ -372,7 +372,7 @@ export default function Home() {
       {/* Gallery - Masonry */}
       <section className="space-y-8">
         <div className="flex items-center justify-between">
-          <h2 className="text-3xl font-bold font-serif">Captured Moments</h2>
+          <h2 className="text-3xl font-bold font-serif">Locket Gallery</h2>
           <Link href="/photo" className="text-sm text-muted-foreground hover:text-primary flex items-center gap-1 transition-colors">
             View gallery <ArrowRight className="h-4 w-4" />
           </Link>

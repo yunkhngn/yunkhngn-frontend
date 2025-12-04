@@ -1,0 +1,23 @@
+# Allow all crawlers
+User-agent: *
+Allow: /
+
+# Disallow admin pages
+Disallow: /admin/
+Disallow: /login
+
+# Disallow API routes (if any)
+Disallow: /api/
+
+# Allow specific important pages
+Allow: /blog
+Allow: /project
+Allow: /photo
+Allow: /contact
+Allow: /about
+
+# Crawl delay (optional, helps prevent server overload)
+Crawl-delay: 1
+
+# Sitemap location
+Sitemap: https://yunkhngn.dev/sitemap.xml
