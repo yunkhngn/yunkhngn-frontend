@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
 import { Loader2, Edit, X } from 'lucide-react';
+import Editor from '@monaco-editor/react';
 import {
     Table,
     TableBody,
@@ -20,6 +21,12 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/Dialog";
+import {
+    Tabs,
+    TabsContent,
+    TabsList,
+    TabsTrigger,
+} from "@/components/ui/Tabs";
 
 export default function Settings() {
     const { user } = useAuth();
@@ -155,12 +162,40 @@ export default function Settings() {
                             </div>
                             <div className="space-y-2">
                                 <label className="text-sm font-medium">Content</label>
-                                <Textarea
-                                    value={currentSetting.content}
-                                    onChange={(e) => setCurrentSetting({ ...currentSetting, content: e.target.value })}
-                                    placeholder="Value..."
-                                    rows={10}
-                                />
+                                <Tabs defaultValue="code" className="w-full">
+                                    <TabsList className="grid w-full grid-cols-2 mb-4">
+                                        <TabsTrigger value="code">Code Editor (JSON)</TabsTrigger>
+                                        <TabsTrigger value="text">Plain Text</TabsTrigger>
+                                    </TabsList>
+                                    <TabsContent value="code" className="mt-0">
+                                        <div className="border rounded-md overflow-hidden">
+                                            <Editor
+                                                height="400px"
+                                                defaultLanguage="json"
+                                                theme="vs-dark"
+                                                value={currentSetting.content}
+                                                onChange={(value) => setCurrentSetting({ ...currentSetting, content: value })}
+                                                options={{
+                                                    minimap: { enabled: false },
+                                                    fontSize: 14,
+                                                    lineNumbers: 'on',
+                                                    scrollBeyondLastLine: false,
+                                                    automaticLayout: true,
+                                                    tabSize: 2,
+                                                    wordWrap: 'on'
+                                                }}
+                                            />
+                                        </div>
+                                    </TabsContent>
+                                    <TabsContent value="text" className="mt-0">
+                                        <Textarea
+                                            value={currentSetting.content}
+                                            onChange={(e) => setCurrentSetting({ ...currentSetting, content: e.target.value })}
+                                            placeholder="Enter plain text content..."
+                                            className="min-h-[400px] font-mono"
+                                        />
+                                    </TabsContent>
+                                </Tabs>
                             </div>
                             <div className="flex justify-end gap-2">
                                 <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>

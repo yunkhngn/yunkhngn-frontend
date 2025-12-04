@@ -1,17 +1,26 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 
-export default function CommentForm({ blogId, projectId, onCommentAdded }) {
+const CommentForm = forwardRef(({ blogId, projectId, onCommentAdded }, ref) => {
     const { user, signInAnonymously } = useAuth();
     const [content, setContent] = useState('');
     const [displayName, setDisplayName] = useState('');
     const [loading, setLoading] = useState(false);
 
     const isAdmin = user?.role === 'ADMIN';
+
+    useImperativeHandle(ref, () => ({
+        replyTo: (name) => {
+            const safeName = name.replace(/\s+/g, '_');
+            const mention = `@${safeName} `;
+            setContent(prev => mention + prev);
+            // Optional: Focus logic could go here if we had a ref to the Textarea
+        }
+    }));
 
     // Load saved displayName from localStorage
     useEffect(() => {
@@ -38,8 +47,6 @@ export default function CommentForm({ blogId, projectId, onCommentAdded }) {
             toast.error('Please enter your name');
             return;
         }
-
-        // ... (rest of the function)
 
         let currentUser = user;
 
@@ -95,8 +102,6 @@ export default function CommentForm({ blogId, projectId, onCommentAdded }) {
         }
     };
 
-
-
     return (
         <form onSubmit={handleSubmit} className="space-y-4">
             {!isAdmin && (
@@ -119,6 +124,7 @@ export default function CommentForm({ blogId, projectId, onCommentAdded }) {
                     rows={4}
                     maxLength={200}
                     required
+                    id="comment-textarea"
                 />
                 <div className="flex justify-end mt-1">
                     <span className={`text-xs ${content.length >= 500 ? 'text-red-500' : 'text-muted-foreground'}`}>
@@ -133,4 +139,8 @@ export default function CommentForm({ blogId, projectId, onCommentAdded }) {
             </div>
         </form>
     );
-}
+});
+
+CommentForm.displayName = 'CommentForm';
+
+export default CommentForm;

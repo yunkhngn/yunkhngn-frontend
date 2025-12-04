@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
-import { ThumbsUp, ThumbsDown } from 'lucide-react';
+import { ThumbsUp, ThumbsDown, Reply } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { formatDistanceToNow } from 'date-fns';
@@ -8,7 +8,7 @@ import ReportModal from './ReportModal';
 import DeleteCommentModal from './DeleteCommentModal';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/Avatar";
 
-export default function Comment({ comment, onUpdate, onDelete }) {
+export default function Comment({ comment, onUpdate, onDelete, onReply, onMentionClick }) {
     const { user } = useAuth();
     const [voting, setVoting] = useState(false);
     const [userVote, setUserVote] = useState(null);
@@ -108,8 +108,34 @@ export default function Comment({ comment, onUpdate, onDelete }) {
         }
     };
 
+    const renderContent = (content) => {
+        if (!content) return null;
+
+        // Split by spaces but keep delimiters to preserve structure
+        const parts = content.split(/(\s+)/);
+
+        return parts.map((part, index) => {
+            if (part.startsWith('@') && part.length > 1) {
+                const username = part.substring(1);
+                return (
+                    <span
+                        key={index}
+                        className="text-blue-500 font-medium cursor-pointer hover:underline"
+                        onClick={() => onMentionClick && onMentionClick(username)}
+                    >
+                        {part.replace(/_/g, ' ')}
+                    </span>
+                );
+            }
+            return part;
+        });
+    };
+
     return (
-        <div className="border-b border-border pb-4 last:border-0 flex gap-4">
+        <div
+            id={`comment-${comment.id}`}
+            className="border-b border-border pb-4 last:border-0 flex gap-4 transition-colors duration-500 rounded-lg p-2"
+        >
             <Avatar className="h-10 w-10">
                 {isCommentAdmin && comment.user?.avatarUrl && (
                     <AvatarImage src={comment.user.avatarUrl} alt={comment.displayName} />
@@ -141,7 +167,9 @@ export default function Comment({ comment, onUpdate, onDelete }) {
                     </div>
                 </div>
 
-                <p className="text-foreground whitespace-pre-wrap break-words" style={{ overflowWrap: 'anywhere' }}>{comment.content}</p>
+                <p className="text-foreground whitespace-pre-wrap break-words" style={{ overflowWrap: 'anywhere' }}>
+                    {renderContent(comment.content)}
+                </p>
 
                 <div className="flex items-center gap-4">
                     <div className="flex items-center gap-2">
@@ -166,6 +194,16 @@ export default function Comment({ comment, onUpdate, onDelete }) {
                             {comment.downvoteCount || 0}
                         </Button>
                     </div>
+
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => onReply && onReply(comment.displayName)}
+                        className="text-muted-foreground hover:text-foreground"
+                    >
+                        <Reply className="h-4 w-4 mr-1" />
+                        Reply
+                    </Button>
 
                     {!isOwner && !isCommentAdmin && (
                         <ReportModal commentId={comment.id} onReport={handleReport} />

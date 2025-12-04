@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import Comment from './Comment';
 import CommentForm from './CommentForm';
@@ -8,6 +8,7 @@ export default function CommentSection({ blogId, projectId }) {
     const { user } = useAuth();
     const [comments, setComments] = useState([]);
     const [loading, setLoading] = useState(true);
+    const commentFormRef = useRef(null);
 
     const fetchComments = useCallback(async () => {
         try {
@@ -62,6 +63,7 @@ export default function CommentSection({ blogId, projectId }) {
             </CardHeader>
             <CardContent className="space-y-6">
                 <CommentForm
+                    ref={commentFormRef}
                     blogId={blogId}
                     projectId={projectId}
                     onCommentAdded={handleCommentAdded}
@@ -79,6 +81,35 @@ export default function CommentSection({ blogId, projectId }) {
                                 comment={comment}
                                 onUpdate={handleCommentUpdate}
                                 onDelete={handleCommentDelete}
+                                onReply={(name) => {
+                                    commentFormRef.current?.replyTo(name);
+                                    document.getElementById('comment-textarea')?.focus();
+                                }}
+                                onMentionClick={(username) => {
+                                    // Find the FIRST (oldest) comment from the mentioned user
+                                    const query = username.toLowerCase().replace(/_/g, ' ');
+
+                                    // Filter all comments from this user
+                                    const userComments = comments.filter(c => {
+                                        const name = c.displayName.toLowerCase();
+                                        return name === query ||
+                                            name.split(' ')[0] === query ||
+                                            name.includes(query);
+                                    });
+
+                                    // Get the oldest comment (first in the list, assuming chronological order)
+                                    const target = userComments.length > 0 ? userComments[userComments.length - 1] : null;
+
+                                    if (target) {
+                                        const el = document.getElementById(`comment-${target.id}`);
+                                        if (el) {
+                                            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                            // Add a temporary highlight effect
+                                            el.classList.add('bg-primary/5');
+                                            setTimeout(() => el.classList.remove('bg-primary/5'), 2000);
+                                        }
+                                    }
+                                }}
                             />
                         ))
                     )}

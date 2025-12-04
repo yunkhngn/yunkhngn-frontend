@@ -425,11 +425,13 @@ export default function PhotoManager() {
                                     <Trash2 className="h-4 w-4" />
                                 </Button>
 
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img
+                                <Image
                                     src={viewingPhoto.imageUrl}
-                                    alt={viewingPhoto.caption}
+                                    alt={viewingPhoto.caption || 'Photo'}
+                                    width={1200}
+                                    height={800}
                                     className="w-auto h-auto max-w-full max-h-[80vh] object-contain rounded-lg shadow-2xl"
+                                    unoptimized
                                 />
 
                                 {/* Caption Overlay for Modal */}

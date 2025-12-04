@@ -415,6 +415,19 @@ export class CommentsService {
               content: true,
               displayName: true,
               blogId: true,
+              projectId: true,
+              blog: {
+                select: {
+                  title: true,
+                  slug: true,
+                },
+              },
+              project: {
+                select: {
+                  title: true,
+                  slug: true,
+                },
+              },
             },
           },
         },
