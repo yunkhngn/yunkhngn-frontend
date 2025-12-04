@@ -20,6 +20,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { extractTextFromTipTap } from '@/lib/utils';
 import Layout from '@/components/template/Default/Layout';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/Tooltip';
+import JsonLd from '@/components/seo/JsonLd';
 
 export default function Home() {
   const [recentBlogs, setRecentBlogs] = useState([]);
@@ -98,8 +99,41 @@ export default function Home() {
     fetchData();
   }, []);
 
+  const jsonLdData = [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'WebSite',
+      name: 'Khoa Nguyễn (yunkhngn)',
+      url: 'https://yunkhngn.dev', // Replace with actual domain
+      potentialAction: {
+        '@type': 'SearchAction',
+        target: 'https://yunkhngn.dev/search?q={search_term_string}',
+        'query-input': 'required name=search_term_string'
+      }
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Person',
+      name: 'Khoa Nguyễn',
+      url: 'https://yunkhngn.dev',
+      image: 'https://github.com/yunkhngn.png',
+      sameAs: [
+        settings.facebook || 'https://facebook.com/yunkhngn',
+        settings.instagram || 'https://instagram.com/yunkhngn',
+        settings.github || 'https://github.com/yunkhngn',
+        settings.linkedin || 'https://linkedin.com/in/yunkhngn'
+      ],
+      jobTitle: 'Software Developer',
+      worksFor: {
+        '@type': 'Organization',
+        name: 'FPT University'
+      }
+    }
+  ];
+
   return (
     <div className="container mx-auto px-4 py-12 md:py-24 max-w-7xl space-y-32">
+      <JsonLd data={jsonLdData} />
       {/* Hero Section */}
       <section className="flex flex-col items-center text-center justify-center space-y-8 py-20 md:py-32 max-w-4xl mx-auto">
 

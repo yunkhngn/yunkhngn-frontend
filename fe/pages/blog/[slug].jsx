@@ -13,6 +13,7 @@ import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import Layout from '@/components/template/Default/Layout';
 import { extractTextFromTipTap, stripHtml } from '@/lib/utils';
+import JsonLd from '@/components/seo/JsonLd';
 
 export async function getServerSideProps(context) {
     const { slug } = context.params;
@@ -138,8 +139,24 @@ export default function BlogDetail({ blogData }) {
         );
     }
 
+    const jsonLdData = {
+        '@context': 'https://schema.org',
+        '@type': 'BlogPosting',
+        headline: blog.title,
+        description: blog.description,
+        image: blog.thumbnail ? [blog.thumbnail] : [],
+        datePublished: blog.createdAt,
+        dateModified: blog.updatedAt || blog.createdAt,
+        author: {
+            '@type': 'Person',
+            name: 'Khoa Nguyễn',
+            url: 'https://yunkhngn.dev'
+        }
+    };
+
     return (
         <div className="bg-background text-foreground">
+            <JsonLd data={jsonLdData} />
             <div className="fixed top-0 left-0 h-full w-1 z-[9999] bg-transparent">
                 <div
                     className="w-full bg-sky-600 transition-all duration-200 ease-out"
