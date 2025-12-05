@@ -1,10 +1,10 @@
 import Image from "next/image";
 import { Github, Facebook, Instagram, Linkedin, Mail, Database, Code2, Terminal, Layout as LayoutIcon, Server, Settings, Video, Palette, Layers, GraduationCap, Briefcase } from "lucide-react";
 import {
-    SiJavascript, SiTypescript, SiJava, SiCsharp, SiPython, SiCplusplus, SiHtml5, SiCss3,
+    SiJavascript, SiTypescript, SiPython, SiCplusplus, SiHtml5, SiCss3,
     SiReact, SiNextdotjs, SiNestjs, SiNodedotjs, SiExpress, SiPrisma, SiTypeorm, SiTailwindcss, SiShadcnui,
-    SiGit, SiGithubactions, SiDocker, SiCaddy, SiPostman, SiFigma, SiVisualstudiocode, SiFirebase, SiCloudinary,
-    SiMicrosoftsqlserver, SiMysql, SiPostgresql, SiMongodb,
+    SiGit, SiGithubactions, SiDocker, SiCaddy, SiPostman, SiFigma, SiFirebase, SiCloudinary,
+    SiMysql, SiPostgresql, SiMongodb,
     SiAdobephotoshop, SiAdobeillustrator, SiAdobepremierepro, SiAdobeaftereffects, SiAdobelightroom, SiBlender,
     SiVercel, SiRailway
 } from "react-icons/si";
@@ -261,7 +261,7 @@ function getSkillIcon(skillName) {
         'js': SiJavascript,
         'typescript': SiTypescript,
         'ts': SiTypescript,
-        'java': SiJava,
+        'java': Code2,
         'c': SiCplusplus,
         'c++': SiCplusplus,
         'cpp': SiCplusplus,
@@ -270,8 +270,8 @@ function getSkillIcon(skillName) {
         'sql': Database,
         'html': SiHtml5,
         'css': SiCss3,
-        'c#': SiCsharp,
-        'csharp': SiCsharp,
+        'c#': Code2,
+        'csharp': Code2,
 
         // Frameworks & Libs
         'react': SiReact,
@@ -297,12 +297,12 @@ function getSkillIcon(skillName) {
         'caddy': SiCaddy,
         'postman': SiPostman,
         'figma': SiFigma,
-        'vscode': SiVisualstudiocode,
+        'vscode': Code2,
         'firebase': SiFirebase,
         'cloudinary': SiCloudinary,
 
         // Databases
-        'mssql': SiMicrosoftsqlserver,
+        'mssql': Database,
         'mysql': SiMysql,
         'postgresql': SiPostgresql,
         'mongodb': SiMongodb,

@@ -64,18 +64,20 @@ export default function Contact() {
             <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl mx-auto">
                 {/* Name */}
                 <div className="space-y-2">
-                    <label className="text-base font-semibold text-foreground">
+                    <label htmlFor="name" className="text-base font-semibold text-foreground">
                         Your name
                     </label>
                     <div className="relative">
                         <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground z-10 pointer-events-none" />
                         <Input
-                            type="text"
-                            placeholder="Your full name"
+                            id="name"
+                            name="name"
                             value={formData.name}
                             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                            className="pl-10"
+                            placeholder="Your Name"
                             required
+                            className="pl-10 bg-background/50"
+                            aria-label="Your Name"
                         />
                     </div>
                 </div>

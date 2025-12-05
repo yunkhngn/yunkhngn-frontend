@@ -120,6 +120,7 @@ const CommentForm = forwardRef(({ blogId, projectId, onCommentAdded }, ref) => {
                         onChange={(e) => setDisplayName(e.target.value)}
                         maxLength={50}
                         required
+                        aria-label="Your name"
                     />
                 </div>
             )}
