@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/router';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -49,12 +49,13 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
     const { showModal, setShowModal, confirmNavigation } = useUnsavedChanges(isDirty);
 
     // Helper to get draft key
-    const getDraftKey = () => {
+    // Helper to get draft key
+    const getDraftKey = useCallback(() => {
         if (isEditing && initialData?.id) {
             return `blog_draft_${initialData.id}`;
         }
         return 'blog_draft_new';
-    };
+    }, [isEditing, initialData]);
 
     // Restore draft on mount
     useEffect(() => {
@@ -98,7 +99,7 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
                 status: initialData.status || 'DRAFT'
             });
         }
-    }, [initialData, isEditing]);
+    }, [initialData, isEditing, getDraftKey]);
 
     // Auto-save effect
     useEffect(() => {
@@ -123,7 +124,7 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
                 clearTimeout(autoSaveTimerRef.current);
             }
         };
-    }, [formData, isDirty, isEditing, initialData]);
+    }, [formData, isDirty, isEditing, initialData, getDraftKey]);
 
     const resetForm = () => {
         const key = getDraftKey();
