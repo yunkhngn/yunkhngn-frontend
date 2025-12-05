@@ -64,11 +64,14 @@ export default function Login() {
                             Email or username<span className="text-destructive">*</span>
                         </label>
                         <Input
+                            id="email"
                             type="email"
-                            required
-                            className="bg-background border-input"
+                            placeholder="name@example.com"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
+                            required
+                            className="bg-background/50"
+                            aria-label="Email Address"
                         />
                     </div>
 
@@ -77,9 +80,9 @@ export default function Login() {
                             Password<span className="text-destructive">*</span>
                         </label>
                         <Input
+                            id="password"
                             type="password"
-                            required
-                            className="bg-background border-input"
+                            placeholder="Password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                         />
