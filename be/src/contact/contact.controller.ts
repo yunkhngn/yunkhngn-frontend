@@ -18,7 +18,7 @@ import { CreateContactDto } from './dto/create-contact.dto';
 
 @Controller('contact')
 export class ContactController {
-  constructor(private readonly contactService: ContactService) {}
+  constructor(private readonly contactService: ContactService) { }
 
   @Post()
   @Throttle({ default: { limit: 3, ttl: 3600000 } }) // 3 requests per hour
@@ -68,5 +68,31 @@ export class ContactController {
   @Roles('ADMIN')
   async remove(@Param('id') id: string) {
     return this.contactService.remove(id);
+  }
+
+  @Post('send-mail')
+  @UseGuards(FirebaseAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  async sendCustomEmail(
+    @Body()
+    data: {
+      to: string;
+      name: string;
+      subject: string;
+      content: string;
+    },
+  ) {
+    return this.contactService.sendCustomEmail(data);
+  }
+
+  @Post('ai-compose')
+  @UseGuards(FirebaseAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  async composeAiEmail(
+    @Body('topic') topic: string,
+    @Body('recipientName') recipientName: string,
+    @Body('language') language?: string,
+  ) {
+    return this.contactService.generateAiEmail(topic, recipientName, language);
   }
 }

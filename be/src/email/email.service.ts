@@ -34,25 +34,23 @@ export class EmailService {
                 </div>
             </div>
 
-            ${
-              data.phone
-                ? `
+            ${data.phone
+        ? `
             <div style="display: grid; grid-template-columns: 100px 1fr; gap: 16px; margin-bottom: 24px;">
                 <div style="font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: 1px; padding-top: 4px;">Phone</div>
                 <div style="font-size: 15px; color: #ccc;">${data.phone}</div>
             </div>`
-                : ''
-            }
+        : ''
+      }
 
-            ${
-              data.company
-                ? `
+            ${data.company
+        ? `
             <div style="display: grid; grid-template-columns: 100px 1fr; gap: 16px; margin-bottom: 24px;">
                 <div style="font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: 1px; padding-top: 4px;">Company</div>
                 <div style="font-size: 15px; color: #ccc;">${data.company}</div>
             </div>`
-                : ''
-            }
+        : ''
+      }
 
             <div style="display: grid; grid-template-columns: 100px 1fr; gap: 16px; margin-bottom: 24px;">
                 <div style="font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: 1px; padding-top: 4px;">Category</div>
@@ -180,6 +178,74 @@ export class EmailService {
       return data;
     } catch (error) {
       console.error('Error sending response email:', error);
+      return null;
+    }
+  }
+  private getCustomMailTemplate(data: any): string {
+    return `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${data.subject}</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #000000; color: #e5e5e5; -webkit-font-smoothing: antialiased;">
+    <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
+        <!-- Minimal Header -->
+        <div style="margin-bottom: 40px;">
+            <div style="font-size: 18px; font-weight: 700; color: #ffffff; letter-spacing: -0.5px;">yunkhngn.</div>
+        </div>
+
+        <!-- Main Content -->
+        <div style="font-size: 16px; line-height: 1.6; color: #d4d4d4;">
+            <p style="margin-bottom: 24px;">Hi ${data.name},</p>
+            
+            <div style="color: #ffffff; margin-bottom: 32px;">
+                ${data.content}
+            </div>
+
+            <div style="margin-top: 40px; padding-top: 24px; border-top: 1px solid #222;">
+                <p style="margin: 0; color: #fff; font-weight: 500;">Khoa Nguyen</p>
+                <p style="margin: 4px 0 0; font-size: 14px; color: #666;">Software Engineer & Designer</p>
+                <div style="margin-top: 16px;">
+                    <a href="https://yunkhngn.dev" style="color: #666; text-decoration: none; font-size: 13px; margin-right: 16px;">Website</a>
+                    <a href="https://facebook.com/yun.khngn" style="color: #666; text-decoration: none; font-size: 13px; margin-right: 16px;">Facebook</a>
+                    <a href="https://instagram.com/yun.khngn" style="color: #666; text-decoration: none; font-size: 13px; margin-right: 16px;">Instagram</a>
+                    <a href="https://github.com/yunkhngn" style="color: #666; text-decoration: none; font-size: 13px; margin-right: 16px;">GitHub</a>
+                    <a href="https://linkedin.com/in/yunkhngn" style="color: #666; text-decoration: none; font-size: 13px;">LinkedIn</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>`;
+  }
+
+  async sendCustomMail(to: string, name: string, subject: string, content: string) {
+    try {
+      const html = this.getCustomMailTemplate({
+        name,
+        subject,
+        content: content.replace(/\n/g, '<br>'),
+      });
+
+      const { data, error } = await this.resend.emails.send({
+        from: `Khoa Nguyen <noreply@${process.env.RESEND_DOMAIN}>`,
+        to,
+        replyTo: process.env.ADMIN_EMAIL || 'admin@example.com',
+        subject,
+        html,
+      });
+
+      if (error) {
+        console.error('Failed to send custom email:', error);
+        return null;
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Error sending custom email:', error);
       return null;
     }
   }

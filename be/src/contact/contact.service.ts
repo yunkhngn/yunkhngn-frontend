@@ -12,7 +12,7 @@ export class ContactService {
     private emailService: EmailService,
     private aiService: AiService,
     private notificationsService: NotificationsService,
-  ) {}
+  ) { }
 
   async createContact(data: {
     name: string;
@@ -161,5 +161,37 @@ IMPORTANT: Respond in ${lang}. Do not include a subject line.`;
     return this.prisma.contact.delete({
       where: { id },
     });
+  }
+
+  async sendCustomEmail(data: {
+    to: string;
+    name: string;
+    subject: string;
+    content: string;
+  }) {
+    return this.emailService.sendCustomMail(
+      data.to,
+      data.name,
+      data.subject,
+      data.content,
+    );
+  }
+
+  async generateAiEmail(
+    topic: string,
+    recipientName: string,
+    language: string = 'en',
+  ) {
+    const lang = language === 'vi' ? 'Vietnamese' : 'English';
+    const prompt = `You are a professional assistant helping to draft a new email.
+
+Recipient: ${recipientName}
+Topic/Purpose: ${topic}
+
+Task: Generate a professional, friendly, and clear email body.
+IMPORTANT: Respond in ${lang}. Do NOT include a subject line, just the body content.`;
+
+    const aiResponse = await this.aiService.generateText(prompt);
+    return { suggestion: aiResponse };
   }
 }

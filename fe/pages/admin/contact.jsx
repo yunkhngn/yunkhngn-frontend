@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Textarea } from '@/components/ui/Textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/Select';
 import { toast } from 'sonner';
-import { Mail, Clock, CheckCircle, Send, Sparkles, Phone, Building, Trash2 } from 'lucide-react';
+import { Mail, Clock, CheckCircle, Send, Sparkles, Phone, Building, Trash2, Plus, PenLine } from 'lucide-react';
 import { Checkbox } from '@/components/ui/Checkbox';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
 
@@ -27,8 +27,18 @@ export default function AdminContact() {
         title: '',
         description: '',
         action: null,
+        action: null,
         loading: false
     });
+    const [composeOpen, setComposeOpen] = useState(false);
+    const [composeData, setComposeData] = useState({
+        to: '',
+        name: '',
+        subject: '',
+        content: '',
+        aiTopic: ''
+    });
+    const [composeLoading, setComposeLoading] = useState(false);
 
     const fetchContacts = useCallback(async () => {
         if (!user) return;
@@ -237,6 +247,81 @@ export default function AdminContact() {
         return <Badge variant={variants[status]}>{status.toUpperCase()}</Badge>;
     };
 
+    const handleComposeAiSuggest = async () => {
+        if (!composeData.aiTopic && !composeData.content) {
+            toast.error('Please enter a topic or some content for AI to improve');
+            return;
+        }
+
+        setAiGenerating(true);
+        try {
+            const token = await user.getIdToken();
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/contact/ai-compose`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                    topic: composeData.aiTopic || composeData.content,
+                    recipientName: composeData.name || 'there',
+                    language: aiLanguage,
+                }),
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                setComposeData({ ...composeData, content: data.suggestion });
+                toast.success('AI draft generated!');
+            } else {
+                throw new Error('Failed to generate draft');
+            }
+        } catch (error) {
+            console.error(error);
+            toast.error('Failed to generate draft');
+        } finally {
+            setAiGenerating(false);
+        }
+    };
+
+    const handleSendCustomMail = async () => {
+        if (!composeData.to || !composeData.subject || !composeData.content) {
+            toast.error('Please fill in required fields');
+            return;
+        }
+
+        setComposeLoading(true);
+        try {
+            const token = await user.getIdToken();
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/contact/send-mail`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                    to: composeData.to,
+                    name: composeData.name || 'Friend',
+                    subject: composeData.subject,
+                    content: composeData.content,
+                }),
+            });
+
+            if (res.ok) {
+                toast.success('Email sent successfully!');
+                setComposeOpen(false);
+                setComposeData({ to: '', name: '', subject: '', content: '', aiTopic: '' });
+            } else {
+                throw new Error('Failed to send email');
+            }
+        } catch (error) {
+            console.error(error);
+            toast.error('Failed to send email');
+        } finally {
+            setComposeLoading(false);
+        }
+    };
+
     if (loading) {
         return (
             <AdminLayout>
@@ -248,9 +333,14 @@ export default function AdminContact() {
     return (
         <AdminLayout>
             <div className="space-y-6">
-                <div className="mb-8">
-                    <h1 className="text-3xl font-bold mb-2">Contact Messages</h1>
-                    <p className="text-muted-foreground">Manage and respond to contact form submissions</p>
+                <div className="mb-8 flex justify-between items-start">
+                    <div>
+                        <h1 className="text-3xl font-bold mb-2">Contact Messages</h1>
+                        <p className="text-muted-foreground">Manage and respond to contact form submissions</p>
+                    </div>
+                    <Button onClick={() => setComposeOpen(true)}>
+                        <Plus className="mr-2 h-4 w-4" /> Compose Mail
+                    </Button>
                 </div>
 
                 {/* Filter Tabs */}
@@ -467,6 +557,95 @@ export default function AdminContact() {
                 description={confirmConfig.description}
                 loading={confirmConfig.loading}
             />
+
+            {/* Compose Mail Modal */}
+            <Dialog open={composeOpen} onOpenChange={setComposeOpen}>
+                <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                    <DialogHeader>
+                        <DialogTitle>Compose New Email</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4 py-4">
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium">To (Email)</label>
+                                <Input
+                                    placeholder="email@example.com"
+                                    value={composeData.to}
+                                    onChange={(e) => setComposeData({ ...composeData, to: e.target.value })}
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium">Recipient Name</label>
+                                <Input
+                                    placeholder="John Doe"
+                                    value={composeData.name}
+                                    onChange={(e) => setComposeData({ ...composeData, name: e.target.value })}
+                                />
+                            </div>
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium">Subject</label>
+                            <Input
+                                placeholder="Email Subject"
+                                value={composeData.subject}
+                                onChange={(e) => setComposeData({ ...composeData, subject: e.target.value })}
+                            />
+                        </div>
+
+                        {/* AI Assist Section */}
+                        <div className="bg-muted/30 p-4 rounded-lg space-y-3 border border-dashed">
+                            <div className="flex items-center justify-between">
+                                <span className="text-sm font-medium flex items-center gap-2 text-muted-foreground">
+                                    <Sparkles className="h-4 w-4" /> AI Assistant
+                                </span>
+                                <Select value={aiLanguage} onValueChange={setAiLanguage}>
+                                    <SelectTrigger className="w-[120px] h-8 text-xs">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="en">English</SelectItem>
+                                        <SelectItem value="vi">Tiếng Việt</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="flex gap-2">
+                                <Input
+                                    placeholder="Enter topic or key points for AI to draft..."
+                                    value={composeData.aiTopic}
+                                    onChange={(e) => setComposeData({ ...composeData, aiTopic: e.target.value })}
+                                    className="h-9 text-sm"
+                                />
+                                <Button
+                                    size="sm"
+                                    variant="secondary"
+                                    onClick={handleComposeAiSuggest}
+                                    disabled={aiGenerating || (!composeData.aiTopic && !composeData.content)}
+                                >
+                                    {aiGenerating ? <Sparkles className="animate-spin h-4 w-4" /> : 'Draft'}
+                                </Button>
+                            </div>
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium">Content</label>
+                            <Textarea
+                                placeholder="Email content..."
+                                value={composeData.content}
+                                onChange={(e) => setComposeData({ ...composeData, content: e.target.value })}
+                                rows={10}
+                            />
+                        </div>
+                    </div>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setComposeOpen(false)}>Cancel</Button>
+                        <Button onClick={handleSendCustomMail} disabled={composeLoading}>
+                            <Send className="mr-2 h-4 w-4" />
+                            {composeLoading ? 'Sending...' : 'Send Email'}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </AdminLayout>
     );
 }

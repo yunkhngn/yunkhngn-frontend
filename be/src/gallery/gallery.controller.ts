@@ -17,9 +17,8 @@ import { RolesGuard } from '../auth/roles.guard';
 
 @Controller('gallery')
 export class GalleryController {
-  constructor(private readonly galleryService: GalleryService) {}
+  constructor(private readonly galleryService: GalleryService) { }
 
-  @Post()
   @Post()
   @UseGuards(FirebaseAuthGuard, RolesGuard)
   @Roles('ADMIN')
@@ -40,14 +39,12 @@ export class GalleryController {
   }
 
   @Patch(':id')
-  @Patch(':id')
   @UseGuards(FirebaseAuthGuard, RolesGuard)
   @Roles('ADMIN')
   update(@Param('id') id: string, @Body() body: { caption?: string }) {
     return this.galleryService.update(id, body);
   }
 
-  @Delete(':id')
   @Delete(':id')
   @UseGuards(FirebaseAuthGuard, RolesGuard)
   @Roles('ADMIN')
