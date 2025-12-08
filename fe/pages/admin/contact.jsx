@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Input } from '@/components/ui/Input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/Dialog';
 import { Textarea } from '@/components/ui/Textarea';
+import TipTapEditor from '@/components/ui/TipTapEditor';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/Select';
 import { toast } from 'sonner';
 import { Mail, Clock, CheckCircle, Send, Sparkles, Phone, Building, Trash2, Plus, PenLine } from 'lucide-react';
@@ -16,7 +17,7 @@ export default function AdminContact() {
     const { user } = useAuth();
     const [contacts, setContacts] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [filter, setFilter] = useState('all'); // all, new, read, responded
+    const [filter, setFilter] = useState('all'); // all, new, read, responded, sent
     const [viewingContact, setViewingContact] = useState(null);
     const [response, setResponse] = useState('');
     const [responding, setResponding] = useState(false);
@@ -235,15 +236,19 @@ export default function AdminContact() {
     };
 
     const filteredContacts = contacts.filter(contact => {
-        if (filter === 'all') return true;
-        return contact.status === filter;
+        if (filter === 'new') return contact.status === 'new';
+        if (filter === 'read') return contact.status === 'read';
+        if (filter === 'responded') return contact.status === 'responded';
+        if (filter === 'sent') return contact.status === 'sent';
+        return contact.status !== 'sent';
     });
 
     const getStatusBadge = (status) => {
         const variants = {
             new: 'destructive',
-            read: 'secondary',
-            responded: 'default',
+            read: 'outline',
+            responded: 'success',
+            sent: 'secondary'
         };
         return <Badge variant={variants[status]}>{status.toUpperCase()}</Badge>;
     };
@@ -285,6 +290,37 @@ export default function AdminContact() {
         }
     };
 
+    const handleEditorImageUpload = async (file) => {
+        try {
+            const token = await user.getIdToken();
+            const sigRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/gallery/signature?folder=contacts/mail-content`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            const { signature, timestamp } = await sigRes.json();
+
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('api_key', process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY);
+            formData.append('timestamp', timestamp);
+            formData.append('signature', signature);
+            formData.append('folder', 'contacts/mail-content');
+
+            const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+            const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!uploadRes.ok) throw new Error('Upload failed');
+            const uploadData = await uploadRes.json();
+            return uploadData.secure_url;
+        } catch (error) {
+            console.error(error);
+            toast.error('Failed to upload image');
+            return null;
+        }
+    };
+
     const handleSendCustomMail = async () => {
         if (!composeData.to || !composeData.subject || !composeData.content) {
             toast.error('Please fill in required fields');
@@ -312,6 +348,7 @@ export default function AdminContact() {
                 toast.success('Email sent successfully!');
                 setComposeOpen(false);
                 setComposeData({ to: '', name: '', subject: '', content: '', aiTopic: '' });
+                fetchContacts(); // Refresh list to show sent mail
             } else {
                 throw new Error('Failed to send email');
             }
@@ -346,7 +383,7 @@ export default function AdminContact() {
 
                 {/* Filter Tabs */}
                 <div className="flex flex-wrap gap-2 mb-6">
-                    {['all', 'new', 'read', 'responded'].map((f) => (
+                    {['all', 'new', 'read', 'responded', 'sent'].map((f) => (
                         <Button
                             key={f}
                             variant={filter === f ? 'default' : 'outline'}
@@ -497,7 +534,7 @@ export default function AdminContact() {
                                     </div>
                                 )}
 
-                                {viewingContact.status !== 'responded' && (
+                                {viewingContact.status !== 'responded' && viewingContact.status !== 'sent' && (
                                     <div>
                                         <div className="flex items-center justify-between mb-2">
                                             <h4 className="font-semibold">Send Response:</h4>
@@ -535,7 +572,7 @@ export default function AdminContact() {
                             </div>
                         )}
 
-                        {viewingContact && viewingContact.status !== 'responded' && (
+                        {viewingContact && viewingContact.status !== 'responded' && viewingContact.status !== 'sent' && (
                             <DialogFooter>
                                 <Button variant="outline" onClick={() => setViewingContact(null)}>
                                     Cancel
@@ -561,7 +598,7 @@ export default function AdminContact() {
 
             {/* Compose Mail Modal */}
             <Dialog open={composeOpen} onOpenChange={setComposeOpen}>
-                <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                <DialogContent className="max-w-[80vw] max-h-[90vh] overflow-y-auto w-full">
                     <DialogHeader>
                         <DialogTitle>Compose New Email</DialogTitle>
                     </DialogHeader>
@@ -630,11 +667,11 @@ export default function AdminContact() {
 
                         <div className="space-y-2">
                             <label className="text-sm font-medium">Content</label>
-                            <Textarea
-                                placeholder="Email content..."
-                                value={composeData.content}
-                                onChange={(e) => setComposeData({ ...composeData, content: e.target.value })}
-                                rows={10}
+                            <TipTapEditor
+                                content={composeData.content}
+                                onChange={(html) => setComposeData({ ...composeData, content: html })}
+                                format="html"
+                                onImageUpload={handleEditorImageUpload}
                             />
                         </div>
                     </div>

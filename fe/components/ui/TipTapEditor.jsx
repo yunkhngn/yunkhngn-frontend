@@ -23,7 +23,7 @@ import BubbleMenuExtension from '@tiptap/extension-bubble-menu';
 
 const lowlight = createLowlight(common);
 
-const MenuBar = ({ editor, addImage, addYoutube }) => {
+const MenuBar = ({ editor, addImage, addYoutube, hideEmbeds }) => {
     if (!editor) return null;
 
     return (
@@ -148,16 +148,18 @@ const MenuBar = ({ editor, addImage, addYoutube }) => {
             >
                 <ImageIcon className="h-4 w-4" />
             </Button>
-            <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onMouseDown={(e) => e.preventDefault()}
-                onClick={addYoutube}
-                className={cn(editor.isActive('youtube') && 'bg-muted')}
-            >
-                <YoutubeIcon className="h-4 w-4" />
-            </Button>
+            {!hideEmbeds && (
+                <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={addYoutube}
+                    className={cn(editor.isActive('youtube') && 'bg-muted')}
+                >
+                    <YoutubeIcon className="h-4 w-4" />
+                </Button>
+            )}
             <div className="flex-1" />
             <Button
                 type="button"
@@ -183,11 +185,11 @@ const MenuBar = ({ editor, addImage, addYoutube }) => {
     );
 };
 
-const parseContent = (content) => {
+const parseContent = (content, format) => {
+    if (format === 'html') return content;
     if (typeof content === 'string') {
         try {
             const parsed = JSON.parse(content);
-            // Ensure it's an object/array (TipTap JSON), not just a primitive string like "foo"
             if (typeof parsed === 'object' && parsed !== null) {
                 return parsed;
             }
@@ -199,13 +201,13 @@ const parseContent = (content) => {
     return content;
 };
 
-export default function TipTapEditor({ content, onChange, onImageUpload }) {
+export default function TipTapEditor({ content, onChange, onImageUpload, format = 'json', hideEmbeds = false }) {
     const [youtubeDialogOpen, setYoutubeDialogOpen] = useState(false);
     const [youtubeUrl, setYoutubeUrl] = useState('');
 
     const extensions = [
         StarterKit.configure({
-            codeBlock: false, // Disable StarterKit's codeBlock to use CodeBlockLowlight
+            codeBlock: false,
             blockquote: {
                 HTMLAttributes: {
                     class: 'editor-quote',
@@ -223,7 +225,6 @@ export default function TipTapEditor({ content, onChange, onImageUpload }) {
                     class: {
                         default: null,
                         renderHTML: (attributes) => {
-                            // Only add .editor-link class if href starts with http/https
                             if (attributes.href && /^https?:\/\//i.test(attributes.href)) {
                                 return {
                                     class: 'editor-link',
@@ -269,9 +270,13 @@ export default function TipTapEditor({ content, onChange, onImageUpload }) {
 
     const editor = useEditor({
         extensions: extensions,
-        content: parseContent(content) || '',
+        content: parseContent(content, format) || '',
         onUpdate: ({ editor }) => {
-            onChange(JSON.stringify(editor.getJSON()));
+            if (format === 'html') {
+                onChange(editor.getHTML());
+            } else {
+                onChange(JSON.stringify(editor.getJSON()));
+            }
         },
         editorProps: {
             attributes: {
@@ -351,32 +356,19 @@ export default function TipTapEditor({ content, onChange, onImageUpload }) {
             // For "Edit Project", content is loaded async. Editor initializes empty. 
             // Then content prop updates. We MUST update editor.
 
-            const currentJSON = JSON.stringify(editor.getJSON());
-            if (content !== currentJSON && content !== '') {
-                // Try to parse if it's a string
-                const parsed = parseContent(content);
-                // Only set if different (TipTap setContent usually handles diffing but let's be safe)
-                // Actually setContent is fine.
-
-                // Issue: If user types, onChange fires -> content prop updates -> useEffect fires.
-                // If we setContent again, cursor might jump.
-                // We should only setContent if the *incoming* content is significantly different 
-                // AND it's likely from an external source (like initial load).
-                // But we can't easily distinguish.
-
-                // Workaround: Compare with a flag or just rely on the fact that 
-                // if we type, editor state is ahead or same as content prop (due to React render cycle).
-                // If we type 'a', editor has 'a'. onChange sends 'a'. content prop becomes 'a'.
-                // useEffect sees content='a', editor='a'. No update.
-                // If we load data: editor='', content='abc'. Update!
-
-                // So the check `content !== currentJSON` should be sufficient to avoid loop 
-                // IF the serialization is deterministic.
-
-                editor.commands.setContent(parsed);
+            if (format === 'html') {
+                if (editor.getHTML() !== content) {
+                    editor.commands.setContent(content);
+                }
+            } else {
+                const currentJSON = JSON.stringify(editor.getJSON());
+                if (content !== currentJSON && content !== '') {
+                    const parsed = parseContent(content, format);
+                    editor.commands.setContent(parsed);
+                }
             }
         }
-    }, [content, editor]);
+    }, [content, editor, format]);
 
     const addImage = () => {
         const input = document.createElement('input');
@@ -413,7 +405,7 @@ export default function TipTapEditor({ content, onChange, onImageUpload }) {
     return (
         <>
             <div className="border rounded-md overflow-hidden bg-background">
-                <MenuBar editor={editor} addImage={addImage} addYoutube={addYoutube} />
+                <MenuBar editor={editor} addImage={addImage} addYoutube={addYoutube} hideEmbeds={hideEmbeds} />
                 <LinkBubbleMenu editor={editor} />
                 <EditorContent editor={editor} />
             </div>

@@ -12,7 +12,7 @@ export class ContactService {
     private emailService: EmailService,
     private aiService: AiService,
     private notificationsService: NotificationsService,
-  ) { }
+  ) {}
 
   async createContact(data: {
     name: string;
@@ -169,12 +169,27 @@ IMPORTANT: Respond in ${lang}. Do not include a subject line.`;
     subject: string;
     content: string;
   }) {
-    return this.emailService.sendCustomMail(
+    const result = await this.emailService.sendCustomMail(
       data.to,
       data.name,
       data.subject,
       data.content,
     );
+
+    if (result) {
+      await this.prisma.contact.create({
+        data: {
+          name: data.name,
+          email: data.to,
+          subject: data.subject,
+          message: data.content,
+          category: 'sent_mail',
+          status: 'sent',
+        },
+      });
+    }
+
+    return result;
   }
 
   async generateAiEmail(
