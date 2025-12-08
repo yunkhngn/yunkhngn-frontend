@@ -39,7 +39,7 @@ export default function About() {
         <Layout>
             <Metadata
                 title="About - Khoa Nguyễn"
-                description="Learn more about Khoa Nguyễn - Fullstack Developer & UI/UX Designer. Explore my education, experience, and tech stack."
+                description="Learn more about Khoa Nguyễn - Fullstack Developer. Explore my education, experience, and tech stack."
                 url="https://yunkhngn.dev/about"
             />
             <div className="container mx-auto px-4 py-12 max-w-4xl">
@@ -60,7 +60,7 @@ export default function About() {
                             {settings.name || "Khoa Nguyễn"}
                         </h1>
                         <p className="text-xl text-center text-muted-foreground">
-                            {settings.title || "Fullstack Developer & UI/UX Designer"}
+                            {settings.title || "Fullstack Developer"}
                         </p>
                         <div className="flex items-center justify-center gap-4">
                             <SocialLink href={settings.github || "https://github.com/yunkhngn"} icon={<Github className="w-5 h-5" />} />

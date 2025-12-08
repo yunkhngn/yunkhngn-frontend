@@ -9,6 +9,7 @@ import { useEffect, useState } from 'react';
 import { ImagePreviewModal } from './ImagePreviewModal';
 import CodeBlockComponent from './CodeBlockComponent';
 import { Spotify } from '../extensions/Spotify';
+import { AppleMusic } from '../extensions/AppleMusic';
 
 const lowlight = createLowlight(common);
 
@@ -53,6 +54,11 @@ export default function TipTapViewer({ content }) {
                 },
             }),
             Spotify.configure({
+                HTMLAttributes: {
+                    class: 'w-full md:w-1/2 rounded-2xl shadow-lg mx-auto block',
+                },
+            }),
+            AppleMusic.configure({
                 HTMLAttributes: {
                     class: 'w-full md:w-1/2 rounded-2xl shadow-lg mx-auto block',
                 },

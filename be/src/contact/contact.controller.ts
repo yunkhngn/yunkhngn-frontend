@@ -69,4 +69,30 @@ export class ContactController {
   async remove(@Param('id') id: string) {
     return this.contactService.remove(id);
   }
+
+  @Post('send-mail')
+  @UseGuards(FirebaseAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  async sendCustomEmail(
+    @Body()
+    data: {
+      to: string;
+      name: string;
+      subject: string;
+      content: string;
+    },
+  ) {
+    return this.contactService.sendCustomEmail(data);
+  }
+
+  @Post('ai-compose')
+  @UseGuards(FirebaseAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  async composeAiEmail(
+    @Body('topic') topic: string,
+    @Body('recipientName') recipientName: string,
+    @Body('language') language?: string,
+  ) {
+    return this.contactService.generateAiEmail(topic, recipientName, language);
+  }
 }

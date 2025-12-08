@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { GoogleGenerativeAI, GenerativeModel } from '@google/generative-ai';
 import { PrismaService } from '../prisma/prisma.service';
@@ -36,6 +36,12 @@ export class AiService {
       return response.text();
     } catch (error) {
       console.error('Error generating content:', error);
+      if (error.status === 429) {
+        throw new HttpException(
+          'AI Service is busy (Rate Limit). Please try again in a minute.',
+          HttpStatus.TOO_MANY_REQUESTS,
+        );
+      }
       throw new Error('Failed to generate content');
     }
   }

@@ -82,23 +82,23 @@ export class EmailService {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Response</title>
 </head>
-<body style="margin: 0; padding: 0; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #000000; color: #e5e5e5; -webkit-font-smoothing: antialiased;">
+<body style="margin: 0; padding: 0; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #ffffff; color: #333333; -webkit-font-smoothing: antialiased;">
     <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
         <!-- Minimal Header -->
         <div style="margin-bottom: 40px;">
-            <div style="font-size: 18px; font-weight: 700; color: #ffffff; letter-spacing: -0.5px;">yunkhngn.</div>
+            <div style="font-size: 18px; font-weight: 700; color: #000000; letter-spacing: -0.5px;">yunkhngn.</div>
         </div>
 
         <!-- Main Content -->
-        <div style="font-size: 16px; line-height: 1.6; color: #d4d4d4;">
+        <div style="font-size: 16px; line-height: 1.6; color: #333333;">
             <p style="margin-bottom: 24px;">Hi ${data.name},</p>
             
-            <div style="color: #ffffff; margin-bottom: 32px;">
+            <div style="color: #333333; margin-bottom: 32px;">
                 ${data.response}
             </div>
 
-            <div style="margin-top: 40px; padding-top: 24px; border-top: 1px solid #222;">
-                <p style="margin: 0; color: #fff; font-weight: 500;">Khoa Nguyen</p>
+            <div style="margin-top: 40px; padding-top: 24px; border-top: 1px solid #eaeaea;">
+                <p style="margin: 0; color: #000000; font-weight: 500;">Khoa Nguyen</p>
                 <p style="margin: 4px 0 0; font-size: 14px; color: #666;">Software Engineer & Designer</p>
                 <div style="margin-top: 16px;">
                     <a href="https://yunkhngn.dev" style="color: #666; text-decoration: none; font-size: 13px; margin-right: 16px;">Website</a>
@@ -111,9 +111,9 @@ export class EmailService {
         </div>
 
         <!-- Original Message Context (Subtle) -->
-        <div style="margin-top: 60px; padding-top: 30px; border-top: 1px solid #1a1a1a;">
-            <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #444; margin-bottom: 12px;">Original Message</div>
-            <div style="font-size: 13px; line-height: 1.5; color: #555; background: #0a0a0a; padding: 16px; border-radius: 8px; border: 1px solid #1a1a1a;">
+        <div style="margin-top: 60px; padding-top: 30px; border-top: 1px solid #eaeaea;">
+            <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #888; margin-bottom: 12px;">Original Message</div>
+            <div style="font-size: 13px; line-height: 1.5; color: #666; background: #f9f9f9; padding: 16px; border-radius: 8px; border: 1px solid #eaeaea;">
                 ${data.originalMessage}
             </div>
         </div>
@@ -180,6 +180,79 @@ export class EmailService {
       return data;
     } catch (error) {
       console.error('Error sending response email:', error);
+      return null;
+    }
+  }
+  private getCustomMailTemplate(data: any): string {
+    return `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${data.subject}</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #ffffff; color: #333333; -webkit-font-smoothing: antialiased;">
+    <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
+        <!-- Minimal Header -->
+        <div style="margin-bottom: 40px;">
+            <div style="font-size: 18px; font-weight: 700; color: #000000; letter-spacing: -0.5px;">yunkhngn.</div>
+        </div>
+
+        <!-- Main Content -->
+        <div style="font-size: 16px; line-height: 1.6; color: #333333;">
+            <p style="margin-bottom: 24px;">Hi ${data.name},</p>
+            
+            <div style="color: #333333; margin-bottom: 32px;">
+                ${data.content}
+            </div>
+
+            <div style="margin-top: 40px; padding-top: 24px; border-top: 1px solid #eaeaea;">
+                <p style="margin: 0; color: #000000; font-weight: 500;">Khoa Nguyen</p>
+                <p style="margin: 4px 0 0; font-size: 14px; color: #666;">Software Engineer & Designer</p>
+                <div style="margin-top: 16px;">
+                    <a href="https://yunkhngn.dev" style="color: #666; text-decoration: none; font-size: 13px; margin-right: 16px;">Website</a>
+                    <a href="https://facebook.com/yun.khngn" style="color: #666; text-decoration: none; font-size: 13px; margin-right: 16px;">Facebook</a>
+                    <a href="https://instagram.com/yun.khngn" style="color: #666; text-decoration: none; font-size: 13px; margin-right: 16px;">Instagram</a>
+                    <a href="https://github.com/yunkhngn" style="color: #666; text-decoration: none; font-size: 13px; margin-right: 16px;">GitHub</a>
+                    <a href="https://linkedin.com/in/yunkhngn" style="color: #666; text-decoration: none; font-size: 13px;">LinkedIn</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>`;
+  }
+
+  async sendCustomMail(
+    to: string,
+    name: string,
+    subject: string,
+    content: string,
+  ) {
+    try {
+      const html = this.getCustomMailTemplate({
+        name,
+        subject,
+        content,
+      });
+
+      const { data, error } = await this.resend.emails.send({
+        from: `Khoa Nguyen <noreply@${process.env.RESEND_DOMAIN}>`,
+        to,
+        replyTo: process.env.ADMIN_EMAIL || 'admin@example.com',
+        subject,
+        html,
+      });
+
+      if (error) {
+        console.error('Failed to send custom email:', error);
+        return null;
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Error sending custom email:', error);
       return null;
     }
   }
