@@ -40,7 +40,10 @@ export const Spotify = Node.create({
   },
 
   renderHTML({ HTMLAttributes }) {
-    return ['iframe', mergeAttributes(this.options.HTMLAttributes, HTMLAttributes)];
+    return ['iframe', mergeAttributes(this.options.HTMLAttributes, HTMLAttributes, {
+      allow: 'autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture',
+      loading: 'lazy',
+    })];
   },
 
   addCommands() {

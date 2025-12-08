@@ -85,7 +85,7 @@ const nextConfig = {
               img-src 'self' blob: data: https://res.cloudinary.com https://github.com https://avatars.githubusercontent.com https://lh3.googleusercontent.com https://cataas.com https://placekitten.com https://cdn.buymeacoffee.com;
               font-src 'self' https://fonts.gstatic.com;
               connect-src 'self' https://www.google-analytics.com https://api.cloudinary.com https://api.github.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.googleapis.com ${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'};
-              frame-src 'self' https://www.youtube.com https://*.firebaseapp.com https://open.spotify.com https://soundcloud.com https://w.soundcloud.com https://bandcamp.com;
+              frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com https://*.firebaseapp.com https://*.spotify.com https://*.music.apple.com https://soundcloud.com https://w.soundcloud.com https://bandcamp.com;
             `.replace(/\s{2,}/g, ' ').trim(),
           },
         ],

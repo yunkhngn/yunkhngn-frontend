@@ -10,6 +10,7 @@ import CodeBlockComponent from './CodeBlockComponent';
 import { LinkPopover } from './LinkPopover';
 import { LinkBubbleMenu } from './LinkBubbleMenu';
 import { Spotify } from '../extensions/Spotify';
+import { AppleMusic } from '../extensions/AppleMusic';
 import { Button } from '@/components/ui/Button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/Dialog';
 import { Input } from '@/components/ui/Input';
@@ -244,6 +245,11 @@ export default function TipTapEditor({ content, onChange, onImageUpload }) {
             },
         }),
         Spotify.configure({
+            HTMLAttributes: {
+                class: 'w-full md:w-1/2 rounded-2xl shadow-lg mx-auto block',
+            },
+        }),
+        AppleMusic.configure({
             HTMLAttributes: {
                 class: 'w-full md:w-1/2 rounded-2xl shadow-lg mx-auto block',
             },
