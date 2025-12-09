@@ -191,6 +191,9 @@ export class EmailService {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${data.subject}</title>
+    <style>
+        img { max-width: 100%; height: auto; display: block; margin: 0 auto; }
+    </style>
 </head>
 <body style="margin: 0; padding: 0; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #ffffff; color: #333333; -webkit-font-smoothing: antialiased;">
     <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
@@ -240,6 +243,7 @@ export class EmailService {
       const { data, error } = await this.resend.emails.send({
         from: `Khoa Nguyen <noreply@${process.env.RESEND_DOMAIN}>`,
         to,
+        bcc: process.env.ADMIN_EMAIL,
         replyTo: process.env.ADMIN_EMAIL || 'admin@example.com',
         subject,
         html,

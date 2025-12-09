@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/Input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/Dialog';
 import { Textarea } from '@/components/ui/Textarea';
 import TipTapEditor from '@/components/ui/TipTapEditor';
+import TipTapViewer from '@/components/ui/TipTapViewer';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/Select';
 import { toast } from 'sonner';
 import { Mail, Clock, CheckCircle, Send, Sparkles, Phone, Building, Trash2, Plus, PenLine } from 'lucide-react';
@@ -455,7 +456,8 @@ export default function AdminContact() {
                                                     </Badge>
                                                 </div>
                                                 <p className="text-sm text-muted-foreground truncate">
-                                                    From: {contact.name} ({contact.email})
+                                                    {contact.status === 'sent' ? 'To: ' : 'From: '}
+                                                    {contact.name} ({contact.email})
                                                     {contact.company && ` • ${contact.company}`}
                                                 </p>
                                             </div>
@@ -514,9 +516,9 @@ export default function AdminContact() {
 
                                 <div>
                                     <h4 className="font-semibold mb-2">Message:</h4>
-                                    <p className="whitespace-pre-wrap bg-muted p-4 rounded-lg">
-                                        {viewingContact.message}
-                                    </p>
+                                    <div className="bg-muted p-4 rounded-lg">
+                                        <TipTapViewer content={viewingContact.message} />
+                                    </div>
                                 </div>
 
                                 {viewingContact.adminResponse && (
@@ -572,7 +574,29 @@ export default function AdminContact() {
                             </div>
                         )}
 
-                        {viewingContact && viewingContact.status !== 'responded' && viewingContact.status !== 'sent' && (
+                        {viewingContact && (viewingContact.status === 'sent' || viewingContact.status === 'sent_mail') && (
+                            <DialogFooter>
+                                <Button variant="outline" onClick={() => setViewingContact(null)}>
+                                    Close
+                                </Button>
+                                <Button onClick={() => {
+                                    setComposeData({
+                                        to: viewingContact.email,
+                                        name: viewingContact.name,
+                                        subject: viewingContact.subject,
+                                        content: viewingContact.message,
+                                        aiTopic: ''
+                                    });
+                                    setViewingContact(null);
+                                    setComposeOpen(true);
+                                }}>
+                                    <Send className="h-4 w-4 mr-2" />
+                                    Resend
+                                </Button>
+                            </DialogFooter>
+                        )}
+
+                        {viewingContact && viewingContact.status !== 'responded' && viewingContact.status !== 'sent' && viewingContact.status !== 'sent_mail' && (
                             <DialogFooter>
                                 <Button variant="outline" onClick={() => setViewingContact(null)}>
                                     Cancel
