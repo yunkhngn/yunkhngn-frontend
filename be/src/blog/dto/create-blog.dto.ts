@@ -24,4 +24,16 @@ export class CreateBlogDto {
   @IsEnum(['DRAFT', 'PUBLISHED'])
   @IsOptional()
   status?: string; // 'DRAFT' | 'PUBLISHED'
+
+  @IsString()
+  @IsOptional()
+  seoTitle?: string;
+
+  @IsString()
+  @IsOptional()
+  seoDescription?: string;
+
+  @IsString()
+  @IsOptional()
+  seoImage?: string;
 }

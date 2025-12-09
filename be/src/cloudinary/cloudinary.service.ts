@@ -31,4 +31,28 @@ export class CloudinaryService {
     );
     return { signature, timestamp };
   }
+
+  async getImages(next_cursor?: string) {
+    try {
+      const result = await cloudinary.api.resources({
+        type: 'upload',
+        prefix: 'blog-portfolio', // filter by folder
+        max_results: 50,
+        next_cursor,
+        direction: 'desc',
+      });
+      return result;
+    } catch (error) {
+      throw new Error(`Failed to fetch images: ${error.message}`);
+    }
+  }
+
+  async deleteImage(publicId: string) {
+    try {
+      const result = await cloudinary.uploader.destroy(publicId);
+      return result;
+    } catch (error) {
+      throw new Error(`Failed to delete image: ${error.message}`);
+    }
+  }
 }

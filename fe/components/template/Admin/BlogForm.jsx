@@ -16,6 +16,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Sparkles, Crop as CropIcon } from 'lucide-react';
 import Cropper from 'react-easy-crop';
 import getCroppedImg from '@/lib/cropImage';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/Tabs";
+import SEOEditor from "@/components/admin/SEOEditor";
 
 export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
     const router = useRouter();
@@ -26,7 +28,10 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
         thumbnail: '',
         tags: '',
         contentJSON: '',
-        status: 'DRAFT'
+        status: 'DRAFT',
+        seoTitle: '',
+        seoDescription: '',
+        seoImage: ''
     });
     const [submitting, setSubmitting] = useState(false);
     const [uploading, setUploading] = useState(false);
@@ -138,7 +143,10 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
                 thumbnail: initialData.thumbnail || '',
                 tags: initialData.tags || '',
                 contentJSON: initialData.content || initialData.contentJSON || '',
-                status: initialData.status || 'DRAFT'
+                status: initialData.status || 'DRAFT',
+                seoTitle: initialData.seoTitle || '',
+                seoDescription: initialData.seoDescription || '',
+                seoImage: initialData.seoImage || ''
             });
         } else {
             setFormData({
@@ -147,7 +155,10 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
                 thumbnail: '',
                 tags: '',
                 contentJSON: '',
-                status: 'DRAFT'
+                status: 'DRAFT',
+                seoTitle: '',
+                seoDescription: '',
+                seoImage: ''
             });
             setSlugManuallyEdited(false);
         }
@@ -337,7 +348,11 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
                 thumbnail: formData.thumbnail,
                 tags: formData.tags,
                 contentJSON: formData.contentJSON,
-                status: statusOverride || formData.status || 'DRAFT'
+                contentJSON: formData.contentJSON,
+                status: statusOverride || formData.status || 'DRAFT',
+                seoTitle: formData.seoTitle,
+                seoDescription: formData.seoDescription,
+                seoImage: formData.seoImage
             };
             await onSubmit(payload);
 
@@ -565,78 +580,100 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
                     )}
                 </div>
 
-                <div className="max-w-5xl mx-auto px-4 py-12">
-                    {/* Header Section */}
-                    <div className="text-center mb-12 space-y-6">
-                        {/* Date Placeholder */}
-                        <div className="text-sm text-muted-foreground uppercase tracking-widest">
-                            {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                {/* Editor & SEO Tabs */}
+                <div className="max-w-none">
+                    <Tabs defaultValue="content" className="w-full">
+                        <div className="flex justify-center mb-8">
+                            <TabsList className="grid w-full max-w-[400px] grid-cols-2">
+                                <TabsTrigger value="content">Content</TabsTrigger>
+                                <TabsTrigger value="seo">SEO Settings</TabsTrigger>
+                            </TabsList>
                         </div>
 
-                        {/* Title Input */}
-                        <div className="relative group">
-                            <Textarea
-                                value={formData.title}
-                                onChange={handleTitleChange}
-                                placeholder="Blog Title"
-                                className="text-4xl md:text-6xl font-bold text-center font-serif border-none focus-visible:ring-0 bg-transparent dark:bg-transparent placeholder:text-muted-foreground/30 resize-none overflow-hidden min-h-[1.5em] leading-tight p-0 shadow-none"
-                                style={{ fontFamily: 'var(--font-playfair), serif' }}
-                                rows={1}
-                                onInput={(e) => {
-                                    e.target.style.height = 'auto';
-                                    e.target.style.height = e.target.scrollHeight + 'px';
-                                }}
-                            />
-                        </div>
+                        <TabsContent value="content" className="space-y-4 animate-in fade-in slide-in-from-bottom-4">
+                            <div className="max-w-5xl mx-auto px-4">
+                                {/* Header Section */}
+                                <div className="text-center mb-12 space-y-6">
+                                    {/* Date Placeholder */}
+                                    <div className="text-sm text-muted-foreground uppercase tracking-widest">
+                                        {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                                    </div>
 
-                        {/* Slug & Tags */}
-                        <div className="max-w-xl mx-auto space-y-4">
-                            <div className="flex items-center justify-center gap-2">
-                                <Input
-                                    value={formData.slug}
-                                    onChange={handleSlugChange}
-                                    placeholder="url-slug"
-                                    className="text-center text-sm text-muted-foreground border-transparent hover:border-border focus:border-border bg-transparent h-8 w-full max-w-[300px]"
-                                />
-                            </div>
+                                    {/* Title Input */}
+                                    <div className="relative group">
+                                        <Textarea
+                                            value={formData.title}
+                                            onChange={handleTitleChange}
+                                            placeholder="Blog Title"
+                                            className="text-4xl md:text-6xl font-bold text-center font-serif border-none focus-visible:ring-0 bg-transparent dark:bg-transparent placeholder:text-muted-foreground/30 resize-none overflow-hidden min-h-[1.5em] leading-tight p-0 shadow-none"
+                                            style={{ fontFamily: 'var(--font-playfair), serif' }}
+                                            rows={1}
+                                            onInput={(e) => {
+                                                e.target.style.height = 'auto';
+                                                e.target.style.height = e.target.scrollHeight + 'px';
+                                            }}
+                                        />
+                                    </div>
 
-                            <div className="flex justify-center">
-                                <Input
-                                    value={formData.tags}
-                                    onChange={(e) => {
-                                        setFormData({ ...formData, tags: e.target.value });
+                                    {/* Slug & Tags */}
+                                    <div className="max-w-xl mx-auto space-y-4">
+                                        <div className="flex items-center justify-center gap-2">
+                                            <Input
+                                                value={formData.slug}
+                                                onChange={handleSlugChange}
+                                                placeholder="url-slug"
+                                                className="text-center text-sm text-muted-foreground border-transparent hover:border-border focus:border-border bg-transparent h-8 w-full max-w-[300px]"
+                                            />
+                                        </div>
+
+                                        <div className="flex justify-center">
+                                            <Input
+                                                value={formData.tags}
+                                                onChange={(e) => {
+                                                    setFormData({ ...formData, tags: e.target.value });
+                                                    setIsDirty(true);
+                                                }}
+                                                placeholder="Tags (comma separated)"
+                                                className="text-center border-transparent hover:border-border focus:border-border bg-transparent max-w-[400px]"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* Author */}
+                                    <div className="flex items-center justify-center gap-4 pt-4">
+                                        <div className="relative w-10 h-10 rounded-full overflow-hidden bg-muted">
+                                            <Image src={user?.photoURL || "https://github.com/yunkhngn.png"} alt="Author" fill className="object-cover" />
+                                        </div>
+                                        <div className="text-left">
+                                            <div className="font-medium text-sm">{user?.displayName || "Khoa Nguyễn"}</div>
+                                            <div className="text-xs text-muted-foreground">Author & Developer</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <TipTapEditor
+                                    key={initialData ? initialData.id : 'new'}
+                                    content={formData.contentJSON}
+                                    onChange={(json) => {
+                                        setFormData({ ...formData, contentJSON: json });
                                         setIsDirty(true);
                                     }}
-                                    placeholder="Tags (comma separated)"
-                                    className="text-center border-transparent hover:border-border focus:border-border bg-transparent max-w-[400px]"
+                                    onImageUpload={handleEditorImageUpload}
                                 />
                             </div>
-                        </div>
+                        </TabsContent>
 
-                        {/* Author */}
-                        <div className="flex items-center justify-center gap-4 pt-4">
-                            <div className="relative w-10 h-10 rounded-full overflow-hidden bg-muted">
-                                <Image src={user?.photoURL || "https://github.com/yunkhngn.png"} alt="Author" fill className="object-cover" />
-                            </div>
-                            <div className="text-left">
-                                <div className="font-medium text-sm">{user?.displayName || "Khoa Nguyễn"}</div>
-                                <div className="text-xs text-muted-foreground">Author & Developer</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Editor */}
-                    <div className="max-w-none">
-                        <TipTapEditor
-                            key={initialData ? initialData.id : 'new'}
-                            content={formData.contentJSON}
-                            onChange={(json) => {
-                                setFormData({ ...formData, contentJSON: json });
-                                setIsDirty(true);
-                            }}
-                            onImageUpload={handleEditorImageUpload}
-                        />
-                    </div>
+                        <TabsContent value="seo" className="max-w-5xl mx-auto px-4">
+                            <SEOEditor
+                                data={formData}
+                                onChange={(newData) => {
+                                    setFormData(newData);
+                                    setIsDirty(true);
+                                }}
+                                onImageUpload={handleEditorImageUpload}
+                            />
+                        </TabsContent>
+                    </Tabs>
                 </div>
             </div>
 

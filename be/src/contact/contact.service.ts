@@ -12,7 +12,7 @@ export class ContactService {
     private emailService: EmailService,
     private aiService: AiService,
     private notificationsService: NotificationsService,
-  ) { }
+  ) {}
 
   async createContact(data: {
     name: string;

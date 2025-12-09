@@ -23,6 +23,7 @@ describe('ContactService', () => {
   const mockEmailService = {
     sendContactNotification: jest.fn().mockResolvedValue(true),
     sendContactResponse: jest.fn().mockResolvedValue(true),
+    sendCustomMail: jest.fn().mockResolvedValue({ id: '123' }),
   };
 
   const mockAiService = {
@@ -127,6 +128,41 @@ describe('ContactService', () => {
 
       expect(aiService.generateText).toHaveBeenCalled();
       expect(result).toEqual({ suggestion: 'AI Suggestion' });
+    });
+  });
+
+  describe('sendCustomEmail', () => {
+    it('should send custom email with salutation', async () => {
+      const dto = {
+        to: 'test@example.com',
+        name: 'Test User',
+        subject: 'Custom Subject',
+        content: 'Custom Content',
+        salutation: 'Greetings',
+      };
+
+      mockEmailService.sendCustomMail = jest
+        .fn()
+        .mockResolvedValue({ id: '123' });
+      mockPrismaService.contact.create.mockResolvedValue({ id: '1', ...dto });
+
+      await service.sendCustomEmail(dto);
+
+      expect(emailService.sendCustomMail).toHaveBeenCalledWith(
+        dto.to,
+        dto.name,
+        dto.subject,
+        dto.content,
+        dto.salutation,
+      );
+      // Verify DB record creation (without salutation)
+      expect(prisma.contact.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          email: dto.to,
+          subject: dto.subject,
+          category: 'sent_mail',
+        }),
+      });
     });
   });
 });

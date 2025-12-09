@@ -142,9 +142,9 @@ export default function BlogDetail({ blogData }) {
     const jsonLdData = {
         '@context': 'https://schema.org',
         '@type': 'BlogPosting',
-        headline: blog.title,
-        description: blog.description,
-        image: blog.thumbnail ? [blog.thumbnail] : [],
+        headline: blog.seoTitle || blog.title,
+        description: blog.seoDescription || blog.description,
+        image: (blog.seoImage || blog.thumbnail) ? [blog.seoImage || blog.thumbnail] : [],
         datePublished: blog.createdAt,
         dateModified: blog.updatedAt || blog.createdAt,
         author: {
@@ -164,9 +164,9 @@ export default function BlogDetail({ blogData }) {
                 />
             </div>
             <Metadata
-                title={blog.title}
-                description={blog.description || `Read ${blog.title} on Yunkhngn`}
-                image={blog.thumbnail}
+                title={blog.seoTitle || blog.title}
+                description={blog.seoDescription || blog.description || `Read ${blog.title} on Yunkhngn`}
+                image={blog.seoImage || blog.thumbnail}
                 url={`https://yunkhngn.dev/blog/${blog.slug}`}
             />
 
