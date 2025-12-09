@@ -600,20 +600,7 @@ export default function AdminContact() {
                                     <Send className="h-4 w-4 mr-2" />
                                     Resend
                                 </Button>
-                                <Button variant="secondary" onClick={() => {
-                                    setComposeData({
-                                        to: user?.email || '',
-                                        name: viewingContact.name,
-                                        subject: viewingContact.subject,
-                                        content: viewingContact.message,
-                                        salutation: 'Hi'
-                                    });
-                                    setViewingContact(null);
-                                    setComposeOpen(true);
-                                }}>
-                                    <Send className="h-4 w-4 mr-2" />
-                                    Resend to Me
-                                </Button>
+
                             </DialogFooter>
                         )}
 
