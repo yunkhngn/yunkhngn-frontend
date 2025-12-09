@@ -18,7 +18,7 @@ import { CreateContactDto } from './dto/create-contact.dto';
 
 @Controller('contact')
 export class ContactController {
-  constructor(private readonly contactService: ContactService) {}
+  constructor(private readonly contactService: ContactService) { }
 
   @Post()
   @Throttle({ default: { limit: 3, ttl: 3600000 } }) // 3 requests per hour
@@ -80,6 +80,7 @@ export class ContactController {
       name: string;
       subject: string;
       content: string;
+      salutation?: string;
     },
   ) {
     return this.contactService.sendCustomEmail(data);

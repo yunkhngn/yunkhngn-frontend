@@ -12,7 +12,7 @@ export class ContactService {
     private emailService: EmailService,
     private aiService: AiService,
     private notificationsService: NotificationsService,
-  ) {}
+  ) { }
 
   async createContact(data: {
     name: string;
@@ -168,12 +168,14 @@ IMPORTANT: Respond in ${lang}. Do not include a subject line.`;
     name: string;
     subject: string;
     content: string;
+    salutation?: string;
   }) {
     const result = await this.emailService.sendCustomMail(
       data.to,
       data.name,
       data.subject,
       data.content,
+      data.salutation,
     );
 
     if (result) {

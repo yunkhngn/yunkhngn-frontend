@@ -34,25 +34,23 @@ export class EmailService {
                 </div>
             </div>
 
-            ${
-              data.phone
-                ? `
+            ${data.phone
+        ? `
             <div style="display: grid; grid-template-columns: 100px 1fr; gap: 16px; margin-bottom: 24px;">
                 <div style="font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: 1px; padding-top: 4px;">Phone</div>
                 <div style="font-size: 15px; color: #ccc;">${data.phone}</div>
             </div>`
-                : ''
-            }
+        : ''
+      }
 
-            ${
-              data.company
-                ? `
+            ${data.company
+        ? `
             <div style="display: grid; grid-template-columns: 100px 1fr; gap: 16px; margin-bottom: 24px;">
                 <div style="font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: 1px; padding-top: 4px;">Company</div>
                 <div style="font-size: 15px; color: #ccc;">${data.company}</div>
             </div>`
-                : ''
-            }
+        : ''
+      }
 
             <div style="display: grid; grid-template-columns: 100px 1fr; gap: 16px; margin-bottom: 24px;">
                 <div style="font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: 1px; padding-top: 4px;">Category</div>
@@ -204,7 +202,7 @@ export class EmailService {
 
         <!-- Main Content -->
         <div style="font-size: 16px; line-height: 1.6; color: #333333;">
-            <p style="margin-bottom: 24px;">Hi ${data.name},</p>
+            <p style="margin-bottom: 24px;">${data.salutation || 'Hi'} ${data.name},</p>
             
             <div style="color: #333333; margin-bottom: 32px;">
                 ${data.content}
@@ -232,12 +230,14 @@ export class EmailService {
     name: string,
     subject: string,
     content: string,
+    salutation: string = 'Hi',
   ) {
     try {
       const html = this.getCustomMailTemplate({
         name,
         subject,
         content,
+        salutation,
       });
 
       const { data, error } = await this.resend.emails.send({
