@@ -19,12 +19,6 @@ export default function MediaManager() {
     const { user } = useAuth();
     const fileInputRef = useRef(null);
 
-    useEffect(() => {
-        if (user) {
-            fetchImages();
-        }
-    }, [user, fetchImages]);
-
     const fetchImages = useCallback(async (cursor = null) => {
         try {
             setLoading(true);
@@ -47,6 +41,12 @@ export default function MediaManager() {
             setLoading(false);
         }
     }, [user]);
+
+    useEffect(() => {
+        if (user) {
+            fetchImages();
+        }
+    }, [user, fetchImages]);
 
     const handleLoadMore = () => {
         if (nextCursor) {
