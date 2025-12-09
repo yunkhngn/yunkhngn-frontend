@@ -44,6 +44,9 @@ describe('BlogService', () => {
         status: 'DRAFT',
         thumbnail: null,
         tags: null,
+        seoTitle: null,
+        seoDescription: null,
+        seoImage: null,
       };
 
       jest.spyOn(prisma.blog, 'create').mockResolvedValue(result);
@@ -66,6 +69,9 @@ describe('BlogService', () => {
           status: 'DRAFT',
           thumbnail: null,
           tags: null,
+          seoTitle: null,
+          seoDescription: null,
+          seoImage: null,
         },
       ];
       jest.spyOn(prisma.blog, 'findMany').mockResolvedValue(result);
@@ -86,6 +92,9 @@ describe('BlogService', () => {
         status: 'DRAFT',
         thumbnail: null,
         tags: null,
+        seoTitle: null,
+        seoDescription: null,
+        seoImage: null,
       };
       jest.spyOn(prisma.blog, 'findFirst').mockResolvedValue(result);
 

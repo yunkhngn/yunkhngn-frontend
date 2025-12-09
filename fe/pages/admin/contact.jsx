@@ -39,7 +39,8 @@ export default function AdminContact() {
         name: '',
         subject: '',
         content: '',
-        aiTopic: ''
+        aiTopic: '',
+        salutation: 'Hi'
     });
     const [composeLoading, setComposeLoading] = useState(false);
 
@@ -342,6 +343,7 @@ export default function AdminContact() {
                     name: composeData.name || 'Friend',
                     subject: composeData.subject,
                     content: composeData.content,
+                    salutation: composeData.salutation || 'Hi',
                 }),
             });
 
@@ -473,7 +475,9 @@ export default function AdminContact() {
                                                 <Trash2 className="h-4 w-4" />
                                             </Button>
                                         </div>
-                                        <p className="text-sm line-clamp-2">{contact.message}</p>
+                                        <p className="text-sm line-clamp-2">
+                                            {contact.message?.replace(/<[^>]*>?/gm, '')}
+                                        </p>
                                     </div>
                                 </div>
                             </div>
@@ -585,13 +589,30 @@ export default function AdminContact() {
                                         name: viewingContact.name,
                                         subject: viewingContact.subject,
                                         content: viewingContact.message,
-                                        aiTopic: ''
+                                        salutation: viewingContact.adminResponse || 'Hi', // Try to guess or default
+                                        // Note: viewingContact doesn't store salutation separately in DB schema currently, 
+                                        // so we default to 'Hi'. If needed we can parse it from message but simpler is 'Hi'.
+                                        salutation: 'Hi'
                                     });
                                     setViewingContact(null);
                                     setComposeOpen(true);
                                 }}>
                                     <Send className="h-4 w-4 mr-2" />
                                     Resend
+                                </Button>
+                                <Button variant="secondary" onClick={() => {
+                                    setComposeData({
+                                        to: user?.email || '',
+                                        name: viewingContact.name,
+                                        subject: viewingContact.subject,
+                                        content: viewingContact.message,
+                                        salutation: 'Hi'
+                                    });
+                                    setViewingContact(null);
+                                    setComposeOpen(true);
+                                }}>
+                                    <Send className="h-4 w-4 mr-2" />
+                                    Resend to Me
                                 </Button>
                             </DialogFooter>
                         )}
@@ -638,11 +659,30 @@ export default function AdminContact() {
                             </div>
                             <div className="space-y-2">
                                 <label className="text-sm font-medium">Recipient Name</label>
-                                <Input
-                                    placeholder="John Doe"
-                                    value={composeData.name}
-                                    onChange={(e) => setComposeData({ ...composeData, name: e.target.value })}
-                                />
+                                <div className="flex gap-2">
+                                    <Select
+                                        value={composeData.salutation}
+                                        onValueChange={(val) => setComposeData({ ...composeData, salutation: val })}
+                                    >
+                                        <SelectTrigger className="w-[100px]">
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="Hi">Hi</SelectItem>
+                                            <SelectItem value="Dear">Dear</SelectItem>
+                                            <SelectItem value="Hello">Hello</SelectItem>
+                                            <SelectItem value="Greetings">Greetings</SelectItem>
+                                            <SelectItem value="Thân gửi">Thân gửi</SelectItem>
+                                            <SelectItem value="Xin chào">Xin chào</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    <Input
+                                        placeholder="John Doe"
+                                        value={composeData.name}
+                                        onChange={(e) => setComposeData({ ...composeData, name: e.target.value })}
+                                        className="flex-1"
+                                    />
+                                </div>
                             </div>
                         </div>
 

@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { useTheme } from 'next-themes';
-import { Bot, Moon, Sun, Menu, X, LogOut, LayoutDashboard, User, FileText, Folder, Image, Settings, MessageSquare, Mail } from 'lucide-react';
+import { Bot, Moon, Sun, Menu, X, LogOut, LayoutDashboard, User, FileText, Folder, Image, Settings, MessageSquare, Mail, LayoutGrid } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
@@ -19,6 +19,7 @@ import NotificationDropdown from "@/components/ui/NotificationDropdown";
 const ADMIN_NAV_ITEMS = [
     { label: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
     { label: "Chatbot", href: "/admin/chat", icon: Bot },
+    { label: "Media", href: "/admin/media", icon: LayoutGrid },
     { label: "Project", href: "/admin/project", icon: Folder },
     { label: "Blog", href: "/admin/blog", icon: FileText },
     { label: "Comments", href: "/admin/comments", icon: MessageSquare },

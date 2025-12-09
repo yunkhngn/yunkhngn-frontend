@@ -23,6 +23,7 @@ import { HealthController } from './health/health.controller';
 import { NotificationsModule } from './notifications/notifications.module';
 import { CloudflareModule } from './cloudflare/cloudflare.module';
 import { GithubModule } from './github/github.module';
+import { MediaModule } from './media/media.module';
 
 @Module({
   imports: [
@@ -50,6 +51,7 @@ import { GithubModule } from './github/github.module';
     NotificationsModule,
     CloudflareModule,
     GithubModule,
+    MediaModule,
   ],
   controllers: [AppController, HealthController],
   providers: [

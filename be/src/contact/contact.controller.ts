@@ -80,6 +80,7 @@ export class ContactController {
       name: string;
       subject: string;
       content: string;
+      salutation?: string;
     },
   ) {
     return this.contactService.sendCustomEmail(data);

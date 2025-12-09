@@ -51,6 +51,9 @@ describe('ProjectService', () => {
         repoLink: null,
         demoLink: null,
         contentJSON: null,
+        seoTitle: null,
+        seoDescription: null,
+        seoImage: null,
       };
 
       jest.spyOn(prisma.project, 'findUnique').mockResolvedValue(null);

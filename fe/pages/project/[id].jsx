@@ -108,9 +108,9 @@ export default function ProjectDetail({ projectData }) {
     const jsonLdData = {
         '@context': 'https://schema.org',
         '@type': 'SoftwareSourceCode',
-        name: project.title,
-        description: project.description,
-        image: project.cover ? [project.cover] : [],
+        name: project.seoTitle || project.title,
+        description: project.seoDescription || project.description,
+        image: (project.seoImage || project.cover) ? [project.seoImage || project.cover] : [],
         author: {
             '@type': 'Person',
             name: 'Khoa Nguyễn',
@@ -126,9 +126,9 @@ export default function ProjectDetail({ projectData }) {
         <div className="bg-background text-foreground">
             <JsonLd data={jsonLdData} />
             <Metadata
-                title={project.title}
-                description={project.description}
-                image={project.cover}
+                title={project.seoTitle || project.title}
+                description={project.seoDescription || project.description}
+                image={project.seoImage || project.cover}
                 url={`https://yunkhngn.dev/project/${project.id}`}
             />
 

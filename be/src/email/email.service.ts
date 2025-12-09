@@ -204,7 +204,7 @@ export class EmailService {
 
         <!-- Main Content -->
         <div style="font-size: 16px; line-height: 1.6; color: #333333;">
-            <p style="margin-bottom: 24px;">Hi ${data.name},</p>
+            <p style="margin-bottom: 24px;">${data.salutation || 'Hi'} ${data.name},</p>
             
             <div style="color: #333333; margin-bottom: 32px;">
                 ${data.content}
@@ -232,12 +232,14 @@ export class EmailService {
     name: string,
     subject: string,
     content: string,
+    salutation: string = 'Hi',
   ) {
     try {
       const html = this.getCustomMailTemplate({
         name,
         subject,
         content,
+        salutation,
       });
 
       const { data, error } = await this.resend.emails.send({
