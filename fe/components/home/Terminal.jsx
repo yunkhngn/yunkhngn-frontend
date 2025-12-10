@@ -68,9 +68,12 @@ export default function Terminal() {
                 if (reposRes.ok) {
                     const repos = await reposRes.json();
                     const repoNames = repos.map(repo => repo.name);
+                    const repoUrls = repos.reduce((acc, repo) => ({ ...acc, [repo.name]: repo.html_url }), {});
+
                     newFiles['projects'] = {
                         type: 'dir',
-                        content: repoNames
+                        content: repoNames,
+                        metadata: repoUrls
                     };
                 }
 
@@ -109,7 +112,7 @@ export default function Terminal() {
                     '  clear       - Clear terminal screen',
                     '  whoami      - Display current user',
                     '  date        - Display current date',
-                    '  open [page] - Navigate to page (e.g., open blog)'
+                    '  open [page] - Navigate to page/project (e.g., blog, project-name)'
                 ].join('\n');
 
             case 'ls':
@@ -155,13 +158,23 @@ export default function Terminal() {
                 return new Date().toString();
 
             case 'open':
-                if (!param) return 'Usage: open [page] (e.g., blog, project, contact)';
+                if (!param) return 'Usage: open [page/project]';
+
+                // Check internal pages
                 const validPages = ['blog', 'project', 'contact', 'about', 'gallery', 'showcase'];
                 if (validPages.includes(param)) {
                     router.push(`/${param}`);
                     return `Opening /${param}...`;
                 }
-                return `Page not found. Try: ${validPages.join(', ')}`;
+
+                // Check projects (GitHub repos)
+                const projectUrl = fileSystem['projects']?.metadata?.[param];
+                if (projectUrl) {
+                    window.open(projectUrl, '_blank');
+                    return `Opening ${param} on GitHub...`;
+                }
+
+                return `Page or project not found. Try: ${validPages.join(', ')} or listed projects.`;
 
             default:
                 return `command not found: ${command}`;
