@@ -74,7 +74,10 @@ export default function Terminal() {
                     };
                 }
 
-                setFileSystem(newFiles);
+                setFileSystem(prev => ({
+                    ...prev,
+                    ...newFiles
+                }));
             } catch (error) {
                 console.error("Failed to fetch terminal data", error);
                 setHistory(prev => [...prev, { type: 'output', content: 'Error: Failed to load system data.' }]);
