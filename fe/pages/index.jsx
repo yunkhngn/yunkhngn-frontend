@@ -21,6 +21,7 @@ import { extractTextFromTipTap } from '@/lib/utils';
 import Layout from '@/components/template/Default/Layout';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/Tooltip';
 import JsonLd from '@/components/seo/JsonLd';
+import Terminal from '@/components/home/Terminal';
 
 export default function Home() {
   const [recentBlogs, setRecentBlogs] = useState([]);
@@ -199,15 +200,22 @@ export default function Home() {
           </div>
         </div>
 
-        {settings.bio ? (
-          <div dangerouslySetInnerHTML={{ __html: settings.bio }} className="whitespace-pre-wrap" />
-        ) : (
-          <p>
-            Xin chào, tớ là <strong className="text-foreground">Khoa Nguyễn (yun.khngn)</strong>, sinh viên chuyên ngành Kỹ thuật phần mềm tại Đại học FPT.
-            Tớ đang là freelancer thiết kế đồ hoạ và là một guitarist.
-            Tớ đang hướng tới trở thành một <strong className="text-foreground">Fullstack Developer</strong> và thực hiện thêm nhiều ước mơ phía trước.
-          </p>
-        )}
+        {
+          settings.bio ? (
+            <div dangerouslySetInnerHTML={{ __html: settings.bio }} className="whitespace-pre-wrap" />
+          ) : (
+            <p>
+              Xin chào, tớ là <strong className="text-foreground">Khoa Nguyễn (yun.khngn)</strong>, sinh viên chuyên ngành Kỹ thuật phần mềm tại Đại học FPT.
+              Tớ đang là freelancer thiết kế đồ hoạ và là một guitarist.
+              Tớ đang hướng tới trở thành một <strong className="text-foreground">Fullstack Developer</strong> và thực hiện thêm nhiều ước mơ phía trước.
+            </p>
+          )
+        }
+      </section>
+
+      {/* Terminal Section */}
+      <section className="container mx-auto px-4 max-w-4xl">
+        <Terminal />
       </section>
 
       {/* Recent Blogs */}
@@ -310,7 +318,7 @@ export default function Home() {
             </Link>
           ))}
         </div>
-      </section>
+      </section >
 
       {/* Open Source Section */}
       <section className="container mx-auto px-4 py-20">
@@ -367,7 +375,7 @@ export default function Home() {
             </Button>
           </Link>
         </div>
-      </section>
+      </section >
 
       {/* Gallery - Masonry */}
       <section className="space-y-8">
