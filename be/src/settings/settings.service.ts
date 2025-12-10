@@ -21,18 +21,22 @@ const SYSTEM_SETTINGS = [
 
 @Injectable()
 export class SettingsService implements OnModuleInit {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async onModuleInit() {
-    for (const title of SYSTEM_SETTINGS) {
-      await this.prisma.settings.upsert({
-        where: { settingTitle: title },
-        update: {},
-        create: {
-          settingTitle: title,
-          content: '',
-        },
-      });
+    try {
+      for (const title of SYSTEM_SETTINGS) {
+        await this.prisma.settings.upsert({
+          where: { settingTitle: title },
+          update: { settingTitle: title },
+          create: {
+            settingTitle: title,
+            content: '',
+          },
+        });
+      }
+    } catch (error) {
+      console.error('Failed to initialize settings:', error);
     }
   }
 
