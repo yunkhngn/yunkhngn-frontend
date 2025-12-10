@@ -1,20 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Terminal as TerminalIcon, X, Maximize2, Minus } from 'lucide-react';
 import { useRouter } from 'next/router';
-
-const FILES = {
-    'about.txt': "Hi, I'm Khoa Nguyen (yun.khngn). I'm a Software Developer, Graphic Designer, and Guitarist.",
-    'contact.md': "Email: khoa@yunkhngn.dev\nGithub: github.com/yunkhngn\nFacebook: facebook.com/yunkhngn",
-    'projects': {
-        type: 'dir',
-        content: ['portfolio-website', 'christmas-tree', 'tarot-reading']
-    },
-    'socials.json': JSON.stringify({
-        facebook: "https://facebook.com/yunkhngn",
-        github: "https://github.com/yunkhngn",
-        linkedin: "https://linkedin.com/in/yunkhngn"
-    }, null, 2)
-};
+import { stripHtml } from '@/lib/utils';
 
 export default function Terminal() {
     const [history, setHistory] = useState([
@@ -23,9 +10,79 @@ export default function Terminal() {
     ]);
     const [input, setInput] = useState('');
     const [currentDir, setCurrentDir] = useState('~');
+    const [fileSystem, setFileSystem] = useState({
+        'about.txt': "Loading...",
+        'contact.md': "Loading...",
+        'projects': {
+            type: 'dir',
+            content: []
+        },
+        'socials.json': "{}"
+    });
+
     const inputRef = useRef(null);
     const scrollRef = useRef(null);
     const router = useRouter();
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const [settingsRes, reposRes] = await Promise.all([
+                    fetch(`${process.env.NEXT_PUBLIC_API_URL}/settings`),
+                    fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/github/repos`)
+                ]);
+
+                let newFiles = { ...fileSystem };
+
+                if (settingsRes.ok) {
+                    const settingsData = await settingsRes.json();
+                    const settings = settingsData.reduce((acc, curr) => {
+                        acc[curr.settingTitle] = curr.content;
+                        return acc;
+                    }, {});
+
+                    // Update about.txt
+                    const bioText = settings.bio ? stripHtml(settings.bio) : "Hi, I'm Khoa Nguyen.";
+                    newFiles['about.txt'] = bioText;
+
+                    // Update socials.json
+                    const socials = {
+                        facebook: settings.facebook,
+                        github: settings.github,
+                        linkedin: settings.linkedin,
+                        instagram: settings.instagram
+                    };
+                    // Remove undefined keys
+                    Object.keys(socials).forEach(key => socials[key] === undefined && delete socials[key]);
+                    newFiles['socials.json'] = JSON.stringify(socials, null, 2);
+
+                    // Update contact.md
+                    newFiles['contact.md'] = [
+                        `Email: ${settings.email || 'khoa@yunkhngn.dev'}`,
+                        settings.github && `Github: ${settings.github}`,
+                        settings.facebook && `Facebook: ${settings.facebook}`,
+                        settings.linkedin && `LinkedIn: ${settings.linkedin}`
+                    ].filter(Boolean).join('\n');
+                }
+
+                if (reposRes.ok) {
+                    const repos = await reposRes.json();
+                    const repoNames = repos.map(repo => repo.name);
+                    newFiles['projects'] = {
+                        type: 'dir',
+                        content: repoNames
+                    };
+                }
+
+                setFileSystem(newFiles);
+            } catch (error) {
+                console.error("Failed to fetch terminal data", error);
+                setHistory(prev => [...prev, { type: 'output', content: 'Error: Failed to load system data.' }]);
+            }
+        };
+
+        fetchData();
+    }, []);
 
     useEffect(() => {
         if (scrollRef.current) {
@@ -54,17 +111,18 @@ export default function Terminal() {
 
             case 'ls':
                 if (currentDir === '~') {
-                    return Object.keys(FILES).map(k => FILES[k].type === 'dir' ? `${k}/` : k).join('  ');
+                    return Object.keys(fileSystem).map(k => fileSystem[k].type === 'dir' ? `${k}/` : k).join('  ');
                 } else if (currentDir === '~/projects') {
-                    return FILES['projects'].content.join('  ');
+                    return fileSystem['projects'].content.join('  ');
                 }
                 return '';
 
             case 'cat':
                 if (!param) return 'Usage: cat [filename]';
                 if (currentDir === '~') {
-                    if (FILES[param] && typeof FILES[param] === 'string') return FILES[param];
-                    if (FILES[param]?.type === 'dir') return `cat: ${param}: Is a directory`;
+                    const file = fileSystem[param];
+                    if (file && typeof file === 'string') return file;
+                    if (file?.type === 'dir') return `cat: ${param}: Is a directory`;
                 }
                 return `cat: ${param}: No such file or directory`;
 
