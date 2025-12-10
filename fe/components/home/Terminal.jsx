@@ -233,7 +233,6 @@ export default function Terminal() {
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
                         className="flex-1 bg-transparent outline-none text-white border-none p-0 focus:ring-0"
-                        autoFocus
                         spellCheck="false"
                         autoComplete="off"
                     />
