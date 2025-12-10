@@ -21,7 +21,8 @@ export async function getServerSideProps(context) {
     try {
         // Try to fetch all blogs and find by slug or id
         // Ideally backend should support /blogs/slug/:slug
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/blogs`);
+        const apiUrl = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL;
+        const res = await fetch(`${apiUrl}/blogs`);
         if (!res.ok) throw new Error('Failed to fetch blogs');
         const data = await res.json();
 

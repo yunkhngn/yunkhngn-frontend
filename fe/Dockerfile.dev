@@ -1,0 +1,12 @@
+FROM node:20-alpine
+
+WORKDIR /usr/src/app
+
+# Install dependencies based on yarn.lock
+COPY package.json yarn.lock ./
+
+RUN yarn install
+
+# We will mount the directory, so no need to COPY . .
+
+CMD ["yarn", "dev"]

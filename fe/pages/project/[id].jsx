@@ -15,7 +15,8 @@ export async function getServerSideProps(context) {
     const { id } = context.params;
 
     try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/${id}`);
+        const apiUrl = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL;
+        const res = await fetch(`${apiUrl}/projects/${id}`);
         if (!res.ok) throw new Error('Failed to fetch project');
         const data = await res.json();
 
