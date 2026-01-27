@@ -1,11 +1,13 @@
 import AdminLayout from "@/components/template/Admin/Layout";
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
-import { Loader2, Edit, X } from 'lucide-react';
+import { Loader2, Edit, X, UploadCloud } from 'lucide-react';
 import Editor from '@monaco-editor/react';
+import axios from 'axios';
+import { toast } from 'sonner';
 import {
     Table,
     TableBody,
@@ -35,6 +37,8 @@ export default function Settings() {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [currentSetting, setCurrentSetting] = useState({ settingTitle: '', content: '' });
     const [saving, setSaving] = useState(false);
+    const [uploading, setUploading] = useState(false);
+    const fileInputRef = useRef(null);
 
     const fetchSettings = async () => {
         try {
@@ -74,13 +78,70 @@ export default function Settings() {
                 await fetchSettings();
                 setIsDialogOpen(false);
                 setCurrentSetting({ settingTitle: '', content: '' });
+                toast.success('Setting updated');
             } else {
                 console.error("Failed to save setting");
+                toast.error('Failed to update setting');
             }
         } catch (error) {
             console.error(error);
+            toast.error('Error updating setting');
         } finally {
             setSaving(false);
+        }
+    };
+
+    const handleUploadCV = async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        setUploading(true);
+        try {
+            // 1. Get signature
+            const token = await user.getIdToken();
+            const signParams = { folder: 'cv' };
+            if (file.type === 'application/pdf') {
+                signParams.format = 'pdf';
+            }
+
+            const signRes = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/media/signature`, {
+                headers: { Authorization: `Bearer ${token}` },
+                params: signParams
+            });
+            const { signature, timestamp } = signRes.data;
+
+            // 2. Upload to Cloudinary
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('api_key', process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY);
+            formData.append('timestamp', timestamp);
+            formData.append('signature', signature);
+            formData.append('folder', 'cv');
+
+            // Force PDF format if it's a PDF file (fixes Illustrator PDF saving as .ai sometimes)
+            if (file.type === 'application/pdf') {
+                formData.append('format', 'pdf');
+            } else {
+                formData.append('resource_type', 'auto');
+            }
+
+            const uploadRes = await axios.post(
+                `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/auto/upload`, // Use auto/upload for mixed types
+                formData
+            );
+
+            setCurrentSetting(prev => ({ ...prev, content: uploadRes.data.secure_url }));
+            toast.success('CV uploaded successfully');
+        } catch (error) {
+            console.error(error);
+            if (error.response?.data?.error?.message) {
+                toast.error(`Upload failed: ${error.response.data.error.message}`);
+            } else {
+                toast.error('Failed to upload CV');
+            }
+        } finally {
+            setUploading(false);
+            if (fileInputRef.current) fileInputRef.current.value = '';
         }
     };
 
@@ -160,43 +221,93 @@ export default function Settings() {
                                     className="bg-muted"
                                 />
                             </div>
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium">Content</label>
-                                <Tabs defaultValue="code" className="w-full">
-                                    <TabsList className="grid w-full grid-cols-2 mb-4">
-                                        <TabsTrigger value="code">Code Editor (JSON)</TabsTrigger>
-                                        <TabsTrigger value="text">Plain Text</TabsTrigger>
-                                    </TabsList>
-                                    <TabsContent value="code" className="mt-0">
-                                        <div className="border rounded-md overflow-hidden">
-                                            <Editor
-                                                height="400px"
-                                                defaultLanguage="json"
-                                                theme="vs-dark"
+
+                            {currentSetting.settingTitle === 'cv_url' ? (
+                                <div className="space-y-4">
+                                    <div className="flex flex-col gap-2">
+                                        <div className="flex gap-2">
+                                            <Input
                                                 value={currentSetting.content}
-                                                onChange={(value) => setCurrentSetting({ ...currentSetting, content: value })}
-                                                options={{
-                                                    minimap: { enabled: false },
-                                                    fontSize: 14,
-                                                    lineNumbers: 'on',
-                                                    scrollBeyondLastLine: false,
-                                                    automaticLayout: true,
-                                                    tabSize: 2,
-                                                    wordWrap: 'on'
-                                                }}
+                                                onChange={(e) => setCurrentSetting({ ...currentSetting, content: e.target.value })}
+                                                placeholder="https://..."
+                                                className="flex-1"
                                             />
+                                            <Button
+                                                type="button"
+                                                variant="outline"
+                                                onClick={() => fileInputRef.current?.click()}
+                                                disabled={uploading}
+                                                className="whitespace-nowrap shrink-0"
+                                            >
+                                                {uploading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <UploadCloud className="mr-2 h-4 w-4" />}
+                                                Upload CV
+                                            </Button>
                                         </div>
-                                    </TabsContent>
-                                    <TabsContent value="text" className="mt-0">
-                                        <Textarea
-                                            value={currentSetting.content}
-                                            onChange={(e) => setCurrentSetting({ ...currentSetting, content: e.target.value })}
-                                            placeholder="Enter plain text content..."
-                                            className="min-h-[400px] font-mono"
+                                        <input
+                                            type="file"
+                                            ref={fileInputRef}
+                                            className="hidden"
+                                            accept=".pdf,.png,.jpg,.jpeg,.svg"
+                                            onChange={handleUploadCV}
                                         />
-                                    </TabsContent>
-                                </Tabs>
-                            </div>
+                                    </div>
+                                    <p className="text-xs text-muted-foreground">
+                                        Supported formats: PDF, PNG, JPG, SVG.
+                                    </p>
+                                    {currentSetting.content && (
+                                        <div className="mt-2 text-sm break-all">
+                                            <span className="text-muted-foreground">Current: </span>
+                                            <a href={currentSetting.content} target="_blank" rel="noopener noreferrer" className="text-green-500 hover:underline">
+                                                {currentSetting.content}
+                                            </a>
+                                            {currentSetting.content.endsWith('.ai') && (
+                                                <p className="text-yellow-500 text-xs mt-1">
+                                                    Warning: .ai format detected. This may not display correctly in browsers. Please upload a PDF or Image.
+                                                </p>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+                            ) : (
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium">Content</label>
+                                    <Tabs defaultValue="code" className="w-full">
+                                        <TabsList className="grid w-full grid-cols-2 mb-4">
+                                            <TabsTrigger value="code">Code Editor (JSON)</TabsTrigger>
+                                            <TabsTrigger value="text">Plain Text</TabsTrigger>
+                                        </TabsList>
+                                        <TabsContent value="code" className="mt-0">
+                                            <div className="border rounded-md overflow-hidden">
+                                                <Editor
+                                                    height="400px"
+                                                    defaultLanguage="json"
+                                                    theme="vs-dark"
+                                                    value={currentSetting.content}
+                                                    onChange={(value) => setCurrentSetting({ ...currentSetting, content: value })}
+                                                    options={{
+                                                        minimap: { enabled: false },
+                                                        fontSize: 14,
+                                                        lineNumbers: 'on',
+                                                        scrollBeyondLastLine: false,
+                                                        automaticLayout: true,
+                                                        tabSize: 2,
+                                                        wordWrap: 'on'
+                                                    }}
+                                                />
+                                            </div>
+                                        </TabsContent>
+                                        <TabsContent value="text" className="mt-0">
+                                            <Textarea
+                                                value={currentSetting.content}
+                                                onChange={(e) => setCurrentSetting({ ...currentSetting, content: e.target.value })}
+                                                placeholder="Enter plain text content..."
+                                                className="min-h-[400px] font-mono"
+                                            />
+                                        </TabsContent>
+                                    </Tabs>
+                                </div>
+                            )}
+
                             <div className="flex justify-end gap-2">
                                 <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
                                     Cancel

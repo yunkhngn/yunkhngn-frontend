@@ -25,6 +25,8 @@ services:
     container_name: yunkhngn_backend
     depends_on:
       - mssql
+    env_file:
+      - ./be/.env
     environment:
       - DATABASE_URL=sqlserver://mssql:1433;database=blogdb;user=sa;password=YourStrong@Passw0rd;encrypt=false;trustServerCertificate=true
       - PORT=3001

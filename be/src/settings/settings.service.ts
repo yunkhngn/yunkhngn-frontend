@@ -17,6 +17,7 @@ const SYSTEM_SETTINGS = [
   'education',
   'experience',
   'skills',
+  'cv_url',
 ];
 
 @Injectable()

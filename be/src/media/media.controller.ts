@@ -16,13 +16,16 @@ import { Roles } from '../auth/roles.decorator';
 @UseGuards(FirebaseAuthGuard, RolesGuard)
 @Roles('ADMIN')
 export class MediaController {
-  constructor(private readonly cloudinaryService: CloudinaryService) {}
+  constructor(private readonly cloudinaryService: CloudinaryService) { }
 
   @Get('signature')
-  getSignature(@Query('folder') folder?: string) {
-    const params = {
+  getSignature(@Query('folder') folder?: string, @Query('format') format?: string) {
+    const params: Record<string, string> = {
       folder: folder || 'blog-portfolio',
     };
+    if (format) {
+      params.format = format;
+    }
     return this.cloudinaryService.generateUploadSignature(params);
   }
 
