@@ -10,7 +10,8 @@ import {
   GitFork,
   Instagram,
   FileUser,
-  ArrowRight
+  ArrowRight,
+  LayoutGrid
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -155,9 +156,9 @@ export default function Home() {
         </div>
 
         <div className="flex flex-wrap items-center justify-center gap-6 pt-8 relative z-10">
-          <Link href="/showcase">
+          <Link href="/resume">
             <Button className="rounded-full px-8 h-12 text-base">
-              Showcase
+              Resume
             </Button>
           </Link>
 
@@ -168,7 +169,7 @@ export default function Home() {
                 {settings.instagram && <SocialLink href={settings.instagram} icon={<Instagram size={24} />} label="Instagram" />}
                 {settings.github && <SocialLink href={settings.github} icon={<Github size={24} />} label="GitHub" />}
                 {settings.linkedin && <SocialLink href={settings.linkedin} icon={<Linkedin size={24} />} label="LinkedIn" />}
-                <SocialLink href="https://yunkhngn.dev/resume" icon={<FileUser size={24} />} label="Resume" />
+                <SocialLink href="/showcase" icon={<LayoutGrid size={24} />} label="Showcase" />
               </>
             ) : (
               <>
@@ -176,7 +177,7 @@ export default function Home() {
                 <SocialLink href="https://instagram.com/yunkhngn" icon={<Instagram size={24} />} label="Instagram" />
                 <SocialLink href="https://github.com/yunkhngn" icon={<Github size={24} />} label="GitHub" />
                 <SocialLink href="https://linkedin.com/in/yunkhngn" icon={<Linkedin size={24} />} label="LinkedIn" />
-                <SocialLink href="https://yunkhngn.dev/resume" icon={<FileUser size={24} />} label="Resume" />
+                <SocialLink href="/showcase" icon={<LayoutGrid size={24} />} label="Showcase" />
               </>
             )}
           </div>
