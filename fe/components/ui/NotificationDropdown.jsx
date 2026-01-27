@@ -88,6 +88,7 @@ export default function NotificationDropdown() {
                 <DropdownMenuItem
                     className="justify-center text-center cursor-pointer"
                     onClick={() => {
+                        markAllAsRead();
                         router.push('/admin/notifications');
                         setOpen(false);
                     }}
