@@ -169,6 +169,12 @@ export default function BlogDetail({ blogData }) {
                 description={blog.seoDescription || blog.description || `Read ${blog.title} on Yunkhngn`}
                 image={blog.seoImage || blog.thumbnail}
                 url={`https://yunkhngn.dev/blog/${blog.slug}`}
+                type="article"
+                publishedTime={blog.createdAt}
+                modifiedTime={blog.updatedAt}
+                author="Khoa Nguyễn"
+                section="Blog"
+                tags={blog.tags}
             />
 
             <div className="relative">
