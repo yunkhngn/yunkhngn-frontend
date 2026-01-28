@@ -37,6 +37,11 @@ export class BlogController {
     return this.blogService.findOne(slug);
   }
 
+  @Post(':slug/view')
+  incrementViews(@Param('slug') slug: string) {
+    return this.blogService.incrementViews(slug);
+  }
+
   @Patch(':id')
   @Patch(':id')
   @UseGuards(FirebaseAuthGuard, RolesGuard)

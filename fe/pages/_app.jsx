@@ -10,7 +10,6 @@ import { Playfair_Display, JetBrains_Mono } from 'next/font/google';
 import { AppProgressBar as ProgressBar } from 'next-nprogress-bar';
 import { AnimatePresence, motion } from 'framer-motion';
 import GoogleAnalytics from "@/components/seo/GoogleAnalytics";
-import SEO from "@/components/seo/SEO";
 import CookieConsent from "@/components/ui/CookieConsent";
 
 import { Toaster } from 'sonner';
@@ -63,7 +62,6 @@ export default function App({ Component, pageProps }) {
             shallowRouting
           />
           <GoogleAnalytics />
-          <SEO />
           <AuthGuard>
             <main className={`${playfair.variable} ${jetbrainsMono.variable} font-sans`}>
               {getLayout(

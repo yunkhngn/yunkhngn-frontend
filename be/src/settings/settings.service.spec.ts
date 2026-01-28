@@ -3,7 +3,6 @@ import { SettingsService } from './settings.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { EncryptionService } from '../common/encryption.service';
 
-
 const mockPrismaService = {
   settings: {
     findMany: jest.fn(),

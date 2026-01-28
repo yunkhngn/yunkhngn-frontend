@@ -71,4 +71,14 @@ export class BlogService {
       where: { id },
     });
   }
+
+  async incrementViews(slugOrId: string) {
+    const blog = await this.findOne(slugOrId);
+    if (!blog) return null;
+
+    return this.prisma.blog.update({
+      where: { id: blog.id },
+      data: { views: { increment: 1 } },
+    });
+  }
 }
