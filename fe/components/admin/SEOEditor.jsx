@@ -5,6 +5,7 @@ import { UploadCloud, X } from 'lucide-react';
 import Image from 'next/image';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { extractTextFromTipTap } from '@/lib/utils';
 
 export default function SEOEditor({ data, onChange, onImageUpload }) {
     const handleImageUpload = async (e) => {
@@ -19,6 +20,12 @@ export default function SEOEditor({ data, onChange, onImageUpload }) {
         }
     };
 
+    // Derived values for preview
+    const previewTitle = data.seoTitle || data.title || 'Page Title';
+    const rawContent = extractTextFromTipTap(data.contentJSON);
+    const previewDescription = data.seoDescription || (rawContent ? rawContent.substring(0, 160) + (rawContent.length > 160 ? '...' : '') : 'This is how your page description will appear in search results.');
+    const previewImage = data.seoImage || data.thumbnail;
+
     return (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -28,6 +35,7 @@ export default function SEOEditor({ data, onChange, onImageUpload }) {
                         <h3 className="text-lg font-semibold mb-2">Search Engine Optimization</h3>
                         <p className="text-sm text-muted-foreground mb-4">
                             Control how your content appears on Google and social media.
+                            Defaults will be used if left empty.
                         </p>
                     </div>
 
@@ -39,7 +47,7 @@ export default function SEOEditor({ data, onChange, onImageUpload }) {
                             </span>
                         </label>
                         <Input
-                            placeholder="Meta Title"
+                            placeholder={data.title || "Meta Title"}
                             value={data.seoTitle || ''}
                             onChange={(e) => onChange({ ...data, seoTitle: e.target.value })}
                         />
@@ -54,7 +62,7 @@ export default function SEOEditor({ data, onChange, onImageUpload }) {
                             </span>
                         </label>
                         <Textarea
-                            placeholder="Meta Description"
+                            placeholder={rawContent ? rawContent.substring(0, 160) + '...' : "Meta Description"}
                             value={data.seoDescription || ''}
                             onChange={(e) => onChange({ ...data, seoDescription: e.target.value })}
                             rows={4}
@@ -65,22 +73,34 @@ export default function SEOEditor({ data, onChange, onImageUpload }) {
                     <div className="space-y-2">
                         <label className="text-sm font-medium">OG Image (Social Share Image)</label>
                         <div className="border-2 border-dashed rounded-lg p-6 text-center hover:bg-muted/50 transition-colors">
-                            {data.seoImage ? (
-                                <div className="relative aspect-video w-full max-w-[300px] mx-auto overflow-hidden rounded-md">
-                                    <Image
-                                        src={data.seoImage}
-                                        alt="SEO Preview"
-                                        fill
-                                        className="object-cover"
-                                    />
-                                    <Button
-                                        size="icon"
-                                        variant="destructive"
-                                        className="absolute top-2 right-2 h-6 w-6"
-                                        onClick={() => onChange({ ...data, seoImage: '' })}
-                                    >
-                                        <X className="h-3 w-3" />
-                                    </Button>
+                            {previewImage ? (
+                                <div className="space-y-4">
+                                    <div className="relative aspect-video w-full max-w-[300px] mx-auto overflow-hidden rounded-md group">
+                                        <Image
+                                            src={previewImage}
+                                            alt="SEO Preview"
+                                            fill
+                                            className={`object-cover ${!data.seoImage ? 'opacity-80' : ''}`}
+                                        />
+                                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                            {!data.seoImage && <span className="text-white text-xs font-semibold">Using Default</span>}
+                                        </div>
+                                        {data.seoImage && (
+                                            <Button
+                                                size="icon"
+                                                variant="destructive"
+                                                className="absolute top-2 right-2 h-6 w-6"
+                                                onClick={() => onChange({ ...data, seoImage: '' })}
+                                            >
+                                                <X className="h-3 w-3" />
+                                            </Button>
+                                        )}
+                                    </div>
+                                    {!data.seoImage && (
+                                        <div className="text-xs text-muted-foreground">
+                                            Currently using blog thumbnail. <label htmlFor="seo-image-upload" className="text-primary hover:underline cursor-pointer">Upload custom image</label>
+                                        </div>
+                                    )}
                                 </div>
                             ) : (
                                 <div className="space-y-2">
@@ -94,15 +114,15 @@ export default function SEOEditor({ data, onChange, onImageUpload }) {
                                         {' '}or drag and drop
                                     </div>
                                     <p className="text-xs text-muted-foreground">Recommended size: 1200x630px</p>
-                                    <input
-                                        id="seo-image-upload"
-                                        type="file"
-                                        accept="image/*"
-                                        className="hidden"
-                                        onChange={handleImageUpload}
-                                    />
                                 </div>
                             )}
+                            <input
+                                id="seo-image-upload"
+                                type="file"
+                                accept="image/*"
+                                className="hidden"
+                                onChange={handleImageUpload}
+                            />
                         </div>
                     </div>
                 </div>
@@ -121,19 +141,19 @@ export default function SEOEditor({ data, onChange, onImageUpload }) {
                             </div>
                         </div>
                         <h3 className="text-xl text-[#1a0dab] dark:text-[#8ab4f8] hover:underline cursor-pointer mb-1 line-clamp-1">
-                            {data.seoTitle || data.title || 'Page Title'}
+                            {previewTitle}
                         </h3>
                         <p className="text-sm text-[#4d5156] dark:text-[#bdc1c6] line-clamp-2">
-                            {data.seoDescription || data.description || 'This is how your page description will appear in search results. Make it catchy and relevant to attract more clicks from users.'}
+                            {previewDescription}
                         </p>
                     </div>
 
                     <h3 className="text-lg font-semibold mb-2 mt-8">Facebook Share Preview</h3>
                     <div className="bg-[#f0f2f5] dark:bg-[#18191a] border rounded-lg overflow-hidden max-w-[400px]">
-                        {data.seoImage && (
+                        {previewImage && (
                             <div className="aspect-[1.91/1] relative bg-gray-200">
                                 <Image
-                                    src={data.seoImage}
+                                    src={previewImage}
                                     alt="OG Preview"
                                     fill
                                     className="object-cover"
@@ -143,10 +163,10 @@ export default function SEOEditor({ data, onChange, onImageUpload }) {
                         <div className="p-3 bg-white dark:bg-[#242526] border-t dark:border-[#242526]">
                             <p className="text-xs text-[#65676b] dark:text-[#b0b3b8] uppercase truncate">yunkhngn.dev</p>
                             <h4 className="font-semibold text-[#050505] dark:text-[#e4e6eb] truncate mt-0.5">
-                                {data.seoTitle || data.title || 'Page Title'}
+                                {previewTitle}
                             </h4>
                             <p className="text-sm text-[#65676b] dark:text-[#b0b3b8] line-clamp-1 mt-0.5">
-                                {data.seoDescription || data.description || 'Description...'}
+                                {previewDescription}
                             </p>
                         </div>
                     </div>
