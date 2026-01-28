@@ -2,6 +2,7 @@ import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { GoogleGenerativeAI, GenerativeModel } from '@google/generative-ai';
 import { PrismaService } from '../prisma/prisma.service';
+import { SettingsService } from '../settings/settings.service';
 
 export interface ProjectInfo {
   title: string;
@@ -14,24 +15,31 @@ export interface ProjectInfo {
 
 @Injectable()
 export class AiService {
-  private genAI: GoogleGenerativeAI;
-  private model: GenerativeModel;
-
   constructor(
     private configService: ConfigService,
     private prisma: PrismaService,
-  ) {
-    const apiKey = this.configService.get<string>('GEMINI_API_KEY');
+    private settingsService: SettingsService,
+  ) { }
+
+  private async getModel(): Promise<GenerativeModel> {
+    let apiKey = await this.settingsService.getDecryptedSetting('gemini_api_key');
+
     if (!apiKey) {
-      throw new Error('GEMINI_API_KEY is not defined');
+      apiKey = this.configService.get<string>('GEMINI_API_KEY');
     }
-    this.genAI = new GoogleGenerativeAI(apiKey);
-    this.model = this.genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+
+    if (!apiKey) {
+      throw new Error('GEMINI_API_KEY is not configured in Settings or Env');
+    }
+
+    const genAI = new GoogleGenerativeAI(apiKey);
+    return genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
   }
 
   async generateText(prompt: string): Promise<string> {
     try {
-      const result = await this.model.generateContent(prompt);
+      const model = await this.getModel();
+      const result = await model.generateContent(prompt);
       const response = result.response;
       return response.text();
     } catch (error) {
@@ -92,7 +100,8 @@ export class AiService {
         ${readmeContent.slice(0, 10000)} // Limit content length
       `;
 
-      const result = await this.model.generateContent(prompt);
+      const model = await this.getModel();
+      const result = await model.generateContent(prompt);
       const response = result.response;
       const text = response.text();
 
@@ -147,7 +156,8 @@ export class AiService {
                 `;
       }
 
-      const result = await this.model.generateContent(systemPrompt);
+      const model = await this.getModel();
+      const result = await model.generateContent(systemPrompt);
       const response = result.response;
       let text = response.text();
 
@@ -197,7 +207,8 @@ export class AiService {
         IMPORTANT: Respond in ${language === 'vi' ? 'Vietnamese' : 'English'}. Keep it professional but encouraging.
         `;
 
-      const result = await this.model.generateContent(prompt);
+      const model = await this.getModel();
+      const result = await model.generateContent(prompt);
       const response = result.response;
       let text = response.text();
 
@@ -278,7 +289,8 @@ export class AiService {
     ];
 
     // 4. Call Gemini API with chat history
-    const chat = this.model.startChat({
+    const model = await this.getModel();
+    const chat = model.startChat({
       history: chatHistory,
     });
 

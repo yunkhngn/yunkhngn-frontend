@@ -268,6 +268,20 @@ export default function Settings() {
                                         </div>
                                     )}
                                 </div>
+                            ) : currentSetting.settingTitle === 'gemini_api_key' ? (
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium">API Key</label>
+                                    <Input
+                                        type="password"
+                                        value={currentSetting.content}
+                                        onChange={(e) => setCurrentSetting({ ...currentSetting, content: e.target.value })}
+                                        placeholder="Enter Gemini API Key"
+                                        className="font-mono"
+                                    />
+                                    <p className="text-xs text-muted-foreground">
+                                        Value is encrypted in the database. Enter a new key to update.
+                                    </p>
+                                </div>
                             ) : (
                                 <div className="space-y-2">
                                     <label className="text-sm font-medium">Content</label>
