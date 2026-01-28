@@ -5,7 +5,7 @@ import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class ProjectService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async create(createProjectDto: CreateProjectDto) {
     const existing = await this.prisma.project.findUnique({
@@ -27,21 +27,16 @@ export class ProjectService {
   }
 
   async findOne(idOrSlug: string) {
-    const isUuid =
-      /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(
-        idOrSlug,
-      );
-
-    if (isUuid) {
-      const project = await this.prisma.project.findUnique({
-        where: { id: idOrSlug },
-      });
-      if (project) return project;
-    }
-
-    return this.prisma.project.findUnique({
-      where: { slug: idOrSlug },
+    const project = await this.prisma.project.findFirst({
+      where: {
+        OR: [
+          { id: idOrSlug },
+          { slug: idOrSlug },
+        ],
+      },
     });
+
+    return project;
   }
 
   async update(id: string, updateProjectDto: UpdateProjectDto) {
