@@ -5,7 +5,7 @@ import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class ProjectService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
   async create(createProjectDto: CreateProjectDto) {
     const existing = await this.prisma.project.findUnique({
@@ -29,10 +29,7 @@ export class ProjectService {
   async findOne(idOrSlug: string) {
     const project = await this.prisma.project.findFirst({
       where: {
-        OR: [
-          { id: idOrSlug },
-          { slug: idOrSlug },
-        ],
+        OR: [{ id: idOrSlug }, { slug: idOrSlug }],
       },
     });
 

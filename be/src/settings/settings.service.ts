@@ -27,7 +27,7 @@ export class SettingsService implements OnModuleInit {
   constructor(
     private prisma: PrismaService,
     private encryptionService: EncryptionService,
-  ) { }
+  ) {}
 
   async onModuleInit() {
     try {
@@ -60,7 +60,8 @@ export class SettingsService implements OnModuleInit {
   }
 
   async update(updateSettingsDto: UpdateSettingsDto) {
-    let { settingTitle, content } = updateSettingsDto;
+    const { settingTitle } = updateSettingsDto;
+    let { content } = updateSettingsDto;
 
     if (settingTitle === 'gemini_api_key') {
       if (content === '********') {
@@ -87,7 +88,7 @@ export class SettingsService implements OnModuleInit {
     return this.prisma.settings.delete({ where: { id } });
   }
 
-  async getDecryptedSetting(title: string): Promise<string | null> {
+  async getDecryptedSetting(title: string): Promise<string> {
     const setting = await this.prisma.settings.findUnique({
       where: { settingTitle: title },
     });
