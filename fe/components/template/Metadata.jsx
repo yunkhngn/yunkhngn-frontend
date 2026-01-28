@@ -5,6 +5,12 @@ export default function Metadata({
     description = "Xin chào, tớ là Khoa Nguyễn. Tớ là sinh viên chuyên ngành Kỹ thuật phần mềm tại Đại học FPT. Hiện tại tớ cũng đang là freelancer thiết kế đồ hoạ và phát triển một số dự án cá nhân.",
     image = "/image/thumbnail.jpg",
     url = "https://yunkhngn.dev",
+    type = "website",
+    publishedTime,
+    modifiedTime,
+    author = "Khoa Nguyễn",
+    section,
+    tags,
 }) {
     const fullTitle = title.includes("Khoa Nguyễn") ? title : `${title} - Khoa Nguyễn`;
     const fullUrl = url.startsWith("http") ? url : `https://yunkhngn.dev${url}`;
@@ -18,7 +24,7 @@ export default function Metadata({
             <meta name="title" content={fullTitle} />
             <meta name="description" content={description} />
             <meta name="keywords" content="Blog, Khoa Nguyen, Khoa Nguyễn, Khoa Nguyn, Nguyễn Đăng Khoa, Post , React, Nextjs, Next JS, Typescript, Cpp, Coding, Language, JavaScript, Reactjs, Khoa Nguyen Blog, Software Development, Software Engineer, Frontend Developer, Frontend Engineer, Web Developer, KhoaNguyen, Khoa Nguyen Dev, Graphic Designer, Nodejs, Khoa Nguyen Codes" />
-            <meta name="author" content="Khoa Nguyễn" />
+            <meta name="author" content={author} />
             <meta name="robots" content="index, follow" />
             <meta name="revisit-after" content="1 days" />
             <meta name="language" content="vi" />
@@ -54,15 +60,30 @@ export default function Metadata({
 
             {/* Open Graph / Facebook */}
             <meta property="og:site_name" content="Khoa Nguyen" />
-            <meta property="og:type" content="website" />
+            <meta property="og:type" content={type} />
             <meta property="og:url" content={fullUrl} />
             <meta property="og:title" content={fullTitle} />
             <meta property="og:description" content={description} />
             <meta property="og:image" content={fullImage} />
-            <meta property="og:image:alt" content="Khoa Nguyen" />
+            <meta property="og:image:secure_url" content={fullImage} />
+            <meta property="og:image:alt" content={fullTitle} />
             <meta property="og:image:width" content="1200" />
             <meta property="og:image:height" content="630" />
+            <meta property="og:locale" content="vi_VN" />
             <meta property="fb:app_id" content="1881282985689458" />
+
+            {/* Article-specific Open Graph tags */}
+            {type === 'article' && (
+                <>
+                    {publishedTime && <meta property="article:published_time" content={publishedTime} />}
+                    {modifiedTime && <meta property="article:modified_time" content={modifiedTime} />}
+                    <meta property="article:author" content={author} />
+                    {section && <meta property="article:section" content={section} />}
+                    {tags && tags.split(',').map((tag, i) => (
+                        <meta key={i} property="article:tag" content={tag.trim()} />
+                    ))}
+                </>
+            )}
 
             {/* Twitter */}
             <meta property="twitter:card" content="summary_large_image" />
@@ -70,7 +91,7 @@ export default function Metadata({
             <meta property="twitter:title" content={fullTitle} />
             <meta property="twitter:description" content={description} />
             <meta property="twitter:image" content={fullImage} />
-            <meta property="twitter:image:alt" content="Khoa Nguyen" />
+            <meta property="twitter:image:alt" content={fullTitle} />
             <meta property="twitter:image:width" content="1200" />
             <meta property="twitter:image:height" content="630" />
 
