@@ -17,7 +17,7 @@ import { RolesGuard } from '../auth/roles.guard';
 
 @Controller('blogs')
 export class BlogController {
-  constructor(private readonly blogService: BlogService) { }
+  constructor(private readonly blogService: BlogService) {}
 
   @Post()
   @Post()
