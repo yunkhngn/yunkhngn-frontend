@@ -17,7 +17,7 @@ import { RolesGuard } from '../auth/roles.guard';
 
 @Controller('blogs')
 export class BlogController {
-  constructor(private readonly blogService: BlogService) {}
+  constructor(private readonly blogService: BlogService) { }
 
   @Post()
   @Post()
@@ -35,6 +35,11 @@ export class BlogController {
   @Get(':slug')
   findOne(@Param('slug') slug: string) {
     return this.blogService.findOne(slug);
+  }
+
+  @Post(':slug/view')
+  incrementViews(@Param('slug') slug: string) {
+    return this.blogService.incrementViews(slug);
   }
 
   @Patch(':id')

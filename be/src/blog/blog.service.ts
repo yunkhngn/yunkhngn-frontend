@@ -5,7 +5,7 @@ import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class BlogService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async create(createBlogDto: CreateBlogDto) {
     const existing = await this.prisma.blog.findUnique({
@@ -69,6 +69,16 @@ export class BlogService {
   async remove(id: string) {
     return this.prisma.blog.delete({
       where: { id },
+    });
+  }
+
+  async incrementViews(slugOrId: string) {
+    const blog = await this.findOne(slugOrId);
+    if (!blog) return null;
+
+    return this.prisma.blog.update({
+      where: { id: blog.id },
+      data: { views: { increment: 1 } },
     });
   }
 }
