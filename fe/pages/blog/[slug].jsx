@@ -290,8 +290,12 @@ export default function BlogDetail({ blogData }) {
                             </header>
 
                             <article
-                                className="prose prose-base md:prose-lg dark:prose-invert max-w-none prose-headings:font-serif prose-p:leading-relaxed"
-                                style={{ fontFamily: 'Palatino, "Palatino Linotype", "Book Antiqua", serif' }}
+                                className="prose prose-xl md:prose-xl dark:prose-invert max-w-none prose-headings:font-serif prose-p:leading-relaxed"
+                                style={{
+                                    fontFamily: 'Palatino, "Palatino Linotype", "Book Antiqua", serif',
+                                    fontSize: '1.5rem',
+                                    lineHeight: '2.5rem'
+                                }}
                             >
                                 <TipTapViewer content={blog.contentJSON || blog.content} />
                             </article>
