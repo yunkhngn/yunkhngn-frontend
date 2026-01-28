@@ -32,9 +32,18 @@ COPY --from=builder /app/prisma ./prisma
 
 EXPOSE 3001
 
-# Create startup script that runs migrations then starts app
+# Create startup script that waits for DB, runs migrations, then starts app
 RUN echo '#!/bin/sh' > /app/start.sh && \
-    echo 'npx prisma migrate deploy' >> /app/start.sh && \
+    echo 'echo "Waiting for database..."' >> /app/start.sh && \
+    echo 'for i in $(seq 1 30); do' >> /app/start.sh && \
+    echo '  if nc -z mssql 1433 2>/dev/null; then' >> /app/start.sh && \
+    echo '    echo "Database is ready!"' >> /app/start.sh && \
+    echo '    break' >> /app/start.sh && \
+    echo '  fi' >> /app/start.sh && \
+    echo '  echo "Waiting for database... ($i/30)"' >> /app/start.sh && \
+    echo '  sleep 2' >> /app/start.sh && \
+    echo 'done' >> /app/start.sh && \
+    echo 'npx prisma migrate deploy || echo "Migration failed, continuing..."' >> /app/start.sh && \
     echo 'exec yarn start:prod' >> /app/start.sh && \
     chmod +x /app/start.sh
 
