@@ -8,4 +8,4 @@ import { EncryptionService } from '../common/encryption.service';
   providers: [SettingsService, EncryptionService],
   exports: [SettingsService],
 })
-export class SettingsModule { }
+export class SettingsModule {}

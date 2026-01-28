@@ -19,10 +19,11 @@ export class AiService {
     private configService: ConfigService,
     private prisma: PrismaService,
     private settingsService: SettingsService,
-  ) { }
+  ) {}
 
   private async getModel(): Promise<GenerativeModel> {
-    let apiKey = await this.settingsService.getDecryptedSetting('gemini_api_key');
+    let apiKey =
+      await this.settingsService.getDecryptedSetting('gemini_api_key');
 
     if (!apiKey) {
       apiKey = this.configService.get<string>('GEMINI_API_KEY');

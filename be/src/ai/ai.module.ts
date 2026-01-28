@@ -10,4 +10,4 @@ import { SettingsModule } from '../settings/settings.module';
   providers: [AiService],
   exports: [AiService],
 })
-export class AiModule { }
+export class AiModule {}

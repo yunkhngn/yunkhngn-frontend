@@ -1,6 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { SettingsService } from './settings.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { EncryptionService } from '../common/encryption.service';
+
 
 const mockPrismaService = {
   settings: {
@@ -9,6 +11,11 @@ const mockPrismaService = {
     findUnique: jest.fn(),
     delete: jest.fn(),
   },
+};
+
+const mockEncryptionService = {
+  encrypt: jest.fn((val) => val),
+  decrypt: jest.fn((val) => val),
 };
 
 describe('SettingsService', () => {
@@ -20,6 +27,7 @@ describe('SettingsService', () => {
       providers: [
         SettingsService,
         { provide: PrismaService, useValue: mockPrismaService },
+        { provide: EncryptionService, useValue: mockEncryptionService },
       ],
     }).compile();
 
