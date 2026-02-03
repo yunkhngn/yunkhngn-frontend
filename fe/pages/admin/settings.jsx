@@ -387,8 +387,8 @@ export default function Settings() {
                         );
                     })}
 
-                    {/* Orphan Settings */}
-                    {orphanSettings.length > 0 && (
+                    {/* Orphan Settings - Hidden */}
+                    {/* {orphanSettings.length > 0 && (
                         <div className="bg-card rounded-md border mt-8">
                             <div className="p-4 font-medium border-b bg-muted/20">
                                 Uncategorized
@@ -425,7 +425,7 @@ export default function Settings() {
                                 </TableBody>
                             </Table>
                         </div>
-                    )}
+                    )} */}
                 </div>
 
                 {/* Edit Dialog */}
