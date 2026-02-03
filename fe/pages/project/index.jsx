@@ -300,7 +300,7 @@ export default function ProjectList() {
 ProjectList.getLayout = function getLayout(page) {
     return (
         <Layout
-            title="Projects"
+            title="Projects - Khoa Nguyễn"
             description="Showcase of my web development projects and experiments."
         >
             {page}

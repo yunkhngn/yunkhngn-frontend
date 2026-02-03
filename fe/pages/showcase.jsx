@@ -81,7 +81,7 @@ export default function Showcase() {
 
     return (
         <Layout
-            title="Showcase | Tech Stack & Features"
+            title="Showcase - Khoa Nguyễn"
             description="Explore the technology and architecture behind yunkhngn.dev"
         >
             <div className="container mx-auto px-4 py-12 md:py-20 space-y-20">

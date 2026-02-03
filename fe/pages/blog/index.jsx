@@ -307,7 +307,7 @@ export default function BlogList() {
 BlogList.getLayout = function getLayout(page) {
     return (
         <Layout
-            title="Blog"
+            title="Blog - Khoa Nguyễn"
             description="Sharing my thoughts and experiences on web development, technology, and life."
         >
             {page}

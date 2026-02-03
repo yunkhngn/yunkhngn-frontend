@@ -2,8 +2,8 @@ import Head from 'next/head';
 import { useRouter } from 'next/router';
 
 const SEO = ({
-    title = "YunKhngn - Blog & Portfolio",
-    description = "Personal blog and portfolio of YunKhngn. Sharing thoughts on tech, life, and everything in between.",
+    title = "Khoa Nguyễn - Software Engineer",
+    description = "I'm Khoa Nguyen (yun.khngn) - a talented software engineering student, self-taught creator, graphic designer, and guitarist/musician, driven by ambition, curiosity, and the desire to turn ideas into something real. Welcome to my personal nerd world !!!",
     image = "https://res.cloudinary.com/dso98bbuw/image/upload/v1/blog-portfolio/og-default",
     type = "website"
 }) => {
