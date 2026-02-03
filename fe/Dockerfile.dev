@@ -5,7 +5,7 @@ WORKDIR /usr/src/app
 # Install dependencies based on yarn.lock
 COPY package.json yarn.lock ./
 
-RUN yarn install
+RUN yarn install --network-timeout 100000
 
 # We will mount the directory, so no need to COPY . .
 
