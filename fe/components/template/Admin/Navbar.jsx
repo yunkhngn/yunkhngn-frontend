@@ -18,15 +18,33 @@ import NotificationDropdown from "@/components/ui/NotificationDropdown";
 
 const ADMIN_NAV_ITEMS = [
     { label: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
-    { label: "Chatbot", href: "/admin/chat", icon: Bot },
-    { label: "Media", href: "/admin/media", icon: LayoutGrid },
-    { label: "Project", href: "/admin/project", icon: Folder },
-    { label: "Blog", href: "/admin/blog", icon: FileText },
-    { label: "Comments", href: "/admin/comments", icon: MessageSquare },
-    { label: "Contact", href: "/admin/contact", icon: Mail },
-    { label: "Photo", href: "/admin/photo", icon: Image },
-    { label: "Profile", href: "/admin/profile", icon: User },
-    { label: "Settings", href: "/admin/settings", icon: Settings },
+    {
+        label: "Content",
+        icon: Folder,
+        children: [
+            { label: "Project", href: "/admin/project", icon: Folder },
+            { label: "Blog", href: "/admin/blog", icon: FileText },
+            { label: "Photo", href: "/admin/photo", icon: Image },
+            { label: "Media", href: "/admin/media", icon: LayoutGrid },
+        ]
+    },
+    {
+        label: "Engagement",
+        icon: MessageSquare,
+        children: [
+            { label: "Chatbot", href: "/admin/chat", icon: Bot },
+            { label: "Comments", href: "/admin/comments", icon: MessageSquare },
+            { label: "Contact", href: "/admin/contact", icon: Mail },
+        ]
+    },
+    {
+        label: "System",
+        icon: Settings,
+        children: [
+            { label: "Profile", href: "/admin/profile", icon: User },
+            { label: "Settings", href: "/admin/settings", icon: Settings },
+        ]
+    }
 ];
 
 export default function AdminNavbar() {
@@ -53,23 +71,9 @@ export default function AdminNavbar() {
 
                     {/* Desktop Navigation */}
                     <div className="hidden md:flex items-center gap-1">
-                        {ADMIN_NAV_ITEMS.map((item) => {
-                            const Icon = item.icon;
-                            const isActive = router.pathname.startsWith(item.href);
-                            return (
-                                <Link
-                                    key={item.href}
-                                    href={item.href}
-                                    className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive
-                                        ? 'bg-primary/10 text-primary'
-                                        : 'text-muted-foreground hover:bg-accent hover:text-foreground'
-                                        }`}
-                                >
-                                    <Icon size={16} />
-                                    {item.label}
-                                </Link>
-                            );
-                        })}
+                        {ADMIN_NAV_ITEMS.map((item, index) => (
+                            <NavItem key={index} item={item} router={router} />
+                        ))}
                     </div>
                 </div>
 
@@ -133,28 +137,124 @@ export default function AdminNavbar() {
             </div>
 
             {/* Mobile Menu Overlay */}
-            {isMobileMenuOpen && (
-                <div className="md:hidden absolute top-16 left-0 w-full bg-background border-b border-border p-4 flex flex-col gap-4 shadow-lg animate-in slide-in-from-top-5">
-                    {ADMIN_NAV_ITEMS.map((item) => {
-                        const Icon = item.icon;
-                        const isActive = router.pathname.startsWith(item.href);
-                        return (
-                            <Link
-                                key={item.href}
-                                href={item.href}
-                                className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive
-                                    ? 'bg-primary/10 text-primary'
-                                    : 'text-muted-foreground hover:bg-accent hover:text-foreground'
-                                    }`}
-                                onClick={() => setIsMobileMenuOpen(false)}
-                            >
-                                <Icon size={16} />
-                                {item.label}
-                            </Link>
-                        );
-                    })}
-                </div>
-            )}
-        </nav>
+            {
+                isMobileMenuOpen && (
+                    <div className="md:hidden absolute top-16 left-0 w-full bg-background border-b border-border p-4 flex flex-col gap-4 shadow-lg animate-in slide-in-from-top-5 max-h-[80vh] overflow-y-auto">
+                        {ADMIN_NAV_ITEMS.map((item, index) => {
+                            if (item.children) {
+                                return (
+                                    <div key={index} className="space-y-2">
+                                        <div className="flex items-center gap-2 px-3 py-2 text-sm font-semibold text-muted-foreground">
+                                            {item.icon && <item.icon size={16} />}
+                                            {item.label}
+                                        </div>
+                                        <div className="pl-6 space-y-1">
+                                            {item.children.map((child) => {
+                                                const ChildIcon = child.icon;
+                                                const isActive = router.pathname.startsWith(child.href);
+                                                return (
+                                                    <Link
+                                                        key={child.href}
+                                                        href={child.href}
+                                                        className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive
+                                                            ? 'bg-primary/10 text-primary'
+                                                            : 'text-muted-foreground hover:bg-accent hover:text-foreground'
+                                                            }`}
+                                                        onClick={() => setIsMobileMenuOpen(false)}
+                                                    >
+                                                        <ChildIcon size={16} />
+                                                        {child.label}
+                                                    </Link>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                );
+                            }
+
+                            const Icon = item.icon;
+                            const isActive = router.pathname.startsWith(item.href);
+                            return (
+                                <Link
+                                    key={item.href}
+                                    href={item.href}
+                                    className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive
+                                        ? 'bg-primary/10 text-primary'
+                                        : 'text-muted-foreground hover:bg-accent hover:text-foreground'
+                                        }`}
+                                    onClick={() => setIsMobileMenuOpen(false)}
+                                >
+                                    <Icon size={16} />
+                                    {item.label}
+                                </Link>
+                            );
+                        })}
+                    </div>
+                )
+            }
+        </nav >
+    );
+}
+
+function NavItem({ item, router }) {
+    const Icon = item.icon;
+    const [isOpen, setIsOpen] = useState(false);
+    const isActive = item.children
+        ? item.children.some(child => router.pathname.startsWith(child.href))
+        : router.pathname.startsWith(item.href);
+
+    if (item.children) {
+
+        return (
+            <div
+                onMouseEnter={() => setIsOpen(true)}
+                onMouseLeave={() => setIsOpen(false)}
+            >
+                <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
+                    <DropdownMenuTrigger asChild>
+                        <Button
+                            variant="ghost"
+                            className={`flex items-center gap-2 px-3 py-2 h-auto text-sm font-medium transition-colors cursor-default ${isActive
+                                ? 'bg-primary/10 text-primary'
+                                : 'text-muted-foreground hover:bg-accent hover:text-foreground'
+                                }`}
+                        >
+                            <Icon size={16} />
+                            {item.label}
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start" className="w-48" sideOffset={0}>
+                        {item.children.map((child) => {
+                            const ChildIcon = child.icon;
+                            const isChildActive = router.pathname.startsWith(child.href);
+                            return (
+                                <DropdownMenuItem key={child.href} asChild>
+                                    <Link
+                                        href={child.href}
+                                        className={`flex items-center gap-2 cursor-pointer ${isChildActive ? 'text-primary bg-primary/10' : ''}`}
+                                    >
+                                        <ChildIcon size={14} />
+                                        {child.label}
+                                    </Link>
+                                </DropdownMenuItem>
+                            );
+                        })}
+                    </DropdownMenuContent>
+                </DropdownMenu>
+            </div>
+        );
+    }
+
+    return (
+        <Link
+            href={item.href}
+            className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive
+                ? 'bg-primary/10 text-primary'
+                : 'text-muted-foreground hover:bg-accent hover:text-foreground'
+                }`}
+        >
+            <Icon size={16} />
+            {item.label}
+        </Link>
     );
 }

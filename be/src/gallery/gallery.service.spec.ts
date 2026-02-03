@@ -38,7 +38,12 @@ describe('GalleryService', () => {
 
   describe('getUploadSignature', () => {
     it('should return signature', () => {
-      const result = { signature: 'sig', timestamp: 123 };
+      const result = {
+        signature: 'sig',
+        timestamp: 123,
+        cloudName: 'test-cloud',
+        apiKey: 'test-key'
+      };
       jest.spyOn(cloudinary, 'generateUploadSignature').mockReturnValue(result);
 
       expect(service.getUploadSignature()).toEqual(result);

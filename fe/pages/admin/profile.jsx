@@ -61,17 +61,16 @@ export default function Profile() {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (!sigRes.ok) throw new Error('Failed to get upload signature');
-      const { signature, timestamp } = await sigRes.json();
+      const { signature, timestamp, cloudName, apiKey } = await sigRes.json();
 
       // 2. Upload to Cloudinary
       const formData = new FormData();
       formData.append('file', file);
-      formData.append('api_key', process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY);
+      formData.append('api_key', apiKey);
       formData.append('timestamp', timestamp);
       formData.append('signature', signature);
       formData.append('folder', 'blog-portfolio/gallery');
 
-      const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
       const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
         method: 'POST',
         body: formData

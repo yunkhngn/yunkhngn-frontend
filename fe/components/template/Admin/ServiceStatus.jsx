@@ -89,6 +89,12 @@ export default function ServiceStatus() {
                 } else {
                     setStatuses(prev => ({ ...prev, cloudflare: { status: 'error', message: 'Missing Key' } }));
                 }
+                // Check Cloudinary
+                if (data.services?.cloudinary) {
+                    setStatuses(prev => ({ ...prev, cloudinary: { status: 'success', message: 'Configured' } }));
+                } else {
+                    setStatuses(prev => ({ ...prev, cloudinary: { status: 'error', message: 'Missing Key' } }));
+                }
 
             } else {
                 setStatuses(prev => ({
@@ -96,7 +102,8 @@ export default function ServiceStatus() {
                     backend: { status: 'error', message: `Status: ${res.status}` },
                     gemini: { status: 'error', message: 'Backend Error' },
                     resend: { status: 'error', message: 'Backend Error' },
-                    cloudflare: { status: 'error', message: 'Backend Error' }
+                    cloudflare: { status: 'error', message: 'Backend Error' },
+                    cloudinary: { status: 'error', message: 'Backend Error' }
                 }));
             }
         } catch (error) {
@@ -105,18 +112,10 @@ export default function ServiceStatus() {
                 backend: { status: 'error', message: 'Unreachable' },
                 gemini: { status: 'error', message: 'Unreachable' },
                 resend: { status: 'error', message: 'Unreachable' },
-                cloudflare: { status: 'error', message: 'Unreachable' }
+                cloudflare: { status: 'error', message: 'Unreachable' },
+                cloudinary: { status: 'error', message: 'Unreachable' }
             }));
-        }
-
-        // 3. Check Cloudinary Config (Client-side)
-        const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
-        const apiKey = process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY;
-
-        if (cloudName && apiKey) {
-            setStatuses(prev => ({ ...prev, cloudinary: { status: 'success', message: 'Configured' } }));
-        } else {
-            setStatuses(prev => ({ ...prev, cloudinary: { status: 'error', message: 'Missing Config' } }));
+            console.error(error);
         }
 
         setLoading(false);

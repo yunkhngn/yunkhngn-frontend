@@ -1,12 +1,20 @@
 import { Injectable } from '@nestjs/common';
 import { Resend } from 'resend';
+import { SettingsService } from '../settings/settings.service';
 
 @Injectable()
 export class EmailService {
   private resend: Resend;
 
-  constructor() {
-    this.resend = new Resend(process.env.RESEND_API_KEY);
+  constructor(private settingsService: SettingsService) {
+    void this.initResend();
+  }
+
+  private async initResend() {
+    const apiKey =
+      (await this.settingsService.getDecryptedSetting('resend_api_key')) ||
+      process.env.RESEND_API_KEY;
+    this.resend = new Resend(apiKey);
   }
 
   private getNotificationTemplate(data: any): string {
@@ -73,6 +81,49 @@ export class EmailService {
 </html>`;
   }
 
+  async sendContactNotification(contact: any) {
+    try {
+      if (!this.resend) await this.initResend();
+
+      const adminEmail =
+        (await this.settingsService.getDecryptedSetting('admin_email')) ||
+        process.env.ADMIN_EMAIL ||
+        'admin@example.com';
+      const resendDomain =
+        (await this.settingsService.getDecryptedSetting('resend_domain')) ||
+        process.env.RESEND_DOMAIN;
+
+      const html = this.getNotificationTemplate({
+        name: contact.name,
+        email: contact.email,
+        phone: contact.phone || '',
+        company: contact.company || '',
+        subject: contact.subject,
+        message: contact.message.replace(/\n/g, '<br>'),
+        category: contact.category?.toUpperCase() || 'GENERAL',
+        timestamp: new Date(contact.createdAt).toLocaleString(),
+        adminUrl: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/admin/contact`,
+      });
+
+      const { data, error } = await this.resend.emails.send({
+        from: `Website Contact <noreply@${resendDomain}>`,
+        to: adminEmail,
+        subject: `New Contact: ${contact.subject}`,
+        html,
+      });
+
+      if (error) {
+        console.error('Failed to send notification email:', error);
+        return null;
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Error sending notification email:', error);
+      return null;
+    }
+  }
+
   private getResponseTemplate(data: any): string {
     return `
 <!DOCTYPE html>
@@ -122,41 +173,17 @@ export class EmailService {
 </html>`;
   }
 
-  async sendContactNotification(contact: any) {
-    try {
-      const html = this.getNotificationTemplate({
-        name: contact.name,
-        email: contact.email,
-        phone: contact.phone || '',
-        company: contact.company || '',
-        subject: contact.subject,
-        message: contact.message.replace(/\n/g, '<br>'),
-        category: contact.category?.toUpperCase() || 'GENERAL',
-        timestamp: new Date(contact.createdAt).toLocaleString(),
-        adminUrl: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/admin/contact`,
-      });
-
-      const { data, error } = await this.resend.emails.send({
-        from: `Website Contact <noreply@${process.env.RESEND_DOMAIN}>`,
-        to: process.env.ADMIN_EMAIL || 'admin@example.com',
-        subject: `New Contact: ${contact.subject}`,
-        html,
-      });
-
-      if (error) {
-        console.error('Failed to send notification email:', error);
-        return null;
-      }
-
-      return data;
-    } catch (error) {
-      console.error('Error sending notification email:', error);
-      return null;
-    }
-  }
-
   async sendContactResponse(contact: any, response: string) {
     try {
+      if (!this.resend) await this.initResend();
+      const adminEmail =
+        (await this.settingsService.getDecryptedSetting('admin_email')) ||
+        process.env.ADMIN_EMAIL ||
+        'admin@example.com';
+      const resendDomain =
+        (await this.settingsService.getDecryptedSetting('resend_domain')) ||
+        process.env.RESEND_DOMAIN;
+
       const html = this.getResponseTemplate({
         name: contact.name,
         subject: contact.subject,
@@ -165,9 +192,9 @@ export class EmailService {
       });
 
       const { data, error } = await this.resend.emails.send({
-        from: `Khoa Nguyen <noreply@${process.env.RESEND_DOMAIN}>`,
+        from: `Khoa Nguyen <noreply@${resendDomain}>`,
         to: contact.email,
-        replyTo: process.env.ADMIN_EMAIL || 'admin@example.com',
+        replyTo: adminEmail,
         subject: `Re: ${contact.subject}`,
         html,
       });
@@ -235,6 +262,15 @@ export class EmailService {
     salutation: string = 'Hi',
   ) {
     try {
+      if (!this.resend) await this.initResend();
+      const adminEmail =
+        (await this.settingsService.getDecryptedSetting('admin_email')) ||
+        process.env.ADMIN_EMAIL ||
+        'admin@example.com';
+      const resendDomain =
+        (await this.settingsService.getDecryptedSetting('resend_domain')) ||
+        process.env.RESEND_DOMAIN;
+
       const html = this.getCustomMailTemplate({
         name,
         subject,
@@ -243,10 +279,10 @@ export class EmailService {
       });
 
       const { data, error } = await this.resend.emails.send({
-        from: `Khoa Nguyen <noreply@${process.env.RESEND_DOMAIN}>`,
+        from: `Khoa Nguyen <noreply@${resendDomain}>`,
         to,
-        bcc: process.env.ADMIN_EMAIL,
-        replyTo: process.env.ADMIN_EMAIL || 'admin@example.com',
+        bcc: adminEmail,
+        replyTo: adminEmail,
         subject,
         html,
       });

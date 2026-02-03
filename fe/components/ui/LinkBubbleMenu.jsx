@@ -8,35 +8,48 @@ export function LinkBubbleMenu({ editor }) {
     const [text, setText] = useState('');
     const [showInput, setShowInput] = useState(false);
 
-    // Update url and text when selection changes or link state changes
-    /* eslint-disable react-hooks/set-state-in-effect */
+    // Initialize state when menu shows
     useEffect(() => {
         if (editor && editor.isActive('link')) {
-            const newUrl = editor.getAttributes('link').href || '';
-            if (url !== newUrl) setUrl(newUrl);
+            // Only update if not already editing to preserve user input
+            if (!showInput) {
+                const href = editor.getAttributes('link').href || '';
+                if (url !== href) {
+                    setUrl(href);
+                }
 
-            // Get selected text or full text of the link
-            const { from, to } = editor.state.selection;
-            const textContent = editor.state.doc.textBetween(from, to, ' ');
-            if (text !== textContent) setText(textContent);
-
-            setShowInput(true);
+                // Get the text content of the link
+                const { from, to } = editor.state.selection;
+                if (from !== to) {
+                    const textContent = editor.state.doc.textBetween(from, to, ' ');
+                    if (text !== textContent) {
+                        setText(textContent);
+                    }
+                }
+                setShowInput(true);
+            }
         } else {
-            setShowInput(false);
-            if (url !== '') setUrl('');
-            if (text !== '') setText('');
+            if (showInput) {
+                setShowInput(false);
+            }
         }
-    }, [editor, editor?.state?.selection, url, text]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [editor, editor?.state?.selection, showInput, url, text]);
 
     const setLink = useCallback(() => {
-        if (url === '') {
+        if (!url) {
             editor.chain().focus().extendMarkRange('link').unsetLink().run();
         } else {
-            // If text is provided and different from current selection, we need to replace content
+            // If text is provided, we might want to replace the selected text
+            // But changing text of a mark is tricky.
+            // Simplest is to extend range, insert text, then apply link.
+
             if (text) {
                 editor.chain().focus().extendMarkRange('link')
-                    .command(({ tr }) => {
-                        tr.insertText(text);
+                    .command(({ tr, state, dispatch }) => {
+                        if (dispatch) {
+                            tr.insertText(text);
+                        }
                         return true;
                     })
                     .setLink({ href: url })

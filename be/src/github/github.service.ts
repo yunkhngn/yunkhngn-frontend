@@ -1,26 +1,29 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { SettingsService } from '../settings/settings.service';
 
 @Injectable()
 export class GithubService implements OnModuleInit {
   private octokit: any;
   private readonly logger = new Logger(GithubService.name);
-  private readonly username: string;
-  private readonly repoName: string;
 
-  constructor(private configService: ConfigService) {
-    this.username = this.configService.get<string>('GITHUB_USERNAME');
-    this.repoName = this.configService.get<string>('GITHUB_REPO_NAME');
-  }
+  constructor(
+    private configService: ConfigService,
+    private settingsService: SettingsService,
+  ) {}
 
   async onModuleInit() {
-    const token = this.configService.get<string>('GITHUB_API_KEY');
+    const token =
+      (await this.settingsService.getDecryptedSetting('github_api_key')) ||
+      this.configService.get<string>('GITHUB_API_KEY');
+    const username = await this.getUsername();
+    const repoName = await this.getRepoName();
 
-    if (!this.username) {
-      this.logger.error('GITHUB_USERNAME is not defined in .env');
+    if (!username) {
+      this.logger.error('GitHub Username is not defined in settings or .env');
     }
-    if (!this.repoName) {
-      this.logger.error('GITHUB_REPO_NAME is not defined in .env');
+    if (!repoName) {
+      this.logger.error('GitHub Repo Name is not defined in settings or .env');
     }
 
     if (token) {
@@ -33,18 +36,34 @@ export class GithubService implements OnModuleInit {
       }
     } else {
       this.logger.warn(
-        'GITHUB_API_KEY not found. GitHub integration disabled.',
+        'GitHub API Key not found. GitHub integration disabled.',
       );
     }
   }
 
+  // Helper getters for dynamic values
+  private async getUsername() {
+    return (
+      (await this.settingsService.getDecryptedSetting('github_username')) ||
+      this.configService.get<string>('GITHUB_USERNAME')
+    );
+  }
+
+  private async getRepoName() {
+    return (
+      (await this.settingsService.getDecryptedSetting('github_repo_name')) ||
+      this.configService.get<string>('GITHUB_REPO_NAME')
+    );
+  }
+
   async getPublicRepos() {
-    if (!this.octokit || !this.username) return [];
+    const username = await this.getUsername();
+    if (!this.octokit || !username) return [];
     try {
       const { data } = await this.octokit.request(
         'GET /users/{username}/repos',
         {
-          username: this.username,
+          username: username,
           sort: 'updated',
           per_page: 10,
           type: 'public',
@@ -58,13 +77,16 @@ export class GithubService implements OnModuleInit {
   }
 
   async getWorkflowRuns() {
-    if (!this.octokit || !this.username || !this.repoName) return [];
+    const username = await this.getUsername();
+    const repoName = await this.getRepoName();
+
+    if (!this.octokit || !username || !repoName) return [];
     try {
       const { data } = await this.octokit.request(
         'GET /repos/{owner}/{repo}/actions/runs',
         {
-          owner: this.username,
-          repo: this.repoName,
+          owner: username,
+          repo: repoName,
           per_page: 5,
         },
       );
@@ -91,7 +113,7 @@ export class GithubService implements OnModuleInit {
     } catch (error) {
       if (error.status === 404) {
         this.logger.warn(
-          `Repository ${this.username}/${this.repoName} not found or token lacks permissions. Check GITHUB_REPO_NAME and token scopes.`,
+          `Repository ${username}/${repoName} not found or token lacks permissions. Check GITHUB_REPO_NAME and token scopes.`,
         );
       } else {
         this.logger.error('Failed to fetch workflow runs', error);

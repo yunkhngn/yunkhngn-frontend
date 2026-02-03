@@ -24,12 +24,18 @@ export class CloudinaryService {
   }
 
   generateUploadSignature(params: Record<string, any>) {
+    const config = cloudinary.config();
     const timestamp = Math.round(new Date().getTime() / 1000);
     const signature = cloudinary.utils.api_sign_request(
       { ...params, timestamp },
-      process.env.CLOUDINARY_API_SECRET,
+      config.api_secret,
     );
-    return { signature, timestamp };
+    return {
+      signature,
+      timestamp,
+      cloudName: config.cloud_name,
+      apiKey: config.api_key,
+    };
   }
 
   async getImages(next_cursor?: string) {

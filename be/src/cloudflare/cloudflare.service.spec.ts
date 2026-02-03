@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CloudflareService } from './cloudflare.service';
 import { ConfigService } from '@nestjs/config';
+import { SettingsService } from '../settings/settings.service';
 import { Logger } from '@nestjs/common';
 
 describe('CloudflareService', () => {
@@ -21,11 +22,16 @@ describe('CloudflareService', () => {
     }),
   };
 
+  const mockSettingsService = {
+    getDecryptedSetting: jest.fn().mockResolvedValue(null),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         CloudflareService,
         { provide: ConfigService, useValue: mockConfigService },
+        { provide: SettingsService, useValue: mockSettingsService },
       ],
     }).compile();
 
@@ -35,8 +41,8 @@ describe('CloudflareService', () => {
     global.fetch = jest.fn();
 
     // Mock Logger to prevent console noise
-    jest.spyOn(Logger.prototype, 'error').mockImplementation(() => {});
-    jest.spyOn(Logger.prototype, 'warn').mockImplementation(() => {});
+    jest.spyOn(Logger.prototype, 'error').mockImplementation(() => { });
+    jest.spyOn(Logger.prototype, 'warn').mockImplementation(() => { });
   });
 
   afterEach(() => {
@@ -140,6 +146,7 @@ describe('CloudflareService', () => {
         providers: [
           CloudflareService,
           { provide: ConfigService, useValue: mockConfigService },
+          { provide: SettingsService, useValue: mockSettingsService },
         ],
       }).compile();
       const serviceWithoutCreds =

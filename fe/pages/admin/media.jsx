@@ -65,18 +65,18 @@ export default function MediaManager() {
             const signRes = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/media/signature`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
-            const { signature, timestamp } = signRes.data;
+            const { signature, timestamp, cloudName, apiKey } = signRes.data;
 
             // 2. Upload to Cloudinary
             const formData = new FormData();
             formData.append('file', file);
-            formData.append('api_key', process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY);
+            formData.append('api_key', apiKey);
             formData.append('timestamp', timestamp);
             formData.append('signature', signature);
             formData.append('folder', 'blog-portfolio');
 
             const uploadRes = await axios.post(
-                `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
+                `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
                 formData
             );
 

@@ -151,9 +151,6 @@ export default function ProjectList() {
                         {/* Projects Section */}
                         <section>
                             <h2 className="text-3xl font-bold mb-8 flex items-center gap-3">
-                                <Badge variant="outline" className="h-8 w-8 p-0 flex items-center justify-center rounded-full border-primary text-primary">
-                                    {filteredProjects.length}
-                                </Badge>
                                 Featured Projects
                             </h2>
                             {filteredProjects.length > 0 ? (
