@@ -14,8 +14,8 @@ services:
       - ./backups:/var/opt/mssql/backups
     networks:
       - app-network
-    # ports:
-    #   - "1433:1433"
+    ports:
+      - "1433:1433"
     security_opt:
       - no-new-privileges:true
 
