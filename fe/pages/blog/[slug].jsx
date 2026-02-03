@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { Metadata } from "@/components/template";
-import { Calendar, Clock, ChevronLeft, Tag, Facebook, Twitter, Linkedin, Link as LinkIcon, UploadCloud, Loader2, Edit } from 'lucide-react';
+import { Calendar, Clock, ChevronLeft, Tag, Facebook, Twitter, Linkedin, Link as LinkIcon, UploadCloud, Loader2, Edit, Eye } from 'lucide-react';
 import Image from 'next/image';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/Badge';
@@ -82,6 +82,20 @@ export default function BlogDetail({ blogData }) {
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
+
+    // Increment view count
+    useEffect(() => {
+        const incrementView = async () => {
+            try {
+                await fetch(`${process.env.NEXT_PUBLIC_API_URL}/blogs/${blog.slug}/view`, {
+                    method: 'POST',
+                });
+            } catch (error) {
+                console.error('Failed to increment view:', error);
+            }
+        };
+        incrementView();
+    }, [blog.slug]);
 
     const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
 
@@ -257,13 +271,20 @@ export default function BlogDetail({ blogData }) {
                                     </div>
                                 )}
 
-                                <div className="flex items-center justify-center gap-4">
-                                    <div className="relative w-10 h-10 rounded-full overflow-hidden bg-muted">
-                                        <Image src="https://github.com/yunkhngn.png" alt="Author" fill className="object-cover" />
+                                <div className="flex items-center justify-center gap-6">
+                                    <div className="flex items-center gap-4">
+                                        <div className="relative w-10 h-10 rounded-full overflow-hidden bg-muted">
+                                            <Image src="https://github.com/yunkhngn.png" alt="Author" fill className="object-cover" />
+                                        </div>
+                                        <div className="text-left">
+                                            <div className="font-medium text-sm">Khoa Nguyễn</div>
+                                            <div className="text-xs text-muted-foreground">Author & Developer</div>
+                                        </div>
                                     </div>
-                                    <div className="text-left">
-                                        <div className="font-medium text-sm">Khoa Nguyễn</div>
-                                        <div className="text-xs text-muted-foreground">Author & Developer</div>
+                                    <div className="h-6 w-px bg-border"></div>
+                                    <div className="flex items-center gap-2 text-muted-foreground">
+                                        <Eye className="h-4 w-4" />
+                                        <span className="text-sm">{blog.views || 0} views</span>
                                     </div>
                                 </div>
                             </header>
