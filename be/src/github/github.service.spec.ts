@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { GithubService } from './github.service';
 import { ConfigService } from '@nestjs/config';
+import { SettingsService } from '../settings/settings.service';
 import { Logger } from '@nestjs/common';
 
 describe('GithubService', () => {
@@ -23,6 +24,10 @@ describe('GithubService', () => {
     }),
   };
 
+  const mockSettingsService = {
+    getDecryptedSetting: jest.fn().mockResolvedValue(null),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -31,15 +36,16 @@ describe('GithubService', () => {
           provide: ConfigService,
           useValue: mockConfigService,
         },
+        { provide: SettingsService, useValue: mockSettingsService },
       ],
     }).compile();
 
     service = module.get<GithubService>(GithubService);
 
     // Mock Logger to prevent console noise
-    jest.spyOn(Logger.prototype, 'log').mockImplementation(() => {});
-    jest.spyOn(Logger.prototype, 'error').mockImplementation(() => {});
-    jest.spyOn(Logger.prototype, 'warn').mockImplementation(() => {});
+    jest.spyOn(Logger.prototype, 'log').mockImplementation(() => { });
+    jest.spyOn(Logger.prototype, 'error').mockImplementation(() => { });
+    jest.spyOn(Logger.prototype, 'warn').mockImplementation(() => { });
 
     // Mock Octokit instance
     mockOctokit = {

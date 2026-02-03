@@ -1,261 +1,135 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="jest tests" tests="8" failures="8" errors="0" time="1.441">
-  <testsuite name="GithubService" errors="0" failures="8" skipped="0" timestamp="2026-02-03T16:52:08" time="1.319" tests="8">
-    <testcase classname="GithubService should be defined" name="GithubService should be defined" time="0.005">
-      <failure>Error: Nest can&apos;t resolve dependencies of the GithubService (ConfigService, ?). Please make sure that the argument SettingsService at index [1] is available in the RootTestModule context.
-
-Potential solutions:
-- Is RootTestModule a valid NestJS module?
-- If SettingsService is a provider, is it part of the current RootTestModule?
-- If SettingsService is exported from a separate @Module, is that module imported within RootTestModule?
-  @Module({
-    imports: [ /* the Module containing SettingsService */ ]
-  })
-
-For more common dependency resolution issues, see: https://docs.nestjs.com/faq/common-errors
-    at TestingInjector.lookupComponentInParentModules (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/injector.js:286:19)
-    at processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at TestingInjector.resolveComponentWrapper (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/testing/testing-injector.js:19:45)
-    at resolveParam (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/injector.js:140:38)
-    at async Promise.all (index 1)
-    at TestingInjector.resolveConstructorParams (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/injector.js:169:27)
-    at TestingInjector.loadInstance (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/injector.js:75:13)
-    at TestingInjector.loadProvider (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/injector.js:103:9)
-    at /Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/instance-loader.js:56:13
-    at async Promise.all (index 3)
-    at TestingInstanceLoader.createInstancesOfProviders (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/instance-loader.js:55:9)
-    at /Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/instance-loader.js:40:13
-    at async Promise.all (index 1)
-    at TestingInstanceLoader.createInstances (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/instance-loader.js:39:9)
-    at TestingInstanceLoader.createInstancesOfDependencies (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/instance-loader.js:22:13)
-    at TestingInstanceLoader.createInstancesOfDependencies (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/testing/testing-instance-loader.js:9:9)
-    at TestingModuleBuilder.createInstancesOfDependencies (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/testing/testing-module.builder.js:118:9)
-    at TestingModuleBuilder.compile (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/testing/testing-module.builder.js:74:9)
-    at Object.&lt;anonymous&gt; (/Volumes/Data/Projects/yunkhngn-website/be/src/github/github.service.spec.ts:27:35)</failure>
+<testsuites name="jest tests" tests="52" failures="0" errors="0" time="5.611">
+  <testsuite name="NotificationsService" errors="0" failures="0" skipped="0" timestamp="2026-02-03T16:55:33" time="4.496" tests="3">
+    <testcase classname="NotificationsService should be defined" name="NotificationsService should be defined" time="0.008">
     </testcase>
-    <testcase classname="GithubService getPublicRepos should return repositories on success" name="GithubService getPublicRepos should return repositories on success" time="0.001">
-      <failure>Error: Nest can&apos;t resolve dependencies of the GithubService (ConfigService, ?). Please make sure that the argument SettingsService at index [1] is available in the RootTestModule context.
-
-Potential solutions:
-- Is RootTestModule a valid NestJS module?
-- If SettingsService is a provider, is it part of the current RootTestModule?
-- If SettingsService is exported from a separate @Module, is that module imported within RootTestModule?
-  @Module({
-    imports: [ /* the Module containing SettingsService */ ]
-  })
-
-For more common dependency resolution issues, see: https://docs.nestjs.com/faq/common-errors
-    at TestingInjector.lookupComponentInParentModules (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/injector.js:286:19)
-    at processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at TestingInjector.resolveComponentWrapper (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/testing/testing-injector.js:19:45)
-    at resolveParam (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/injector.js:140:38)
-    at async Promise.all (index 1)
-    at TestingInjector.resolveConstructorParams (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/injector.js:169:27)
-    at TestingInjector.loadInstance (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/injector.js:75:13)
-    at TestingInjector.loadProvider (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/injector.js:103:9)
-    at /Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/instance-loader.js:56:13
-    at async Promise.all (index 3)
-    at TestingInstanceLoader.createInstancesOfProviders (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/instance-loader.js:55:9)
-    at /Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/instance-loader.js:40:13
-    at async Promise.all (index 1)
-    at TestingInstanceLoader.createInstances (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/instance-loader.js:39:9)
-    at TestingInstanceLoader.createInstancesOfDependencies (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/instance-loader.js:22:13)
-    at TestingInstanceLoader.createInstancesOfDependencies (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/testing/testing-instance-loader.js:9:9)
-    at TestingModuleBuilder.createInstancesOfDependencies (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/testing/testing-module.builder.js:118:9)
-    at TestingModuleBuilder.compile (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/testing/testing-module.builder.js:74:9)
-    at Object.&lt;anonymous&gt; (/Volumes/Data/Projects/yunkhngn-website/be/src/github/github.service.spec.ts:27:35)</failure>
+    <testcase classname="NotificationsService create should create a notification and emit event" name="NotificationsService create should create a notification and emit event" time="0.002">
+    </testcase>
+    <testcase classname="NotificationsService findAll should return paginated notifications" name="NotificationsService findAll should return paginated notifications" time="0.004">
+    </testcase>
+  </testsuite>
+  <testsuite name="PhotoReactionsService" errors="0" failures="0" skipped="0" timestamp="2026-02-03T16:55:33" time="4.633" tests="4">
+    <testcase classname="PhotoReactionsService should be defined" name="PhotoReactionsService should be defined" time="0.015">
+    </testcase>
+    <testcase classname="PhotoReactionsService addOrUpdateReaction should upsert reaction and trigger notification" name="PhotoReactionsService addOrUpdateReaction should upsert reaction and trigger notification" time="0.015">
+    </testcase>
+    <testcase classname="PhotoReactionsService removeReaction should delete reaction" name="PhotoReactionsService removeReaction should delete reaction" time="0.002">
+    </testcase>
+    <testcase classname="PhotoReactionsService getPhotoReactions should return reactions for a photo" name="PhotoReactionsService getPhotoReactions should return reactions for a photo" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="ContactService" errors="0" failures="0" skipped="0" timestamp="2026-02-03T16:55:33" time="4.667" tests="5">
+    <testcase classname="ContactService should be defined" name="ContactService should be defined" time="0.007">
+    </testcase>
+    <testcase classname="ContactService createContact should create a contact and send notification" name="ContactService createContact should create a contact and send notification" time="0.009">
+    </testcase>
+    <testcase classname="ContactService respondToContact should send email and update contact status" name="ContactService respondToContact should send email and update contact status" time="0.003">
+    </testcase>
+    <testcase classname="ContactService generateAiResponse should call AI service with correct prompt" name="ContactService generateAiResponse should call AI service with correct prompt" time="0.002">
+    </testcase>
+    <testcase classname="ContactService sendCustomEmail should send custom email with salutation" name="ContactService sendCustomEmail should send custom email with salutation" time="0.004">
+    </testcase>
+  </testsuite>
+  <testsuite name="PrismaService" errors="0" failures="0" skipped="0" timestamp="2026-02-03T16:55:38" time="0.184" tests="1">
+    <testcase classname="PrismaService should be defined" name="PrismaService should be defined" time="0.044">
+    </testcase>
+  </testsuite>
+  <testsuite name="MediaController" errors="0" failures="0" skipped="0" timestamp="2026-02-03T16:55:33" time="4.7" tests="5">
+    <testcase classname="MediaController should be defined" name="MediaController should be defined" time="0.043">
+    </testcase>
+    <testcase classname="MediaController getImages should call cloudinaryService.getImages" name="MediaController getImages should call cloudinaryService.getImages" time="0.006">
+    </testcase>
+    <testcase classname="MediaController deleteImage should call cloudinaryService.deleteImage" name="MediaController deleteImage should call cloudinaryService.deleteImage" time="0.004">
+    </testcase>
+    <testcase classname="MediaController deleteImage should throw error if publicId is missing" name="MediaController deleteImage should throw error if publicId is missing" time="0.039">
+    </testcase>
+    <testcase classname="MediaController getSignature should call cloudinaryService.generateUploadSignature" name="MediaController getSignature should call cloudinaryService.generateUploadSignature" time="0.002">
+    </testcase>
+  </testsuite>
+  <testsuite name="GithubService" errors="0" failures="0" skipped="0" timestamp="2026-02-03T16:55:33" time="4.757" tests="8">
+    <testcase classname="GithubService should be defined" name="GithubService should be defined" time="0.007">
+    </testcase>
+    <testcase classname="GithubService getPublicRepos should return repositories on success" name="GithubService getPublicRepos should return repositories on success" time="0.004">
     </testcase>
     <testcase classname="GithubService getPublicRepos should return empty array if octokit is not initialized" name="GithubService getPublicRepos should return empty array if octokit is not initialized" time="0.001">
-      <failure>Error: Nest can&apos;t resolve dependencies of the GithubService (ConfigService, ?). Please make sure that the argument SettingsService at index [1] is available in the RootTestModule context.
-
-Potential solutions:
-- Is RootTestModule a valid NestJS module?
-- If SettingsService is a provider, is it part of the current RootTestModule?
-- If SettingsService is exported from a separate @Module, is that module imported within RootTestModule?
-  @Module({
-    imports: [ /* the Module containing SettingsService */ ]
-  })
-
-For more common dependency resolution issues, see: https://docs.nestjs.com/faq/common-errors
-    at TestingInjector.lookupComponentInParentModules (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/injector.js:286:19)
-    at processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at TestingInjector.resolveComponentWrapper (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/testing/testing-injector.js:19:45)
-    at resolveParam (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/injector.js:140:38)
-    at async Promise.all (index 1)
-    at TestingInjector.resolveConstructorParams (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/injector.js:169:27)
-    at TestingInjector.loadInstance (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/injector.js:75:13)
-    at TestingInjector.loadProvider (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/injector.js:103:9)
-    at /Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/instance-loader.js:56:13
-    at async Promise.all (index 3)
-    at TestingInstanceLoader.createInstancesOfProviders (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/instance-loader.js:55:9)
-    at /Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/instance-loader.js:40:13
-    at async Promise.all (index 1)
-    at TestingInstanceLoader.createInstances (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/instance-loader.js:39:9)
-    at TestingInstanceLoader.createInstancesOfDependencies (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/instance-loader.js:22:13)
-    at TestingInstanceLoader.createInstancesOfDependencies (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/testing/testing-instance-loader.js:9:9)
-    at TestingModuleBuilder.createInstancesOfDependencies (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/testing/testing-module.builder.js:118:9)
-    at TestingModuleBuilder.compile (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/testing/testing-module.builder.js:74:9)
-    at Object.&lt;anonymous&gt; (/Volumes/Data/Projects/yunkhngn-website/be/src/github/github.service.spec.ts:27:35)</failure>
     </testcase>
-    <testcase classname="GithubService getPublicRepos should return empty array and log error on failure" name="GithubService getPublicRepos should return empty array and log error on failure" time="0.001">
-      <failure>Error: Nest can&apos;t resolve dependencies of the GithubService (ConfigService, ?). Please make sure that the argument SettingsService at index [1] is available in the RootTestModule context.
-
-Potential solutions:
-- Is RootTestModule a valid NestJS module?
-- If SettingsService is a provider, is it part of the current RootTestModule?
-- If SettingsService is exported from a separate @Module, is that module imported within RootTestModule?
-  @Module({
-    imports: [ /* the Module containing SettingsService */ ]
-  })
-
-For more common dependency resolution issues, see: https://docs.nestjs.com/faq/common-errors
-    at TestingInjector.lookupComponentInParentModules (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/injector.js:286:19)
-    at processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at TestingInjector.resolveComponentWrapper (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/testing/testing-injector.js:19:45)
-    at resolveParam (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/injector.js:140:38)
-    at async Promise.all (index 1)
-    at TestingInjector.resolveConstructorParams (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/injector.js:169:27)
-    at TestingInjector.loadInstance (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/injector.js:75:13)
-    at TestingInjector.loadProvider (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/injector.js:103:9)
-    at /Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/instance-loader.js:56:13
-    at async Promise.all (index 3)
-    at TestingInstanceLoader.createInstancesOfProviders (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/instance-loader.js:55:9)
-    at /Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/instance-loader.js:40:13
-    at async Promise.all (index 1)
-    at TestingInstanceLoader.createInstances (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/instance-loader.js:39:9)
-    at TestingInstanceLoader.createInstancesOfDependencies (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/instance-loader.js:22:13)
-    at TestingInstanceLoader.createInstancesOfDependencies (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/testing/testing-instance-loader.js:9:9)
-    at TestingModuleBuilder.createInstancesOfDependencies (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/testing/testing-module.builder.js:118:9)
-    at TestingModuleBuilder.compile (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/testing/testing-module.builder.js:74:9)
-    at Object.&lt;anonymous&gt; (/Volumes/Data/Projects/yunkhngn-website/be/src/github/github.service.spec.ts:27:35)</failure>
+    <testcase classname="GithubService getPublicRepos should return empty array and log error on failure" name="GithubService getPublicRepos should return empty array and log error on failure" time="0.029">
     </testcase>
-    <testcase classname="GithubService getWorkflowRuns should return mapped workflow runs on success" name="GithubService getWorkflowRuns should return mapped workflow runs on success" time="0.001">
-      <failure>Error: Nest can&apos;t resolve dependencies of the GithubService (ConfigService, ?). Please make sure that the argument SettingsService at index [1] is available in the RootTestModule context.
-
-Potential solutions:
-- Is RootTestModule a valid NestJS module?
-- If SettingsService is a provider, is it part of the current RootTestModule?
-- If SettingsService is exported from a separate @Module, is that module imported within RootTestModule?
-  @Module({
-    imports: [ /* the Module containing SettingsService */ ]
-  })
-
-For more common dependency resolution issues, see: https://docs.nestjs.com/faq/common-errors
-    at TestingInjector.lookupComponentInParentModules (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/injector.js:286:19)
-    at processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at TestingInjector.resolveComponentWrapper (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/testing/testing-injector.js:19:45)
-    at resolveParam (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/injector.js:140:38)
-    at async Promise.all (index 1)
-    at TestingInjector.resolveConstructorParams (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/injector.js:169:27)
-    at TestingInjector.loadInstance (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/injector.js:75:13)
-    at TestingInjector.loadProvider (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/injector.js:103:9)
-    at /Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/instance-loader.js:56:13
-    at async Promise.all (index 3)
-    at TestingInstanceLoader.createInstancesOfProviders (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/instance-loader.js:55:9)
-    at /Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/instance-loader.js:40:13
-    at async Promise.all (index 1)
-    at TestingInstanceLoader.createInstances (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/instance-loader.js:39:9)
-    at TestingInstanceLoader.createInstancesOfDependencies (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/instance-loader.js:22:13)
-    at TestingInstanceLoader.createInstancesOfDependencies (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/testing/testing-instance-loader.js:9:9)
-    at TestingModuleBuilder.createInstancesOfDependencies (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/testing/testing-module.builder.js:118:9)
-    at TestingModuleBuilder.compile (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/testing/testing-module.builder.js:74:9)
-    at Object.&lt;anonymous&gt; (/Volumes/Data/Projects/yunkhngn-website/be/src/github/github.service.spec.ts:27:35)</failure>
+    <testcase classname="GithubService getWorkflowRuns should return mapped workflow runs on success" name="GithubService getWorkflowRuns should return mapped workflow runs on success" time="0.008">
     </testcase>
-    <testcase classname="GithubService getWorkflowRuns should return empty array if octokit is not initialized" name="GithubService getWorkflowRuns should return empty array if octokit is not initialized" time="0.001">
-      <failure>Error: Nest can&apos;t resolve dependencies of the GithubService (ConfigService, ?). Please make sure that the argument SettingsService at index [1] is available in the RootTestModule context.
-
-Potential solutions:
-- Is RootTestModule a valid NestJS module?
-- If SettingsService is a provider, is it part of the current RootTestModule?
-- If SettingsService is exported from a separate @Module, is that module imported within RootTestModule?
-  @Module({
-    imports: [ /* the Module containing SettingsService */ ]
-  })
-
-For more common dependency resolution issues, see: https://docs.nestjs.com/faq/common-errors
-    at TestingInjector.lookupComponentInParentModules (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/injector.js:286:19)
-    at processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at TestingInjector.resolveComponentWrapper (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/testing/testing-injector.js:19:45)
-    at resolveParam (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/injector.js:140:38)
-    at async Promise.all (index 1)
-    at TestingInjector.resolveConstructorParams (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/injector.js:169:27)
-    at TestingInjector.loadInstance (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/injector.js:75:13)
-    at TestingInjector.loadProvider (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/injector.js:103:9)
-    at /Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/instance-loader.js:56:13
-    at async Promise.all (index 3)
-    at TestingInstanceLoader.createInstancesOfProviders (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/instance-loader.js:55:9)
-    at /Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/instance-loader.js:40:13
-    at async Promise.all (index 1)
-    at TestingInstanceLoader.createInstances (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/instance-loader.js:39:9)
-    at TestingInstanceLoader.createInstancesOfDependencies (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/instance-loader.js:22:13)
-    at TestingInstanceLoader.createInstancesOfDependencies (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/testing/testing-instance-loader.js:9:9)
-    at TestingModuleBuilder.createInstancesOfDependencies (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/testing/testing-module.builder.js:118:9)
-    at TestingModuleBuilder.compile (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/testing/testing-module.builder.js:74:9)
-    at Object.&lt;anonymous&gt; (/Volumes/Data/Projects/yunkhngn-website/be/src/github/github.service.spec.ts:27:35)</failure>
+    <testcase classname="GithubService getWorkflowRuns should return empty array if octokit is not initialized" name="GithubService getWorkflowRuns should return empty array if octokit is not initialized" time="0.015">
     </testcase>
-    <testcase classname="GithubService getWorkflowRuns should return empty array and log warning on 404" name="GithubService getWorkflowRuns should return empty array and log warning on 404" time="0.001">
-      <failure>Error: Nest can&apos;t resolve dependencies of the GithubService (ConfigService, ?). Please make sure that the argument SettingsService at index [1] is available in the RootTestModule context.
-
-Potential solutions:
-- Is RootTestModule a valid NestJS module?
-- If SettingsService is a provider, is it part of the current RootTestModule?
-- If SettingsService is exported from a separate @Module, is that module imported within RootTestModule?
-  @Module({
-    imports: [ /* the Module containing SettingsService */ ]
-  })
-
-For more common dependency resolution issues, see: https://docs.nestjs.com/faq/common-errors
-    at TestingInjector.lookupComponentInParentModules (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/injector.js:286:19)
-    at processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at TestingInjector.resolveComponentWrapper (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/testing/testing-injector.js:19:45)
-    at resolveParam (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/injector.js:140:38)
-    at async Promise.all (index 1)
-    at TestingInjector.resolveConstructorParams (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/injector.js:169:27)
-    at TestingInjector.loadInstance (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/injector.js:75:13)
-    at TestingInjector.loadProvider (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/injector.js:103:9)
-    at /Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/instance-loader.js:56:13
-    at async Promise.all (index 3)
-    at TestingInstanceLoader.createInstancesOfProviders (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/instance-loader.js:55:9)
-    at /Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/instance-loader.js:40:13
-    at async Promise.all (index 1)
-    at TestingInstanceLoader.createInstances (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/instance-loader.js:39:9)
-    at TestingInstanceLoader.createInstancesOfDependencies (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/instance-loader.js:22:13)
-    at TestingInstanceLoader.createInstancesOfDependencies (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/testing/testing-instance-loader.js:9:9)
-    at TestingModuleBuilder.createInstancesOfDependencies (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/testing/testing-module.builder.js:118:9)
-    at TestingModuleBuilder.compile (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/testing/testing-module.builder.js:74:9)
-    at Object.&lt;anonymous&gt; (/Volumes/Data/Projects/yunkhngn-website/be/src/github/github.service.spec.ts:27:35)</failure>
+    <testcase classname="GithubService getWorkflowRuns should return empty array and log warning on 404" name="GithubService getWorkflowRuns should return empty array and log warning on 404" time="0.017">
     </testcase>
     <testcase classname="GithubService getWorkflowRuns should return empty array and log error on other errors" name="GithubService getWorkflowRuns should return empty array and log error on other errors" time="0.001">
-      <failure>Error: Nest can&apos;t resolve dependencies of the GithubService (ConfigService, ?). Please make sure that the argument SettingsService at index [1] is available in the RootTestModule context.
-
-Potential solutions:
-- Is RootTestModule a valid NestJS module?
-- If SettingsService is a provider, is it part of the current RootTestModule?
-- If SettingsService is exported from a separate @Module, is that module imported within RootTestModule?
-  @Module({
-    imports: [ /* the Module containing SettingsService */ ]
-  })
-
-For more common dependency resolution issues, see: https://docs.nestjs.com/faq/common-errors
-    at TestingInjector.lookupComponentInParentModules (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/injector.js:286:19)
-    at processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at TestingInjector.resolveComponentWrapper (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/testing/testing-injector.js:19:45)
-    at resolveParam (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/injector.js:140:38)
-    at async Promise.all (index 1)
-    at TestingInjector.resolveConstructorParams (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/injector.js:169:27)
-    at TestingInjector.loadInstance (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/injector.js:75:13)
-    at TestingInjector.loadProvider (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/injector.js:103:9)
-    at /Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/instance-loader.js:56:13
-    at async Promise.all (index 3)
-    at TestingInstanceLoader.createInstancesOfProviders (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/instance-loader.js:55:9)
-    at /Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/instance-loader.js:40:13
-    at async Promise.all (index 1)
-    at TestingInstanceLoader.createInstances (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/instance-loader.js:39:9)
-    at TestingInstanceLoader.createInstancesOfDependencies (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/core/injector/instance-loader.js:22:13)
-    at TestingInstanceLoader.createInstancesOfDependencies (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/testing/testing-instance-loader.js:9:9)
-    at TestingModuleBuilder.createInstancesOfDependencies (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/testing/testing-module.builder.js:118:9)
-    at TestingModuleBuilder.compile (/Volumes/Data/Projects/yunkhngn-website/be/node_modules/@nestjs/testing/testing-module.builder.js:74:9)
-    at Object.&lt;anonymous&gt; (/Volumes/Data/Projects/yunkhngn-website/be/src/github/github.service.spec.ts:27:35)</failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="CommentsService" errors="0" failures="0" skipped="0" timestamp="2026-02-03T16:55:33" time="4.781" tests="8">
+    <testcase classname="CommentsService should be defined" name="CommentsService should be defined" time="0.023">
+    </testcase>
+    <testcase classname="CommentsService create should create a comment" name="CommentsService create should create a comment" time="0.007">
+    </testcase>
+    <testcase classname="CommentsService create should sanitize XSS" name="CommentsService create should sanitize XSS" time="0.034">
+    </testcase>
+    <testcase classname="CommentsService create should reject empty content after sanitization" name="CommentsService create should reject empty content after sanitization" time="0.016">
+    </testcase>
+    <testcase classname="CommentsService create should reject repeated punctuation" name="CommentsService create should reject repeated punctuation" time="0.012">
+    </testcase>
+    <testcase classname="CommentsService create should accept allowed repeated punctuation" name="CommentsService create should accept allowed repeated punctuation" time="0.003">
+    </testcase>
+    <testcase classname="CommentsService create should reject excessive repeated characters" name="CommentsService create should reject excessive repeated characters" time="0.002">
+    </testcase>
+    <testcase classname="CommentsService create should reject forbidden keywords" name="CommentsService create should reject forbidden keywords" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="ProjectService" errors="0" failures="0" skipped="0" timestamp="2026-02-03T16:55:38" time="0.12" tests="2">
+    <testcase classname="ProjectService should be defined" name="ProjectService should be defined" time="0.003">
+    </testcase>
+    <testcase classname="ProjectService create should create a project" name="ProjectService create should create a project" time="0.002">
+    </testcase>
+  </testsuite>
+  <testsuite name="AppController" errors="0" failures="0" skipped="0" timestamp="2026-02-03T16:55:38" time="0.12" tests="1">
+    <testcase classname="AppController root should return &quot;Hello World!&quot;" name="AppController root should return &quot;Hello World!&quot;" time="0.005">
+    </testcase>
+  </testsuite>
+  <testsuite name="SettingsService" errors="0" failures="0" skipped="0" timestamp="2026-02-03T16:55:38" time="0.138" tests="3">
+    <testcase classname="SettingsService should be defined" name="SettingsService should be defined" time="0.002">
+    </testcase>
+    <testcase classname="SettingsService getSettings should return all settings" name="SettingsService getSettings should return all settings" time="0.001">
+    </testcase>
+    <testcase classname="SettingsService onModuleInit should initialize default settings" name="SettingsService onModuleInit should initialize default settings" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="CloudflareService" errors="0" failures="0" skipped="0" timestamp="2026-02-03T16:55:33" time="4.861" tests="5">
+    <testcase classname="CloudflareService should be defined" name="CloudflareService should be defined" time="0.035">
+    </testcase>
+    <testcase classname="CloudflareService getAnalytics should return analytics data when API call is successful" name="CloudflareService getAnalytics should return analytics data when API call is successful" time="0.003">
+    </testcase>
+    <testcase classname="CloudflareService getAnalytics should throw error when API call fails" name="CloudflareService getAnalytics should throw error when API call fails" time="0.006">
+    </testcase>
+    <testcase classname="CloudflareService getAnalytics should throw error when GraphQL returns errors" name="CloudflareService getAnalytics should throw error when GraphQL returns errors" time="0.003">
+    </testcase>
+    <testcase classname="CloudflareService getAnalytics should return null if credentials are missing" name="CloudflareService getAnalytics should return null if credentials are missing" time="0.003">
+    </testcase>
+  </testsuite>
+  <testsuite name="CloudinaryService" errors="0" failures="0" skipped="0" timestamp="2026-02-03T16:55:38" time="0.196" tests="1">
+    <testcase classname="CloudinaryService should be defined" name="CloudinaryService should be defined" time="0.003">
+    </testcase>
+  </testsuite>
+  <testsuite name="BlogService" errors="0" failures="0" skipped="0" timestamp="2026-02-03T16:55:38" time="0.179" tests="4">
+    <testcase classname="BlogService should be defined" name="BlogService should be defined" time="0.002">
+    </testcase>
+    <testcase classname="BlogService create should create a blog" name="BlogService create should create a blog" time="0.001">
+    </testcase>
+    <testcase classname="BlogService findAll should return an array of blogs" name="BlogService findAll should return an array of blogs" time="0.001">
+    </testcase>
+    <testcase classname="BlogService findOne should return a single blog" name="BlogService findOne should return a single blog" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="GalleryService" errors="0" failures="0" skipped="0" timestamp="2026-02-03T16:55:38" time="0.197" tests="2">
+    <testcase classname="GalleryService should be defined" name="GalleryService should be defined" time="0.002">
+    </testcase>
+    <testcase classname="GalleryService getUploadSignature should return signature" name="GalleryService getUploadSignature should return signature" time="0.001">
     </testcase>
   </testsuite>
 </testsuites>
