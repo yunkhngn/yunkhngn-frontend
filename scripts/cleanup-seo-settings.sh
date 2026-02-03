@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Script to clean up old SEO settings from database
-# Run this on the server where the database is accessible
+# Uses direct database deletion via Prisma CLI
 
 echo "This script will delete all seo_* settings from the database."
 echo "Settings to be deleted:"
@@ -19,31 +19,16 @@ if [[ $confirm != [yY] ]]; then
     exit 0
 fi
 
-CONTAINER_NAME="yunkhngn-mssql"
-DB_NAME="blogdb"
-DB_USER="sa"
-DB_PASS="Khoadeptrai1204!"
-
 echo "Deleting SEO settings..."
 
-docker exec $CONTAINER_NAME python3 -c "
-import pymssql
-conn = pymssql.connect(server='localhost', user='$DB_USER', password='$DB_PASS', database='$DB_NAME')
-cursor = conn.cursor()
+# Navigate to backend directory
+cd "$(dirname "$0")/../be" || exit 1
 
-# Delete all seo_* settings
-cursor.execute(\"\"\"
-DELETE FROM [Settings] 
-WHERE settingTitle LIKE 'seo_%'
-\"\"\")
-
-affected = cursor.rowcount
-conn.commit()
-cursor.close()
-conn.close()
-
-print(f'✓ Deleted {affected} SEO settings from database')
-"
+# Use npx prisma to delete SEO settings
+npx prisma db execute --stdin <<SQL
+DELETE FROM [blogdb].[dbo].[Settings] 
+WHERE settingTitle LIKE 'seo_%';
+SQL
 
 if [ $? -eq 0 ]; then
     echo "✓ Cleanup completed successfully"
