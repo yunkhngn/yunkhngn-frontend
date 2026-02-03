@@ -1,21 +1,25 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { SettingsService } from '../settings/settings.service';
 
 @Injectable()
 export class CloudflareService {
   private readonly logger = new Logger(CloudflareService.name);
-  private readonly zoneId: string;
-  private readonly accountId: string;
-  private readonly apiToken: string;
 
-  constructor(private configService: ConfigService) {
-    this.zoneId = this.configService.get<string>('CLOUDFLARE_ZONE_ID');
-    this.accountId = this.configService.get<string>('CLOUDFLARE_ACCOUNT_ID');
-    this.apiToken = this.configService.get<string>('CLOUDFLARE_API_TOKEN');
-  }
+  constructor(
+    private configService: ConfigService,
+    private settingsService: SettingsService,
+  ) { }
 
   async getAnalytics(period: '24h' | '7d' | '30d' = '24h') {
-    if (!this.zoneId || !this.apiToken) {
+    const zoneId =
+      (await this.settingsService.getDecryptedSetting('cloudflare_zone_id')) ||
+      this.configService.get<string>('CLOUDFLARE_ZONE_ID');
+    const apiToken =
+      (await this.settingsService.getDecryptedSetting('cloudflare_api_token')) ||
+      this.configService.get<string>('CLOUDFLARE_API_TOKEN');
+
+    if (!zoneId || !apiToken) {
       this.logger.warn('Cloudflare credentials not configured');
       return null;
     }
@@ -66,12 +70,12 @@ export class CloudflareService {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${this.apiToken}`,
+            Authorization: `Bearer ${apiToken}`,
           },
           body: JSON.stringify({
             query,
             variables: {
-              zoneTag: this.zoneId,
+              zoneTag: zoneId,
               since: since.toISOString(),
               until: now.toISOString(),
             },

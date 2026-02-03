@@ -23,6 +23,15 @@ const SYSTEM_SETTINGS = [
   'cloudinary_cloud_name',
   'cloudinary_api_key',
   'cloudinary_api_secret',
+  'resend_api_key',
+  'resend_domain',
+  'admin_email',
+  'cloudflare_zone_id',
+  'cloudflare_account_id',
+  'cloudflare_api_token',
+  'github_api_key',
+  'github_username',
+  'github_repo_name',
 ];
 
 @Injectable()
@@ -58,7 +67,10 @@ export class SettingsService implements OnModuleInit {
       // Mask sensitive keys
       if (
         (s.settingTitle === 'gemini_api_key' ||
-          s.settingTitle === 'cloudinary_api_secret') &&
+          s.settingTitle === 'cloudinary_api_secret' ||
+          s.settingTitle === 'resend_api_key' ||
+          s.settingTitle === 'cloudflare_api_token' ||
+          s.settingTitle === 'github_api_key') &&
         s.content
       ) {
         return { ...s, content: '********' };
@@ -74,7 +86,10 @@ export class SettingsService implements OnModuleInit {
     // Encrypt sensitive keys
     if (
       settingTitle === 'gemini_api_key' ||
-      settingTitle === 'cloudinary_api_secret'
+      settingTitle === 'cloudinary_api_secret' ||
+      settingTitle === 'resend_api_key' ||
+      settingTitle === 'cloudflare_api_token' ||
+      settingTitle === 'github_api_key'
     ) {
       if (content === '********') {
         // Ignore update if it's the mask
@@ -109,7 +124,10 @@ export class SettingsService implements OnModuleInit {
 
     if (
       title === 'gemini_api_key' ||
-      title === 'cloudinary_api_secret'
+      title === 'cloudinary_api_secret' ||
+      title === 'resend_api_key' ||
+      title === 'cloudflare_api_token' ||
+      title === 'github_api_key'
     ) {
       return this.encryptionService.decrypt(setting.content);
     }

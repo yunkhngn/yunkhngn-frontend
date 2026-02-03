@@ -52,10 +52,29 @@ const SETTINGS_GROUPS = [
         keys: ['cloudinary_cloud_name', 'cloudinary_api_key', 'cloudinary_api_secret']
     },
     {
+        title: "Email / Resend",
+        keys: ['resend_api_key', 'resend_domain', 'admin_email']
+    },
+    {
+        title: "Cloudflare",
+        keys: ['cloudflare_zone_id', 'cloudflare_account_id', 'cloudflare_api_token']
+    },
+    {
+        title: "GitHub",
+        keys: ['github_api_key', 'github_username', 'github_repo_name']
+    },
+    {
         title: "AI / System",
         keys: ['gemini_api_key']
     }
 ];
+
+const formatSettingTitle = (title) => {
+    return title
+        .split('_')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+};
 
 export default function Settings() {
     const { user } = useAuth();
@@ -265,7 +284,10 @@ export default function Settings() {
                                             <TableBody>
                                                 {groupSettings.map((setting) => (
                                                     <TableRow key={setting.id}>
-                                                        <TableCell className="font-medium align-top py-4 break-all">{setting.settingTitle}</TableCell>
+                                                        <TableCell className="font-medium align-top py-4 break-all">
+                                                            {formatSettingTitle(setting.settingTitle)}
+                                                            <div className="text-xs text-muted-foreground font-mono mt-1">{setting.settingTitle}</div>
+                                                        </TableCell>
                                                         <TableCell className="align-top py-4">
                                                             <div className="max-w-[120px] md:max-w-md line-clamp-3 whitespace-pre-wrap text-sm text-muted-foreground break-all">
                                                                 {setting.content}
@@ -305,7 +327,10 @@ export default function Settings() {
                                 <TableBody>
                                     {orphanSettings.map((setting) => (
                                         <TableRow key={setting.id}>
-                                            <TableCell className="font-medium align-top py-4 break-all">{setting.settingTitle}</TableCell>
+                                            <TableCell className="font-medium align-top py-4 break-all">
+                                                {formatSettingTitle(setting.settingTitle)}
+                                                <div className="text-xs text-muted-foreground font-mono mt-1">{setting.settingTitle}</div>
+                                            </TableCell>
                                             <TableCell className="align-top py-4">
                                                 <div className="max-w-[120px] md:max-w-md line-clamp-3 whitespace-pre-wrap text-sm text-muted-foreground break-all">
                                                     {setting.content}
@@ -388,10 +413,10 @@ export default function Settings() {
                                         </div>
                                     )}
                                 </div>
-                            ) : (currentSetting.settingTitle === 'gemini_api_key' || currentSetting.settingTitle === 'cloudinary_api_secret') ? (
+                            ) : (currentSetting.settingTitle.includes('api_key') || currentSetting.settingTitle.includes('api_secret') || currentSetting.settingTitle.includes('token') || currentSetting.settingTitle.includes('password')) ? (
                                 <div className="space-y-2">
                                     <label className="text-sm font-medium">
-                                        {currentSetting.settingTitle === 'gemini_api_key' ? 'Gemini API Key' : 'Cloudinary API Secret'}
+                                        {formatSettingTitle(currentSetting.settingTitle)}
                                     </label>
                                     <Input
                                         type="password"
@@ -404,7 +429,7 @@ export default function Settings() {
                                         Value is encrypted in the database. Enter a new key to update.
                                     </p>
                                 </div>
-                            ) : ['cloudinary_cloud_name', 'cloudinary_api_key'].includes(currentSetting.settingTitle) ? (
+                            ) : ['cloudinary_cloud_name', 'resend_domain', 'admin_email', 'cloudflare_zone_id', 'cloudflare_account_id', 'github_username', 'github_repo_name'].includes(currentSetting.settingTitle) ? (
                                 <div className="space-y-2">
                                     <label className="text-sm font-medium">Value</label>
                                     <Input
@@ -467,6 +492,6 @@ export default function Settings() {
                     </DialogContent>
                 </Dialog>
             </div>
-        </AdminLayout>
+        </AdminLayout >
     );
 }
