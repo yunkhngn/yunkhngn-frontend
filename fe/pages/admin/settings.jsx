@@ -68,28 +68,34 @@ const SETTINGS_GROUPS = [
         keys: ['gemini_api_key']
     },
     {
-        title: "SEO - Global Defaults",
-        keys: ['seo_default_title', 'seo_default_description', 'seo_default_image']
-    },
-    {
-        title: "SEO - Home Page",
-        keys: ['seo_home_title', 'seo_home_description', 'seo_home_image']
-    },
-    {
-        title: "SEO - Blog Page",
-        keys: ['seo_blog_title', 'seo_blog_description', 'seo_blog_image']
-    },
-    {
-        title: "SEO - Project Page",
-        keys: ['seo_project_title', 'seo_project_description', 'seo_project_image']
-    },
-    {
-        title: "SEO - About Page",
-        keys: ['seo_about_title', 'seo_about_description', 'seo_about_image']
-    },
-    {
-        title: "SEO - Contact Page",
-        keys: ['seo_contact_title', 'seo_contact_description', 'seo_contact_image']
+        title: "SEO",
+        isGroup: true,
+        subsections: [
+            {
+                title: "Global Defaults",
+                keys: ['seo_default_title', 'seo_default_description', 'seo_default_image']
+            },
+            {
+                title: "Home Page",
+                keys: ['seo_home_title', 'seo_home_description', 'seo_home_image']
+            },
+            {
+                title: "Blog Page",
+                keys: ['seo_blog_title', 'seo_blog_description', 'seo_blog_image']
+            },
+            {
+                title: "Project Page",
+                keys: ['seo_project_title', 'seo_project_description', 'seo_project_image']
+            },
+            {
+                title: "About Page",
+                keys: ['seo_about_title', 'seo_about_description', 'seo_about_image']
+            },
+            {
+                title: "Contact Page",
+                keys: ['seo_contact_title', 'seo_contact_description', 'seo_contact_image']
+            }
+        ]
     }
 ];
 
@@ -276,6 +282,76 @@ export default function Settings() {
 
                 <div className="space-y-4">
                     {SETTINGS_GROUPS.map((group) => {
+                        // For grouped sections (like SEO)
+                        if (group.isGroup && group.subsections) {
+                            return (
+                                <Collapsible
+                                    key={group.title}
+                                    open={openSections.includes(group.title)}
+                                    onOpenChange={() => toggleSection(group.title)}
+                                    className="bg-card rounded-md border"
+                                >
+                                    <CollapsibleTrigger className="flex items-center justify-between w-full p-4 font-medium hover:bg-muted/50 transition-colors">
+                                        <div className="flex items-center gap-2">
+                                            {openSections.includes(group.title) ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                                            {group.title}
+                                        </div>
+                                        <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded-full">
+                                            {group.subsections.reduce((acc, sub) => acc + getGroupSettings(sub.keys).length, 0)}
+                                        </span>
+                                    </CollapsibleTrigger>
+                                    <CollapsibleContent>
+                                        <div className="border-t p-4 space-y-4">
+                                            {group.subsections.map((subsection) => {
+                                                const subsectionSettings = getGroupSettings(subsection.keys);
+                                                if (subsectionSettings.length === 0) return null;
+
+                                                return (
+                                                    <div key={subsection.title} className="border rounded-md">
+                                                        <div className="bg-muted/30 px-4 py-2 font-medium text-sm">
+                                                            {subsection.title}
+                                                        </div>
+                                                        <Table>
+                                                            <TableHeader>
+                                                                <TableRow>
+                                                                    <TableHead className="w-[100px] md:w-[200px]">Key</TableHead>
+                                                                    <TableHead>Content</TableHead>
+                                                                    <TableHead className="w-[70px] md:w-[100px]">Actions</TableHead>
+                                                                </TableRow>
+                                                            </TableHeader>
+                                                            <TableBody>
+                                                                {subsectionSettings.map((setting) => (
+                                                                    <TableRow key={setting.id}>
+                                                                        <TableCell className="font-medium align-top py-4 break-all">
+                                                                            {formatSettingTitle(setting.settingTitle)}
+                                                                            <div className="text-xs text-muted-foreground font-mono mt-1">{setting.settingTitle}</div>
+                                                                        </TableCell>
+                                                                        <TableCell className="align-top py-4">
+                                                                            <div className="max-w-[120px] md:max-w-md line-clamp-3 whitespace-pre-wrap text-sm text-muted-foreground break-all">
+                                                                                {setting.content}
+                                                                            </div>
+                                                                        </TableCell>
+                                                                        <TableCell className="align-top py-4">
+                                                                            <div className="flex items-center gap-1 md:gap-2">
+                                                                                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(setting)}>
+                                                                                    <Edit className="h-4 w-4" />
+                                                                                </Button>
+                                                                            </div>
+                                                                        </TableCell>
+                                                                    </TableRow>
+                                                                ))}
+                                                            </TableBody>
+                                                        </Table>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    </CollapsibleContent>
+                                </Collapsible>
+                            );
+                        }
+
+                        // Regular sections
                         const groupSettings = getGroupSettings(group.keys);
                         if (groupSettings.length === 0) return null;
 
