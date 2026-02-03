@@ -66,36 +66,6 @@ const SETTINGS_GROUPS = [
     {
         title: "AI / System",
         keys: ['gemini_api_key']
-    },
-    {
-        title: "SEO",
-        isGroup: true,
-        subsections: [
-            {
-                title: "Global Defaults",
-                keys: ['seo_default_title', 'seo_default_description', 'seo_default_image']
-            },
-            {
-                title: "Home Page",
-                keys: ['seo_home_title', 'seo_home_description', 'seo_home_image']
-            },
-            {
-                title: "Blog Page",
-                keys: ['seo_blog_title', 'seo_blog_description', 'seo_blog_image']
-            },
-            {
-                title: "Project Page",
-                keys: ['seo_project_title', 'seo_project_description', 'seo_project_image']
-            },
-            {
-                title: "About Page",
-                keys: ['seo_about_title', 'seo_about_description', 'seo_about_image']
-            },
-            {
-                title: "Contact Page",
-                keys: ['seo_contact_title', 'seo_contact_description', 'seo_contact_image']
-            }
-        ]
     }
 ];
 
@@ -417,8 +387,8 @@ export default function Settings() {
                         );
                     })}
 
-                    {/* Orphan Settings */}
-                    {orphanSettings.length > 0 && (
+                    {/* Orphan Settings - Hidden */}
+                    {/* {orphanSettings.length > 0 && (
                         <div className="bg-card rounded-md border mt-8">
                             <div className="p-4 font-medium border-b bg-muted/20">
                                 Uncategorized
@@ -455,7 +425,7 @@ export default function Settings() {
                                 </TableBody>
                             </Table>
                         </div>
-                    )}
+                    )} */}
                 </div>
 
                 {/* Edit Dialog */}

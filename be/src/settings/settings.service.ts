@@ -32,30 +32,6 @@ const SYSTEM_SETTINGS = [
   'github_api_key',
   'github_username',
   'github_repo_name',
-  // SEO - Global Defaults
-  'seo_default_title',
-  'seo_default_description',
-  'seo_default_image',
-  // SEO - Home Page
-  'seo_home_title',
-  'seo_home_description',
-  'seo_home_image',
-  // SEO - Blog Page
-  'seo_blog_title',
-  'seo_blog_description',
-  'seo_blog_image',
-  // SEO - Project Page
-  'seo_project_title',
-  'seo_project_description',
-  'seo_project_image',
-  // SEO - About Page
-  'seo_about_title',
-  'seo_about_description',
-  'seo_about_image',
-  // SEO - Contact Page
-  'seo_contact_title',
-  'seo_contact_description',
-  'seo_contact_image',
 ];
 
 @Injectable()
