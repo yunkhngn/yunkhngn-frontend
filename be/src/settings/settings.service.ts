@@ -10,6 +10,7 @@ const SYSTEM_SETTINGS = [
   'github',
   'instagram',
   'linkedin',
+  'tiktok',
   'email',
   'homepage_description',
   'footer_description',
@@ -39,7 +40,7 @@ export class SettingsService implements OnModuleInit {
   constructor(
     private prisma: PrismaService,
     private encryptionService: EncryptionService,
-  ) {}
+  ) { }
 
   async onModuleInit() {
     try {

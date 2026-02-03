@@ -1,8 +1,8 @@
 import Head from 'next/head';
 
 export default function Metadata({
-    title = "Khoa Nguyễn",
-    description = "Xin chào, tớ là Khoa Nguyễn. Tớ là sinh viên chuyên ngành Kỹ thuật phần mềm tại Đại học FPT. Hiện tại tớ cũng đang là freelancer thiết kế đồ hoạ và phát triển một số dự án cá nhân.",
+    title = "Khoa Nguyễn - Software Engineer",
+    description = "I'm Khoa Nguyen (yun.khngn) - a talented software engineering student, self-taught creator, graphic designer, and guitarist/musician, driven by ambition, curiosity, and the desire to turn ideas into something real. Welcome to my personal nerd world !!!",
     image = "/image/thumbnail.jpg",
     url = "https://yunkhngn.dev",
     type = "website",

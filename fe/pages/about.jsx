@@ -38,8 +38,8 @@ export default function About() {
     return (
         <Layout>
             <Metadata
-                title="About - Khoa Nguyễn"
-                description="Learn more about Khoa Nguyễn - Fullstack Developer. Explore my education, experience, and tech stack."
+                title="About me - Khoa Nguyễn"
+                description="Learn more about Khoa Nguyễn - Software Engineer. Explore my education, experience, and tech stack."
                 url="https://yunkhngn.dev/about"
             />
             <div className="container mx-auto px-4 py-12 max-w-4xl">
@@ -60,11 +60,12 @@ export default function About() {
                             {settings.name || "Khoa Nguyễn"}
                         </h1>
                         <p className="text-xl text-center text-muted-foreground">
-                            {settings.title || "Fullstack Developer"}
+                            {settings.title || "Software Engineer • Graphic Designer • Guitarist"}
                         </p>
                         <div className="flex items-center justify-center gap-4">
                             <SocialLink href={settings.github || "https://github.com/yunkhngn"} icon={<Github className="w-5 h-5" />} />
                             <SocialLink href={settings.facebook || "https://facebook.com/yunkhngn"} icon={<Facebook className="w-5 h-5" />} />
+                            <SocialLink href={settings.tiktok || "https://www.tiktok.com/@yun.khngn"} icon={<TikTok className="w-5 h-5" />} />
                             <SocialLink href={settings.instagram || "https://instagram.com/yunkhngn"} icon={<Instagram className="w-5 h-5" />} />
                             <SocialLink href={settings.linkedin || "https://linkedin.com/in/yunkhngn"} icon={<Linkedin className="w-5 h-5" />} />
                             <SocialLink href={`mailto:${settings.email || "contact@yunkhngn.dev"}`} icon={<Mail className="w-5 h-5" />} />
@@ -331,5 +332,24 @@ function getSkillIcon(skillName) {
     };
 
     return icons[normalized] || Code2; // Default to Code2 icon
+}
+
+function TikTok({ className }) {
+    return (
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className={className}
+        >
+            <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5" />
+        </svg>
+    );
 }
 

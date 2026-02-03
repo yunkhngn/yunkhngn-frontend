@@ -106,7 +106,7 @@ export default function Home() {
       '@context': 'https://schema.org',
       '@type': 'WebSite',
       name: 'Khoa Nguyễn (yunkhngn)',
-      url: 'https://yunkhngn.dev', // Replace with actual domain
+      url: 'https://yunkhngn.dev',
       potentialAction: {
         '@type': 'SearchAction',
         target: 'https://yunkhngn.dev/search?q={search_term_string}',
@@ -125,7 +125,7 @@ export default function Home() {
         settings.github || 'https://github.com/yunkhngn',
         settings.linkedin || 'https://linkedin.com/in/yunkhngn'
       ],
-      jobTitle: 'Software Developer',
+      jobTitle: 'Software Engineer',
       worksFor: {
         '@type': 'Organization',
         name: 'FPT University'
@@ -147,11 +147,7 @@ export default function Home() {
 
         <div className="space-y-6 text-xl md:text-2xl text-muted-foreground leading-relaxed max-w-2xl mx-auto">
           <p>
-            Tớ là <strong className="font-semibold">Khoa Nguyễn (yun.khngn)</strong>, sinh viên ngành Kỹ thuật phần mềm tại FPT University.
-            Công việc của tớ xoay quanh <strong className="font-semibold">Software Development</strong>,
-            <strong className="font-semibold"> Graphic Design</strong> và <strong className="font-semibold">Guitarist</strong>.
-            <br />Đây là nơi tớ lưu lại dự án, bài viết và những điều hay!
-            <br />Chào mừng tới website của <strong className="font-semibold">yunkhngn</strong>!
+            I am <strong className="font-semibold">Khoa Nguyen (yun.khngn)</strong> - a talented software engineering student, self-taught creator, graphic designer, and guitarist/musician, driven by ambition, curiosity, and the desire to turn ideas into something real.
           </p>
         </div>
 
@@ -163,10 +159,11 @@ export default function Home() {
           </Link>
 
           <div className="flex gap-6">
-            {(settings.facebook || settings.instagram || settings.github || settings.linkedin) ? (
+            {(settings.facebook || settings.instagram || settings.tiktok || settings.github || settings.linkedin) ? (
               <>
                 {settings.facebook && <SocialLink href={settings.facebook} icon={<Facebook size={24} />} label="Facebook" />}
                 {settings.instagram && <SocialLink href={settings.instagram} icon={<Instagram size={24} />} label="Instagram" />}
+                {settings.tiktok && <SocialLink href={settings.tiktok} icon={<TikTok size={24} />} label="TikTok" />}
                 {settings.github && <SocialLink href={settings.github} icon={<Github size={24} />} label="GitHub" />}
                 {settings.linkedin && <SocialLink href={settings.linkedin} icon={<Linkedin size={24} />} label="LinkedIn" />}
                 <SocialLink href="/showcase" icon={<LayoutGrid size={24} />} label="Showcase" />
@@ -175,6 +172,7 @@ export default function Home() {
               <>
                 <SocialLink href="https://facebook.com/yunkhngn" icon={<Facebook size={24} />} label="Facebook" />
                 <SocialLink href="https://instagram.com/yunkhngn" icon={<Instagram size={24} />} label="Instagram" />
+                <SocialLink href="https://www.tiktok.com/@yun.khngn" icon={<TikTok size={24} />} label="TikTok" />
                 <SocialLink href="https://github.com/yunkhngn" icon={<Github size={24} />} label="GitHub" />
                 <SocialLink href="https://linkedin.com/in/yunkhngn" icon={<Linkedin size={24} />} label="LinkedIn" />
                 <SocialLink href="/showcase" icon={<LayoutGrid size={24} />} label="Showcase" />
@@ -197,13 +195,13 @@ export default function Home() {
           </div>
           <div className="space-y-2">
             <h2 className="text-3xl md:text-4xl font-bold font-serif text-foreground">Khoa Nguyễn</h2>
-            <p className="text-muted-foreground text-base md:text-lg">Software Developer • Graphic Designer • Guitarist</p>
+            <p className="text-muted-foreground text-base md:text-lg">Software Engineer • Graphic Designer • Guitarist</p>
           </div>
         </div>
 
         {
-          settings.bio ? (
-            <div dangerouslySetInnerHTML={{ __html: settings.bio }} className="whitespace-pre-wrap" />
+          settings.homepage_description ? (
+            <div dangerouslySetInnerHTML={{ __html: settings.homepage_description }} className="whitespace-pre-wrap" />
           ) : (
             <p>
               Xin chào, tớ là <strong className="text-foreground">Khoa Nguyễn (yun.khngn)</strong>, sinh viên chuyên ngành Kỹ thuật phần mềm tại Đại học FPT.
@@ -415,8 +413,8 @@ export default function Home() {
 Home.getLayout = function getLayout(page) {
   return (
     <Layout
-      title="Khoa Nguyễn - Software Developer / Graphic Designer"
-      description="Xin chào, tớ là Khoa Nguyễn. Tớ là sinh viên chuyên ngành Kỹ thuật phần mềm tại Đại học FPT. Hiện tại tớ cũng đang là freelancer thiết kế đồ hoạ và phát triển một số dự án cá nhân."
+      title="Khoa Nguyễn - Software Engineer"
+      description="I’m Khoa Nguyen (yun.khngn) - a talented software engineering student, self-taught creator, graphic designer, and guitarist/musician, driven by ambition, curiosity, and the desire to turn ideas into something real. Welcome to my personal nerd world !!!"
     >
       {page}
     </Layout>
@@ -442,5 +440,24 @@ function SocialLink({ href, icon, label }) {
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
+  );
+}
+
+function TikTok({ size = 24, className }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5" />
+    </svg>
   );
 }

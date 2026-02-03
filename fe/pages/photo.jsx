@@ -259,7 +259,7 @@ export default function Photo() {
 Photo.getLayout = function getLayout(page) {
     return (
         <Layout
-            title="Photo Gallery"
+            title="Photo Gallery - Khoa Nguyễn"
             description="A collection of moments."
         >
             {page}

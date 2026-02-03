@@ -41,7 +41,7 @@ const SETTINGS_GROUPS = [
     },
     {
         title: "Social Media",
-        keys: ['facebook', 'github', 'instagram', 'linkedin']
+        keys: ['facebook', 'github', 'instagram', 'tiktok', 'linkedin']
     },
     {
         title: "Resume / CV",
