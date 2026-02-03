@@ -27,8 +27,7 @@ export default function Login() {
         setLoading(true);
         try {
             await login(email, password);
-            // Redirect handled by AuthContext or router if needed, but for now just stay or user can navigate
-            window.location.href = '/'; // Simple redirect
+            window.location.href = '/';
         } catch (err) {
             setError('Failed to log in. Please check your credentials.');
             console.error(err);
