@@ -177,18 +177,7 @@ export default function BlogDetail({ blogData }) {
                     style={{ height: `${scrollProgress * 100}%` }}
                 />
             </div>
-            <Metadata
-                title={blog.seoTitle || blog.title}
-                description={blog.seoDescription || blog.description || `Read ${blog.title} on Yunkhngn`}
-                image={blog.seoImage || blog.thumbnail}
-                url={`https://yunkhngn.dev/blog/${blog.slug}`}
-                type="article"
-                publishedTime={blog.createdAt}
-                modifiedTime={blog.updatedAt}
-                author="Khoa Nguyễn"
-                section="Blog"
-                tags={blog.tags}
-            />
+            {/* Metadata handled by Layout */}
 
             <div className="relative">
                 {/* Full Width Banner */}

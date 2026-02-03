@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { Metadata } from "@/components/template";
 import { ChevronLeft, Github, ExternalLink, Calendar, Star, GitFork, Scale, BookOpen } from 'lucide-react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/Button';
@@ -126,12 +125,7 @@ export default function ProjectDetail({ projectData }) {
     return (
         <div className="bg-background text-foreground">
             <JsonLd data={jsonLdData} />
-            <Metadata
-                title={project.seoTitle || project.title}
-                description={project.seoDescription || project.description}
-                image={project.seoImage || project.cover}
-                url={`https://yunkhngn.dev/project/${project.id}`}
-            />
+            {/* <Metadata handled by Layout /> */}
 
             <div className="container mx-auto px-4 py-12 max-w-5xl">
                 <Link href="/project" className="inline-block mb-8">
