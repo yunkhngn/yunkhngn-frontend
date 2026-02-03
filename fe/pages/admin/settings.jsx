@@ -267,7 +267,14 @@ export default function Settings() {
 
     // Helper to get orphan settings (not in any group)
     const getOrphanSettings = () => {
-        const allKeyGroup = SETTINGS_GROUPS.flatMap(g => g.keys);
+        const allKeyGroup = SETTINGS_GROUPS.flatMap(g => {
+            // For grouped sections with subsections
+            if (g.isGroup && g.subsections) {
+                return g.subsections.flatMap(sub => sub.keys);
+            }
+            // For regular sections
+            return g.keys || [];
+        });
         return settings.filter(s => !allKeyGroup.includes(s.settingTitle));
     };
 
