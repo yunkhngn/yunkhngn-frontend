@@ -20,6 +20,9 @@ const SYSTEM_SETTINGS = [
   'skills',
   'cv_url',
   'gemini_api_key',
+  'cloudinary_cloud_name',
+  'cloudinary_api_key',
+  'cloudinary_api_secret',
 ];
 
 @Injectable()
@@ -27,7 +30,7 @@ export class SettingsService implements OnModuleInit {
   constructor(
     private prisma: PrismaService,
     private encryptionService: EncryptionService,
-  ) {}
+  ) { }
 
   async onModuleInit() {
     try {
@@ -52,7 +55,12 @@ export class SettingsService implements OnModuleInit {
     });
 
     return settings.map((s) => {
-      if (s.settingTitle === 'gemini_api_key' && s.content) {
+      // Mask sensitive keys
+      if (
+        (s.settingTitle === 'gemini_api_key' ||
+          s.settingTitle === 'cloudinary_api_secret') &&
+        s.content
+      ) {
         return { ...s, content: '********' };
       }
       return s;
@@ -63,7 +71,11 @@ export class SettingsService implements OnModuleInit {
     const { settingTitle } = updateSettingsDto;
     let { content } = updateSettingsDto;
 
-    if (settingTitle === 'gemini_api_key') {
+    // Encrypt sensitive keys
+    if (
+      settingTitle === 'gemini_api_key' ||
+      settingTitle === 'cloudinary_api_secret'
+    ) {
       if (content === '********') {
         // Ignore update if it's the mask
         return;
@@ -95,7 +107,10 @@ export class SettingsService implements OnModuleInit {
 
     if (!setting || !setting.content) return null;
 
-    if (title === 'gemini_api_key') {
+    if (
+      title === 'gemini_api_key' ||
+      title === 'cloudinary_api_secret'
+    ) {
       return this.encryptionService.decrypt(setting.content);
     }
 

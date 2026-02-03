@@ -298,16 +298,15 @@ export default function AdminContact() {
             const sigRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/gallery/signature?folder=contacts/mail-content`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
-            const { signature, timestamp } = await sigRes.json();
+            const { signature, timestamp, cloudName, apiKey } = await sigRes.json();
 
             const formData = new FormData();
             formData.append('file', file);
-            formData.append('api_key', process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY);
+            formData.append('api_key', apiKey);
             formData.append('timestamp', timestamp);
             formData.append('signature', signature);
             formData.append('folder', 'contacts/mail-content');
 
-            const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
             const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
                 method: 'POST',
                 body: formData

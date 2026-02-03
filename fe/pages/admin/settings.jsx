@@ -4,7 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
-import { Loader2, Edit, X, UploadCloud } from 'lucide-react';
+import { Loader2, Edit, X, UploadCloud, ChevronDown, ChevronRight } from 'lucide-react';
 import Editor from '@monaco-editor/react';
 import axios from 'axios';
 import { toast } from 'sonner';
@@ -21,7 +21,6 @@ import {
     DialogContent,
     DialogHeader,
     DialogTitle,
-    DialogTrigger,
 } from "@/components/ui/Dialog";
 import {
     Tabs,
@@ -29,6 +28,34 @@ import {
     TabsList,
     TabsTrigger,
 } from "@/components/ui/Tabs";
+import {
+    Collapsible,
+    CollapsibleContent,
+    CollapsibleTrigger,
+} from "@/components/ui/Collapsible";
+
+const SETTINGS_GROUPS = [
+    {
+        title: "General",
+        keys: ['bio', 'quote', 'email', 'homepage_description', 'footer_description', 'about_content', 'comment_forbidden_keywords']
+    },
+    {
+        title: "Social Media",
+        keys: ['facebook', 'github', 'instagram', 'linkedin']
+    },
+    {
+        title: "Resume / CV",
+        keys: ['education', 'experience', 'skills', 'projects', 'cv_url']
+    },
+    {
+        title: "Cloudinary",
+        keys: ['cloudinary_cloud_name', 'cloudinary_api_key', 'cloudinary_api_secret']
+    },
+    {
+        title: "AI / System",
+        keys: ['gemini_api_key']
+    }
+];
 
 export default function Settings() {
     const { user } = useAuth();
@@ -38,6 +65,7 @@ export default function Settings() {
     const [currentSetting, setCurrentSetting] = useState({ settingTitle: '', content: '' });
     const [saving, setSaving] = useState(false);
     const [uploading, setUploading] = useState(false);
+    const [openSections, setOpenSections] = useState(SETTINGS_GROUPS.map(g => g.title)); // Default all open
     const fileInputRef = useRef(null);
 
     const fetchSettings = async () => {
@@ -125,12 +153,12 @@ export default function Settings() {
                 headers: { Authorization: `Bearer ${token}` },
                 params: signParams
             });
-            const { signature, timestamp } = signRes.data;
+            const { signature, timestamp, cloudName, apiKey } = signRes.data;
 
             // 2. Upload to Cloudinary
             const formData = new FormData();
             formData.append('file', file);
-            formData.append('api_key', process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY);
+            formData.append('api_key', apiKey);
             formData.append('timestamp', timestamp);
             formData.append('signature', signature);
             formData.append('folder', 'cv');
@@ -143,7 +171,7 @@ export default function Settings() {
             }
 
             const uploadRes = await axios.post(
-                `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/auto/upload`, // Use auto/upload for mixed types
+                `https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`, // Use auto/upload for mixed types
                 formData
             );
 
@@ -167,6 +195,12 @@ export default function Settings() {
         setIsDialogOpen(true);
     };
 
+    const toggleSection = (title) => {
+        setOpenSections(prev =>
+            prev.includes(title) ? prev.filter(t => t !== title) : [...prev, title]
+        );
+    };
+
     if (loading) {
         return (
             <AdminLayout title="Site Settings">
@@ -177,6 +211,19 @@ export default function Settings() {
         );
     }
 
+    // Helper to get settings for a group
+    const getGroupSettings = (keys) => {
+        return settings.filter(s => keys.includes(s.settingTitle));
+    };
+
+    // Helper to get orphan settings (not in any group)
+    const getOrphanSettings = () => {
+        const allKeyGroup = SETTINGS_GROUPS.flatMap(g => g.keys);
+        return settings.filter(s => !allKeyGroup.includes(s.settingTitle));
+    };
+
+    const orphanSettings = getOrphanSettings();
+
     return (
         <AdminLayout title="Site Settings">
             <div className="space-y-6">
@@ -184,43 +231,99 @@ export default function Settings() {
                     <h1 className="text-2xl font-bold">Configuration</h1>
                 </div>
 
-                <div className="bg-card rounded-md border">
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead className="w-[100px] md:w-[200px]">Key (Title)</TableHead>
-                                <TableHead>Content</TableHead>
-                                <TableHead className="w-[70px] md:w-[100px]">Actions</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {settings.length === 0 ? (
-                                <TableRow>
-                                    <TableCell colSpan={3} className="text-center h-24 text-muted-foreground">
-                                        No settings found.
-                                    </TableCell>
-                                </TableRow>
-                            ) : (
-                                settings.map((setting) => (
-                                    <TableRow key={setting.id}>
-                                        <TableCell className="font-medium align-top py-4 break-all">{setting.settingTitle}</TableCell>
-                                        <TableCell className="align-top py-4">
-                                            <div className="max-w-[120px] md:max-w-md line-clamp-3 whitespace-pre-wrap text-sm text-muted-foreground break-all">
-                                                {setting.content}
-                                            </div>
-                                        </TableCell>
-                                        <TableCell className="align-top py-4">
-                                            <div className="flex items-center gap-1 md:gap-2">
-                                                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(setting)}>
-                                                    <Edit className="h-4 w-4" />
-                                                </Button>
-                                            </div>
-                                        </TableCell>
+                <div className="space-y-4">
+                    {SETTINGS_GROUPS.map((group) => {
+                        const groupSettings = getGroupSettings(group.keys);
+                        if (groupSettings.length === 0) return null;
+
+                        return (
+                            <Collapsible
+                                key={group.title}
+                                open={openSections.includes(group.title)}
+                                onOpenChange={() => toggleSection(group.title)}
+                                className="bg-card rounded-md border"
+                            >
+                                <CollapsibleTrigger className="flex items-center justify-between w-full p-4 font-medium hover:bg-muted/50 transition-colors">
+                                    <div className="flex items-center gap-2">
+                                        {openSections.includes(group.title) ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                                        {group.title}
+                                    </div>
+                                    <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded-full">
+                                        {groupSettings.length}
+                                    </span>
+                                </CollapsibleTrigger>
+                                <CollapsibleContent>
+                                    <div className="border-t">
+                                        <Table>
+                                            <TableHeader>
+                                                <TableRow>
+                                                    <TableHead className="w-[100px] md:w-[200px]">Key</TableHead>
+                                                    <TableHead>Content</TableHead>
+                                                    <TableHead className="w-[70px] md:w-[100px]">Actions</TableHead>
+                                                </TableRow>
+                                            </TableHeader>
+                                            <TableBody>
+                                                {groupSettings.map((setting) => (
+                                                    <TableRow key={setting.id}>
+                                                        <TableCell className="font-medium align-top py-4 break-all">{setting.settingTitle}</TableCell>
+                                                        <TableCell className="align-top py-4">
+                                                            <div className="max-w-[120px] md:max-w-md line-clamp-3 whitespace-pre-wrap text-sm text-muted-foreground break-all">
+                                                                {setting.content}
+                                                            </div>
+                                                        </TableCell>
+                                                        <TableCell className="align-top py-4">
+                                                            <div className="flex items-center gap-1 md:gap-2">
+                                                                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(setting)}>
+                                                                    <Edit className="h-4 w-4" />
+                                                                </Button>
+                                                            </div>
+                                                        </TableCell>
+                                                    </TableRow>
+                                                ))}
+                                            </TableBody>
+                                        </Table>
+                                    </div>
+                                </CollapsibleContent>
+                            </Collapsible>
+                        );
+                    })}
+
+                    {/* Orphan Settings */}
+                    {orphanSettings.length > 0 && (
+                        <div className="bg-card rounded-md border mt-8">
+                            <div className="p-4 font-medium border-b bg-muted/20">
+                                Uncategorized
+                            </div>
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead className="w-[100px] md:w-[200px]">Key</TableHead>
+                                        <TableHead>Content</TableHead>
+                                        <TableHead className="w-[70px] md:w-[100px]">Actions</TableHead>
                                     </TableRow>
-                                ))
-                            )}
-                        </TableBody>
-                    </Table>
+                                </TableHeader>
+                                <TableBody>
+                                    {orphanSettings.map((setting) => (
+                                        <TableRow key={setting.id}>
+                                            <TableCell className="font-medium align-top py-4 break-all">{setting.settingTitle}</TableCell>
+                                            <TableCell className="align-top py-4">
+                                                <div className="max-w-[120px] md:max-w-md line-clamp-3 whitespace-pre-wrap text-sm text-muted-foreground break-all">
+                                                    {setting.content}
+                                                </div>
+                                            </TableCell>
+                                            <TableCell className="align-top py-4">
+                                                <div className="flex items-center gap-1 md:gap-2">
+                                                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(setting)}>
+                                                        <Edit className="h-4 w-4" />
+                                                    </Button>
+                                                </div>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </div>
+                    )}
                 </div>
 
                 {/* Edit Dialog */}
@@ -285,19 +388,31 @@ export default function Settings() {
                                         </div>
                                     )}
                                 </div>
-                            ) : currentSetting.settingTitle === 'gemini_api_key' ? (
+                            ) : (currentSetting.settingTitle === 'gemini_api_key' || currentSetting.settingTitle === 'cloudinary_api_secret') ? (
                                 <div className="space-y-2">
-                                    <label className="text-sm font-medium">API Key</label>
+                                    <label className="text-sm font-medium">
+                                        {currentSetting.settingTitle === 'gemini_api_key' ? 'Gemini API Key' : 'Cloudinary API Secret'}
+                                    </label>
                                     <Input
                                         type="password"
                                         value={currentSetting.content}
                                         onChange={(e) => setCurrentSetting({ ...currentSetting, content: e.target.value })}
-                                        placeholder="Enter Gemini API Key"
+                                        placeholder="Enter Secret Key"
                                         className="font-mono"
                                     />
                                     <p className="text-xs text-muted-foreground">
                                         Value is encrypted in the database. Enter a new key to update.
                                     </p>
+                                </div>
+                            ) : ['cloudinary_cloud_name', 'cloudinary_api_key'].includes(currentSetting.settingTitle) ? (
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium">Value</label>
+                                    <Input
+                                        value={currentSetting.content}
+                                        onChange={(e) => setCurrentSetting({ ...currentSetting, content: e.target.value })}
+                                        placeholder="Enter value"
+                                        className="font-mono"
+                                    />
                                 </div>
                             ) : (
                                 <div className="space-y-2">

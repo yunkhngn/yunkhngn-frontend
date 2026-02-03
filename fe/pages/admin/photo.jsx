@@ -122,8 +122,6 @@ export default function PhotoManager() {
 
         try {
             const token = await user.getIdToken();
-            const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
-
             for (let i = 0; i < stagedPhotos.length; i++) {
                 const photo = stagedPhotos[i];
 
@@ -133,12 +131,12 @@ export default function PhotoManager() {
                         headers: { Authorization: `Bearer ${token} ` }
                     });
                     if (!sigRes.ok) throw new Error('Failed to get signature');
-                    const { signature, timestamp } = await sigRes.json();
+                    const { signature, timestamp, cloudName, apiKey } = await sigRes.json();
 
                     // 2. Upload to Cloudinary
                     const formData = new FormData();
                     formData.append('file', photo.file);
-                    formData.append('api_key', process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY);
+                    formData.append('api_key', apiKey);
                     formData.append('timestamp', timestamp);
                     formData.append('signature', signature);
                     formData.append('folder', 'blog-portfolio/gallery');
