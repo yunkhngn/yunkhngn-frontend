@@ -1,4 +1,4 @@
-import { useEditor, EditorContent, ReactNodeViewRenderer } from '@tiptap/react';
+import { useEditor, EditorContent, ReactNodeViewRenderer, mergeAttributes } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
 import Link from '@tiptap/extension-link';
@@ -24,7 +24,19 @@ export default function TipTapViewer({ content }) {
                     },
                 },
             }),
-            Image,
+            Image.extend({
+                renderHTML({ HTMLAttributes }) {
+                    if (!HTMLAttributes.alt) {
+                        return ['img', mergeAttributes(this.options.HTMLAttributes, HTMLAttributes)];
+                    }
+                    return [
+                        'span',
+                        { class: 'block my-6 text-center' },
+                        ['img', mergeAttributes(this.options.HTMLAttributes, HTMLAttributes)],
+                        ['span', { class: 'block text-sm italic text-muted-foreground mt-2' }, HTMLAttributes.alt],
+                    ];
+                },
+            }),
             Link.extend({
                 addAttributes() {
                     return {
@@ -73,7 +85,7 @@ export default function TipTapViewer({ content }) {
         editable: false, // Read-only
         editorProps: {
             attributes: {
-                class: 'prose dark:prose-invert max-w-none p-4 outline-none [&_img]:rounded-3xl [&_img]:border-4 [&_img]:border-dashed [&_img]:border-muted-foreground/20 [&_img]:p-2 [&_img]:w-[100%] [&_img]:block [&_iframe]:max-w-full [&_iframe]:w-full [&_iframe]:aspect-video [&_iframe]:rounded-2xl [&_iframe]:shadow-lg [&_iframe]:my-6',
+                class: 'prose dark:prose-invert max-w-none p-4 outline-none [&_img]:rounded-3xl [&_img]:border-2 [&_img]:border-dashed [&_img]:border-muted-foreground/20 [&_img]:p-2 [&_img]:w-[100%] [&_img]:block [&_iframe]:max-w-full [&_iframe]:w-full [&_iframe]:aspect-video [&_iframe]:rounded-2xl [&_iframe]:shadow-lg [&_iframe]:my-6',
             },
         },
         immediatelyRender: false,

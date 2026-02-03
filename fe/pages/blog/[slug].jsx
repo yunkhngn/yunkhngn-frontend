@@ -272,7 +272,7 @@ export default function BlogDetail({ blogData }) {
                                 className="prose prose-xl md:prose-xl dark:prose-invert max-w-none prose-headings:font-serif prose-p:leading-relaxed"
                                 style={{
                                     fontFamily: 'Palatino, "Palatino Linotype", "Book Antiqua", serif',
-                                    fontSize: '1.5rem',
+                                    fontSize: '1.2rem',
                                     lineHeight: '2.5rem'
                                 }}
                             >

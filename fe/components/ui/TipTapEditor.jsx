@@ -9,6 +9,7 @@ import { common, createLowlight } from 'lowlight';
 import CodeBlockComponent from './CodeBlockComponent';
 import { LinkPopover } from './LinkPopover';
 import { LinkBubbleMenu } from './LinkBubbleMenu';
+import ImageNodeView from './ImageNodeView';
 import { Spotify } from '../extensions/Spotify';
 import { AppleMusic } from '../extensions/AppleMusic';
 import { Button } from '@/components/ui/Button';
@@ -16,18 +17,22 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Input } from '@/components/ui/Input';
 import {
     Bold, Italic, Strikethrough, Code, List, ListOrdered, Quote,
-    Undo, Redo, Image as ImageIcon, Link as LinkIcon, Heading1, Heading2, Heading3, Trash2, Youtube as YoutubeIcon, Minus
+    Undo, Redo, Image as ImageIcon, Link as LinkIcon, Heading1, Heading2, Heading3, Trash2, Youtube as YoutubeIcon, Minus,
+    Maximize, Minimize
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import BubbleMenuExtension from '@tiptap/extension-bubble-menu';
 
 const lowlight = createLowlight(common);
 
-const MenuBar = ({ editor, addImage, addYoutube, hideEmbeds }) => {
+const MenuBar = ({ editor, addImage, addYoutube, hideEmbeds, isFullscreen, toggleFullscreen }) => {
     if (!editor) return null;
 
     return (
-        <div className="border-b p-2 flex flex-wrap gap-1 sticky top-0 bg-background z-10">
+        <div className={cn(
+            "border-b p-2 flex flex-wrap gap-1 sticky top-0 bg-background/95 backdrop-blur z-20 transition-all",
+            isFullscreen ? "px-4" : "rounded-t-md"
+        )}>
             <Button
                 type="button"
                 variant="ghost" size="sm"
@@ -161,25 +166,44 @@ const MenuBar = ({ editor, addImage, addYoutube, hideEmbeds }) => {
                 </Button>
             )}
             <div className="flex-1" />
+
+            {/* Undo/Redo Group */}
+            <div className="flex bg-muted/30 rounded-md p-0.5">
+                <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 w-7 p-0"
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => editor.chain().focus().undo().run()}
+                    disabled={!editor.can().undo()}
+                >
+                    <Undo className="h-3.5 w-3.5" />
+                </Button>
+                <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 w-7 p-0"
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => editor.chain().focus().redo().run()}
+                    disabled={!editor.can().redo()}
+                >
+                    <Redo className="h-3.5 w-3.5" />
+                </Button>
+            </div>
+
+            {/* Fullscreen Toggle */}
             <Button
                 type="button"
                 variant="ghost"
                 size="sm"
                 onMouseDown={(e) => e.preventDefault()}
-                onClick={() => editor.chain().focus().undo().run()}
-                disabled={!editor.can().undo()}
+                onClick={toggleFullscreen}
+                className="ml-1"
+                title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
             >
-                <Undo className="h-4 w-4" />
-            </Button>
-            <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onMouseDown={(e) => e.preventDefault()}
-                onClick={() => editor.chain().focus().redo().run()}
-                disabled={!editor.can().redo()}
-            >
-                <Redo className="h-4 w-4" />
+                {isFullscreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}
             </Button>
         </div>
     );
@@ -204,6 +228,25 @@ const parseContent = (content, format) => {
 export default function TipTapEditor({ content, onChange, onImageUpload, format = 'json', hideEmbeds = false }) {
     const [youtubeDialogOpen, setYoutubeDialogOpen] = useState(false);
     const [youtubeUrl, setYoutubeUrl] = useState('');
+    const [isFullscreen, setIsFullscreen] = useState(false);
+
+    // Lock body scroll when in fullscreen
+    useEffect(() => {
+        if (typeof document !== 'undefined') {
+            if (isFullscreen) {
+                document.body.style.overflow = 'hidden';
+            } else {
+                document.body.style.overflow = '';
+            }
+            return () => {
+                document.body.style.overflow = '';
+            };
+        }
+    }, [isFullscreen]);
+
+    const toggleFullscreen = () => {
+        setIsFullscreen(!isFullscreen);
+    };
 
     const extensions = [
         StarterKit.configure({
@@ -214,7 +257,11 @@ export default function TipTapEditor({ content, onChange, onImageUpload, format 
                 },
             },
         }),
-        Image.configure({
+        Image.extend({
+            addNodeView() {
+                return ReactNodeViewRenderer(ImageNodeView);
+            },
+        }).configure({
             inline: true,
             allowBase64: true,
         }),
@@ -280,7 +327,17 @@ export default function TipTapEditor({ content, onChange, onImageUpload, format 
         },
         editorProps: {
             attributes: {
-                class: 'prose dark:prose-invert max-w-none p-4 min-h-[300px] outline-none [&_img]:rounded-3xl [&_img]:border-4 [&_img]:border-dashed [&_img]:border-muted-foreground/20 [&_img]:p-2 [&_img]:max-w-[100%] [&_img]:mx-auto [&_img]:block prose-headings:font-serif prose-p:leading-relaxed [&_iframe]:w-full [&_iframe]:aspect-video [&_iframe]:rounded-2xl [&_iframe]:shadow-lg [&_iframe]:mx-auto',
+                // Modified classes:
+                // 1. Added transition-all for smooth fullscreen toggle
+                // 2. Conditional min-h based on fullscreen
+                // 3. Removed max-w-none effectively in fullscreen via container
+                class: cn(
+                    'prose dark:prose-invert max-w-none p-4 outline-none',
+                    '[&_img]:rounded-3xl [&_img]:border-2 [&_img]:border-dashed [&_img]:border-muted-foreground/20 [&_img]:p-2 [&_img]:max-w-[100%] [&_img]:mx-auto [&_img]:block',
+                    'prose-headings:font-serif prose-p:leading-relaxed',
+                    '[&_iframe]:w-full [&_iframe]:aspect-video [&_iframe]:rounded-2xl [&_iframe]:shadow-lg [&_iframe]:mx-auto',
+                    isFullscreen ? 'min-h-screen max-w-screen-lg mx-auto py-8' : 'min-h-[300px]'
+                ),
                 style: 'font-family: Palatino, "Palatino Linotype", "Book Antiqua", serif; font-size: 1.2rem;',
             },
             handleDrop: (view, event, slice, moved) => {
@@ -404,10 +461,28 @@ export default function TipTapEditor({ content, onChange, onImageUpload, format 
 
     return (
         <>
-            <div className="border rounded-md overflow-hidden bg-background">
-                <MenuBar editor={editor} addImage={addImage} addYoutube={addYoutube} hideEmbeds={hideEmbeds} />
-                <LinkBubbleMenu editor={editor} />
-                <EditorContent editor={editor} />
+            <div className={cn(
+                "bg-background transition-all duration-300 ease-in-out",
+                isFullscreen
+                    ? "fixed inset-0 z-50 h-[100dvh] w-screen flex flex-col"
+                    : "border rounded-md" // Removed overflow-hidden here to allow sticky sticky actions
+            )}>
+                <MenuBar
+                    editor={editor}
+                    addImage={addImage}
+                    addYoutube={addYoutube}
+                    hideEmbeds={hideEmbeds}
+                    isFullscreen={isFullscreen}
+                    toggleFullscreen={toggleFullscreen}
+                />
+
+                <div className={cn(
+                    "relative",
+                    isFullscreen && "flex-1 overflow-y-auto bg-background/50"
+                )}>
+                    {editor && <LinkBubbleMenu editor={editor} />}
+                    <EditorContent editor={editor} className={cn(isFullscreen && "min-h-full")} />
+                </div>
             </div>
 
             {/* YouTube URL Dialog */}

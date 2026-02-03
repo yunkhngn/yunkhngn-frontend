@@ -61,6 +61,23 @@ export default function Settings() {
     const handleSave = async (e) => {
         e.preventDefault();
         if (!user) return;
+
+        // JSON Validation for structured fields
+        const jsonFields = ['education', 'experience', 'skills', 'projects'];
+        if (jsonFields.includes(currentSetting.settingTitle)) {
+            try {
+                const parsed = JSON.parse(currentSetting.content);
+                // Optional: Check if it's an array if required
+                if (!Array.isArray(parsed) && ['education', 'experience', 'projects', 'skills'].includes(currentSetting.settingTitle)) {
+                    toast.error(`Invalid JSON structure: ${currentSetting.settingTitle} must be an array ([...])`);
+                    return;
+                }
+            } catch (error) {
+                toast.error(`Invalid JSON syntax. Please check your format.`);
+                return;
+            }
+        }
+
         setSaving(true);
 
         try {
