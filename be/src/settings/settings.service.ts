@@ -39,7 +39,7 @@ export class SettingsService implements OnModuleInit {
   constructor(
     private prisma: PrismaService,
     private encryptionService: EncryptionService,
-  ) { }
+  ) {}
 
   async onModuleInit() {
     try {

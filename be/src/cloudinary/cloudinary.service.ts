@@ -34,7 +34,7 @@ export class CloudinaryService {
       signature,
       timestamp,
       cloudName: config.cloud_name,
-      apiKey: config.api_key
+      apiKey: config.api_key,
     };
   }
 

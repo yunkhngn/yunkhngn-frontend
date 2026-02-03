@@ -5,9 +5,14 @@ export const CloudinaryProvider = {
   provide: 'CLOUDINARY',
   inject: [SettingsService],
   useFactory: async (settingsService: SettingsService) => {
-    const cloudName = await settingsService.getDecryptedSetting('cloudinary_cloud_name');
-    const apiKey = await settingsService.getDecryptedSetting('cloudinary_api_key');
-    const apiSecret = await settingsService.getDecryptedSetting('cloudinary_api_secret');
+    const cloudName = await settingsService.getDecryptedSetting(
+      'cloudinary_cloud_name',
+    );
+    const apiKey =
+      await settingsService.getDecryptedSetting('cloudinary_api_key');
+    const apiSecret = await settingsService.getDecryptedSetting(
+      'cloudinary_api_secret',
+    );
 
     return cloudinary.config({
       cloud_name: cloudName || process.env.CLOUDINARY_CLOUD_NAME,

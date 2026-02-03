@@ -5,14 +5,15 @@ import { SettingsService } from '../settings/settings.service';
 @ApiTags('Health')
 @Controller('health')
 export class HealthController {
-  constructor(private settingsService: SettingsService) { }
+  constructor(private settingsService: SettingsService) {}
 
   @Get()
   @ApiOperation({ summary: 'Health check endpoint' })
   async check() {
     const cloudName =
-      (await this.settingsService.getDecryptedSetting('cloudinary_cloud_name')) ||
-      process.env.CLOUDINARY_CLOUD_NAME;
+      (await this.settingsService.getDecryptedSetting(
+        'cloudinary_cloud_name',
+      )) || process.env.CLOUDINARY_CLOUD_NAME;
     const apiKey =
       (await this.settingsService.getDecryptedSetting('cloudinary_api_key')) ||
       process.env.CLOUDINARY_API_KEY;
@@ -27,8 +28,9 @@ export class HealthController {
       (await this.settingsService.getDecryptedSetting('cloudflare_zone_id')) ||
       process.env.CLOUDFLARE_ZONE_ID;
     const cfToken =
-      (await this.settingsService.getDecryptedSetting('cloudflare_api_token')) ||
-      process.env.CLOUDFLARE_API_TOKEN;
+      (await this.settingsService.getDecryptedSetting(
+        'cloudflare_api_token',
+      )) || process.env.CLOUDFLARE_API_TOKEN;
 
     // GitHub Status
     const ghKey =

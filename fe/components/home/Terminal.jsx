@@ -32,7 +32,7 @@ export default function Terminal() {
                     fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/github/repos`)
                 ]);
 
-                let newFiles = { ...fileSystem };
+                const updates = {};
 
                 if (settingsRes.ok) {
                     const settingsData = await settingsRes.json();
@@ -43,7 +43,7 @@ export default function Terminal() {
 
                     // Update about.txt
                     const bioText = settings.bio ? stripHtml(settings.bio) : "Hi, I'm Khoa Nguyen.";
-                    newFiles['about.txt'] = bioText;
+                    updates['about.txt'] = bioText;
 
                     // Update socials.json
                     const socials = {
@@ -54,10 +54,10 @@ export default function Terminal() {
                     };
                     // Remove undefined keys
                     Object.keys(socials).forEach(key => socials[key] === undefined && delete socials[key]);
-                    newFiles['socials.json'] = JSON.stringify(socials, null, 2);
+                    updates['socials.json'] = JSON.stringify(socials, null, 2);
 
                     // Update contact.md
-                    newFiles['contact.md'] = [
+                    updates['contact.md'] = [
                         `Email: ${settings.email || 'khoa@yunkhngn.dev'}`,
                         settings.github && `Github: ${settings.github}`,
                         settings.facebook && `Facebook: ${settings.facebook}`,
@@ -70,7 +70,7 @@ export default function Terminal() {
                     const repoNames = repos.map(repo => repo.name);
                     const repoUrls = repos.reduce((acc, repo) => ({ ...acc, [repo.name]: repo.html_url }), {});
 
-                    newFiles['projects'] = {
+                    updates['projects'] = {
                         type: 'dir',
                         content: repoNames,
                         metadata: repoUrls
@@ -79,7 +79,7 @@ export default function Terminal() {
 
                 setFileSystem(prev => ({
                     ...prev,
-                    ...newFiles
+                    ...updates
                 }));
             } catch (error) {
                 console.error("Failed to fetch terminal data", error);

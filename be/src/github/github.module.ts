@@ -10,4 +10,4 @@ import { SettingsModule } from '../settings/settings.module';
   providers: [GithubService],
   exports: [GithubService],
 })
-export class GithubModule { }
+export class GithubModule {}

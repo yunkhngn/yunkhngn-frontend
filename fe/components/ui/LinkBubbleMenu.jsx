@@ -14,25 +14,27 @@ export function LinkBubbleMenu({ editor }) {
             // Only update if not already editing to preserve user input
             if (!showInput) {
                 const href = editor.getAttributes('link').href || '';
-                setUrl(href);
+                if (url !== href) {
+                    setUrl(href);
+                }
 
                 // Get the text content of the link
                 const { from, to } = editor.state.selection;
                 if (from !== to) {
                     const textContent = editor.state.doc.textBetween(from, to, ' ');
-                    setText(textContent);
-                } else {
-                    // Try to find the link node range
-                    // This is a bit complex in Tiptap, so for now we might leave text empty 
-                    // or user has to select text first.
-                    // But if it's an existing link, we typically want to edit its text.
+                    if (text !== textContent) {
+                        setText(textContent);
+                    }
                 }
                 setShowInput(true);
             }
         } else {
-            setShowInput(false);
+            if (showInput) {
+                setShowInput(false);
+            }
         }
-    }, [editor, editor?.state?.selection]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [editor, editor?.state?.selection, showInput, url, text]);
 
     const setLink = useCallback(() => {
         if (!url) {

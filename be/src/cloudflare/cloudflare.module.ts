@@ -10,4 +10,4 @@ import { SettingsModule } from '../settings/settings.module';
   providers: [CloudflareService],
   exports: [CloudflareService],
 })
-export class CloudflareModule { }
+export class CloudflareModule {}

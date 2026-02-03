@@ -8,4 +8,4 @@ import { SettingsModule } from '../settings/settings.module';
   providers: [CloudinaryProvider, CloudinaryService],
   exports: [CloudinaryProvider, CloudinaryService],
 })
-export class CloudinaryModule { }
+export class CloudinaryModule {}

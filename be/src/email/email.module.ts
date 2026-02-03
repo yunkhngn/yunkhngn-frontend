@@ -8,4 +8,4 @@ import { SettingsModule } from '../settings/settings.module';
   providers: [EmailService],
   exports: [EmailService],
 })
-export class EmailModule { }
+export class EmailModule {}

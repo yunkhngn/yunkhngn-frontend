@@ -8,7 +8,10 @@ export default function ImageNodeView(props) {
 
     // Synchronize local state with node attributes
     useEffect(() => {
-        setCaption(node.attrs.alt || '');
+        if (caption !== (node.attrs.alt || '')) {
+            setCaption(node.attrs.alt || '');
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [node.attrs.alt]);
 
     const handleCaptionChange = (e) => {
@@ -23,6 +26,7 @@ export default function ImageNodeView(props) {
             onMouseLeave={() => setIsHovered(false)}
         >
             <div className={`relative group transition-all duration-200 ${selected ? 'ring-2 ring-primary ring-offset-2 rounded-3xl' : ''}`}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                     src={node.attrs.src}
                     alt={node.attrs.alt}

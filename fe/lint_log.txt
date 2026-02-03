@@ -1,0 +1,54 @@
+
+> yunkhngn-website@0.1.0 lint
+> eslint .
+
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+
+/Volumes/Data/Projects/yunkhngn-website/fe/components/home/Terminal.jsx
+  91:8  warning  React Hook useEffect has a missing dependency: 'fileSystem'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/Volumes/Data/Projects/yunkhngn-website/fe/components/template/Admin/Navbar.jsx
+  79:61  error  React Hook "useState" cannot be called inside a callback. React Hooks must be called in a React function component or a custom React Hook function  react-hooks/rules-of-hooks
+
+/Volumes/Data/Projects/yunkhngn-website/fe/components/ui/ImageNodeView.jsx
+  11:9   error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+   9 |     // Synchronize local state with node attributes
+  10 |     useEffect(() => {
+> 11 |         setCaption(node.attrs.alt || '');
+     |         ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  12 |     }, [node.attrs.alt]);
+  13 |
+  14 |     const handleCaptionChange = (e) => {  react-hooks/set-state-in-effect
+  26:17  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           @next/next/no-img-element
+
+/Volumes/Data/Projects/yunkhngn-website/fe/components/ui/LinkBubbleMenu.jsx
+  17:17  error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  15 |             if (!showInput) {
+  16 |                 const href = editor.getAttributes('link').href || '';
+> 17 |                 setUrl(href);
+     |                 ^^^^^^ Avoid calling setState() directly within an effect
+  18 |
+  19 |                 // Get the text content of the link
+  20 |                 const { from, to } = editor.state.selection;  react-hooks/set-state-in-effect
+  35:8   warning  React Hook useEffect has a missing dependency: 'showInput'. Either include it or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      react-hooks/exhaustive-deps
+
+/Volumes/Data/Projects/yunkhngn-website/fe/pages/resume.jsx
+  81:29  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+✖ 7 problems (3 errors, 4 warnings)
+

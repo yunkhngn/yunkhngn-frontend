@@ -9,15 +9,16 @@ export class CloudflareService {
   constructor(
     private configService: ConfigService,
     private settingsService: SettingsService,
-  ) { }
+  ) {}
 
   async getAnalytics(period: '24h' | '7d' | '30d' = '24h') {
     const zoneId =
       (await this.settingsService.getDecryptedSetting('cloudflare_zone_id')) ||
       this.configService.get<string>('CLOUDFLARE_ZONE_ID');
     const apiToken =
-      (await this.settingsService.getDecryptedSetting('cloudflare_api_token')) ||
-      this.configService.get<string>('CLOUDFLARE_API_TOKEN');
+      (await this.settingsService.getDecryptedSetting(
+        'cloudflare_api_token',
+      )) || this.configService.get<string>('CLOUDFLARE_API_TOKEN');
 
     if (!zoneId || !apiToken) {
       this.logger.warn('Cloudflare credentials not configured');
