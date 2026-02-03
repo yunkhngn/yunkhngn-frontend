@@ -43,9 +43,9 @@ describe('GithubService', () => {
     service = module.get<GithubService>(GithubService);
 
     // Mock Logger to prevent console noise
-    jest.spyOn(Logger.prototype, 'log').mockImplementation(() => { });
-    jest.spyOn(Logger.prototype, 'error').mockImplementation(() => { });
-    jest.spyOn(Logger.prototype, 'warn').mockImplementation(() => { });
+    jest.spyOn(Logger.prototype, 'log').mockImplementation(() => {});
+    jest.spyOn(Logger.prototype, 'error').mockImplementation(() => {});
+    jest.spyOn(Logger.prototype, 'warn').mockImplementation(() => {});
 
     // Mock Octokit instance
     mockOctokit = {

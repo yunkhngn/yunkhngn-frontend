@@ -42,7 +42,7 @@ describe('GalleryService', () => {
         signature: 'sig',
         timestamp: 123,
         cloudName: 'test-cloud',
-        apiKey: 'test-key'
+        apiKey: 'test-key',
       };
       jest.spyOn(cloudinary, 'generateUploadSignature').mockReturnValue(result);
 
