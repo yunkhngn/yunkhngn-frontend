@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { Metadata } from "@/components/template";
 import { Calendar, Clock, ChevronLeft, Tag, Facebook, Twitter, Linkedin, Link as LinkIcon, UploadCloud, Loader2, Edit, Eye } from 'lucide-react';
 import Image from 'next/image';
 import { format } from 'date-fns';
