@@ -12,7 +12,7 @@ export class ChatService {
     private settingsService: SettingsService,
     private projectService: ProjectService,
     private blogService: BlogService,
-  ) {}
+  ) { }
 
   async generateResponse(userMessage: string, history: any[] = []) {
     // 1. Get API Key (Env or DB)
