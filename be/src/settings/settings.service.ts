@@ -34,6 +34,9 @@ const SYSTEM_SETTINGS = [
   'github_api_key',
   'github_username',
   'github_repo_name',
+  'ai_provider',
+  'ollama_base_url',
+  'ollama_model',
 ];
 
 @Injectable()

@@ -65,7 +65,7 @@ const SETTINGS_GROUPS = [
     },
     {
         title: "AI / System",
-        keys: ['gemini_api_key', 'ai_persona']
+        keys: ['gemini_api_key', 'ai_persona', 'ai_provider', 'ollama_base_url', 'ollama_model']
     }
 ];
 
