@@ -65,7 +65,7 @@ const SETTINGS_GROUPS = [
     },
     {
         title: "AI / System",
-        keys: ['gemini_api_key', 'ai_persona', 'chat_ai_provider', 'chat_ollama_base_url', 'chat_ollama_model']
+        keys: ['gemini_api_key', 'ai_persona']
     }
 ];
 
