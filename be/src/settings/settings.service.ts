@@ -21,6 +21,7 @@ const SYSTEM_SETTINGS = [
   'skills',
   'cv_url',
   'gemini_api_key',
+  'ai_persona',
   'cloudinary_cloud_name',
   'cloudinary_api_key',
   'cloudinary_api_secret',
@@ -80,6 +81,10 @@ export class SettingsService implements OnModuleInit {
     });
   }
 
+  async findAll() {
+    return this.prisma.settings.findMany();
+  }
+
   async update(updateSettingsDto: UpdateSettingsDto) {
     const { settingTitle } = updateSettingsDto;
     let { content } = updateSettingsDto;
@@ -117,22 +122,29 @@ export class SettingsService implements OnModuleInit {
   }
 
   async getDecryptedSetting(title: string): Promise<string> {
-    const setting = await this.prisma.settings.findUnique({
-      where: { settingTitle: title },
-    });
+    try {
+      const setting = await this.prisma.settings.findUnique({
+        where: { settingTitle: title },
+      });
 
-    if (!setting || !setting.content) return null;
+      if (!setting || !setting.content) return null;
 
-    if (
-      title === 'gemini_api_key' ||
-      title === 'cloudinary_api_secret' ||
-      title === 'resend_api_key' ||
-      title === 'cloudflare_api_token' ||
-      title === 'github_api_key'
-    ) {
-      return this.encryptionService.decrypt(setting.content);
+      if (
+        title === 'gemini_api_key' ||
+        title === 'cloudinary_api_secret' ||
+        title === 'resend_api_key' ||
+        title === 'cloudflare_api_token' ||
+        title === 'github_api_key'
+      ) {
+        return this.encryptionService.decrypt(setting.content);
+      }
+
+      return setting.content;
+    } catch (error) {
+      console.warn(`Failed to fetch setting ${title}:`, error.message);
+      return null;
     }
-
-    return setting.content;
   }
+
+
 }
