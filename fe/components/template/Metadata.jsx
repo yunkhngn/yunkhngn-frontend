@@ -2,7 +2,7 @@ import Head from 'next/head';
 
 export default function Metadata({
     title = "Khoa Nguyễn - Software Engineer",
-    description = "I'm Khoa Nguyen (yun.khngn) - a talented software engineering student, self-taught creator, graphic designer, and guitarist/musician, driven by ambition, curiosity, and the desire to turn ideas into something real. Welcome to my personal nerd world !!!",
+    description = "I'm Khoa Nguyen (yun.khngn) - a talented software engineering student, self-taught creator, graphic designer, and guitarist/musician, driven by ambition, curiosity, and the desire to turn ideas into something real.",
     image = "/image/thumbnail.jpg",
     url = "https://yunkhngn.dev",
     type = "website",

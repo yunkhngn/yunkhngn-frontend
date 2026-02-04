@@ -12,13 +12,55 @@ export class ChatService {
     private settingsService: SettingsService,
     private projectService: ProjectService,
     private blogService: BlogService,
-  ) {}
+  ) { }
 
   async generateResponse(userMessage: string, history: any[] = []) {
+    const settings = await this.settingsService.findAll();
+    const settingsMap = settings.reduce(
+      (acc, curr) => ({ ...acc, [curr.settingTitle]: curr.content }),
+      {},
+    );
+
+    const provider = settingsMap['chat_ai_provider'] || 'gemini';
+    const systemPrompt = await this.buildSystemPrompt();
+
+    // OLLAMA PROVIDER
+    if (provider === 'ollama') {
+      try {
+        const { Ollama } = await import('ollama');
+        const ollamaUrl =
+          settingsMap['chat_ollama_base_url'] || 'http://localhost:11434';
+        const ollamaModel = settingsMap['chat_ollama_model'] || 'qwen2.5:1.5b';
+
+        const ollama = new Ollama({ host: ollamaUrl });
+
+        // Construct messages for Ollama
+        const ollamaMessages = [
+          { role: 'system', content: systemPrompt },
+          ...history.map((msg) => ({
+            role: msg.role === 'user' ? 'user' : 'assistant',
+            content: msg.content,
+          })),
+          { role: 'user', content: userMessage },
+        ];
+
+        const response = await ollama.chat({
+          model: ollamaModel,
+          messages: ollamaMessages,
+        });
+
+        return response.message.content;
+      } catch (error) {
+        this.logger.error('Error generating AI response with Ollama', error);
+        return 'Xin lỗi, server Ollama đang bận hoặc chưa bật. Thử lại sau nhé! 🤖';
+      }
+    }
+
+    // GEMINI PROVIDER (Default)
     // 1. Get API Key (Env or DB)
     let apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
-      apiKey = await this.settingsService.getDecryptedSetting('gemini_api_key');
+      apiKey = settingsMap['gemini_api_key'];
     }
 
     if (!apiKey) {
@@ -30,7 +72,7 @@ export class ChatService {
       const genAI = new GoogleGenerativeAI(apiKey);
       const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
-      const systemPrompt = await this.buildSystemPrompt();
+      // Reuse systemPrompt built above
 
       const geminiHistory = history.map((msg) => ({
         role: msg.role === 'user' ? 'user' : 'model',

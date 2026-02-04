@@ -22,6 +22,9 @@ const SYSTEM_SETTINGS = [
   'cv_url',
   'gemini_api_key',
   'ai_persona',
+  'chat_ai_provider',
+  'chat_ollama_base_url',
+  'chat_ollama_model',
   'cloudinary_cloud_name',
   'cloudinary_api_key',
   'cloudinary_api_secret',
@@ -41,7 +44,7 @@ export class SettingsService implements OnModuleInit {
   constructor(
     private prisma: PrismaService,
     private encryptionService: EncryptionService,
-  ) {}
+  ) { }
 
   async onModuleInit() {
     try {

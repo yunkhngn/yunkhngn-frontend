@@ -65,7 +65,7 @@ const SETTINGS_GROUPS = [
     },
     {
         title: "AI / System",
-        keys: ['gemini_api_key', 'ai_persona']
+        keys: ['gemini_api_key', 'ai_persona', 'chat_ai_provider', 'chat_ollama_base_url', 'chat_ollama_model']
     }
 ];
 
@@ -428,9 +428,8 @@ export default function Settings() {
                     )} */}
                 </div>
 
-                {/* Edit Dialog */}
                 <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                    <DialogContent className="w-[95vw] max-w-3xl">
+                    <DialogContent className="w-[90vw] max-w-[90vw]">
                         <DialogHeader>
                             <DialogTitle>Edit Setting</DialogTitle>
                         </DialogHeader>
@@ -529,7 +528,7 @@ export default function Settings() {
                                         <TabsContent value="code" className="mt-0">
                                             <div className="border rounded-md overflow-hidden">
                                                 <Editor
-                                                    height="400px"
+                                                    height="600px"
                                                     defaultLanguage="json"
                                                     theme="vs-dark"
                                                     value={currentSetting.content}
@@ -551,7 +550,7 @@ export default function Settings() {
                                                 value={currentSetting.content}
                                                 onChange={(e) => setCurrentSetting({ ...currentSetting, content: e.target.value })}
                                                 placeholder="Enter plain text content..."
-                                                className="min-h-[400px] font-mono"
+                                                className="min-h-[600px] font-mono"
                                             />
                                         </TabsContent>
                                     </Tabs>
