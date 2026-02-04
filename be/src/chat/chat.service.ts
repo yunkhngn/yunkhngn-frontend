@@ -12,7 +12,7 @@ export class ChatService {
     private settingsService: SettingsService,
     private projectService: ProjectService,
     private blogService: BlogService,
-  ) { }
+  ) {}
 
   async generateResponse(userMessage: string, history: any[] = []) {
     // 1. Get API Key (Env or DB)
@@ -57,7 +57,8 @@ export class ChatService {
       if (geminiHistory.length > 0) {
         if (geminiHistory[0].role === 'model') {
           // Append the first model message to the Ack message
-          chatHistory[1].parts[0].text += '\n\n' + geminiHistory[0].parts[0].text;
+          chatHistory[1].parts[0].text +=
+            '\n\n' + geminiHistory[0].parts[0].text;
           // Remove it from the history array we append
           geminiHistory.shift();
         }
@@ -150,21 +151,27 @@ A: Không hẳn. Tớ chỉ build đều, sai đều, sửa đều. Kỹ năng �
       WEBSITE CONTENT (RAG DATA):
       
       [LATEST BLOG POSTS]
-      ${(await this.blogService.findAll()).slice(0, 3).map(b => {
-      const content = b.contentJSON ? b.contentJSON.substring(0, 2000) : '';
-      return `- Title: ${b.title} (Slug: ${b.slug})
+      ${(await this.blogService.findAll())
+        .slice(0, 3)
+        .map((b) => {
+          const content = b.contentJSON ? b.contentJSON.substring(0, 2000) : '';
+          return `- Title: ${b.title} (Slug: ${b.slug})
         Description: ${b.seoDescription || 'No description'}
         Content Source (JSON): ${content}... (truncated)`;
-    }).join('\n\n')}
+        })
+        .join('\n\n')}
 
       [FEATURED PROJECTS]
-      ${(await this.projectService.findAll()).slice(0, 3).map(p => {
-      const content = p.contentJSON ? p.contentJSON.substring(0, 2000) : '';
-      return `- Title: ${p.title}
+      ${(await this.projectService.findAll())
+        .slice(0, 3)
+        .map((p) => {
+          const content = p.contentJSON ? p.contentJSON.substring(0, 2000) : '';
+          return `- Title: ${p.title}
         Description: ${p.description}
         Tech Stack: ${p.techStack}
         Content Source (JSON): ${content}... (truncated)`;
-    }).join('\n\n')}
+        })
+        .join('\n\n')}
       
       INSTRUCTIONS:
       - Only use the above data to answer factual questions.
