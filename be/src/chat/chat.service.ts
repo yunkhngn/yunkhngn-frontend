@@ -32,25 +32,39 @@ export class ChatService {
 
       const systemPrompt = await this.buildSystemPrompt();
 
+      const geminiHistory = history.map((msg) => ({
+        role: msg.role === 'user' ? 'user' : 'model',
+        parts: [{ text: msg.content }],
+      }));
+
+      // Base interaction: User (System) -> Model (Ack)
+      const chatHistory = [
+        {
+          role: 'user',
+          parts: [{ text: systemPrompt }],
+        },
+        {
+          role: 'model',
+          parts: [
+            {
+              text: 'Hiểu rồi. Tớ sẽ đóng vai là phiên bản kỹ thuật số của Khoa Nguyễn.',
+            },
+          ],
+        },
+      ];
+
+      // Merge history to ensure no Model -> Model violation at the start
+      if (geminiHistory.length > 0) {
+        if (geminiHistory[0].role === 'model') {
+          // Append the first model message to the Ack message
+          chatHistory[1].parts[0].text += '\n\n' + geminiHistory[0].parts[0].text;
+          // Remove it from the history array we append
+          geminiHistory.shift();
+        }
+      }
+
       const chat = model.startChat({
-        history: [
-          {
-            role: 'user',
-            parts: [{ text: systemPrompt }],
-          },
-          {
-            role: 'model',
-            parts: [
-              {
-                text: 'Hiểu rồi. Tớ sẽ đóng vai là phiên bản kỹ thuật số của Khoa Nguyễn.',
-              },
-            ],
-          },
-          ...history.map((msg) => ({
-            role: msg.role === 'user' ? 'user' : 'model',
-            parts: [{ text: msg.content }],
-          })),
-        ],
+        history: [...chatHistory, ...geminiHistory],
       });
 
       const result = await chat.sendMessage(userMessage);
@@ -59,6 +73,9 @@ export class ChatService {
       return text;
     } catch (error) {
       this.logger.error('Error generating AI response', error);
+      if (error.status === 429 || error.message?.includes('429')) {
+        return 'Xin lỗi cậu, tớ đang bị quá tải (Rate Limit). Đợi một chút rồi hỏi lại tớ nhé! 🤯';
+      }
       return 'U là trời, tớ quên mất mình định nói gì rồi. Cậu hỏi lại được không? 😅';
     }
   }
@@ -133,10 +150,21 @@ A: Không hẳn. Tớ chỉ build đều, sai đều, sửa đều. Kỹ năng �
       WEBSITE CONTENT (RAG DATA):
       
       [LATEST BLOG POSTS]
-      ${(await this.blogService.findAll()).slice(0, 5).map(b => `- ${b.title}: ${b.seoDescription || 'No description'} (Slug: ${b.slug})`).join('\n')}
+      ${(await this.blogService.findAll()).slice(0, 3).map(b => {
+      const content = b.contentJSON ? b.contentJSON.substring(0, 2000) : '';
+      return `- Title: ${b.title} (Slug: ${b.slug})
+        Description: ${b.seoDescription || 'No description'}
+        Content Source (JSON): ${content}... (truncated)`;
+    }).join('\n\n')}
 
       [FEATURED PROJECTS]
-      ${(await this.projectService.findAll()).slice(0, 5).map(p => `- ${p.title}: ${p.description} (Tech: ${p.techStack})`).join('\n')}
+      ${(await this.projectService.findAll()).slice(0, 3).map(p => {
+      const content = p.contentJSON ? p.contentJSON.substring(0, 2000) : '';
+      return `- Title: ${p.title}
+        Description: ${p.description}
+        Tech Stack: ${p.techStack}
+        Content Source (JSON): ${content}... (truncated)`;
+    }).join('\n\n')}
       
       INSTRUCTIONS:
       - Only use the above data to answer factual questions.
