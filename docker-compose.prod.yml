@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # nosemgrep: yaml.docker-compose.security.writable-filesystem-service.writable-filesystem-service
   mssql:
