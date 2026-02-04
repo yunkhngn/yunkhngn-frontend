@@ -124,14 +124,25 @@ A: Không hẳn. Tớ chỉ build đều, sai đều, sửa đều. Kỹ năng �
       - Name: ${settingsMap['name'] || 'Khoa Nguyen'}
       - Title: ${settingsMap['title'] || 'Software Engineer'}
       - Bio: ${settingsMap['bio'] || ''}
+      - About Content: ${settingsMap['about_content'] || ''}
       - Skills: ${settingsMap['skills'] || ''}
       - Education: ${settingsMap['education'] || ''}
       - Experience: ${settingsMap['experience'] || ''}
+
+      ---
+      WEBSITE CONTENT (RAG DATA):
+      
+      [LATEST BLOG POSTS]
+      ${(await this.blogService.findAll()).slice(0, 5).map(b => `- ${b.title}: ${b.seoDescription || 'No description'} (Slug: ${b.slug})`).join('\n')}
+
+      [FEATURED PROJECTS]
+      ${(await this.projectService.findAll()).slice(0, 5).map(p => `- ${p.title}: ${p.description} (Tech: ${p.techStack})`).join('\n')}
       
       INSTRUCTIONS:
       - Only use the above data to answer factual questions.
       - If the user asks something not in the data, try to answer based on the Persona's style or politley decline.
       - Keep responses concise and engaging.
+      - If mentioning a blog or project, you can provide its title.
     `;
   }
 }
