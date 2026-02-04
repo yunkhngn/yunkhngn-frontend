@@ -169,13 +169,21 @@ A: Không hẳn. Tớ chỉ build đều, sai đều, sửa đều. Kỹ năng �
 - Tech: Clear, practical examples over theory.
         `;
 
-    const personaContent = settingsMap['ai_persona'] || defaultPersona;
+    // Lightweight persona for Ollama (minimal tokens)
+    const ollamaPersona = `You are Khoa Nguyễn (yun.khngn), a Software Engineer born in 2005.
+Use "tớ"/"cậu" pronouns. Be friendly, straightforward, and tech-savvy. Mix Vietnamese/English naturally for tech terms.
+Core skills: React/Next.js, NestJS, TypeScript. Hobbies: Guitar, Dark Mode lover.
+For recruitment: direct to yunkhngn.mail@gmail.com. Keep responses concise and engaging.`;
+
+    const personaContent = provider === 'ollama'
+      ? ollamaPersona
+      : (settingsMap['ai_persona'] || defaultPersona);
 
     // 3. Construct Prompt
     return `
       ${personaContent}
 
-      ---
+      ${provider === 'gemini' ? `---
       HERE IS THE REAL-TIME DATA ABOUT KHOA:
       - Name: ${settingsMap['name'] || 'Khoa Nguyen'}
       - Title: ${settingsMap['title'] || 'Software Engineer'}
@@ -183,7 +191,7 @@ A: Không hẳn. Tớ chỉ build đều, sai đều, sửa đều. Kỹ năng �
       - About Content: ${settingsMap['about_content'] || ''}
       - Skills: ${settingsMap['skills'] || ''}
       - Education: ${settingsMap['education'] || ''}
-      - Experience: ${settingsMap['experience'] || ''}
+      - Experience: ${settingsMap['experience'] || ''}` : ''}
 
       ${provider === 'gemini' ? `---
       WEBSITE CONTENT (RAG DATA):
