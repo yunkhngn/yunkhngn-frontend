@@ -37,6 +37,8 @@ services:
       - ./be/firebase-admin-sdk.json:/app/firebase-admin-sdk.json
     depends_on:
       - mssql
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     security_opt:
       - no-new-privileges:true
 
