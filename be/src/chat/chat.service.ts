@@ -34,13 +34,9 @@ export class ChatService {
 
         const ollama = new Ollama({ host: ollamaUrl });
 
-        // Construct messages for Ollama
+        // Construct messages for Ollama (no history to reduce tokens)
         const ollamaMessages = [
           { role: 'system', content: systemPrompt },
-          ...history.map((msg) => ({
-            role: msg.role === 'user' ? 'user' : 'assistant',
-            content: msg.content,
-          })),
           { role: 'user', content: userMessage },
         ];
 
