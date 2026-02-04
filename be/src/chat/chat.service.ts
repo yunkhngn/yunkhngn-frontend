@@ -3,72 +3,76 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { SettingsService } from '../settings/settings.service';
 import { ProjectService } from '../project/project.service';
 import { BlogService } from '../blog/blog.service';
-import * as fs from 'fs';
-import * as path from 'path';
 
 @Injectable()
 export class ChatService {
-    private readonly logger = new Logger(ChatService.name);
+  private readonly logger = new Logger(ChatService.name);
 
-    constructor(
-        private settingsService: SettingsService,
-        private projectService: ProjectService,
-        private blogService: BlogService,
-    ) { }
+  constructor(
+    private settingsService: SettingsService,
+    private projectService: ProjectService,
+    private blogService: BlogService,
+  ) {}
 
-    async generateResponse(userMessage: string, history: any[] = []) {
-        // 1. Get API Key (Env or DB)
-        let apiKey = process.env.GEMINI_API_KEY;
-        if (!apiKey) {
-            apiKey = await this.settingsService.getDecryptedSetting('gemini_api_key');
-        }
-
-        if (!apiKey) {
-            return "Xin lỗi, tớ đang ngủ (Thiếu API Key). Đánh thức tớ sau nhé! 😴";
-        }
-
-        try {
-            // 2. Init SDK on the fly
-            const genAI = new GoogleGenerativeAI(apiKey);
-            const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
-
-            const systemPrompt = await this.buildSystemPrompt();
-
-            const chat = model.startChat({
-                history: [
-                    {
-                        role: "user",
-                        parts: [{ text: systemPrompt }],
-                    },
-                    {
-                        role: "model",
-                        parts: [{ text: "Hiểu rồi. Tớ sẽ đóng vai là phiên bản kỹ thuật số của Khoa Nguyễn." }],
-                    },
-                    ...history.map(msg => ({
-                        role: msg.role === 'user' ? 'user' : 'model',
-                        parts: [{ text: msg.content }]
-                    }))
-                ],
-            });
-
-            const result = await chat.sendMessage(userMessage);
-            const response = await result.response;
-            const text = response.text();
-            return text;
-
-        } catch (error) {
-            this.logger.error('Error generating AI response', error);
-            return "U là trời, tớ quên mất mình định nói gì rồi. Cậu hỏi lại được không? 😅";
-        }
+  async generateResponse(userMessage: string, history: any[] = []) {
+    // 1. Get API Key (Env or DB)
+    let apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      apiKey = await this.settingsService.getDecryptedSetting('gemini_api_key');
     }
 
-    private async buildSystemPrompt(): Promise<string> {
-        // 1. Fetch Dynamic Data from DB
-        const settings = await this.settingsService.findAll();
-        const settingsMap = settings.reduce((acc, curr) => ({ ...acc, [curr.settingTitle]: curr.content }), {});
+    if (!apiKey) {
+      return 'Xin lỗi, tớ đang ngủ (Thiếu API Key). Đánh thức tớ sau nhé! 😴';
+    }
 
-        // 2. Fetch Persona
-        const defaultPersona = `
+    try {
+      // 2. Init SDK on the fly
+      const genAI = new GoogleGenerativeAI(apiKey);
+      const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+
+      const systemPrompt = await this.buildSystemPrompt();
+
+      const chat = model.startChat({
+        history: [
+          {
+            role: 'user',
+            parts: [{ text: systemPrompt }],
+          },
+          {
+            role: 'model',
+            parts: [
+              {
+                text: 'Hiểu rồi. Tớ sẽ đóng vai là phiên bản kỹ thuật số của Khoa Nguyễn.',
+              },
+            ],
+          },
+          ...history.map((msg) => ({
+            role: msg.role === 'user' ? 'user' : 'model',
+            parts: [{ text: msg.content }],
+          })),
+        ],
+      });
+
+      const result = await chat.sendMessage(userMessage);
+      const response = result.response;
+      const text = response.text();
+      return text;
+    } catch (error) {
+      this.logger.error('Error generating AI response', error);
+      return 'U là trời, tớ quên mất mình định nói gì rồi. Cậu hỏi lại được không? 😅';
+    }
+  }
+
+  private async buildSystemPrompt(): Promise<string> {
+    // 1. Fetch Dynamic Data from DB
+    const settings = await this.settingsService.findAll();
+    const settingsMap = settings.reduce(
+      (acc, curr) => ({ ...acc, [curr.settingTitle]: curr.content }),
+      {},
+    );
+
+    // 2. Fetch Persona
+    const defaultPersona = `
 # AI IDENTITY
 - Name: Khoa Nguyễn (yun.khngn)
 - Roles: Software Engineer, Graphic Designer, Guitarist
@@ -109,10 +113,10 @@ A: Không hẳn. Tớ chỉ build đều, sai đều, sửa đều. Kỹ năng �
 - Tech: Clear, practical examples over theory.
         `;
 
-        const personaContent = settingsMap['ai_persona'] || defaultPersona;
+    const personaContent = settingsMap['ai_persona'] || defaultPersona;
 
-        // 3. Construct Prompt
-        return `
+    // 3. Construct Prompt
+    return `
       ${personaContent}
 
       ---
@@ -129,5 +133,5 @@ A: Không hẳn. Tớ chỉ build đều, sai đều, sửa đều. Kỹ năng �
       - If the user asks something not in the data, try to answer based on the Persona's style or politley decline.
       - Keep responses concise and engaging.
     `;
-    }
+  }
 }

@@ -64,4 +64,4 @@ import { ChatModule } from './chat/chat.module';
     },
   ],
 })
-export class AppModule { }
+export class AppModule {}

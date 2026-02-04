@@ -7,4 +7,4 @@ import { BlogService } from './blog.service';
   providers: [BlogService],
   exports: [BlogService],
 })
-export class BlogModule { }
+export class BlogModule {}

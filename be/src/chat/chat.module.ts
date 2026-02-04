@@ -6,8 +6,8 @@ import { ProjectModule } from '../project/project.module';
 import { BlogModule } from '../blog/blog.module';
 
 @Module({
-    imports: [SettingsModule, ProjectModule, BlogModule],
-    controllers: [ChatController],
-    providers: [ChatService],
+  imports: [SettingsModule, ProjectModule, BlogModule],
+  controllers: [ChatController],
+  providers: [ChatService],
 })
-export class ChatModule { }
+export class ChatModule {}
