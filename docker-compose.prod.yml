@@ -18,6 +18,24 @@ services:
       - no-new-privileges:true
 
   # nosemgrep: yaml.docker-compose.security.writable-filesystem-service.writable-filesystem-service
+  ollama:
+    image: ollama/ollama:latest
+    container_name: yunkhngn-ollama
+    restart: always
+    volumes:
+      - ollama_data:/root/.ollama
+    networks:
+      - app-network
+    ports:
+      - "11434:11434"
+    deploy:
+      resources:
+        limits:
+          memory: 3G
+    security_opt:
+      - no-new-privileges:true
+
+  # nosemgrep: yaml.docker-compose.security.writable-filesystem-service.writable-filesystem-service
   backend:
     image: ${BACKEND_IMAGE:-ghcr.io/yunkhngn/yunkhngn-website-backend:latest}
     # build:
@@ -35,6 +53,7 @@ services:
       - ./be/firebase-admin-sdk.json:/app/firebase-admin-sdk.json
     depends_on:
       - mssql
+      - ollama
     extra_hosts:
       - "host.docker.internal:host-gateway"
     security_opt:
@@ -80,5 +99,6 @@ networks:
 
 volumes:
   mssql_data:
+  ollama_data:
   caddy_data:
   caddy_config:
