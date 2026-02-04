@@ -41,7 +41,7 @@ export class SettingsService implements OnModuleInit {
   constructor(
     private prisma: PrismaService,
     private encryptionService: EncryptionService,
-  ) {}
+  ) { }
 
   async onModuleInit() {
     try {
@@ -141,7 +141,7 @@ export class SettingsService implements OnModuleInit {
 
       return setting.content;
     } catch (error) {
-      console.warn(`Failed to fetch setting ${title}:`, error.message);
+      console.warn('Failed to fetch setting:', title, error.message);
       return null;
     }
   }
