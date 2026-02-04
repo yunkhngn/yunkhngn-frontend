@@ -5,7 +5,7 @@ import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class ProjectService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
   async create(createProjectDto: CreateProjectDto) {
     const existing = await this.prisma.project.findUnique({
@@ -26,7 +26,9 @@ export class ProjectService {
         if (Array.isArray(parsed) && parsed.length > 0) {
           data.cover = parsed[0];
         }
-      } catch (e) { }
+      } catch {
+        // ignore invalid json
+      }
       delete data.images;
     }
 
@@ -72,7 +74,9 @@ export class ProjectService {
         if (Array.isArray(parsed) && parsed.length > 0) {
           data.cover = parsed[0];
         }
-      } catch (e) { }
+      } catch {
+        // ignore invalid json
+      }
       delete data.images;
     }
     delete data.id;
