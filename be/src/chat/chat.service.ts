@@ -12,7 +12,7 @@ export class ChatService {
     private settingsService: SettingsService,
     private projectService: ProjectService,
     private blogService: BlogService,
-  ) { }
+  ) {}
 
   async generateResponse(userMessage: string, history: any[] = []) {
     const settings = await this.settingsService.findAll();
@@ -21,7 +21,7 @@ export class ChatService {
       {},
     );
 
-    const provider = settingsMap['chat_ai_provider'] || 'gemini';
+    const provider = settingsMap['ai_provider'] || 'gemini';
     const systemPrompt = await this.buildSystemPrompt();
 
     // OLLAMA PROVIDER
@@ -29,8 +29,8 @@ export class ChatService {
       try {
         const { Ollama } = await import('ollama');
         const ollamaUrl =
-          settingsMap['chat_ollama_base_url'] || 'http://localhost:11434';
-        const ollamaModel = settingsMap['chat_ollama_model'] || 'qwen2.5:1.5b';
+          settingsMap['ollama_base_url'] || 'http://localhost:11434';
+        const ollamaModel = settingsMap['ollama_model'] || 'qwen2.5:1.5b';
 
         const ollama = new Ollama({ host: ollamaUrl });
 
