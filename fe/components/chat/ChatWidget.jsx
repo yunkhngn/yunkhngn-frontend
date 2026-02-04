@@ -9,7 +9,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 export default function ChatWidget() {
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState([
-        { role: 'assistant', content: 'Hi there! I\'m Khoa\'s AI Digital Twin. Ask me anything about his projects, skills, or experience! ^^' }
+        { role: 'assistant', content: 'Chào cậu! Tớ là Khoa GPT. Cậu muốn hỏi gì về projects hay kinh nghiệm của tớ không? ^^' }
     ]);
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -53,7 +53,7 @@ export default function ChatWidget() {
     };
 
     return (
-        <div className="fixed bottom-4 right-4 z-50 flex flex-col items-end gap-2 sm:bottom-8 sm:right-8">
+        <div className="fixed bottom-20 right-4 z-50 flex flex-col items-end gap-2 sm:bottom-24 sm:right-8">
             <AnimatePresence>
                 {isOpen && (
                     <motion.div
@@ -68,13 +68,13 @@ export default function ChatWidget() {
                             <div className="flex items-center gap-2">
                                 <div className="relative">
                                     <div className="w-2 h-2 absolute top-0 right-0 bg-green-500 rounded-full animate-pulse" />
-                                    <div className="p-2 bg-primary/10 rounded-full">
-                                        <Sparkles className="w-5 h-5 text-primary" />
+                                    <div className="p-0.5 bg-primary/10 rounded-full overflow-hidden w-9 h-9 border border-primary/20">
+                                        <img src="https://github.com/yunkhngn.png" alt="Khoa AI" className="w-full h-full object-cover" />
                                     </div>
                                 </div>
                                 <div>
                                     <h3 className="font-bold text-sm">Khoa AI</h3>
-                                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Digital Twin</p>
+                                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Khoa GPT</p>
                                 </div>
                             </div>
                             <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full hover:bg-destructive/10 hover:text-destructive" onClick={() => setIsOpen(false)}>
@@ -87,25 +87,27 @@ export default function ChatWidget() {
                             {messages.map((msg, idx) => (
                                 <div key={idx} className={cn("flex gap-3 max-w-[85%]", msg.role === 'user' ? "ml-auto flex-row-reverse" : "")}>
                                     <div className={cn(
-                                        "w-8 h-8 rounded-full flex items-center justify-center shrink-0",
+                                        "w-8 h-8 rounded-full flex items-center justify-center shrink-0 overflow-hidden border border-border/50",
                                         msg.role === 'user' ? "bg-muted" : "bg-primary/10"
                                     )}>
-                                        {msg.role === 'user' ? <User className="w-4 h-4" /> : <Sparkles className="w-4 h-4 text-primary" />}
+                                        {msg.role === 'user' ? <img src="/image/cat.jpg" alt="User" className="w-full h-full object-cover" /> : <img src="https://github.com/yunkhngn.png" alt="AI" className="w-full h-full object-cover" />}
                                     </div>
                                     <div className={cn(
                                         "rounded-2xl px-4 py-2 text-sm shadow-sm",
                                         msg.role === 'user' ? "bg-primary text-primary-foreground rounded-tr-sm" : "bg-muted/50 rounded-tl-sm border border-border/50"
                                     )}>
-                                        <ReactMarkdown className="prose prose-sm dark:prose-invert max-w-none break-words">
-                                            {msg.content}
-                                        </ReactMarkdown>
+                                        <div className="prose prose-sm dark:prose-invert max-w-none break-words">
+                                            <ReactMarkdown>
+                                                {msg.content}
+                                            </ReactMarkdown>
+                                        </div>
                                     </div>
                                 </div>
                             ))}
                             {isLoading && (
                                 <div className="flex gap-3 max-w-[85%]">
-                                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                                        <Sparkles className="w-4 h-4 text-primary" />
+                                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0 overflow-hidden border border-border/50">
+                                        <img src="https://github.com/yunkhngn.png" alt="AI" className="w-full h-full object-cover" />
                                     </div>
                                     <div className="bg-muted/50 rounded-2xl rounded-tl-sm px-4 py-2 flex items-center gap-1">
                                         <span className="w-1.5 h-1.5 bg-foreground/40 rounded-full animate-bounce [animation-delay:-0.3s]"></span>

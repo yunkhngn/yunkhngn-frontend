@@ -8,32 +8,33 @@ import * as path from 'path';
 
 @Injectable()
 export class ChatService {
-    private genAI: GoogleGenerativeAI;
-    private model: any;
     private readonly logger = new Logger(ChatService.name);
 
     constructor(
         private settingsService: SettingsService,
         private projectService: ProjectService,
         private blogService: BlogService,
-    ) {
-        if (process.env.GEMINI_API_KEY) {
-            this.genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-            this.model = this.genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-        } else {
-            this.logger.warn('GEMINI_API_KEY not found in environment variables');
-        }
-    }
+    ) { }
 
     async generateResponse(userMessage: string, history: any[] = []) {
-        if (!this.model) {
-            return "Sorry, I'm currently sleeping (API Key missing). Please wake me up later!";
+        // 1. Get API Key (Env or DB)
+        let apiKey = process.env.GEMINI_API_KEY;
+        if (!apiKey) {
+            apiKey = await this.settingsService.getDecryptedSetting('gemini_api_key');
+        }
+
+        if (!apiKey) {
+            return "Xin lỗi, tớ đang ngủ (Thiếu API Key). Đánh thức tớ sau nhé! 😴";
         }
 
         try {
+            // 2. Init SDK on the fly
+            const genAI = new GoogleGenerativeAI(apiKey);
+            const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+
             const systemPrompt = await this.buildSystemPrompt();
 
-            const chat = this.model.startChat({
+            const chat = model.startChat({
                 history: [
                     {
                         role: "user",
@@ -41,7 +42,7 @@ export class ChatService {
                     },
                     {
                         role: "model",
-                        parts: [{ text: "Understood. I am ready to act as Khoa Nguyen's digital twin." }],
+                        parts: [{ text: "Hiểu rồi. Tớ sẽ đóng vai là phiên bản kỹ thuật số của Khoa Nguyễn." }],
                     },
                     ...history.map(msg => ({
                         role: msg.role === 'user' ? 'user' : 'model',
@@ -57,7 +58,7 @@ export class ChatService {
 
         } catch (error) {
             this.logger.error('Error generating AI response', error);
-            return "Oops, I lost my train of thought. Can you ask that again?";
+            return "U là trời, tớ quên mất mình định nói gì rồi. Cậu hỏi lại được không? 😅";
         }
     }
 

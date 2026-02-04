@@ -34,7 +34,7 @@ import { ChatModule } from './chat/chat.module';
     ThrottlerModule.forRoot([
       {
         ttl: 60000,
-        limit: 60,
+        limit: 15,
       },
     ]),
     AuthModule,

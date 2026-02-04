@@ -8,7 +8,7 @@ export class ChatController {
     constructor(private readonly chatService: ChatService) { }
 
     @Post()
-    // @UseGuards(ThrottlerGuard) // Undo comment when Rate Limiter is configured globally
+    @UseGuards(ThrottlerGuard) // Undo comment when Rate Limiter is configured globally
     async chat(@Body() body: ChatMessageDto) {
         // Basic formatting for history
         let history = [];
