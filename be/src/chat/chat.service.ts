@@ -12,7 +12,7 @@ export class ChatService {
     private settingsService: SettingsService,
     private projectService: ProjectService,
     private blogService: BlogService,
-  ) {}
+  ) { }
 
   async generateResponse(userMessage: string, history: any[] = []) {
     const settings = await this.settingsService.findAll();
@@ -22,7 +22,7 @@ export class ChatService {
     );
 
     const provider = settingsMap['ai_provider'] || 'gemini';
-    const systemPrompt = await this.buildSystemPrompt();
+    const systemPrompt = await this.buildSystemPrompt(provider);
 
     // OLLAMA PROVIDER
     if (provider === 'ollama') {
@@ -123,7 +123,7 @@ export class ChatService {
     }
   }
 
-  private async buildSystemPrompt(): Promise<string> {
+  private async buildSystemPrompt(provider: string = 'gemini'): Promise<string> {
     // 1. Fetch Dynamic Data from DB
     const settings = await this.settingsService.findAll();
     const settingsMap = settings.reduce(
@@ -189,37 +189,41 @@ A: Không hẳn. Tớ chỉ build đều, sai đều, sửa đều. Kỹ năng �
       - Education: ${settingsMap['education'] || ''}
       - Experience: ${settingsMap['experience'] || ''}
 
-      ---
+      ${provider === 'gemini' ? `---
       WEBSITE CONTENT (RAG DATA):
       
       [LATEST BLOG POSTS]
       ${(await this.blogService.findAll())
-        .slice(0, 3)
-        .map((b) => {
-          const content = b.contentJSON ? b.contentJSON.substring(0, 2000) : '';
-          return `- Title: ${b.title} (Slug: ${b.slug})
+          .slice(0, 3)
+          .map((b) => {
+            const content = b.contentJSON ? b.contentJSON.substring(0, 2000) : '';
+            return `- Title: ${b.title} (Slug: ${b.slug})
         Description: ${b.seoDescription || 'No description'}
         Content Source (JSON): ${content}... (truncated)`;
-        })
-        .join('\n\n')}
+          })
+          .join('\n\n')}
 
       [FEATURED PROJECTS]
       ${(await this.projectService.findAll())
-        .slice(0, 3)
-        .map((p) => {
-          const content = p.contentJSON ? p.contentJSON.substring(0, 2000) : '';
-          return `- Title: ${p.title}
+          .slice(0, 3)
+          .map((p) => {
+            const content = p.contentJSON ? p.contentJSON.substring(0, 2000) : '';
+            return `- Title: ${p.title}
         Description: ${p.description}
         Tech Stack: ${p.techStack}
         Content Source (JSON): ${content}... (truncated)`;
-        })
-        .join('\n\n')}
+          })
+          .join('\n\n')}
       
       INSTRUCTIONS:
       - Only use the above data to answer factual questions.
       - If the user asks something not in the data, try to answer based on the Persona's style or politley decline.
       - Keep responses concise and engaging.
-      - If mentioning a blog or project, you can provide its title.
+      - If mentioning a blog or project, you can provide its title.` : `
+      INSTRUCTIONS:
+      - Answer based on the Persona and facts above.
+      - Keep responses concise and engaging.
+      - Be helpful and friendly.`}
     `;
   }
 }

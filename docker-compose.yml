@@ -31,7 +31,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 3G
+          memory: 5G
     security_opt:
       - no-new-privileges:true
 
