@@ -24,6 +24,7 @@ import { NotificationsModule } from './notifications/notifications.module';
 import { CloudflareModule } from './cloudflare/cloudflare.module';
 import { GithubModule } from './github/github.module';
 import { MediaModule } from './media/media.module';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [
@@ -33,7 +34,7 @@ import { MediaModule } from './media/media.module';
     ThrottlerModule.forRoot([
       {
         ttl: 60000,
-        limit: 60,
+        limit: 15,
       },
     ]),
     AuthModule,
@@ -52,6 +53,7 @@ import { MediaModule } from './media/media.module';
     CloudflareModule,
     GithubModule,
     MediaModule,
+    ChatModule,
   ],
   controllers: [AppController, HealthController],
   providers: [

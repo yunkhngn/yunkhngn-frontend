@@ -65,7 +65,7 @@ const SETTINGS_GROUPS = [
     },
     {
         title: "AI / System",
-        keys: ['gemini_api_key']
+        keys: ['gemini_api_key', 'ai_persona']
     }
 ];
 

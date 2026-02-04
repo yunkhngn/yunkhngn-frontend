@@ -1,6 +1,7 @@
 import { DefaultFooter, DefaultNavbar } from "@/components/template";
 import InteractiveBackground from "@/components/ui/InteractiveBackground";
 import { Metadata } from "@/components/template";
+import ChatWidget from "@/components/chat/ChatWidget";
 
 export default function DefaultLayout({ children, title, description, image, url }) {
     return (
@@ -18,6 +19,7 @@ export default function DefaultLayout({ children, title, description, image, url
             </main>
 
             <DefaultFooter />
+            <ChatWidget />
         </div>
     );
 }
