@@ -5,7 +5,7 @@ import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class ProjectService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async create(createProjectDto: CreateProjectDto) {
     const existing = await this.prisma.project.findUnique({
@@ -15,8 +15,23 @@ export class ProjectService {
       throw new ConflictException('Slug already exists');
     }
 
+    const data = { ...createProjectDto } as any;
+    if (data.link) {
+      data.demoLink = data.link;
+      delete data.link;
+    }
+    if (data.images) {
+      try {
+        const parsed = JSON.parse(data.images);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          data.cover = parsed[0];
+        }
+      } catch (e) { }
+      delete data.images;
+    }
+
     return this.prisma.project.create({
-      data: createProjectDto,
+      data,
     });
   }
 
@@ -47,6 +62,19 @@ export class ProjectService {
     }
 
     const data = { ...updateProjectDto } as Record<string, any>;
+    if (data.link) {
+      data.demoLink = data.link;
+      delete data.link;
+    }
+    if (data.images) {
+      try {
+        const parsed = JSON.parse(data.images);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          data.cover = parsed[0];
+        }
+      } catch (e) { }
+      delete data.images;
+    }
     delete data.id;
     delete data.createdAt;
 

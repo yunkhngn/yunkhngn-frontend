@@ -61,7 +61,7 @@ export default function ChatWidget() {
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 20, scale: 0.95 }}
                         transition={{ duration: 0.2 }}
-                        className="w-[350px] sm:w-[400px] h-[500px] max-h-[80vh] shadow-2xl rounded-2xl overflow-hidden border border-border/50 bg-background/80 backdrop-blur-xl flex flex-col"
+                        className="w-[380px] sm:w-[450px] h-[600px] max-h-[85vh] shadow-2xl rounded-2xl overflow-hidden border border-border/50 bg-background/80 backdrop-blur-xl flex flex-col"
                     >
                         {/* Header */}
                         <div className="p-4 border-b border-border/50 bg-primary/5 flex items-center justify-between">

@@ -5,7 +5,7 @@ import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class BlogService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async create(createBlogDto: CreateBlogDto) {
     const existing = await this.prisma.blog.findUnique({
@@ -15,10 +15,11 @@ export class BlogService {
       throw new ConflictException('Slug already exists');
     }
 
-    const { content, ...rest } = createBlogDto as any;
+    const { content, excerpt, ...rest } = createBlogDto as any;
     const data = {
       ...rest,
       contentJSON: rest.contentJSON || content,
+      seoDescription: rest.seoDescription || excerpt,
     };
     return this.prisma.blog.create({
       data,
@@ -55,6 +56,10 @@ export class BlogService {
     if (data.content) {
       data.contentJSON = data.contentJSON || data.content;
       delete data.content;
+    }
+    if (data.excerpt) {
+      data.seoDescription = data.seoDescription || data.excerpt;
+      delete data.excerpt;
     }
     delete data.id;
     delete data.createdAt;
