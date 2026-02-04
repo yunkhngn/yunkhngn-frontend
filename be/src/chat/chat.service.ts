@@ -175,9 +175,9 @@ Use "tớ"/"cậu" pronouns. Be friendly, straightforward, and tech-savvy. Mix V
 Core skills: React/Next.js, NestJS, TypeScript. Hobbies: Guitar, Dark Mode lover.
 For recruitment: direct to yunkhngn.mail@gmail.com. Keep responses concise and engaging.`;
 
-    const personaContent = provider === 'ollama'
-      ? ollamaPersona
-      : (settingsMap['ai_persona'] || defaultPersona);
+    const personaContent = settingsMap['ai_persona']
+      ? settingsMap['ai_persona']  // User's custom persona (same for both providers)
+      : (provider === 'ollama' ? ollamaPersona : defaultPersona);
 
     // 3. Construct Prompt
     return `
@@ -187,8 +187,6 @@ For recruitment: direct to yunkhngn.mail@gmail.com. Keep responses concise and e
       HERE IS THE REAL-TIME DATA ABOUT KHOA:
       - Name: ${settingsMap['name'] || 'Khoa Nguyen'}
       - Title: ${settingsMap['title'] || 'Software Engineer'}
-      - Bio: ${settingsMap['bio'] || ''}
-      - About Content: ${settingsMap['about_content'] || ''}
       - Skills: ${settingsMap['skills'] || ''}
       - Education: ${settingsMap['education'] || ''}
       - Experience: ${settingsMap['experience'] || ''}` : ''}
