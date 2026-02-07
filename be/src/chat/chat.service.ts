@@ -59,14 +59,21 @@ export class ChatService {
 
     // GEMINI PROVIDER (Default)
     // 1. Get API Key (Env or DB)
-    let apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-      apiKey = settingsMap['gemini_api_key'];
+    let apiKeyString = process.env.GEMINI_API_KEY;
+    if (!apiKeyString) {
+      apiKeyString = settingsMap['gemini_api_key'];
     }
 
-    if (!apiKey) {
+    if (!apiKeyString) {
       return 'Xin lỗi, tớ đang ngủ (Thiếu API Key). Đánh thức tớ sau nhé! 😴';
     }
+
+    // Support multiple keys (comma separated)
+    const apiKeys = apiKeyString
+      .split(',')
+      .map((k) => k.trim())
+      .filter((k) => k);
+    const apiKey = apiKeys[Math.floor(Math.random() * apiKeys.length)];
 
     try {
       // 2. Init SDK on the fly
@@ -75,7 +82,8 @@ export class ChatService {
 
       // Reuse systemPrompt built above
 
-      const geminiHistory = history.map((msg) => ({
+      // Limit history to last 4 messages for Gemini to save tokens
+      const geminiHistory = history.slice(-4).map((msg) => ({
         role: msg.role === 'user' ? 'user' : 'model',
         parts: [{ text: msg.content }],
       }));
