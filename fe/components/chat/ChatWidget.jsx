@@ -139,7 +139,7 @@ export default function ChatWidget() {
                                 </Button>
                             </div>
                             <div className="text-[10px] text-center text-muted-foreground/50 mt-2">
-                                Khoa AI can make mistakes. Please verify important info. He's smart but dumb!
+                                Khoa AI can make mistakes. Please verify important info. He&apos;s smart but dumb!
                             </div>
                         </form>
                     </motion.div>
