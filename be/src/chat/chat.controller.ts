@@ -23,6 +23,7 @@ export class ChatController {
     const response = await this.chatService.generateResponse(
       body.message,
       history,
+      body.provider, // Optional provider override
     );
     return { response };
   }
