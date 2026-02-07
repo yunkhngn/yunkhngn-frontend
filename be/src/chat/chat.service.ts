@@ -75,7 +75,8 @@ export class ChatService {
 
       // Reuse systemPrompt built above
 
-      const geminiHistory = history.map((msg) => ({
+      // Limit history to last 4 messages for Gemini to save tokens
+      const geminiHistory = history.slice(-4).map((msg) => ({
         role: msg.role === 'user' ? 'user' : 'model',
         parts: [{ text: msg.content }],
       }));

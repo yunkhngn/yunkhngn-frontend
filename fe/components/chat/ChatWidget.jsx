@@ -9,7 +9,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 export default function ChatWidget() {
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState([
-        { role: 'assistant', content: 'Chào cậu! Tớ là Khoa GPT. Cậu muốn hỏi gì về projects hay kinh nghiệm của tớ không? ^^' }
+        { role: 'assistant', content: 'Chào cậu! Tớ là Khoa Nguyễn. Cậu muốn hỏi gì về tớ, projects hay kinh nghiệm của tớ không? Feel free to ask ^^!' }
     ]);
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -46,14 +46,14 @@ export default function ChatWidget() {
             setMessages(prev => [...prev, { role: 'assistant', content: data.response }]);
         } catch (error) {
             console.error(error);
-            setMessages(prev => [...prev, { role: 'assistant', content: 'Oops! I seem to have lost connection to my brain. Please try again later.' }]);
+            setMessages(prev => [...prev, { role: 'assistant', content: 'Oops! Mất kết nối tới não tớ rồi cậu ơi. Thử lại sau nhé!' }]);
         } finally {
             setIsLoading(false);
         }
     };
 
     return (
-        <div className="fixed bottom-20 right-4 z-50 flex flex-col items-end gap-2 sm:bottom-24 sm:right-8">
+        <div className="fixed bottom-24 right-4 z-[60] flex flex-col items-end gap-2 sm:bottom-24 sm:right-8">
             <AnimatePresence>
                 {isOpen && (
                     <motion.div
@@ -61,7 +61,7 @@ export default function ChatWidget() {
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 20, scale: 0.95 }}
                         transition={{ duration: 0.2 }}
-                        className="w-[380px] sm:w-[450px] h-[600px] max-h-[85vh] shadow-2xl rounded-2xl overflow-hidden border border-border/50 bg-background/80 backdrop-blur-xl flex flex-col"
+                        className="w-[calc(100vw-2rem)] sm:w-[450px] h-[600px] max-h-[80vh] shadow-2xl rounded-2xl overflow-hidden border border-border/50 bg-background/80 backdrop-blur-xl flex flex-col"
                     >
                         {/* Header */}
                         <div className="p-4 border-b border-border/50 bg-primary/5 flex items-center justify-between">
@@ -73,7 +73,7 @@ export default function ChatWidget() {
                                     </div>
                                 </div>
                                 <div>
-                                    <h3 className="font-bold text-sm">Khoa AI</h3>
+                                    <h3 className="font-bold text-sm">Khoa Phiên bản AI</h3>
                                     <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Khoa GPT</p>
                                 </div>
                             </div>
@@ -139,7 +139,7 @@ export default function ChatWidget() {
                                 </Button>
                             </div>
                             <div className="text-[10px] text-center text-muted-foreground/50 mt-2">
-                                AI can make mistakes. Please verify important info.
+                                Khoa AI can make mistakes. Please verify important info. He's smart but dumb!
                             </div>
                         </form>
                     </motion.div>
