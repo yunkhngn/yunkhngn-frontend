@@ -211,24 +211,27 @@ For recruitment: direct to yunkhngn.mail@gmail.com. Keep responses concise and e
       
       [LATEST BLOG POSTS]
       ${(await this.blogService.findAll())
-        .slice(0, 3)
+        .slice(0, 5)
         .map((b) => {
-          const content = b.contentJSON ? b.contentJSON.substring(0, 2000) : '';
-          return `- Title: ${b.title} (Slug: ${b.slug})
-        Description: ${b.seoDescription || 'No description'}
-        Content Source (JSON): ${content}... (truncated)`;
+          // Truncate to ~200 words
+          const content = b.contentJSON ? b.contentJSON.substring(0, 1200) : '';
+          const truncated = content.split(' ').slice(0, 200).join(' ');
+          return `- Title: ${b.title}
+        Link: /blog/${b.slug}
+        Preview: ${truncated}...`;
         })
         .join('\n\n')}
 
       [FEATURED PROJECTS]
       ${(await this.projectService.findAll())
-        .slice(0, 3)
+        .slice(0, 5)
         .map((p) => {
-          const content = p.contentJSON ? p.contentJSON.substring(0, 2000) : '';
+          // Truncate to ~200 words
+          const content = p.contentJSON ? p.contentJSON.substring(0, 1200) : '';
+          const truncated = content.split(' ').slice(0, 200).join(' ');
           return `- Title: ${p.title}
-        Description: ${p.description}
-        Tech Stack: ${p.techStack}
-        Content Source (JSON): ${content}... (truncated)`;
+        Link: /projects/${p.id}
+        Preview: ${truncated}...`;
         })
         .join('\n\n')}
       

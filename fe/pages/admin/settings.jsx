@@ -326,11 +326,11 @@ export default function Settings() {
                                                                                             }
                                                                                         }}
                                                                                         className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${setting.content === 'gemini'
-                                                                                                ? 'bg-primary text-primary-foreground shadow-sm'
-                                                                                                : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                                                                                            ? 'bg-primary text-primary-foreground shadow-sm'
+                                                                                            : 'bg-muted text-muted-foreground hover:bg-muted/80'
                                                                                             }`}
                                                                                     >
-                                                                                        ⚡ Gemini
+                                                                                        Gemini
                                                                                     </button>
                                                                                     <button
                                                                                         onClick={async () => {
@@ -352,11 +352,11 @@ export default function Settings() {
                                                                                             }
                                                                                         }}
                                                                                         className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${setting.content === 'ollama'
-                                                                                                ? 'bg-primary text-primary-foreground shadow-sm'
-                                                                                                : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                                                                                            ? 'bg-primary text-primary-foreground shadow-sm'
+                                                                                            : 'bg-muted text-muted-foreground hover:bg-muted/80'
                                                                                             }`}
                                                                                     >
-                                                                                        🤖 Ollama
+                                                                                        Ollama
                                                                                     </button>
                                                                                 </div>
                                                                             ) : (
@@ -449,7 +449,7 @@ export default function Settings() {
                                                                             : 'bg-muted text-muted-foreground hover:bg-muted/80'
                                                                             }`}
                                                                     >
-                                                                        ⚡ Gemini
+                                                                        Gemini
                                                                     </button>
                                                                     <button
                                                                         onClick={async () => {
@@ -475,7 +475,7 @@ export default function Settings() {
                                                                             : 'bg-muted text-muted-foreground hover:bg-muted/80'
                                                                             }`}
                                                                     >
-                                                                        🤖 Ollama
+                                                                        Ollama
                                                                     </button>
                                                                 </div>
                                                             ) : (

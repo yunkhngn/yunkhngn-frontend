@@ -44,7 +44,7 @@ export default function ImageNodeView(props) {
                         value={caption}
                         onChange={handleCaptionChange}
                         placeholder="Write a caption..."
-                        className="w-full px-3 py-1.5 text-xs text-center bg-background/80 backdrop-blur-sm border border-border rounded-full shadow-sm focus:outline-none focus:ring-1 focus:ring-primary placeholder:text-muted-foreground/70"
+                        className="w-full px-3 py-1.5 text-sm text-center bg-background/80 backdrop-blur-sm border border-border rounded-full shadow-sm focus:outline-none focus:ring-1 focus:ring-primary placeholder:text-muted-foreground/70"
                     />
                 </div>
             </div>
