@@ -13,21 +13,7 @@ export default function ChatWidget() {
     ]);
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    const [provider, setProvider] = useState('gemini'); // AI provider: 'gemini' or 'ollama'
     const scrollRef = useRef(null);
-
-    // Load provider preference from localStorage
-    useEffect(() => {
-        const savedProvider = localStorage.getItem('ai_provider');
-        if (savedProvider === 'gemini' || savedProvider === 'ollama') {
-            setProvider(savedProvider);
-        }
-    }, []);
-
-    // Save provider preference to localStorage
-    useEffect(() => {
-        localStorage.setItem('ai_provider', provider);
-    }, [provider]);
 
     useEffect(() => {
         if (scrollRef.current) {
@@ -50,8 +36,7 @@ export default function ChatWidget() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     message: userMessage,
-                    history: JSON.stringify(messages.slice(-10)), // Send last 10 messages for context
-                    provider: provider // Send selected provider
+                    history: JSON.stringify(messages.slice(-10)) // Send last 10 messages for context
                 })
             });
 
@@ -89,41 +74,12 @@ export default function ChatWidget() {
                                 </div>
                                 <div>
                                     <h3 className="font-bold text-sm">Khoa AI</h3>
-                                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
-                                        {provider === 'gemini' ? '⚡ Gemini' : '🤖 Ollama'}
-                                    </p>
+                                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Khoa GPT</p>
                                 </div>
                             </div>
-                            <div className="flex items-center gap-2">
-                                {/* Provider Toggle */}
-                                <div className="flex items-center gap-1 bg-muted/50 rounded-full p-1">
-                                    <button
-                                        onClick={() => setProvider('gemini')}
-                                        className={cn(
-                                            "px-2 py-1 rounded-full text-[10px] font-medium transition-all",
-                                            provider === 'gemini'
-                                                ? "bg-primary text-primary-foreground shadow-sm"
-                                                : "text-muted-foreground hover:text-foreground"
-                                        )}
-                                    >
-                                        Gemini
-                                    </button>
-                                    <button
-                                        onClick={() => setProvider('ollama')}
-                                        className={cn(
-                                            "px-2 py-1 rounded-full text-[10px] font-medium transition-all",
-                                            provider === 'ollama'
-                                                ? "bg-primary text-primary-foreground shadow-sm"
-                                                : "text-muted-foreground hover:text-foreground"
-                                        )}
-                                    >
-                                        Ollama
-                                    </button>
-                                </div>
-                                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full hover:bg-destructive/10 hover:text-destructive" onClick={() => setIsOpen(false)}>
-                                    <X className="w-4 h-4" />
-                                </Button>
-                            </div>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full hover:bg-destructive/10 hover:text-destructive" onClick={() => setIsOpen(false)}>
+                                <X className="w-4 h-4" />
+                            </Button>
                         </div>
 
                         {/* Messages */}
