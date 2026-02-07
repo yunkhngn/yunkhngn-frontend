@@ -12,7 +12,7 @@ export class ChatService {
     private settingsService: SettingsService,
     private projectService: ProjectService,
     private blogService: BlogService,
-  ) {}
+  ) { }
 
   async generateResponse(
     userMessage: string,
@@ -200,55 +200,53 @@ For recruitment: direct to yunkhngn.mail@gmail.com. Keep responses concise and e
     return `
       ${personaContent}
 
-      ${
-        provider === 'gemini'
-          ? `---
+      ${provider === 'gemini'
+        ? `---
       HERE IS THE REAL-TIME DATA ABOUT KHOA:
       - Name: ${settingsMap['name'] || 'Khoa Nguyen'}
       - Title: ${settingsMap['title'] || 'Software Engineer'}
       - Skills: ${settingsMap['skills'] || ''}
       - Education: ${settingsMap['education'] || ''}
       - Experience: ${settingsMap['experience'] || ''}`
-          : ''
+        : ''
       }
 
-      ${
-        provider === 'gemini'
-          ? `---
+      ${provider === 'gemini'
+        ? `---
       WEBSITE CONTENT (RAG DATA):
       
       [LATEST BLOG POSTS]
       ${(await this.blogService.findAll())
-        .slice(0, 5)
-        .map((b) => {
-          // Truncate to ~200 words
-          const content = b.contentJSON ? b.contentJSON.substring(0, 1200) : '';
-          const truncated = content.split(' ').slice(0, 200).join(' ');
-          return `- Title: ${b.title}
+          .slice(0, 5)
+          .map((b) => {
+            // Truncate to ~200 words
+            const content = b.contentJSON ? b.contentJSON.substring(0, 1200) : '';
+            const truncated = content.split(' ').slice(0, 200).join(' ');
+            return `- Title: ${b.title}
         Link: /blog/${b.slug}
         Preview: ${truncated}...`;
-        })
-        .join('\n\n')}
+          })
+          .join('\n\n')}
 
       [FEATURED PROJECTS]
       ${(await this.projectService.findAll())
-        .slice(0, 5)
-        .map((p) => {
-          // Truncate to ~200 words
-          const content = p.contentJSON ? p.contentJSON.substring(0, 1200) : '';
-          const truncated = content.split(' ').slice(0, 200).join(' ');
-          return `- Title: ${p.title}
+          .slice(0, 5)
+          .map((p) => {
+            // Truncate to ~200 words
+            const content = p.contentJSON ? p.contentJSON.substring(0, 1200) : '';
+            const truncated = content.split(' ').slice(0, 200).join(' ');
+            return `- Title: ${p.title}
         Link: /projects/${p.id}
         Preview: ${truncated}...`;
-        })
-        .join('\n\n')}
+          })
+          .join('\n\n')}
       
       INSTRUCTIONS:
       - Only use the above data to answer factual questions.
       - If the user asks something not in the data, try to answer based on the Persona's style or politley decline.
       - Keep responses concise and engaging.
       - If mentioning a blog or project, you can provide its title.`
-          : `
+        : `
       INSTRUCTIONS:
       - Answer based on the Persona and facts above.
       - Keep responses concise and engaging.
