@@ -11,6 +11,6 @@ export class ChatMessageDto {
 
   @IsString()
   @IsOptional()
-  @IsIn(['gemini', 'ollama'])
+  @IsIn(['gemini'])
   provider?: string; // Allow users to override AI provider per request
 }

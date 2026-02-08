@@ -34,9 +34,7 @@ const SYSTEM_SETTINGS = [
   'github_api_key',
   'github_username',
   'github_repo_name',
-  'ai_provider',
-  'ollama_base_url',
-  'ollama_model',
+  'chat_api_key',
 ];
 
 @Injectable()
@@ -75,7 +73,8 @@ export class SettingsService implements OnModuleInit {
           s.settingTitle === 'cloudinary_api_secret' ||
           s.settingTitle === 'resend_api_key' ||
           s.settingTitle === 'cloudflare_api_token' ||
-          s.settingTitle === 'github_api_key') &&
+          s.settingTitle === 'github_api_key' ||
+          s.settingTitle === 'chat_api_key') &&
         s.content
       ) {
         return { ...s, content: '********' };
@@ -98,7 +97,9 @@ export class SettingsService implements OnModuleInit {
       settingTitle === 'cloudinary_api_secret' ||
       settingTitle === 'resend_api_key' ||
       settingTitle === 'cloudflare_api_token' ||
-      settingTitle === 'github_api_key'
+      settingTitle === 'cloudflare_api_token' ||
+      settingTitle === 'github_api_key' ||
+      settingTitle === 'chat_api_key'
     ) {
       if (content === '********') {
         // Ignore update if it's the mask
@@ -137,7 +138,8 @@ export class SettingsService implements OnModuleInit {
         title === 'cloudinary_api_secret' ||
         title === 'resend_api_key' ||
         title === 'cloudflare_api_token' ||
-        title === 'github_api_key'
+        title === 'github_api_key' ||
+        title === 'chat_api_key'
       ) {
         return this.encryptionService.decrypt(setting.content);
       }

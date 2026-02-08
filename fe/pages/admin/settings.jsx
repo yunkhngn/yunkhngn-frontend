@@ -65,7 +65,7 @@ const SETTINGS_GROUPS = [
     },
     {
         title: "AI / System",
-        keys: ['gemini_api_key', 'ai_persona', 'ai_provider', 'ollama_base_url', 'ollama_model']
+        keys: ['gemini_api_key', 'ai_persona', 'chat_api_key']
     }
 ];
 
@@ -304,60 +304,60 @@ export default function Settings() {
                                                                             <div className="text-xs text-muted-foreground font-mono mt-1">{setting.settingTitle}</div>
                                                                         </TableCell>
                                                                         <TableCell className="align-top py-4">
-                                                                            {setting.settingTitle === 'ai_provider' ? (
-                                                                                <div className="flex items-center gap-2">
-                                                                                    <button
-                                                                                        onClick={async () => {
-                                                                                            try {
-                                                                                                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/settings/ai_provider`, {
-                                                                                                    method: 'PATCH',
-                                                                                                    headers: {
-                                                                                                        'Content-Type': 'application/json',
-                                                                                                        'Authorization': `Bearer ${user.token}`,
-                                                                                                    },
-                                                                                                    body: JSON.stringify({ content: 'gemini' })
-                                                                                                });
-                                                                                                if (res.ok) {
-                                                                                                    fetchSettings();
-                                                                                                    toast.success('Provider switched to Gemini');
+                                                                            {setting.settingTitle === 'chat_api_key' ? (
+                                                                                <div className="flex flex-col gap-2">
+                                                                                    <div className="max-w-[120px] md:max-w-md line-clamp-3 whitespace-pre-wrap text-sm text-muted-foreground break-all font-mono bg-muted p-2 rounded">
+                                                                                        {setting.content}
+                                                                                    </div>
+                                                                                    <div className="flex gap-2">
+                                                                                        <button
+                                                                                            onClick={async () => {
+                                                                                                if (!user) {
+                                                                                                    toast.error("User not authenticated.");
+                                                                                                    return;
                                                                                                 }
-                                                                                            } catch (e) {
-                                                                                                toast.error('Failed to switch provider');
-                                                                                            }
-                                                                                        }}
-                                                                                        className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${setting.content === 'gemini'
-                                                                                            ? 'bg-primary text-primary-foreground shadow-sm'
-                                                                                            : 'bg-muted text-muted-foreground hover:bg-muted/80'
-                                                                                            }`}
-                                                                                    >
-                                                                                        Gemini
-                                                                                    </button>
-                                                                                    <button
-                                                                                        onClick={async () => {
-                                                                                            try {
-                                                                                                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/settings/ai_provider`, {
-                                                                                                    method: 'PATCH',
-                                                                                                    headers: {
-                                                                                                        'Content-Type': 'application/json',
-                                                                                                        'Authorization': `Bearer ${user.token}`,
-                                                                                                    },
-                                                                                                    body: JSON.stringify({ content: 'ollama' })
-                                                                                                });
-                                                                                                if (res.ok) {
-                                                                                                    fetchSettings();
-                                                                                                    toast.success('Provider switched to Ollama');
+                                                                                                const key = 'sk-yunkhngn-' + Array.from(crypto.getRandomValues(new Uint8Array(16)))
+                                                                                                    .map(b => b.toString(16).padStart(2, '0')).join('');
+
+                                                                                                try {
+                                                                                                    const token = await user.getIdToken();
+                                                                                                    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/settings/chat_api_key`, {
+                                                                                                        method: 'PATCH',
+                                                                                                        headers: {
+                                                                                                            'Content-Type': 'application/json',
+                                                                                                            Authorization: `Bearer ${token}`
+                                                                                                        },
+                                                                                                        body: JSON.stringify({ content: key, settingTitle: 'chat_api_key' })
+                                                                                                    });
+
+                                                                                                    if (res.ok) {
+                                                                                                        await fetchSettings();
+                                                                                                        toast.success("New API Key generated and saved!");
+                                                                                                        navigator.clipboard.writeText(key);
+                                                                                                        toast.info("Key copied to clipboard");
+                                                                                                    } else {
+                                                                                                        console.error("Failed to generate and save key");
+                                                                                                        toast.error("Failed to generate key");
+                                                                                                    }
+                                                                                                } catch (e) {
+                                                                                                    console.error(e);
+                                                                                                    toast.error("Failed to generate key");
                                                                                                 }
-                                                                                            } catch (e) {
-                                                                                                toast.error('Failed to switch provider');
-                                                                                            }
-                                                                                        }}
-                                                                                        className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${setting.content === 'ollama'
-                                                                                            ? 'bg-primary text-primary-foreground shadow-sm'
-                                                                                            : 'bg-muted text-muted-foreground hover:bg-muted/80'
-                                                                                            }`}
-                                                                                    >
-                                                                                        Ollama
-                                                                                    </button>
+                                                                                            }}
+                                                                                            className="text-xs bg-primary/10 text-primary px-2 py-1 rounded hover:bg-primary/20 transition-colors"
+                                                                                        >
+                                                                                            Generate New Key
+                                                                                        </button>
+                                                                                        <button
+                                                                                            onClick={() => {
+                                                                                                navigator.clipboard.writeText(setting.content);
+                                                                                                toast.success("Copied!");
+                                                                                            }}
+                                                                                            className="text-xs bg-muted text-muted-foreground px-2 py-1 rounded hover:bg-muted/80"
+                                                                                        >
+                                                                                            Copy
+                                                                                        </button>
+                                                                                    </div>
                                                                                 </div>
                                                                             ) : (
                                                                                 <div className="max-w-[120px] md:max-w-md line-clamp-3 whitespace-pre-wrap text-sm text-muted-foreground break-all">
@@ -423,66 +423,9 @@ export default function Settings() {
                                                             <div className="text-xs text-muted-foreground font-mono mt-1">{setting.settingTitle}</div>
                                                         </TableCell>
                                                         <TableCell className="align-top py-4">
-                                                            {setting.settingTitle === 'ai_provider' ? (
-                                                                <div className="flex items-center gap-2">
-                                                                    <button
-                                                                        onClick={async () => {
-                                                                            try {
-                                                                                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/settings/ai_provider`, {
-                                                                                    method: 'PATCH',
-                                                                                    headers: {
-                                                                                        'Content-Type': 'application/json',
-                                                                                        'Authorization': `Bearer ${user.token}`,
-                                                                                    },
-                                                                                    body: JSON.stringify({ content: 'gemini' })
-                                                                                });
-                                                                                if (res.ok) {
-                                                                                    fetchSettings();
-                                                                                    toast.success('Provider switched to Gemini');
-                                                                                }
-                                                                            } catch (e) {
-                                                                                toast.error('Failed to switch provider');
-                                                                            }
-                                                                        }}
-                                                                        className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${setting.content === 'gemini'
-                                                                            ? 'bg-primary text-primary-foreground shadow-sm'
-                                                                            : 'bg-muted text-muted-foreground hover:bg-muted/80'
-                                                                            }`}
-                                                                    >
-                                                                        Gemini
-                                                                    </button>
-                                                                    <button
-                                                                        onClick={async () => {
-                                                                            try {
-                                                                                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/settings/ai_provider`, {
-                                                                                    method: 'PATCH',
-                                                                                    headers: {
-                                                                                        'Content-Type': 'application/json',
-                                                                                        'Authorization': `Bearer ${user.token}`,
-                                                                                    },
-                                                                                    body: JSON.stringify({ content: 'ollama' })
-                                                                                });
-                                                                                if (res.ok) {
-                                                                                    fetchSettings();
-                                                                                    toast.success('Provider switched to Ollama');
-                                                                                }
-                                                                            } catch (e) {
-                                                                                toast.error('Failed to switch provider');
-                                                                            }
-                                                                        }}
-                                                                        className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${setting.content === 'ollama'
-                                                                            ? 'bg-primary text-primary-foreground shadow-sm'
-                                                                            : 'bg-muted text-muted-foreground hover:bg-muted/80'
-                                                                            }`}
-                                                                    >
-                                                                        Ollama
-                                                                    </button>
-                                                                </div>
-                                                            ) : (
-                                                                <div className="max-w-[120px] md:max-w-md line-clamp-3 whitespace-pre-wrap text-sm text-muted-foreground break-all">
-                                                                    {setting.content}
-                                                                </div>
-                                                            )}
+                                                            <div className="max-w-[120px] md:max-w-md line-clamp-3 whitespace-pre-wrap text-sm text-muted-foreground break-all">
+                                                                {setting.content}
+                                                            </div>
                                                         </TableCell>
                                                         <TableCell className="align-top py-4">
                                                             <div className="flex items-center gap-1 md:gap-2">

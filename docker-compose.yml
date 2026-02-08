@@ -18,24 +18,6 @@ services:
       - no-new-privileges:true
 
   # nosemgrep: yaml.docker-compose.security.writable-filesystem-service.writable-filesystem-service
-  ollama:
-    image: ollama/ollama:latest
-    container_name: yunkhngn_ollama_dev
-    restart: unless-stopped
-    volumes:
-      - ollama_data:/root/.ollama
-    networks:
-      - app_network
-    ports:
-      - "11434:11434"
-    deploy:
-      resources:
-        limits:
-          memory: 5G
-    security_opt:
-      - no-new-privileges:true
-
-  # nosemgrep: yaml.docker-compose.security.writable-filesystem-service.writable-filesystem-service
   backend:
     build:
       context: ./be
@@ -107,6 +89,5 @@ networks:
 
 volumes:
   mssql_data:
-  ollama_data:
   caddy_data:
   caddy_config:
