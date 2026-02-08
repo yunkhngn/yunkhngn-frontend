@@ -1,15 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="jest tests" tests="5" failures="0" errors="0" time="1.866">
-  <testsuite name="ApiKeyGuard" errors="0" failures="0" skipped="0" timestamp="2026-02-08T16:28:25" time="1.675" tests="5">
-    <testcase classname="ApiKeyGuard should be defined" name="ApiKeyGuard should be defined" time="0.006">
-    </testcase>
-    <testcase classname="ApiKeyGuard should throw UnauthorizedException if API key is missing" name="ApiKeyGuard should throw UnauthorizedException if API key is missing" time="0.007">
-    </testcase>
-    <testcase classname="ApiKeyGuard should throw UnauthorizedException if API key is not configured on server" name="ApiKeyGuard should throw UnauthorizedException if API key is not configured on server" time="0.002">
-    </testcase>
-    <testcase classname="ApiKeyGuard should throw UnauthorizedException if API key is invalid" name="ApiKeyGuard should throw UnauthorizedException if API key is invalid" time="0.002">
-    </testcase>
-    <testcase classname="ApiKeyGuard should return true if API key is valid" name="ApiKeyGuard should return true if API key is valid" time="0.002">
+<testsuites name="jest tests" tests="1" failures="0" errors="0" time="1.715">
+  <testsuite name="SystemController" errors="0" failures="0" skipped="0" timestamp="2026-02-08T16:46:57" time="1.559" tests="1">
+    <testcase classname="SystemController should be defined" name="SystemController should be defined" time="0.006">
     </testcase>
   </testsuite>
 </testsuites>
