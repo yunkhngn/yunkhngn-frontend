@@ -65,6 +65,7 @@ export default function Dashboard() {
 
   const [analyticsData, setAnalyticsData] = useState(null);
   const [analyticsPeriod, setAnalyticsPeriod] = useState('24h');
+  const [systemStats, setSystemStats] = useState(null);
 
 
   useEffect(() => {
@@ -74,7 +75,7 @@ export default function Dashboard() {
         const token = await user.getIdToken();
         const headers = { Authorization: `Bearer ${token}` };
 
-        const [systemStats, setSystemStats] = useState(null);
+
 
         // ... inside useEffect
         const [blogsRes, projectsRes, galleryRes, commentsRes, contactRes, analyticsRes, systemStatsRes] = await Promise.all([
