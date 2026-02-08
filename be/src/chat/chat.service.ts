@@ -12,12 +12,9 @@ export class ChatService {
     private settingsService: SettingsService,
     private projectService: ProjectService,
     private blogService: BlogService,
-  ) { }
+  ) {}
 
-  async generateResponse(
-    userMessage: string,
-    history: any[] = [],
-  ) {
+  async generateResponse(userMessage: string, history: any[] = []) {
     const settings = await this.settingsService.findAll();
     const settingsMap = settings.reduce(
       (acc, curr) => ({ ...acc, [curr.settingTitle]: curr.content }),
