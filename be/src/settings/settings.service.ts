@@ -34,9 +34,7 @@ const SYSTEM_SETTINGS = [
   'github_api_key',
   'github_username',
   'github_repo_name',
-  'ai_provider',
-  'ollama_base_url',
-  'ollama_model',
+  'github_repo_name',
 ];
 
 @Injectable()
@@ -44,7 +42,7 @@ export class SettingsService implements OnModuleInit {
   constructor(
     private prisma: PrismaService,
     private encryptionService: EncryptionService,
-  ) {}
+  ) { }
 
   async onModuleInit() {
     try {
