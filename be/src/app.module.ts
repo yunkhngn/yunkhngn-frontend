@@ -25,6 +25,7 @@ import { CloudflareModule } from './cloudflare/cloudflare.module';
 import { GithubModule } from './github/github.module';
 import { MediaModule } from './media/media.module';
 import { ChatModule } from './chat/chat.module';
+import { SystemModule } from './system/system.module';
 
 @Module({
   imports: [
@@ -54,6 +55,7 @@ import { ChatModule } from './chat/chat.module';
     GithubModule,
     MediaModule,
     ChatModule,
+    SystemModule,
   ],
   controllers: [AppController, HealthController],
   providers: [
