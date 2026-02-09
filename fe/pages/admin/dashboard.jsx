@@ -449,10 +449,8 @@ export default function Dashboard() {
               <div className="w-full">
                 <p className="text-sm font-medium">Uptime</p>
                 <p className="text-lg font-bold font-mono truncate">
-                  {systemStats
-                    ? formatDistanceToNow(new Date(Date.now() - systemStats.osInfo.uptime * 1000))
-                    // Or calculate manually: Math.floor(systemStats.uptime / 3600) + 'h ' + Math.floor((systemStats.uptime % 3600) / 60) + 'm'
-                    // systemStats.time.uptime is usually seconds
+                  {systemStats && systemStats.time && typeof systemStats.time.uptime === 'number'
+                    ? formatDistanceToNow(new Date(Date.now() - systemStats.time.uptime * 1000))
                     : '...'}
                 </p>
                 <p className="text-xs text-purple-500/80">
