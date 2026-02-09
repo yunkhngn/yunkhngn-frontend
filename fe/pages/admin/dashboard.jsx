@@ -66,7 +66,30 @@ export default function Dashboard() {
   const [analyticsData, setAnalyticsData] = useState(null);
   const [analyticsPeriod, setAnalyticsPeriod] = useState('24h');
   const [systemStats, setSystemStats] = useState(null);
+  // Real-time server stats polling
+  useEffect(() => {
+    let intervalId;
 
+    const fetchSystemStats = async () => {
+      if (!user) return;
+      try {
+        const token = await user.getIdToken();
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/system/stats`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (res.ok) {
+          setSystemStats(await res.json());
+        }
+      } catch (error) {
+        console.error("Failed to fetch system stats", error);
+      }
+    };
+
+    fetchSystemStats(); // Initial fetch
+    intervalId = setInterval(fetchSystemStats, 2000); // Poll every 2 seconds
+
+    return () => clearInterval(intervalId);
+  }, [user]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -78,14 +101,13 @@ export default function Dashboard() {
 
 
         // ... inside useEffect
-        const [blogsRes, projectsRes, galleryRes, commentsRes, contactRes, analyticsRes, systemStatsRes] = await Promise.all([
+        const [blogsRes, projectsRes, galleryRes, commentsRes, contactRes, analyticsRes] = await Promise.all([
           fetch(`${process.env.NEXT_PUBLIC_API_URL}/blogs`, { headers }),
           fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects`),
           fetch(`${process.env.NEXT_PUBLIC_API_URL}/gallery`),
           fetch(`${process.env.NEXT_PUBLIC_API_URL}/comments?limit=1`, { headers }),
           fetch(`${process.env.NEXT_PUBLIC_API_URL}/contact`, { headers }),
-          fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/analytics?period=${analyticsPeriod}`, { headers }),
-          fetch(`${process.env.NEXT_PUBLIC_API_URL}/system/stats`, { headers })
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/analytics?period=${analyticsPeriod}`, { headers })
         ]);
 
         const blogs = await blogsRes.json();
@@ -93,10 +115,6 @@ export default function Dashboard() {
         const gallery = await galleryRes.json();
         const commentsData = await commentsRes.json();
         const contacts = await contactRes.json();
-
-        if (systemStatsRes.ok) {
-          setSystemStats(await systemStatsRes.json());
-        }
 
         if (analyticsRes.ok) {
           const analytics = await analyticsRes.json();
