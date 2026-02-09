@@ -14,12 +14,15 @@ export class SystemService {
           si.fsSize(),
         ]);
 
+      const time = si.time();
+
       return {
         cpu,
         mem,
         osInfo,
         currentLoad,
         fsSize,
+        time,
       };
     } catch (error) {
       console.error('Error fetching system stats:', error);
