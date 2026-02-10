@@ -2,9 +2,6 @@ BEGIN TRY
 
 BEGIN TRAN;
 
--- AlterTable
-ALTER TABLE [dbo].[blogs] DROP CONSTRAINT [DF_blogs_views];
-ALTER TABLE [dbo].[blogs] ADD CONSTRAINT [blogs_views_df] DEFAULT 0 FOR [views];
 
 -- CreateTable
 CREATE TABLE [dbo].[subscribers] (
