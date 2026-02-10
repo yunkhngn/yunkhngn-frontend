@@ -19,7 +19,7 @@ export class AiService {
     private configService: ConfigService,
     private prisma: PrismaService,
     private settingsService: SettingsService,
-  ) {}
+  ) { }
 
   private async getModel(): Promise<GenerativeModel> {
     let apiKey =
@@ -119,7 +119,7 @@ export class AiService {
     prompt: string,
     currentContent?: string,
     language: string = 'vi',
-  ): Promise<string> {
+  ): Promise<{ title: string; tags: string[]; content: string }> {
     try {
       let systemPrompt = '';
       if (currentContent) {
@@ -133,12 +133,19 @@ export class AiService {
                     User Instructions: ${prompt}
                     
                     Output Requirements:
-                    1. Return the FULL updated content in clean HTML format (TipTap-compatible).
-                    2. Use <h2>, <h3> for headings (no <h1>).
-                    3. Use <p>, <ul>, <ol>, <li>, <strong>, <em>, blockquote, <pre><code> for formatting.
-                    4. Maintain the existing style and tone.
-                    5. Write in ${language === 'vi' ? 'Vietnamese' : 'English'}.
-                    6. Do NOT wrap the output in markdown code blocks (like \`\`\`html). Just return the raw HTML string.
+                    1. Return the response in strictly valid JSON format.
+                    2. JSON Structure: 
+                       {
+                         "title": "A catchy, SEO-friendly title",
+                         "tags": ["Tag1", "Tag2"], // Single-word tags, max 5
+                         "content": "The FULL updated content in clean HTML format (TipTap-compatible)..."
+                       }
+                    3. For the 'content' field:
+                        - Use <h2>, <h3> for headings (no <h1>).
+                        - Use <p>, <ul>, <ol>, <li>, <strong>, <em>, blockquote, <pre><code> for formatting.
+                        - Maintain the existing style and tone.
+                    4. Write in ${language === 'vi' ? 'Vietnamese' : 'English'}.
+                    5. Do NOT wrap the output in markdown code blocks (like \`\`\`json). Just return the raw JSON string.
                 `;
       } else {
         systemPrompt = `
@@ -148,12 +155,19 @@ export class AiService {
                     User Instructions: ${prompt}
                     
                     Output Requirements:
-                    1. Return the FULL content in clean HTML format (TipTap-compatible).
-                    2. Use <h2>, <h3> for headings (no <h1>).
-                    3. Use <p>, <ul>, <ol>, <li>, <strong>, <em>, <blockquote>, <pre><code> for formatting.
-                    4. Structure the post logically (Introduction, Body, Conclusion).
-                    5. Write in ${language === 'vi' ? 'Vietnamese' : 'English'}.
-                    6. Do NOT wrap the output in markdown code blocks (like \`\`\`html). Just return the raw HTML string.
+                    1. Return the response in strictly valid JSON format.
+                     2. JSON Structure: 
+                       {
+                         "title": "A catchy, SEO-friendly title",
+                         "tags": ["Tag1", "Tag2"], // A list of single-word tags, max 5, e.g. ["Tech", "React"]
+                         "content": "The FULL content in clean HTML format (TipTap-compatible)..."
+                       }
+                    3. For the 'content' field:
+                        - Use <h2>, <h3> for headings (no <h1>).
+                        - Use <p>, <ul>, <ol>, <li>, <strong>, <em>, <blockquote>, <pre><code> for formatting.
+                        - Structure the post logically (Introduction, Body, Conclusion).
+                    4. Write in ${language === 'vi' ? 'Vietnamese' : 'English'}.
+                    5. Do NOT wrap the output in markdown code blocks (like \`\`\`json). Just return the raw JSON string.
                 `;
       }
 
@@ -163,9 +177,9 @@ export class AiService {
       let text = response.text();
 
       // Clean up markdown code blocks if present
-      text = text.replace(/```html\n?|\n?```/g, '').trim();
+      text = text.replace(/```json\n?|\n?```/g, '').trim();
 
-      return text;
+      return JSON.parse(text);
     } catch (error) {
       console.error('Error generating blog content:', error);
       throw new Error('Failed to generate blog content');

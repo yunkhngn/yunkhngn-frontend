@@ -5,7 +5,7 @@ import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class BlogService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async create(createBlogDto: CreateBlogDto) {
     const existing = await this.prisma.blog.findUnique({
@@ -33,12 +33,60 @@ export class BlogService {
   }
 
   async findOne(slugOrId: string) {
-    return this.prisma.blog.findFirst({
+    const blog = await this.prisma.blog.findFirst({
       where: {
         OR: [{ slug: slugOrId }, { id: slugOrId }],
       },
       include: { comments: true },
     });
+
+    if (!blog) return null;
+
+    const relatedPosts = await this.findRelatedPosts(blog.id, blog.tags);
+
+    return {
+      ...blog,
+      relatedPosts,
+    };
+  }
+
+  async findRelatedPosts(currentId: string, tags: string | null) {
+    let related = [];
+    if (tags) {
+      const tagList = tags.split(',').map((t) => t.trim());
+      // Find posts that have at least one matching tag
+      // Prisma doesn't support array-contains for string fields directly like this easily for broad searches without full text search
+      // So we use OR with contains for each tag
+      if (tagList.length > 0) {
+        related = await this.prisma.blog.findMany({
+          where: {
+            id: { not: currentId },
+            status: 'PUBLISHED',
+            OR: tagList.map((tag) => ({
+              tags: { contains: tag },
+            })),
+          },
+          take: 2,
+          orderBy: { createdAt: 'desc' },
+        });
+      }
+    }
+
+    // If we have less than 2, fill with recent posts
+    if (related.length < 2) {
+      const existingIds = [currentId, ...related.map((b) => b.id)];
+      const recent = await this.prisma.blog.findMany({
+        where: {
+          id: { notIn: existingIds },
+          status: 'PUBLISHED',
+        },
+        take: 2 - related.length,
+        orderBy: { createdAt: 'desc' },
+      });
+      related = [...related, ...recent];
+    }
+
+    return related;
   }
 
   async update(id: string, updateBlogDto: UpdateBlogDto) {

@@ -13,37 +13,47 @@ import { useAuth } from '@/contexts/AuthContext';
 import Layout from '@/components/template/Default/Layout';
 import { extractTextFromTipTap, stripHtml } from '@/lib/utils';
 import JsonLd from '@/components/seo/JsonLd';
+import { Metadata } from '@/components/template';
 
 export async function getServerSideProps(context) {
     const { slug } = context.params;
 
     try {
-        // Try to fetch all blogs and find by slug or id
-        // Ideally backend should support /blogs/slug/:slug
         const apiUrl = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL;
-        const res = await fetch(`${apiUrl}/blogs`);
-        if (!res.ok) throw new Error('Failed to fetch blogs');
-        const data = await res.json();
+        const res = await fetch(`${apiUrl}/blogs/${slug}`);
 
-        const foundBlog = data.find(b => b.slug === slug || b.id === slug);
+        if (!res.ok) {
+            return { notFound: true };
+        }
+
+        const foundBlog = await res.json();
 
         if (!foundBlog) {
-            return {
-                notFound: true,
-            };
+            return { notFound: true };
         }
 
         // Generate description from content if missing
         let description = foundBlog.description;
+        let excerpt = foundBlog.description;
+
         if (!description) {
+            let cleanContent = '';
             if (foundBlog.contentJSON) {
-                description = extractTextFromTipTap(foundBlog.contentJSON);
+                cleanContent = extractTextFromTipTap(foundBlog.contentJSON);
             } else if (foundBlog.content) {
-                description = stripHtml(foundBlog.content);
+                cleanContent = stripHtml(foundBlog.content);
             }
-            // Truncate to 160 chars
-            if (description && description.length > 160) {
-                description = description.substring(0, 157) + '...';
+
+            if (cleanContent) {
+                // For UI: longer 300 chars
+                excerpt = cleanContent.length > 300
+                    ? cleanContent.substring(0, 297) + '...'
+                    : cleanContent;
+
+                // For SEO: standard 160 chars
+                description = cleanContent.length > 160
+                    ? cleanContent.substring(0, 157) + '...'
+                    : cleanContent;
             }
         }
 
@@ -51,7 +61,8 @@ export async function getServerSideProps(context) {
             props: {
                 blogData: {
                     ...foundBlog,
-                    description: description || `Read ${foundBlog.title} on Yunkhngn`
+                    description: excerpt || `Read ${foundBlog.title} on Yunkhngn`, // Use longer excerpt for UI default
+                    seoDescription: foundBlog.seoDescription || description // Use shorter description for SEO fallback
                 },
             },
         };
@@ -171,13 +182,22 @@ export default function BlogDetail({ blogData }) {
     return (
         <div className="bg-background text-foreground">
             <JsonLd data={jsonLdData} />
+            <Metadata
+                title={blog.seoTitle || blog.title}
+                description={blog.seoDescription || blog.description}
+                image={blog.seoImage || blog.thumbnail}
+                url={`/blog/${blog.slug}`}
+                type="article"
+                publishedTime={blog.createdAt}
+                modifiedTime={blog.updatedAt}
+                tags={blog.tags}
+            />
             <div className="fixed top-0 left-0 h-full w-1 z-[9999] bg-transparent">
                 <div
                     className="w-full bg-sky-600 transition-all duration-200 ease-out"
                     style={{ height: `${scrollProgress * 100}%` }}
                 />
             </div>
-            {/* Metadata handled by Layout */}
 
             <div className="relative">
                 {/* Full Width Banner */}
@@ -249,6 +269,8 @@ export default function BlogDetail({ blogData }) {
                                     {blog.title}
                                 </h1>
 
+
+
                                 {blog.tags && (
                                     <div className="flex flex-wrap gap-2 mb-8 justify-center">
                                         {blog.tags.split(',').map((tag, i) => (
@@ -317,6 +339,70 @@ export default function BlogDetail({ blogData }) {
                             <div className="mt-16">
                                 <CommentSection blogId={blog.id} />
                             </div>
+
+                            {/* Suggested Posts */}
+                            {blog.relatedPosts && blog.relatedPosts.length > 0 && (
+                                <div className="mt-20 border-t border-border/40 pt-12">
+                                    <h3 className="text-2xl font-bold mb-8 font-serif">Suggested Posts</h3>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                        {blog.relatedPosts.map((post) => {
+                                            // Calculate excerpt for related post
+                                            let excerpt = post.description;
+                                            if (!excerpt) {
+                                                let cleanContent = '';
+                                                if (post.contentJSON) {
+                                                    cleanContent = extractTextFromTipTap(post.contentJSON);
+                                                } else if (post.content) {
+                                                    cleanContent = stripHtml(post.content);
+                                                }
+                                                if (cleanContent) {
+                                                    excerpt = cleanContent.length > 120
+                                                        ? cleanContent.substring(0, 117) + '...'
+                                                        : cleanContent;
+                                                }
+                                            }
+
+                                            return (
+                                                <Link key={post.id} href={`/blog/${post.slug}`} className="group block">
+                                                    <div className="relative aspect-[16/9] mb-4 overflow-hidden rounded-lg bg-muted">
+                                                        {post.thumbnail ? (
+                                                            <Image
+                                                                src={post.thumbnail}
+                                                                alt={post.title}
+                                                                fill
+                                                                className="object-cover transition-transform duration-300 group-hover:scale-105"
+                                                            />
+                                                        ) : (
+                                                            <div className="flex items-center justify-center h-full text-muted-foreground bg-secondary/30">
+                                                                <span className="text-4xl font-serif opacity-20">Y</span>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                    <div className="space-y-2">
+                                                        <div className="flex items-center gap-2 text-xs text-muted-foreground uppercase tracking-wider">
+                                                            <span>{format(new Date(post.createdAt), 'MMM d, yyyy')}</span>
+                                                            {post.tags && (
+                                                                <>
+                                                                    <span>•</span>
+                                                                    <span>{post.tags.split(',')[0]}</span>
+                                                                </>
+                                                            )}
+                                                        </div>
+                                                        <h4 className="text-xl font-bold font-serif group-hover:text-sky-600 transition-colors">
+                                                            {post.title}
+                                                        </h4>
+                                                        {excerpt && (
+                                                            <p className="text-muted-foreground line-clamp-2 text-sm leading-relaxed">
+                                                                {excerpt}
+                                                            </p>
+                                                        )}
+                                                    </div>
+                                                </Link>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>

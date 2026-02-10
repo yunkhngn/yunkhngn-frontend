@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Metadata } from '@/components/template';
 import { useRouter } from 'next/router';
 import { ChevronLeft, Github, ExternalLink, Calendar, Star, GitFork, Scale, BookOpen } from 'lucide-react';
 import Image from 'next/image';
@@ -125,7 +126,16 @@ export default function ProjectDetail({ projectData }) {
     return (
         <div className="bg-background text-foreground">
             <JsonLd data={jsonLdData} />
-            {/* <Metadata handled by Layout /> */}
+            <Metadata
+                title={project.seoTitle || project.title}
+                description={project.seoDescription || project.description}
+                image={project.seoImage || project.cover}
+                url={`/project/${project.id}`}
+                type="article"
+                publishedTime={project.createdAt}
+                modifiedTime={project.updatedAt}
+                tags={project.tags}
+            />
 
             <div className="container mx-auto px-4 py-12 max-w-5xl">
                 <Link href="/project" className="inline-block mb-8">
