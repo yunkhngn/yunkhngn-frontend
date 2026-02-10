@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import Head from 'next/head';
-import AdminLayout from '../../../components/layout/AdminLayout';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../../components/ui/card';
-import { Button } from '../../../components/ui/button';
+import AdminLayout from '@/components/template/Admin/Layout';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/Card';
+import { Button } from '@/components/ui/Button';
 import { Send, Loader2, Mail } from 'lucide-react';
-import { useAuth } from '../../../context/AuthContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 
 export default function AdminNewsletter() {
