@@ -41,6 +41,7 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
     const [aiPrompt, setAiPrompt] = useState('');
     const [aiLanguage, setAiLanguage] = useState('vi');
     const [generatingAi, setGeneratingAi] = useState(false);
+    const [editorKey, setEditorKey] = useState(0);
     const [isDragging, setIsDragging] = useState(false);
     const [isCropOpen, setIsCropOpen] = useState(false);
     const [tempImgUrl, setTempImgUrl] = useState('');
@@ -392,15 +393,30 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
 
             const data = await res.json();
 
-            // Handle JSON response with title and tags
-            const newContent = data.content || data; // Fallback if string returned
+            // Extract content - ensure it's always a string (HTML)
+            let newContent = '';
+            if (typeof data === 'string') {
+                newContent = data;
+            } else if (typeof data.content === 'string') {
+                newContent = data.content;
+            } else if (typeof data.content === 'object' && data.content !== null) {
+                newContent = data.content.content || JSON.stringify(data.content);
+            } else {
+                newContent = '';
+            }
+
             const newTitle = data.title || formData.title;
             const newTags = data.tags ? (Array.isArray(data.tags) ? data.tags.join(', ') : data.tags) : formData.tags;
+
+            if (!newContent) {
+                toast.error('AI returned empty content');
+                return;
+            }
 
             setFormData(prev => {
                 const updated = {
                     ...prev,
-                    contentJSON: newContent,
+                    contentJSON: newContent, // This is now guaranteed to be a string (HTML)
                     title: newTitle,
                     tags: newTags
                 };
@@ -412,6 +428,9 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
 
                 return updated;
             });
+
+            // Force TipTapEditor re-mount by bumping the editor key
+            setEditorKey(prev => prev + 1);
 
             setIsDirty(true);
             setShowAiModal(false);
@@ -671,7 +690,7 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
                                 </div>
 
                                 <TipTapEditor
-                                    key={initialData ? initialData.id : 'new'}
+                                    key={`${initialData ? initialData.id : 'new'}-${editorKey}`}
                                     content={formData.contentJSON}
                                     onChange={(json) => {
                                         setFormData({ ...formData, contentJSON: json });

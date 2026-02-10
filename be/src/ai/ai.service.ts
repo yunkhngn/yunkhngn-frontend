@@ -176,10 +176,36 @@ export class AiService {
       const response = result.response;
       let text = response.text();
 
-      // Clean up markdown code blocks if present
-      text = text.replace(/```json\n?|\n?```/g, '').trim();
+      // Clean up markdown code blocks if present (```json, ```, ```html, etc.)
+      text = text
+        .replace(/```(?:json|html)?\n?/g, '')
+        .replace(/\n?```/g, '')
+        .trim();
 
-      return JSON.parse(text);
+      // Try to extract JSON object from the response
+      try {
+        return JSON.parse(text);
+      } catch {
+        // Fallback: find the first { and last } to extract JSON
+        const firstBrace = text.indexOf('{');
+        const lastBrace = text.lastIndexOf('}');
+        if (firstBrace !== -1 && lastBrace > firstBrace) {
+          const jsonCandidate = text.substring(firstBrace, lastBrace + 1);
+          try {
+            return JSON.parse(jsonCandidate);
+          } catch {
+            console.warn(
+              'Could not parse extracted JSON, returning raw content',
+            );
+          }
+        }
+        // Last resort: return the raw text as content
+        return {
+          title: '',
+          tags: [],
+          content: text,
+        };
+      }
     } catch (error) {
       console.error('Error generating blog content:', error);
       throw new Error('Failed to generate blog content');
