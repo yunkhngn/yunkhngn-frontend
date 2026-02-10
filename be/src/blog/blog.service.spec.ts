@@ -102,7 +102,10 @@ describe('BlogService', () => {
       jest.spyOn(prisma.blog, 'findFirst').mockResolvedValue(result);
       jest.spyOn(prisma.blog, 'findMany').mockResolvedValue([]); // Mock related posts
 
-      expect(await service.findOne('test')).toEqual({ ...result, relatedPosts: [] });
+      expect(await service.findOne('test')).toEqual({
+        ...result,
+        relatedPosts: [],
+      });
     });
   });
 });

@@ -19,7 +19,7 @@ export class AiService {
     private configService: ConfigService,
     private prisma: PrismaService,
     private settingsService: SettingsService,
-  ) { }
+  ) {}
 
   private async getModel(): Promise<GenerativeModel> {
     let apiKey =

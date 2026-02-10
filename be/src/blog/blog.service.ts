@@ -5,7 +5,7 @@ import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class BlogService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
   async create(createBlogDto: CreateBlogDto) {
     const existing = await this.prisma.blog.findUnique({
@@ -50,7 +50,7 @@ export class BlogService {
     };
   }
 
-  async findRelatedPosts(currentId: string, tags: string | null) {
+  async findRelatedPosts(currentId: string, tags: string) {
     let related = [];
     if (tags) {
       const tagList = tags.split(',').map((t) => t.trim());
