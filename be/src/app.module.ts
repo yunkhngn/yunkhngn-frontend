@@ -26,6 +26,7 @@ import { GithubModule } from './github/github.module';
 import { MediaModule } from './media/media.module';
 import { ChatModule } from './chat/chat.module';
 import { SystemModule } from './system/system.module';
+import { NewsletterModule } from './newsletter/newsletter.module';
 
 @Module({
   imports: [
@@ -56,6 +57,7 @@ import { SystemModule } from './system/system.module';
     MediaModule,
     ChatModule,
     SystemModule,
+    NewsletterModule,
   ],
   controllers: [AppController, HealthController],
   providers: [

@@ -192,3 +192,12 @@ model Notification {
   @@index([createdAt])
   @@map("notifications")
 }
+
+model Subscriber {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  token     String?  @unique // For unsubscribe
+  createdAt DateTime @default(now())
+
+  @@map("subscribers")
+}

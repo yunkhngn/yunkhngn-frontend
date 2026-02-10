@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Github, Facebook, Instagram, Linkedin, Mail } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import NewsletterForm from '../../shared/NewsletterForm';
 
 export default function Footer() {
     const [settings, setSettings] = useState({});
@@ -88,7 +89,7 @@ export default function Footer() {
                         {/* Links Column 2 */}
                         <div>
                             <h3 className="font-semibold text-foreground mb-4">Connect</h3>
-                            <ul className="space-y-3">
+                            <ul className="space-y-3 mb-8">
                                 <FooterLink href="/contact">Contact</FooterLink>
                                 <FooterLink href="/resume">Resume</FooterLink>
                                 {settings.email ? (
@@ -97,6 +98,11 @@ export default function Footer() {
                                     <FooterLink href="mailto:contact@yunkhngn.dev">Email Me</FooterLink>
                                 )}
                             </ul>
+
+                            <h3 className="font-semibold text-foreground mb-4">Newsletter</h3>
+                            <div className="-ml-1">
+                                <NewsletterForm />
+                            </div>
                         </div>
                     </div>
                 </div>
