@@ -391,7 +391,28 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
             if (!res.ok) throw new Error('Failed to generate content');
 
             const data = await res.json();
-            setFormData(prev => ({ ...prev, contentJSON: data.content }));
+
+            // Handle JSON response with title and tags
+            const newContent = data.content || data; // Fallback if string returned
+            const newTitle = data.title || formData.title;
+            const newTags = data.tags ? (Array.isArray(data.tags) ? data.tags.join(', ') : data.tags) : formData.tags;
+
+            setFormData(prev => {
+                const updated = {
+                    ...prev,
+                    contentJSON: newContent,
+                    title: newTitle,
+                    tags: newTags
+                };
+
+                // Auto-generate slug if title changed and not manually edited
+                if (newTitle !== prev.title && !slugManuallyEdited) {
+                    updated.slug = generateSlug(newTitle);
+                }
+
+                return updated;
+            });
+
             setIsDirty(true);
             setShowAiModal(false);
             setAiPrompt('');

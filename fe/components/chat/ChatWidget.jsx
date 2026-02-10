@@ -73,8 +73,8 @@ export default function ChatWidget() {
                                     </div>
                                 </div>
                                 <div>
-                                    <h3 className="font-bold text-sm">Khoa Phiên bản AI</h3>
-                                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Khoa GPT</p>
+                                    <h3 className="font-bold text-sm">Khoa Nguyễn</h3>
+                                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Khoa Phiên bản AI</p>
                                 </div>
                             </div>
                             <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full hover:bg-destructive/10 hover:text-destructive" onClick={() => setIsOpen(false)}>
@@ -139,7 +139,7 @@ export default function ChatWidget() {
                                 </Button>
                             </div>
                             <div className="text-[10px] text-center text-muted-foreground/50 mt-2">
-                                Khoa AI can make mistakes. Please verify important info. He&apos;s smart but dumb!
+                                Khoa GPT can make mistakes. Please verify important info. He&apos;s smart but dumb!
                             </div>
                         </form>
                     </motion.div>
