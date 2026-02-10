@@ -42,25 +42,23 @@ export class EmailService {
                 </div>
             </div>
 
-            ${
-              data.phone
-                ? `
+            ${data.phone
+        ? `
             <div style="display: grid; grid-template-columns: 100px 1fr; gap: 16px; margin-bottom: 24px;">
                 <div style="font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: 1px; padding-top: 4px;">Phone</div>
                 <div style="font-size: 15px; color: #ccc;">${data.phone}</div>
             </div>`
-                : ''
-            }
+        : ''
+      }
 
-            ${
-              data.company
-                ? `
+            ${data.company
+        ? `
             <div style="display: grid; grid-template-columns: 100px 1fr; gap: 16px; margin-bottom: 24px;">
                 <div style="font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: 1px; padding-top: 4px;">Company</div>
                 <div style="font-size: 15px; color: #ccc;">${data.company}</div>
             </div>`
-                : ''
-            }
+        : ''
+      }
 
             <div style="display: grid; grid-template-columns: 100px 1fr; gap: 16px; margin-bottom: 24px;">
                 <div style="font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: 1px; padding-top: 4px;">Category</div>
@@ -295,6 +293,122 @@ export class EmailService {
       return data;
     } catch (error) {
       console.error('Error sending custom email:', error);
+      return null;
+    }
+  }
+  private getWelcomeTemplate(unsubscribeLink: string): string { // New
+    return `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to the Newsletter</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #ffffff; color: #333333; -webkit-font-smoothing: antialiased;">
+    <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
+        <div style="margin-bottom: 40px;">
+            <div style="font-size: 18px; font-weight: 700; color: #000000; letter-spacing: -0.5px;">yunkhngn.</div>
+        </div>
+        <div style="font-size: 16px; line-height: 1.6; color: #333333;">
+            <p style="margin-bottom: 24px;">Hi there,</p>
+            <p style="margin-bottom: 24px;">Thanks for subscribing to my newsletter! You'll be the first to know about my new blog posts, projects, and updates.</p>
+            <p style="margin-bottom: 24px;">Stay tuned!</p>
+            <div style="margin-top: 40px; padding-top: 24px; border-top: 1px solid #eaeaea;">
+                <p style="margin: 0; color: #000000; font-weight: 500;">Khoa Nguyen</p>
+                <div style="margin-top: 16px;">
+                    <a href="${unsubscribeLink}" style="color: #999; text-decoration: none; font-size: 12px;">Unsubscribe</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>`;
+  }
+
+  private getNewsletterTemplate(content: string, unsubscribeLink: string): string { // New
+    return `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Newsletter</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #ffffff; color: #333333; -webkit-font-smoothing: antialiased;">
+    <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
+        <div style="margin-bottom: 40px;">
+            <div style="font-size: 18px; font-weight: 700; color: #000000; letter-spacing: -0.5px;">yunkhngn.</div>
+        </div>
+        <div style="font-size: 16px; line-height: 1.6; color: #333333;">
+            ${content}
+            <div style="margin-top: 40px; padding-top: 24px; border-top: 1px solid #eaeaea;">
+                <p style="margin: 0; color: #000000; font-weight: 500;">Khoa Nguyen</p>
+                <div style="margin-top: 16px;">
+                    <a href="${unsubscribeLink}" style="color: #999; text-decoration: none; font-size: 12px;">Unsubscribe</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>`;
+  }
+
+  async sendWelcomeEmail(to: string, unsubscribeLink: string) { // New
+    try {
+      if (!this.resend) await this.initResend();
+      const resendDomain =
+        (await this.settingsService.getDecryptedSetting('resend_domain')) ||
+        process.env.RESEND_DOMAIN;
+
+      const html = this.getWelcomeTemplate(unsubscribeLink);
+
+      const { data, error } = await this.resend.emails.send({
+        from: `Khoa Nguyen <noreply@${resendDomain}>`,
+        to,
+        subject: 'Welcome to my Newsletter!',
+        html,
+      });
+
+      if (error) {
+        console.error('Failed to send welcome email:', error);
+        return null;
+      }
+      return data;
+    } catch (error) {
+      console.error('Error sending welcome email:', error);
+      return null;
+    }
+  }
+
+  async sendNewsletter( // New
+    to: string,
+    subject: string,
+    content: string,
+    unsubscribeLink: string,
+  ) {
+    try {
+      if (!this.resend) await this.initResend();
+      const resendDomain =
+        (await this.settingsService.getDecryptedSetting('resend_domain')) ||
+        process.env.RESEND_DOMAIN;
+
+      const html = this.getNewsletterTemplate(content, unsubscribeLink);
+
+      const { data, error } = await this.resend.emails.send({
+        from: `Khoa Nguyen <noreply@${resendDomain}>`,
+        to,
+        subject,
+        html,
+      });
+
+      if (error) {
+        console.error('Failed to send newsletter email:', error);
+        return null;
+      }
+      return data;
+    } catch (error) {
+      console.error('Error sending newsletter email:', error);
       return null;
     }
   }
