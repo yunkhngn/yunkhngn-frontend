@@ -212,6 +212,10 @@ const MenuBar = ({ editor, addImage, addYoutube, hideEmbeds, isFullscreen, toggl
 const parseContent = (content, format) => {
     if (format === 'html') return content;
     if (typeof content === 'string') {
+        // If it looks like HTML, return as-is (TipTap's setContent handles HTML strings)
+        if (content.trim().startsWith('<')) {
+            return content;
+        }
         try {
             const parsed = JSON.parse(content);
             if (typeof parsed === 'object' && parsed !== null) {
@@ -402,17 +406,6 @@ export default function TipTapEditor({ content, onChange, onImageUpload, format 
 
     useEffect(() => {
         if (editor && content) {
-            // Check if content needs update
-            // We compare stringified JSON to avoid deep object comparison issues
-            // But editor.getJSON() might differ slightly from content string (e.g. key order), 
-            // so this check isn't perfect but prevents infinite loops if onChange updates content prop.
-            // However, since we use JSON.stringify in onChange, it should be consistent.
-
-            // If the editor is empty and content is provided, definitely update.
-            // If editor has content, we need to be careful.
-            // For "Edit Project", content is loaded async. Editor initializes empty. 
-            // Then content prop updates. We MUST update editor.
-
             if (format === 'html') {
                 if (editor.getHTML() !== content) {
                     editor.commands.setContent(content);
@@ -421,7 +414,15 @@ export default function TipTapEditor({ content, onChange, onImageUpload, format 
                 const currentJSON = JSON.stringify(editor.getJSON());
                 if (content !== currentJSON && content !== '') {
                     const parsed = parseContent(content, format);
-                    editor.commands.setContent(parsed);
+                    try {
+                        editor.commands.setContent(parsed);
+                    } catch (e) {
+                        // If setContent fails (e.g. invalid TipTap JSON), try as HTML string
+                        console.warn('setContent failed with parsed content, trying as HTML:', e.message);
+                        if (typeof content === 'string') {
+                            editor.commands.setContent(content, true);
+                        }
+                    }
                 }
             }
         }
