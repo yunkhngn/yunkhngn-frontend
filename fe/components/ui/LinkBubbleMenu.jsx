@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { BubbleMenu } from '@tiptap/react/menus';
 import { Link as LinkIcon, Check, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -15,6 +15,7 @@ export function LinkBubbleMenu({ editor }) {
             if (!showInput) {
                 const href = editor.getAttributes('link').href || '';
                 if (url !== href) {
+                    // eslint-disable-next-line react-hooks/set-state-in-effect
                     setUrl(href);
                 }
 
@@ -33,7 +34,6 @@ export function LinkBubbleMenu({ editor }) {
                 setShowInput(false);
             }
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [editor, editor?.state?.selection, showInput, url, text]);
 
     const setLink = useCallback(() => {

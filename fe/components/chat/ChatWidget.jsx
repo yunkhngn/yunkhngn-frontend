@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import Image from 'next/image';
 import { MessageCircle, X, Send, Sparkles, User, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -68,8 +69,8 @@ export default function ChatWidget() {
                             <div className="flex items-center gap-2">
                                 <div className="relative">
                                     <div className="w-2 h-2 absolute top-0 right-0 bg-green-500 rounded-full animate-pulse" />
-                                    <div className="p-0.5 bg-primary/10 rounded-full overflow-hidden w-9 h-9 border border-primary/20">
-                                        <img src="https://github.com/yunkhngn.png" alt="Khoa AI" className="w-full h-full object-cover" />
+                                    <div className="relative p-0.5 bg-primary/10 rounded-full overflow-hidden w-9 h-9 border border-primary/20">
+                                        <Image src="https://github.com/yunkhngn.png" alt="Khoa AI" fill className="object-cover" />
                                     </div>
                                 </div>
                                 <div>
@@ -87,10 +88,10 @@ export default function ChatWidget() {
                             {messages.map((msg, idx) => (
                                 <div key={idx} className={cn("flex gap-3 max-w-[85%]", msg.role === 'user' ? "ml-auto flex-row-reverse" : "")}>
                                     <div className={cn(
-                                        "w-8 h-8 rounded-full flex items-center justify-center shrink-0 overflow-hidden border border-border/50",
+                                        "relative w-8 h-8 rounded-full flex items-center justify-center shrink-0 overflow-hidden border border-border/50",
                                         msg.role === 'user' ? "bg-muted" : "bg-primary/10"
                                     )}>
-                                        {msg.role === 'user' ? <img src="/image/cat.jpg" alt="User" className="w-full h-full object-cover" /> : <img src="https://github.com/yunkhngn.png" alt="AI" className="w-full h-full object-cover" />}
+                                        {msg.role === 'user' ? <Image src="/image/cat.jpg" alt="User" fill className="object-cover" /> : <Image src="https://github.com/yunkhngn.png" alt="AI" fill className="object-cover" />}
                                     </div>
                                     <div className={cn(
                                         "rounded-2xl px-4 py-2 text-sm shadow-sm",
@@ -106,8 +107,8 @@ export default function ChatWidget() {
                             ))}
                             {isLoading && (
                                 <div className="flex gap-3 max-w-[85%]">
-                                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0 overflow-hidden border border-border/50">
-                                        <img src="https://github.com/yunkhngn.png" alt="AI" className="w-full h-full object-cover" />
+                                    <div className="relative w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0 overflow-hidden border border-border/50">
+                                        <Image src="https://github.com/yunkhngn.png" alt="AI" fill className="object-cover" />
                                     </div>
                                     <div className="bg-muted/50 rounded-2xl rounded-tl-sm px-4 py-2 flex items-center gap-1">
                                         <span className="w-1.5 h-1.5 bg-foreground/40 rounded-full animate-bounce [animation-delay:-0.3s]"></span>

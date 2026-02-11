@@ -246,7 +246,7 @@ export default function Home() {
                     <div dangerouslySetInnerHTML={{ __html: settings.homepage_description }} className="whitespace-pre-wrap" />
                   ) : (
                     <p>
-                      Hi, I'm <strong className="text-gray-200 font-medium">Khoa</strong>. I build things for the web and sometimes I break them too. Welcome to my personal terminal.
+                      Hi, I&apos;m <strong className="text-gray-200 font-medium">Khoa</strong>. I build things for the web and sometimes I break them too. Welcome to my personal terminal.
                     </p>
                   )
                 }
