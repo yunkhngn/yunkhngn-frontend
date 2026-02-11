@@ -6,7 +6,7 @@ import FloatingControls from "@/components/ui/FloatingControls";
 import { CommandMenu } from "@/components/ui/CommandMenu";
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
-import { Playfair_Display, JetBrains_Mono } from 'next/font/google';
+import { Playfair_Display, JetBrains_Mono, Be_Vietnam_Pro } from 'next/font/google';
 import { AppProgressBar as ProgressBar } from 'next-nprogress-bar';
 import { AnimatePresence, motion } from 'framer-motion';
 import GoogleAnalytics from "@/components/seo/GoogleAnalytics";
@@ -22,6 +22,12 @@ const playfair = Playfair_Display({
 const jetbrainsMono = JetBrains_Mono({
   subsets: ['latin'],
   variable: '--font-jetbrains-mono',
+});
+
+const beVietnamPro = Be_Vietnam_Pro({
+  subsets: ['latin', 'vietnamese'],
+  weight: ['100', '200', '300', '400', '500', '600', '700', '800', '900'],
+  variable: '--font-be-vietnam-pro',
 });
 
 function AuthGuard({ children }) {
@@ -51,6 +57,13 @@ export default function App({ Component, pageProps }) {
   const getLayout = Component.getLayout || ((page) => page);
   const isAdminRoute = router.pathname.startsWith('/admin');
 
+  useEffect(() => {
+    document.body.classList.add(playfair.variable, jetbrainsMono.variable, beVietnamPro.variable, 'font-sans');
+    return () => {
+      document.body.classList.remove(playfair.variable, jetbrainsMono.variable, beVietnamPro.variable, 'font-sans');
+    };
+  }, []);
+
   return (
     <AuthProvider>
       <NotificationProvider>
@@ -63,7 +76,7 @@ export default function App({ Component, pageProps }) {
           />
           <GoogleAnalytics />
           <AuthGuard>
-            <main className={`${playfair.variable} ${jetbrainsMono.variable} font-sans`}>
+            <main>
               {getLayout(
                 isAdminRoute ? (
                   <Component {...pageProps} />

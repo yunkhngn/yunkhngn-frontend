@@ -78,10 +78,11 @@ export default function Resume() {
                                 </div>
                             </object>
                         ) : (
-                            <img
+                            <Image
                                 src={cvUrl}
                                 alt="Khoa Nguyễn CV"
-                                className="w-full h-full object-contain"
+                                fill
+                                className="object-contain"
                             />
                         )}
                     </div>

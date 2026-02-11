@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/Button';
 import {
   Github,
@@ -182,39 +183,82 @@ export default function Home() {
         </div>
       </section>
 
-      {/* About Content */}
-      <section className="max-w-3xl mx-auto space-y-12 text-lg leading-relaxed text-gray-600 dark:text-gray-300 font-medium">
-        <div className="flex flex-col items-center text-center space-y-6">
-          <div className="relative w-24 h-24 md:w-32 md:h-32 rounded-full overflow-hidden border-4 border-background shadow-xl">
-            <Image
-              src="https://github.com/yunkhngn.png"
-              alt="Khoa Nguyễn"
-              fill
-              className="object-cover"
-            />
+      {/* Neofetch Style Window */}
+      <section className="w-full">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
+          className="w-full rounded-xl overflow-hidden border border-border/50 bg-black/95 shadow-2xl relative"
+        >
+          {/* Unified Window Header */}
+          <div className="bg-muted/10 px-4 py-3 flex items-center justify-between border-b border-white/10 backdrop-blur-md">
+            <div className="flex gap-2">
+              <div className="w-3 h-3 rounded-full bg-red-500/80 hover:bg-red-500 transition-colors" />
+              <div className="w-3 h-3 rounded-full bg-yellow-500/80 hover:bg-yellow-500 transition-colors" />
+              <div className="w-3 h-3 rounded-full bg-green-500/80 hover:bg-green-500 transition-colors" />
+            </div>
+            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-muted-foreground text-xs font-mono flex items-center gap-2 opacity-70">
+              <span className="hidden md:inline">yunkhngn@macbook-pro: ~</span>
+            </div>
+            <div className="opacity-0 w-12" /> {/* Spacer */}
           </div>
-          <div className="space-y-2">
-            <h2 className="text-3xl md:text-4xl font-bold font-serif text-foreground">Khoa Nguyễn</h2>
-            <p className="text-muted-foreground text-base md:text-lg">Software Engineer • Graphic Designer • Guitarist</p>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2">
+            {/* Left Pane: Profile */}
+            <div className="p-8 md:p-12 border-b lg:border-b-0 lg:border-r border-white/10 flex flex-col items-center lg:items-start text-center lg:text-left justify-center bg-gradient-to-b from-white/5 to-transparent">
+              <div className="relative mb-8">
+                <div className="relative w-32 h-32 md:w-48 md:h-48 rounded-full overflow-hidden border-4 border-white/10 shadow-2xl">
+                  <Image
+                    src="https://github.com/yunkhngn.png"
+                    alt="Khoa Nguyễn"
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+                <div className="absolute bottom-4 right-4 w-5 h-5 bg-green-500 border-4 border-[#1a1a1a] rounded-full animate-pulse z-10" />
+              </div>
+
+              <div className="space-y-4 w-full">
+                <h2 className="text-4xl md:text-5xl font-bold font-heading tracking-tight text-white mb-2">
+                  Khoa Nguyễn
+                </h2>
+                <div className="flex flex-col gap-2 text-sm md:text-base font-mono text-muted-foreground/80">
+                  <div className="flex items-center gap-3 justify-center lg:justify-start">
+                    <span className="text-blue-400">role:</span>
+                    <span className="text-gray-300">Software Engineer</span>
+                  </div>
+                  <div className="flex items-center gap-3 justify-center lg:justify-start">
+                    <span className="text-blue-400">also:</span>
+                    <span className="text-gray-300">Graphic Designer & Guitarist</span>
+                  </div>
+                  <div className="flex items-center gap-3 justify-center lg:justify-start">
+                    <span className="text-blue-400">location:</span>
+                    <span className="text-gray-300">Hanoi, Vietnam</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-8 text-base leading-relaxed text-gray-400 font-light max-w-md">
+                {
+                  settings.homepage_description ? (
+                    <div dangerouslySetInnerHTML={{ __html: settings.homepage_description }} className="whitespace-pre-wrap" />
+                  ) : (
+                    <p>
+                      Hi, I&apos;m <strong className="text-gray-200 font-medium">Khoa</strong>. I build things for the web and sometimes I break them too. Welcome to my personal terminal.
+                    </p>
+                  )
+                }
+              </div>
+            </div>
+
+            {/* Right Pane: Terminal */}
+            <div className="bg-black/50 min-h-[400px] lg:min-h-[500px] relative">
+              <Terminal embedded className="h-full border-none shadow-none bg-transparent !my-0 !rounded-none" />
+            </div>
           </div>
-        </div>
-
-        {
-          settings.homepage_description ? (
-            <div dangerouslySetInnerHTML={{ __html: settings.homepage_description }} className="whitespace-pre-wrap" />
-          ) : (
-            <p>
-              Xin chào, tớ là <strong className="text-foreground">Khoa Nguyễn (yun.khngn)</strong>, sinh viên chuyên ngành Kỹ thuật phần mềm tại Đại học FPT.
-              Tớ đang là freelancer thiết kế đồ hoạ và là một guitarist.
-              Tớ đang hướng tới trở thành một <strong className="text-foreground">Fullstack Developer</strong> và thực hiện thêm nhiều ước mơ phía trước.
-            </p>
-          )
-        }
-      </section>
-
-      {/* Terminal Section */}
-      <section className="container mx-auto px-4 max-w-4xl">
-        <Terminal />
+        </motion.div>
       </section>
 
       {/* Recent Blogs */}
