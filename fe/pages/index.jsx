@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/Button';
 import {
   Github,
@@ -182,34 +183,54 @@ export default function Home() {
         </div>
       </section>
 
-      {/* About Content */}
-      <section className="max-w-3xl mx-auto space-y-12 text-lg leading-relaxed text-gray-600 dark:text-gray-300 font-medium">
-        <div className="flex flex-col items-center text-center space-y-6">
-          <div className="relative w-24 h-24 md:w-32 md:h-32 rounded-full overflow-hidden border-4 border-background shadow-xl">
-            <Image
-              src="https://github.com/yunkhngn.png"
-              alt="Khoa Nguyễn"
-              fill
-              className="object-cover"
-            />
+      {/* About Content - Clean & Minimal */}
+      <section className="max-w-3xl mx-auto px-4 py-8">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="flex flex-col items-center text-center space-y-8"
+        >
+          <div className="relative">
+            <div className="relative w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden border-4 border-background shadow-lg ring-1 ring-border/50">
+              <Image
+                src="https://github.com/yunkhngn.png"
+                alt="Khoa Nguyễn"
+                fill
+                className="object-cover"
+              />
+            </div>
+            <div className="absolute bottom-2 right-2 w-5 h-5 bg-green-500 border-4 border-background rounded-full" />
           </div>
-          <div className="space-y-2">
-            <h2 className="text-3xl md:text-4xl font-bold font-serif text-foreground">Khoa Nguyễn</h2>
-            <p className="text-muted-foreground text-base md:text-lg">Software Engineer • Graphic Designer • Guitarist</p>
-          </div>
-        </div>
 
-        {
-          settings.homepage_description ? (
-            <div dangerouslySetInnerHTML={{ __html: settings.homepage_description }} className="whitespace-pre-wrap" />
-          ) : (
-            <p>
-              Xin chào, tớ là <strong className="text-foreground">Khoa Nguyễn (yun.khngn)</strong>, sinh viên chuyên ngành Kỹ thuật phần mềm tại Đại học FPT.
-              Tớ đang là freelancer thiết kế đồ hoạ và là một guitarist.
-              Tớ đang hướng tới trở thành một <strong className="text-foreground">Fullstack Developer</strong> và thực hiện thêm nhiều ước mơ phía trước.
-            </p>
-          )
-        }
+          <div className="space-y-4">
+            <h2 className="text-4xl md:text-5xl font-bold font-heading tracking-tight text-foreground">
+              Khoa Nguyễn
+            </h2>
+            <div className="flex flex-wrap items-center justify-center gap-3 text-sm md:text-base font-medium text-muted-foreground">
+              <span>Software Engineer</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/30" />
+              <span>Graphic Designer</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/30" />
+              <span>Guitarist</span>
+            </div>
+          </div>
+
+          <div className="max-w-2xl mx-auto text-lg leading-loose text-muted-foreground/90 font-light">
+            {
+              settings.homepage_description ? (
+                <div dangerouslySetInnerHTML={{ __html: settings.homepage_description }} className="whitespace-pre-wrap" />
+              ) : (
+                <p>
+                  Xin chào, tớ là <strong className="text-foreground font-medium">Khoa Nguyễn (yun.khngn)</strong>, sinh viên chuyên ngành Kỹ thuật phần mềm tại Đại học FPT.
+                  Tớ đang là freelancer thiết kế đồ hoạ và là một guitarist.
+                  Tớ đang hướng tới trở thành một <strong className="text-foreground font-medium">Fullstack Developer</strong> và thực hiện thêm nhiều ước mơ phía trước.
+                </p>
+              )
+            }
+          </div>
+        </motion.div>
       </section>
 
       {/* Terminal Section */}
