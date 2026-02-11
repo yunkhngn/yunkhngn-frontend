@@ -3,9 +3,9 @@ import { Terminal as TerminalIcon, X, Maximize2, Minus } from 'lucide-react';
 import { useRouter } from 'next/router';
 import { stripHtml } from '@/lib/utils';
 
-export default function Terminal() {
+export default function Terminal({ embedded = false, className = '' }) {
     const [history, setHistory] = useState([
-        { type: 'output', content: 'Welcome to Yunkhngn Terminal v1.0.0' },
+        { type: 'output', content: 'Welcome to yunkhngn Terminal v1.0.0' },
         { type: 'output', content: "Type 'help' to see available commands." }
     ]);
     const [input, setInput] = useState('');
@@ -152,7 +152,7 @@ export default function Terminal() {
                 return null;
 
             case 'whoami':
-                return 'guest';
+                return 'nerd';
 
             case 'date':
                 return new Date().toString();
@@ -199,23 +199,25 @@ export default function Terminal() {
     };
 
     return (
-        <div className="w-full max-w-4xl mx-auto rounded-lg overflow-hidden border border-gray-800 bg-black/95 shadow-2xl font-mono text-sm md:text-base my-12">
-            {/* Terminal Header */}
-            <div className="bg-gray-900 px-4 py-2 flex items-center justify-between border-b border-gray-800">
-                <div className="flex gap-2">
-                    <div className="w-3 h-3 rounded-full bg-red-500" />
-                    <div className="w-3 h-3 rounded-full bg-yellow-500" />
-                    <div className="w-3 h-3 rounded-full bg-green-500" />
+        <div className={`w-full max-w-4xl mx-auto rounded-lg overflow-hidden border border-gray-800 bg-black/95 shadow-2xl font-mono text-sm md:text-base ${!embedded ? 'my-12' : ''} ${className}`}>
+            {/* Terminal Header - Only show if not embedded */}
+            {!embedded && (
+                <div className="bg-gray-900 px-4 py-2 flex items-center justify-between border-b border-gray-800">
+                    <div className="flex gap-2">
+                        <div className="w-3 h-3 rounded-full bg-red-500" />
+                        <div className="w-3 h-3 rounded-full bg-yellow-500" />
+                        <div className="w-3 h-3 rounded-full bg-green-500" />
+                    </div>
+                    <div className="text-gray-400 text-xs flex items-center gap-2">
+                        <TerminalIcon size={14} />
+                        <span>guest@yunkhngn.dev:~</span>
+                    </div>
+                    <div className="opacity-0">
+                        {/* Spacer for centering */}
+                        <div className="w-12" />
+                    </div>
                 </div>
-                <div className="text-gray-400 text-xs flex items-center gap-2">
-                    <TerminalIcon size={14} />
-                    <span>guest@yunkhngn.dev:~</span>
-                </div>
-                <div className="opacity-0">
-                    {/* Spacer for centering */}
-                    <div className="w-12" />
-                </div>
-            </div>
+            )}
 
             {/* Terminal Body */}
             <div
@@ -227,7 +229,7 @@ export default function Terminal() {
                     <div key={i} className="mb-1 whitespace-pre-wrap break-words">
                         {line.type === 'command' ? (
                             <div className="flex gap-2 text-white">
-                                <span className="text-blue-400 leading-tight">guest@yunkhngn:</span>
+                                <span className="text-blue-400 leading-tight">nerd@yunkhngn:</span>
                                 <span className="text-yellow-400 leading-tight">{currentDir}$</span>
                                 <span>{line.content}</span>
                             </div>
@@ -238,7 +240,7 @@ export default function Terminal() {
                 ))}
 
                 <form onSubmit={handleSubmit} className="flex gap-2 mt-2">
-                    <span className="text-blue-400 leading-tight">guest@yunkhngn:</span>
+                    <span className="text-blue-400 leading-tight">nerd@yunkhngn:</span>
                     <span className="text-yellow-400 leading-tight">{currentDir}$</span>
                     <input
                         ref={inputRef}
