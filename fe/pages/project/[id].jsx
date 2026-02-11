@@ -180,7 +180,7 @@ export default function ProjectDetail({ projectData }) {
                         <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-4 leading-tight">
                             {project.title}
                         </h1>
-                        <p className="text-xl md:text-2xl text-white/80 max-w-2xl font-light leading-relaxed">
+                        <p className="text-xl md:text-2xl text-white/80 max-w-2xl font-light leading-loose">
                             {project.description}
                         </p>
 
@@ -305,15 +305,15 @@ export default function ProjectDetail({ projectData }) {
                         >
                             {/* Content */}
                             {(project.contentJSON || project.content) && (
-                                <div className="bg-card backdrop-blur-sm border rounded-2xl p-8 md:p-12 shadow-sm mb-12">
-                                    <div className="prose dark:prose-invert max-w-none prose-lg prose-headings:font-bold prose-headings:tracking-tight prose-a:text-primary hover:prose-a:text-primary/80 prose-img:rounded-xl prose-img:shadow-lg">
+                                <div className="bg-card backdrop-blur-sm border rounded-2xl p-5 md:p-12 shadow-sm mb-12">
+                                    <div className="prose dark:prose-invert max-w-none prose-lg md:prose-xl prose-headings:font-bold prose-headings:tracking-tight prose-a:text-primary hover:prose-a:text-primary/80 prose-img:rounded-xl prose-img:shadow-lg leading-loose">
                                         <TipTapViewer content={project.contentJSON || project.content} />
                                     </div>
                                 </div>
                             )}
 
                             {/* Comments Section */}
-                            <div className="bg-card backdrop-blur-sm border rounded-2xl p-8 md:p-12 shadow-sm">
+                            <div className="bg-card backdrop-blur-sm border rounded-2xl p-5 md:p-12 shadow-sm">
                                 <h2 className="text-2xl font-bold mb-8 flex items-center">
                                     <span className="bg-primary/10 w-1 h-8 rounded-full mr-4" />
                                     Comments

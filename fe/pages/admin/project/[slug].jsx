@@ -166,7 +166,7 @@ export default function AdminProjectDetail({ projectData }) {
                         <h1 className="text-3xl md:text-5xl font-bold text-white mb-4 leading-tight drop-shadow-md">
                             {project.title}
                         </h1>
-                        <p className="text-lg text-white/90 max-w-2xl font-light leading-relaxed drop-shadow-sm mb-6">
+                        <p className="text-lg text-white/90 max-w-2xl font-light leading-loose drop-shadow-sm mb-6">
                             {project.description}
                         </p>
 
@@ -307,8 +307,8 @@ export default function AdminProjectDetail({ projectData }) {
                     >
                         {/* Content */}
                         {(project.contentJSON || project.content) && (
-                            <div className="bg-card border rounded-xl p-8 shadow-sm">
-                                <div className="prose dark:prose-invert max-w-none prose-lg prose-headings:font-bold prose-headings:tracking-tight prose-a:text-primary hover:prose-a:text-primary/80 prose-img:rounded-xl prose-img:shadow-lg">
+                            <div className="bg-card border rounded-xl p-5 md:p-8 shadow-sm">
+                                <div className="prose dark:prose-invert max-w-none prose-lg md:prose-xl prose-headings:font-bold prose-headings:tracking-tight prose-a:text-primary hover:prose-a:text-primary/80 prose-img:rounded-xl prose-img:shadow-lg leading-loose">
                                     <TipTapViewer content={project.contentJSON || project.content} />
                                 </div>
                             </div>
