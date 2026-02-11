@@ -5,7 +5,7 @@ import { stripHtml } from '@/lib/utils';
 
 export default function Terminal({ embedded = false, className = '' }) {
     const [history, setHistory] = useState([
-        { type: 'output', content: 'Welcome to yunkhngn Terminal v1.0.0' },
+        { type: 'output', content: 'Welcome to yunkhngn terminal v1.2.4' },
         { type: 'output', content: "Type 'help' to see available commands." }
     ]);
     const [input, setInput] = useState('');
@@ -210,7 +210,7 @@ export default function Terminal({ embedded = false, className = '' }) {
                     </div>
                     <div className="text-gray-400 text-xs flex items-center gap-2">
                         <TerminalIcon size={14} />
-                        <span>guest@yunkhngn.dev:~</span>
+                        <span>nerd@yunkhngn.dev:~</span>
                     </div>
                     <div className="opacity-0">
                         {/* Spacer for centering */}
