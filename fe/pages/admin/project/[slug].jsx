@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { ChevronLeft, Github, ExternalLink, Star, GitFork, Scale, BookOpen, Edit, Trash2 } from 'lucide-react';
+import { ChevronLeft, Github, ExternalLink, Star, GitFork, Scale, BookOpen, Edit, Trash2, Clock, Calendar, Tag } from 'lucide-react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/Button';
 import Link from 'next/link';
@@ -9,6 +9,8 @@ import AdminLayout from '@/components/template/Admin/Layout';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
+import { motion, useScroll, useTransform } from 'framer-motion';
+import { format } from 'date-fns';
 
 export async function getServerSideProps(context) {
     const { slug } = context.params;
@@ -45,13 +47,16 @@ export default function AdminProjectDetail({ projectData }) {
     const [githubStats, setGithubStats] = useState(null);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [deleting, setDeleting] = useState(false);
+    const { scrollY } = useScroll();
+    const yRange = useTransform(scrollY, [0, 500], [0, 250]);
+    const opacityRange = useTransform(scrollY, [0, 500], [1, 0]);
 
     useEffect(() => {
         setProject(projectData);
     }, [projectData]);
 
     useEffect(() => {
-        if (!router.query.slug) return; // Assuming 'slug' is available in router.query
+        if (!router.query.slug) return;
         if (!project?.repoLink) return;
 
         const fetchGithubStats = async () => {
@@ -117,33 +122,13 @@ export default function AdminProjectDetail({ projectData }) {
 
     return (
         <AdminLayout title={project.title}>
-            <div className="space-y-8">
-                {/* Header with Actions */}
-                <div className="flex items-center justify-between">
-                    <Link href="/admin/project">
-                        <Button variant="ghost" size="sm" className="pl-0">
-                            <ChevronLeft className="mr-2 h-4 w-4" /> Back to Projects
-                        </Button>
-                    </Link>
-                    <div className="flex gap-2">
-                        <Link href={`/admin/project/${project.id}/edit`}>
-                            <Button variant="outline" size="sm">
-                                <Edit className="mr-2 h-4 w-4" /> Edit
-                            </Button>
-                        </Link>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            className="text-destructive hover:text-destructive"
-                            onClick={() => setShowDeleteModal(true)}
-                        >
-                            <Trash2 className="mr-2 h-4 w-4" /> Delete
-                        </Button>
-                    </div>
-                </div>
-
-                {/* Cover Image */}
-                <div className="relative aspect-video w-full rounded-2xl overflow-hidden border bg-muted shadow-sm">
+            {/* Immersive Hero Section within Admin Layout */}
+            <div className="relative h-[50vh] w-full overflow-hidden rounded-xl mb-8 group">
+                {/* Background Image with Parallax */}
+                <motion.div
+                    style={{ y: yRange, opacity: opacityRange }}
+                    className="absolute inset-0"
+                >
                     {project.cover ? (
                         <Image
                             src={project.cover}
@@ -151,109 +136,185 @@ export default function AdminProjectDetail({ projectData }) {
                             fill
                             className="object-cover"
                             priority
+                            quality={100}
                         />
                     ) : (
-                        <div className="flex items-center justify-center h-full text-muted-foreground">
-                            No Preview
+                        <div className="w-full h-full bg-muted/30 flex items-center justify-center">
+                            <div className="text-muted-foreground/20 text-9xl font-bold">PROJECT</div>
                         </div>
                     )}
-                </div>
+                    <div className="absolute inset-0 bg-gradient-to-b from-background/10 via-background/40 to-background/90" />
+                    <div className="absolute inset-0 bg-black/20" />
+                </motion.div>
 
-                {/* Title, Description & Links */}
-                <div className="max-w-4xl mx-auto text-center space-y-6">
-                    <h1 className="text-4xl md:text-5xl font-bold leading-tight">{project.title}</h1>
-                    <p className="text-lg text-muted-foreground leading-relaxed">
-                        {project.description}
-                    </p>
+                {/* Hero Content & Actions */}
+                <div className="absolute inset-0 flex flex-col justify-end p-8 md:p-12">
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6, delay: 0.2 }}
+                        className="max-w-4xl"
+                    >
+                        <div className="mb-6">
+                            <Link href="/admin/project">
+                                <Button variant="outline" size="sm" className="bg-black/20 backdrop-blur-md border-white/20 text-white hover:bg-white/20 hover:text-white transition-all">
+                                    <ChevronLeft className="mr-2 h-4 w-4" /> Back to Projects
+                                </Button>
+                            </Link>
+                        </div>
 
-                    <div className="flex flex-col items-center gap-4 pt-4">
-                        <div className="flex gap-4">
+                        <h1 className="text-3xl md:text-5xl font-bold text-white mb-4 leading-tight drop-shadow-md">
+                            {project.title}
+                        </h1>
+                        <p className="text-lg text-white/90 max-w-2xl font-light leading-relaxed drop-shadow-sm mb-6">
+                            {project.description}
+                        </p>
+
+                        <div className="flex flex-wrap gap-4">
+                            {/* Admin Actions */}
+                            <Link href={`/admin/project/edit-project/${project.slug || project.id}`}>
+                                <Button size="lg" className="h-11 px-6 bg-white text-black hover:bg-white/90 shadow-lg border-none hover:scale-105 transition-all">
+                                    <Edit className="mr-2 h-4 w-4" /> Edit Project
+                                </Button>
+                            </Link>
+                            <Button
+                                size="lg"
+                                className="h-11 px-6 bg-red-600 text-white hover:bg-red-700 shadow-lg border-none hover:scale-105 transition-all"
+                                onClick={() => setShowDeleteModal(true)}
+                            >
+                                <Trash2 className="mr-2 h-4 w-4" /> Delete
+                            </Button>
+
+                            <div className="w-px h-11 bg-white/20 mx-2 hidden md:block" />
+
+                            {/* Public Links */}
                             {project.demoLink && (
                                 <a href={project.demoLink} target="_blank" rel="noopener noreferrer">
-                                    <Button className="h-12 px-8 text-base" variant="default">
-                                        <ExternalLink className="mr-2 h-5 w-5" /> Live Demo
+                                    <Button size="lg" className="h-11 px-6 bg-white/20 text-white hover:bg-white/30 backdrop-blur-md border-none shadow-lg hover:scale-105 transition-all">
+                                        <ExternalLink className="mr-2 h-4 w-4" /> Live Demo
                                     </Button>
                                 </a>
                             )}
                             {project.repoLink && (
                                 <a href={project.repoLink} target="_blank" rel="noopener noreferrer">
-                                    <Button variant="outline" className="h-12 px-8 text-base">
-                                        <Github className="mr-2 h-5 w-5" />
-                                        Source Code
+                                    <Button size="lg" className="h-11 px-6 bg-white/20 text-white hover:bg-white/30 backdrop-blur-md border-none shadow-lg hover:scale-105 transition-all">
+                                        <Github className="mr-2 h-4 w-4" /> Source Code
                                     </Button>
                                 </a>
                             )}
                         </div>
-
-                        {githubStats && (
-                            <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                                <span className="flex items-center gap-1 hover:text-foreground transition-colors" title="Stars">
-                                    <Star className="h-4 w-4" /> {githubStats.stars}
-                                </span>
-                                <span className="flex items-center gap-1 hover:text-foreground transition-colors" title="Forks">
-                                    <GitFork className="h-4 w-4" /> {githubStats.forks}
-                                </span>
-                                {githubStats.license && (
-                                    <span className="flex items-center gap-1 hover:text-foreground transition-colors" title="License">
-                                        <Scale className="h-4 w-4" /> {githubStats.license}
-                                    </span>
-                                )}
-                                <a
-                                    href={`${githubStats.repoUrl}#readme`}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="flex items-center gap-1 hover:text-foreground transition-colors"
-                                    title="View README"
-                                >
-                                    <BookOpen className="h-4 w-4" /> README
-                                </a>
-                            </div>
-                        )}
-                    </div>
+                    </motion.div>
                 </div>
+            </div>
 
-                {/* Tech Stack */}
-                {project.techStack && project.techStack.length > 0 && (
-                    <div className="max-w-4xl mx-auto">
-                        <h2 className="text-2xl font-bold mb-4 text-center">Tech Stack</h2>
-                        <div className="flex flex-wrap gap-2 justify-center">
-                            {project.techStack.map((tech, index) => (
-                                <span
-                                    key={index}
-                                    className="px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-medium hover:bg-primary/20 transition-colors"
-                                >
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                {/* Sidebar / Info Column */}
+                <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.6, delay: 0.4 }}
+                    className="lg:col-span-4 lg:sticky lg:top-24 h-fit space-y-6"
+                >
+                    {/* Stats Card */}
+                    <div className="bg-card border rounded-xl p-6 shadow-sm">
+                        <h3 className="text-lg font-semibold mb-6 flex items-center">
+                            <span className="bg-primary/10 p-2 rounded-lg mr-3 text-primary">
+                                <Clock className="h-5 w-5" />
+                            </span>
+                            Project Details
+                        </h3>
+
+                        <div className="space-y-4">
+                            <div className="flex justify-between items-center py-2 border-b border-border/50">
+                                <span className="text-muted-foreground flex items-center text-sm">
+                                    <Calendar className="mr-2 h-4 w-4" /> Created
+                                </span>
+                                <span className="font-medium text-sm">
+                                    {format(new Date(project.createdAt), 'MMM d, yyyy')}
+                                </span>
+                            </div>
+
+                            {githubStats && (
+                                <>
+                                    <div className="flex justify-between items-center py-2 border-b border-border/50">
+                                        <span className="text-muted-foreground flex items-center text-sm">
+                                            <Star className="mr-2 h-4 w-4" /> Stars
+                                        </span>
+                                        <span className="font-medium text-sm">{githubStats.stars}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center py-2 border-b border-border/50">
+                                        <span className="text-muted-foreground flex items-center text-sm">
+                                            <GitFork className="mr-2 h-4 w-4" /> Forks
+                                        </span>
+                                        <span className="font-medium text-sm">{githubStats.forks}</span>
+                                    </div>
+                                    {githubStats.license && (
+                                        <div className="flex justify-between items-center py-2 border-b border-border/50">
+                                            <span className="text-muted-foreground flex items-center text-sm">
+                                                <Scale className="mr-2 h-4 w-4" /> License
+                                            </span>
+                                            <span className="font-medium text-sm">{githubStats.license}</span>
+                                        </div>
+                                    )}
+                                </>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Tech Stack */}
+                    <div className="bg-card border rounded-xl p-6 shadow-sm">
+                        <h3 className="text-lg font-semibold mb-6 flex items-center">
+                            <span className="bg-primary/10 p-2 rounded-lg mr-3 text-primary">
+                                <BookOpen className="h-5 w-5" />
+                            </span>
+                            Tech Stack
+                        </h3>
+                        <div className="flex flex-wrap gap-2">
+                            {Array.isArray(project.techStack) && project.techStack.map((tech, i) => (
+                                <span key={i} className="px-3 py-1.5 bg-secondary hover:bg-secondary/80 text-secondary-foreground rounded-md text-sm font-medium transition-colors cursor-default">
                                     {tech}
                                 </span>
                             ))}
                         </div>
                     </div>
-                )}
 
-                {/* Content */}
-                {project.contentJSON && (
-                    <div className="max-w-4xl mx-auto">
-                        <h2 className="text-2xl font-bold mb-6 text-center">Project Details</h2>
-                        <div className="prose dark:prose-invert max-w-none">
-                            <TipTapViewer content={project.contentJSON} />
-                        </div>
-                    </div>
-                )}
-
-                {/* Tags */}
-                {project.tags && (
-                    <div className="max-w-4xl mx-auto pt-8 border-t">
-                        <div className="flex flex-wrap gap-2">
-                            {project.tags.split(',').map((tag, index) => (
-                                <span
-                                    key={index}
-                                    className="px-3 py-1 bg-muted text-muted-foreground rounded-md text-sm"
-                                >
-                                    #{tag.trim()}
+                    {/* Tags */}
+                    {project.tags && (
+                        <div className="bg-card border rounded-xl p-6 shadow-sm">
+                            <h3 className="text-lg font-semibold mb-6 flex items-center">
+                                <span className="bg-primary/10 p-2 rounded-lg mr-3 text-primary">
+                                    <Tag className="h-5 w-5" />
                                 </span>
-                            ))}
+                                Tags
+                            </h3>
+                            <div className="flex flex-wrap gap-2">
+                                {project.tags.split(',').map((tag, i) => (
+                                    <span key={i} className="px-3 py-1 bg-muted text-muted-foreground rounded-full text-xs font-medium uppercase tracking-wider">
+                                        {tag.trim()}
+                                    </span>
+                                ))}
+                            </div>
                         </div>
-                    </div>
-                )}
+                    )}
+                </motion.div>
+
+                {/* Main Content Column */}
+                <div className="lg:col-span-8">
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6, delay: 0.6 }}
+                    >
+                        {/* Content */}
+                        {(project.contentJSON || project.content) && (
+                            <div className="bg-card border rounded-xl p-8 shadow-sm">
+                                <div className="prose dark:prose-invert max-w-none prose-lg prose-headings:font-bold prose-headings:tracking-tight prose-a:text-primary hover:prose-a:text-primary/80 prose-img:rounded-xl prose-img:shadow-lg">
+                                    <TipTapViewer content={project.contentJSON || project.content} />
+                                </div>
+                            </div>
+                        )}
+                    </motion.div>
+                </div>
             </div>
 
             {/* Delete Confirmation Modal */}
