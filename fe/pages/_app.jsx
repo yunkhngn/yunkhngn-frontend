@@ -57,6 +57,13 @@ export default function App({ Component, pageProps }) {
   const getLayout = Component.getLayout || ((page) => page);
   const isAdminRoute = router.pathname.startsWith('/admin');
 
+  useEffect(() => {
+    document.body.classList.add(playfair.variable, jetbrainsMono.variable, beVietnamPro.variable, 'font-sans');
+    return () => {
+      document.body.classList.remove(playfair.variable, jetbrainsMono.variable, beVietnamPro.variable, 'font-sans');
+    };
+  }, []);
+
   return (
     <AuthProvider>
       <NotificationProvider>
@@ -69,7 +76,7 @@ export default function App({ Component, pageProps }) {
           />
           <GoogleAnalytics />
           <AuthGuard>
-            <main className={`${playfair.variable} ${jetbrainsMono.variable} ${beVietnamPro.variable} font-sans`}>
+            <main>
               {getLayout(
                 isAdminRoute ? (
                   <Component {...pageProps} />
