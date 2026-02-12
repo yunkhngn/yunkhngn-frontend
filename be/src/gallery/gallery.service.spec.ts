@@ -77,7 +77,7 @@ describe('GalleryService', () => {
   });
 
   describe('incrementViews', () => {
-    it('should fire and forget', async () => {
+    it('should fire and forget', () => {
       mockPrismaService.gallery.update.mockResolvedValue({});
       const result = service.incrementViews('photo-1');
       expect(result).toEqual({ success: true });
