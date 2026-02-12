@@ -115,13 +115,35 @@ model CommentReport {
   @@map("comment_reports")
 }
 
+model Album {
+  id           String    @id @default(uuid())
+  name         String
+  slug         String    @unique
+  description  String?
+  coverPhotoId String?
+  sortOrder    Int       @default(0)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  photos       Gallery[]
+
+  @@map("albums")
+}
+
 model Gallery {
   id        String   @id @default(uuid())
   imageUrl  String
   caption   String?
+  albumId   String?
+  album     Album?   @relation(fields: [albumId], references: [id])
+  tags      String?  // Comma-separated tags
+  views     Int      @default(0)
+  sortOrder Int      @default(0)
+  exifData  String?  @db.NVarChar(Max) // JSON: camera, lens, focalLength, aperture, shutter, iso
+  blurHash  String?  // Cloudinary blur placeholder URL
   createdAt DateTime @default(now())
   reactions PhotoReaction[]
 
+  @@index([albumId])
   @@map("gallery")
 }
 

@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional, IsInt } from 'class-validator';
 
 export class CreateGalleryDto {
   @IsString()
@@ -6,6 +6,26 @@ export class CreateGalleryDto {
   imageUrl: string;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   caption?: string;
+
+  @IsString()
+  @IsOptional()
+  albumId?: string;
+
+  @IsString()
+  @IsOptional()
+  tags?: string;
+
+  @IsString()
+  @IsOptional()
+  exifData?: string;
+
+  @IsString()
+  @IsOptional()
+  blurHash?: string;
+
+  @IsInt()
+  @IsOptional()
+  sortOrder?: number;
 }
