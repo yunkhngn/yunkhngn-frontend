@@ -27,6 +27,7 @@ import { MediaModule } from './media/media.module';
 import { ChatModule } from './chat/chat.module';
 import { SystemModule } from './system/system.module';
 import { NewsletterModule } from './newsletter/newsletter.module';
+import { ShortlinkModule } from './shortlink/shortlink.module';
 
 @Module({
   imports: [
@@ -58,6 +59,7 @@ import { NewsletterModule } from './newsletter/newsletter.module';
     ChatModule,
     SystemModule,
     NewsletterModule,
+    ShortlinkModule,
   ],
   controllers: [AppController, HealthController],
   providers: [
@@ -68,4 +70,4 @@ import { NewsletterModule } from './newsletter/newsletter.module';
     },
   ],
 })
-export class AppModule {}
+export class AppModule { }
