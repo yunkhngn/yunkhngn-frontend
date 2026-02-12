@@ -10,4 +10,4 @@ import { EmailModule } from '../email/email.module';
   providers: [NewsletterService],
   exports: [NewsletterService],
 })
-export class NewsletterModule { }
+export class NewsletterModule {}

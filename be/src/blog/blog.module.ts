@@ -10,4 +10,4 @@ import { NewsletterModule } from '../newsletter/newsletter.module';
   providers: [BlogService],
   exports: [BlogService],
 })
-export class BlogModule { }
+export class BlogModule {}

@@ -9,7 +9,7 @@ export class BlogService {
   constructor(
     private prisma: PrismaService,
     private newsletterService: NewsletterService,
-  ) { }
+  ) {}
 
   async create(createBlogDto: CreateBlogDto) {
     const existing = await this.prisma.blog.findUnique({
@@ -33,7 +33,9 @@ export class BlogService {
     });
 
     if (newBlog.status === 'PUBLISHED') {
-      console.log(`[BlogService] New blog published: ${newBlog.title}. Sending newsletter...`);
+      console.log(
+        `[BlogService] New blog published: ${newBlog.title}. Sending newsletter...`,
+      );
       await this.sendNewsletterForBlog(newBlog);
     }
 
@@ -143,7 +145,9 @@ export class BlogService {
     const isNowPublished = updatedBlog.status === 'PUBLISHED';
 
     if (!wasPublished && isNowPublished) {
-      console.log(`[BlogService] Blog ${updatedBlog.title} just got PUBLISHED! Sending newsletter...`);
+      console.log(
+        `[BlogService] Blog ${updatedBlog.title} just got PUBLISHED! Sending newsletter...`,
+      );
       await this.sendNewsletterForBlog(updatedBlog);
     }
 
@@ -182,7 +186,10 @@ export class BlogService {
       await this.newsletterService.sendToAll(subject, content);
       console.log(`[BlogService] Newsletter sent for blog: ${blog.title}`);
     } catch (error) {
-      console.error(`[BlogService] Failed to send newsletter for blog: ${blog.title}`, error);
+      console.error(
+        `[BlogService] Failed to send newsletter for blog: ${blog.title}`,
+        error,
+      );
       // Don't throw error to avoid blocking the blog update/creation
     }
   }
