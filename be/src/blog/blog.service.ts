@@ -2,10 +2,14 @@ import { Injectable, ConflictException } from '@nestjs/common';
 import { CreateBlogDto } from './dto/create-blog.dto';
 import { UpdateBlogDto } from './dto/update-blog.dto';
 import { PrismaService } from '../prisma/prisma.service';
+import { NewsletterService } from '../newsletter/newsletter.service';
 
 @Injectable()
 export class BlogService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private newsletterService: NewsletterService,
+  ) { }
 
   async create(createBlogDto: CreateBlogDto) {
     const existing = await this.prisma.blog.findUnique({
@@ -21,9 +25,19 @@ export class BlogService {
       contentJSON: rest.contentJSON || content,
       seoDescription: rest.seoDescription || excerpt,
     };
-    return this.prisma.blog.create({
+
+    console.log('Creating blog with data:', data);
+
+    const newBlog = await this.prisma.blog.create({
       data,
     });
+
+    if (newBlog.status === 'PUBLISHED') {
+      console.log(`[BlogService] New blog published: ${newBlog.title}. Sending newsletter...`);
+      await this.sendNewsletterForBlog(newBlog);
+    }
+
+    return newBlog;
   }
 
   async findAll() {
@@ -100,6 +114,9 @@ export class BlogService {
       }
     }
 
+    // Fetch the current state before update to check status change
+    const currentBlog = await this.prisma.blog.findUnique({ where: { id } });
+
     const data = { ...updateBlogDto } as any;
     if (data.content) {
       data.contentJSON = data.contentJSON || data.content;
@@ -113,10 +130,24 @@ export class BlogService {
     delete data.createdAt;
     delete data.updatedAt;
     delete data.comments;
-    return this.prisma.blog.update({
+
+    console.log(`[BlogService] Updating blog ${id}...`);
+
+    const updatedBlog = await this.prisma.blog.update({
       where: { id },
       data,
     });
+
+    // Check if status changed from DRAFT (or undefined/null) to PUBLISHED
+    const wasPublished = currentBlog?.status === 'PUBLISHED';
+    const isNowPublished = updatedBlog.status === 'PUBLISHED';
+
+    if (!wasPublished && isNowPublished) {
+      console.log(`[BlogService] Blog ${updatedBlog.title} just got PUBLISHED! Sending newsletter...`);
+      await this.sendNewsletterForBlog(updatedBlog);
+    }
+
+    return updatedBlog;
   }
 
   async remove(id: string) {
@@ -133,5 +164,26 @@ export class BlogService {
       where: { id: blog.id },
       data: { views: { increment: 1 } },
     });
+  }
+
+  private async sendNewsletterForBlog(blog: any) {
+    try {
+      const subject = `New Post: ${blog.title}`;
+      const blogUrl = `${process.env.FRONTEND_URL}/blog/${blog.slug}`;
+      const content = `
+          <h2>Check out my new blog post!</h2>
+          <h1><a href="${blogUrl}" style="text-decoration: none; color: #000;">${blog.title}</a></h1>
+          <p>${blog.seoDescription || 'Click to read more...'}</p>
+          <div style="margin-top: 30px; margin-bottom: 30px;">
+             <a href="${blogUrl}" style="background-color: #000; color: #fff; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Read Full Post</a>
+          </div>
+      `;
+
+      await this.newsletterService.sendToAll(subject, content);
+      console.log(`[BlogService] Newsletter sent for blog: ${blog.title}`);
+    } catch (error) {
+      console.error(`[BlogService] Failed to send newsletter for blog: ${blog.title}`, error);
+      // Don't throw error to avoid blocking the blog update/creation
+    }
   }
 }

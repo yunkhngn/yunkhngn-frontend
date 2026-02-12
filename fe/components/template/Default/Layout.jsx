@@ -24,7 +24,7 @@ export default function DefaultLayout({ children, title, description, image, url
             </main>
 
             {!isFocusMode && <DefaultFooter />}
-            {!isFocusMode && <DefaultFooter />}
+
         </div>
     );
 }
