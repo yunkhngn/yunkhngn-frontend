@@ -9,7 +9,7 @@ export class BlogService {
   constructor(
     private prisma: PrismaService,
     private newsletterService: NewsletterService,
-  ) { }
+  ) {}
 
   async create(createBlogDto: CreateBlogDto) {
     const existing = await this.prisma.blog.findUnique({
@@ -182,10 +182,11 @@ export class BlogService {
 
       const content = `
           <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden;">
-            ${blog.thumbnail
-          ? `<div style="width: 100%; height: 200px; background-image: url('${blog.thumbnail}'); background-size: cover; background-position: center;"></div>`
-          : ''
-        }
+            ${
+              blog.thumbnail
+                ? `<div style="width: 100%; height: 200px; background-image: url('${blog.thumbnail}'); background-size: cover; background-position: center;"></div>`
+                : ''
+            }
             <div style="padding: 30px;">
               <h2 style="color: #666; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; margin-top: 0;">New Blog Post</h2>
               <h1 style="font-size: 24px; font-weight: 700; margin: 10px 0 15px; line-height: 1.3;">

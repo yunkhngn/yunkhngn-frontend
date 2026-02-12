@@ -49,14 +49,24 @@ describe('GalleryService', () => {
 
       const result = await service.findAll();
 
-      expect(result).toEqual({ data: [{ id: '1' }], total: 1, page: 1, totalPages: 1 });
+      expect(result).toEqual({
+        data: [{ id: '1' }],
+        total: 1,
+        page: 1,
+        totalPages: 1,
+      });
     });
 
     it('should filter by albumId and tag', async () => {
       mockPrismaService.gallery.findMany.mockResolvedValue([]);
       mockPrismaService.gallery.count.mockResolvedValue(0);
 
-      await service.findAll({ albumId: 'album-1', tag: 'travel', page: 1, limit: 10 });
+      await service.findAll({
+        albumId: 'album-1',
+        tag: 'travel',
+        page: 1,
+        limit: 10,
+      });
 
       expect(mockPrismaService.gallery.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -69,7 +79,7 @@ describe('GalleryService', () => {
   describe('incrementViews', () => {
     it('should fire and forget', async () => {
       mockPrismaService.gallery.update.mockResolvedValue({});
-      const result = await service.incrementViews('photo-1');
+      const result = service.incrementViews('photo-1');
       expect(result).toEqual({ success: true });
     });
   });
@@ -89,7 +99,9 @@ describe('GalleryService', () => {
   describe('bulkUpdate', () => {
     it('should update multiple photos', async () => {
       mockPrismaService.gallery.updateMany.mockResolvedValue({ count: 3 });
-      const result = await service.bulkUpdate(['1', '2', '3'], { tags: 'food' });
+      const result = await service.bulkUpdate(['1', '2', '3'], {
+        tags: 'food',
+      });
       expect(result).toEqual({ updated: 3 });
     });
   });

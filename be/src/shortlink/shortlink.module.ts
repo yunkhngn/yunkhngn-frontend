@@ -3,8 +3,8 @@ import { ShortlinkController } from './shortlink.controller';
 import { ShortlinkService } from './shortlink.service';
 
 @Module({
-    controllers: [ShortlinkController],
-    providers: [ShortlinkService],
-    exports: [ShortlinkService],
+  controllers: [ShortlinkController],
+  providers: [ShortlinkService],
+  exports: [ShortlinkService],
 })
-export class ShortlinkModule { }
+export class ShortlinkModule {}

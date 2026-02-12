@@ -1,12 +1,12 @@
 import {
-    Controller,
-    Get,
-    Post,
-    Body,
-    Patch,
-    Param,
-    Delete,
-    UseGuards,
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { AlbumService } from './album.service';
 import { CreateAlbumDto } from './dto/create-album.dto';
@@ -17,36 +17,36 @@ import { RolesGuard } from '../auth/roles.guard';
 
 @Controller('albums')
 export class AlbumController {
-    constructor(private readonly albumService: AlbumService) { }
+  constructor(private readonly albumService: AlbumService) {}
 
-    @Post()
-    @UseGuards(FirebaseAuthGuard, RolesGuard)
-    @Roles('ADMIN')
-    create(@Body() dto: CreateAlbumDto) {
-        return this.albumService.create(dto);
-    }
+  @Post()
+  @UseGuards(FirebaseAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  create(@Body() dto: CreateAlbumDto) {
+    return this.albumService.create(dto);
+  }
 
-    @Get()
-    findAll() {
-        return this.albumService.findAll();
-    }
+  @Get()
+  findAll() {
+    return this.albumService.findAll();
+  }
 
-    @Get(':slug')
-    findBySlug(@Param('slug') slug: string) {
-        return this.albumService.findBySlug(slug);
-    }
+  @Get(':slug')
+  findBySlug(@Param('slug') slug: string) {
+    return this.albumService.findBySlug(slug);
+  }
 
-    @Patch(':id')
-    @UseGuards(FirebaseAuthGuard, RolesGuard)
-    @Roles('ADMIN')
-    update(@Param('id') id: string, @Body() dto: UpdateAlbumDto) {
-        return this.albumService.update(id, dto);
-    }
+  @Patch(':id')
+  @UseGuards(FirebaseAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  update(@Param('id') id: string, @Body() dto: UpdateAlbumDto) {
+    return this.albumService.update(id, dto);
+  }
 
-    @Delete(':id')
-    @UseGuards(FirebaseAuthGuard, RolesGuard)
-    @Roles('ADMIN')
-    remove(@Param('id') id: string) {
-        return this.albumService.remove(id);
-    }
+  @Delete(':id')
+  @UseGuards(FirebaseAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  remove(@Param('id') id: string) {
+    return this.albumService.remove(id);
+  }
 }
