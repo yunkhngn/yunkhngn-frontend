@@ -234,7 +234,7 @@ export default function PhotoManager() {
 
                     setUploadProgress(prev => ({ ...prev, current: prev.current + 1 }));
                 } catch (err) {
-                    console.error(`Failed photo ${i + 1}`, err);
+                    console.error('Failed to upload photo %d: %o', i + 1, err);
                     toast.error(`Failed to upload photo ${i + 1}`);
                 }
             }

@@ -66,7 +66,7 @@ export class GalleryService {
     return photo;
   }
 
-  async incrementViews(id: string) {
+  incrementViews(id: string) {
     this.prisma.gallery
       .update({ where: { id }, data: { views: { increment: 1 } } })
       .catch(() => { });
