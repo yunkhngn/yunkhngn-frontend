@@ -1,5 +1,11 @@
 import Image from "next/image";
-import { Github, Facebook, Instagram, Linkedin, Mail, ArrowRight, Briefcase, GraduationCap, MapPin, Calendar, Globe } from "lucide-react";
+import { Github, Facebook, Instagram, Linkedin, Mail, ArrowRight, Briefcase, GraduationCap, MapPin, Calendar, Globe, Code } from "lucide-react";
+import {
+    SiReact, SiNextdotjs, SiNodedotjs, SiTypescript, SiJavascript, SiTailwindcss,
+    SiMysql, SiPostgresql, SiMongodb, SiDocker, SiFigma, SiPython,
+    SiSpringboot, SiNestjs, SiGit, SiGithub, SiAmazonwebservices, SiHtml5, SiCss3
+} from "react-icons/si";
+import { FaJava } from "react-icons/fa6";
 import { useState, useEffect, useRef } from 'react';
 import { motion, useScroll, useTransform } from "framer-motion";
 
@@ -75,14 +81,14 @@ export default function About() {
         handleScroll();
 
         return () => container.removeEventListener('scroll', handleScroll);
-    }, [navItems]); // Added navItems dependency for correctness, though it's constant
+    }, [navItems]);
 
     const scrollToSection = (id) => {
         const element = document.getElementById(id);
         const container = scrollRef.current;
         if (element && container) {
             container.scrollTo({
-                top: element.offsetTop, // Snap directly to top
+                top: element.offsetTop,
                 behavior: 'smooth'
             });
         }
@@ -101,18 +107,16 @@ export default function About() {
                 ref={scrollRef}
                 className="h-[calc(100vh-64px)] overflow-y-auto snap-y snap-mandatory scroll-smooth bg-[#FDFBF7] dark:bg-background text-foreground transition-colors duration-500 font-sans"
             >
-                <div className="container mx-auto px-4 md:px-8 max-w-7xl relative">
+                <div className="relative w-full">
+                    <div className="grid grid-cols-1 lg:grid-cols-10 items-start">
 
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-start">
-
-                        {/* Left Column: Image (Sticky) */}
-                        {/* Adjusted Top to account for Navbar height if sticky, or just relative container */}
-                        <div className="hidden lg:block lg:col-span-5 relative lg:sticky lg:top-8 h-[calc(100vh-4rem)] flex items-center py-8">
+                        {/* Left Column: Image (Sticky) - 4/10 ratio, Edge-to-Edge */}
+                        <div className="hidden lg:block lg:col-span-4 sticky top-0 h-[calc(100vh-64px)] z-10">
                             <motion.div
-                                initial={{ opacity: 0, scale: 0.95 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                transition={{ duration: 0.8 }}
-                                className="relative w-full h-[80%] rounded-2xl overflow-hidden shadow-2xl"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                transition={{ duration: 1 }}
+                                className="relative w-full h-full overflow-hidden"
                             >
                                 <Image
                                     src={settings.avatar || placeholder}
@@ -121,12 +125,13 @@ export default function About() {
                                     className="object-cover"
                                     priority
                                 />
-                                <div className="absolute top-0 bottom-0 -right-8 w-px bg-foreground/10" />
+                                {/* Subtle overlap shadow for depth */}
+                                <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-black/20 to-transparent pointer-events-none" />
                             </motion.div>
                         </div>
 
-                        {/* Middle Column: Content */}
-                        <div className="lg:col-span-6">
+                        {/* Right Column: Content - 6/10 ratio */}
+                        <div className="lg:col-span-6 px-6 md:px-12 lg:px-20 xl:px-32">
 
                             {/* My Story Section */}
                             <section id="story" className="min-h-[calc(100vh-64px)] flex flex-col justify-center snap-start py-20">
@@ -180,6 +185,31 @@ export default function About() {
                                     className="space-y-16"
                                 >
                                     <div>
+                                        <h2 className="text-4xl font-serif font-bold mb-12">Education<span className="text-primary">.</span></h2>
+                                        <div className="space-y-12 border-l border-foreground/10 ml-3 pl-8 md:pl-12">
+                                            {parsedEducation.length > 0 ? (
+                                                parsedEducation.map((edu, i) => (
+                                                    <TimelineItem
+                                                        key={i}
+                                                        date={edu.date}
+                                                        title={edu.school}
+                                                        subtitle={edu.degree}
+                                                        description={edu.description}
+                                                        icon={<GraduationCap className="w-4 h-4" />}
+                                                    />
+                                                ))
+                                            ) : (
+                                                <TimelineItem
+                                                    date="2020 - 2024"
+                                                    title="FPT University"
+                                                    subtitle="Software Engineering"
+                                                    icon={<GraduationCap className="w-4 h-4" />}
+                                                />
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    <div>
                                         <h2 className="text-4xl font-serif font-bold mb-12">Experience<span className="text-primary">.</span></h2>
                                         <div className="space-y-12 border-l border-foreground/10 ml-3 pl-8 md:pl-12">
                                             {parsedExperience.length > 0 ? (
@@ -204,31 +234,6 @@ export default function About() {
                                             )}
                                         </div>
                                     </div>
-
-                                    <div>
-                                        <h2 className="text-4xl font-serif font-bold mb-12">Education<span className="text-primary">.</span></h2>
-                                        <div className="space-y-12 border-l border-foreground/10 ml-3 pl-8 md:pl-12">
-                                            {parsedEducation.length > 0 ? (
-                                                parsedEducation.map((edu, i) => (
-                                                    <TimelineItem
-                                                        key={i}
-                                                        date={edu.date}
-                                                        title={edu.school}
-                                                        subtitle={edu.degree}
-                                                        description={edu.description}
-                                                        icon={<GraduationCap className="w-4 h-4" />}
-                                                    />
-                                                ))
-                                            ) : (
-                                                <TimelineItem
-                                                    date="2020 - 2024"
-                                                    title="FPT University"
-                                                    subtitle="Software Engineering"
-                                                    icon={<GraduationCap className="w-4 h-4" />}
-                                                />
-                                            )}
-                                        </div>
-                                    </div>
                                 </motion.div>
                             </section>
 
@@ -248,11 +253,16 @@ export default function About() {
                                                         <span className="w-12 h-[1px] bg-primary block"></span>
                                                         {group.category}
                                                     </h3>
-                                                    <div className="flex flex-wrap gap-x-6 gap-y-4 pl-16">
+                                                    <div className="flex flex-wrap gap-4 pl-0 md:pl-16">
                                                         {group.items.map((skill, i) => (
-                                                            <span key={i} className="text-xl text-muted-foreground hover:text-foreground transition-colors cursor-default">
-                                                                {skill}
-                                                            </span>
+                                                            <div key={i} className="flex items-center gap-2 px-4 py-2 bg-secondary/50 rounded-full border border-transparent hover:border-primary/20 transition-all cursor-default group">
+                                                                <span className="text-lg text-primary group-hover:scale-110 transition-transform">
+                                                                    {getSkillIcon(skill)}
+                                                                </span>
+                                                                <span className="text-lg text-muted-foreground group-hover:text-foreground transition-colors font-medium">
+                                                                    {skill}
+                                                                </span>
+                                                            </div>
                                                         ))}
                                                     </div>
                                                 </div>
@@ -276,34 +286,46 @@ export default function About() {
                                         I&apos;m always open to discussing new projects, creative ideas or opportunities to be part of your visions.
                                     </p>
 
-                                    <div className="grid gap-6">
-                                        <a href={`mailto:${settings.email || "contact@yunkhngn.dev"}`} className="group flex items-center gap-6 text-2xl font-medium hover:text-primary transition-colors">
-                                            <div className="p-4 bg-secondary rounded-full group-hover:bg-primary/10 transition-colors">
-                                                <Mail className="w-8 h-8" />
+                                    <div className="grid gap-4">
+                                        <a href={`mailto:${settings.email || "contact@yunkhngn.dev"}`} className="group flex items-center gap-4 p-3 -ml-3 rounded-xl hover:bg-secondary/30 transition-all">
+                                            <div className="p-3 bg-secondary rounded-full group-hover:bg-primary group-hover:text-primary-foreground transition-all shadow-sm">
+                                                <Mail className="w-5 h-5" />
                                             </div>
-                                            <span>{settings.email || "contact@yunkhngn.dev"}</span>
+                                            <div className="space-y-0.5">
+                                                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Email</p>
+                                                <p className="text-xl md:text-2xl font-serif font-medium">{settings.email || "contact@yunkhngn.dev"}</p>
+                                            </div>
                                         </a>
+
                                         {settings.linkedin && (
-                                            <a href={settings.linkedin} target="_blank" rel="noopener noreferrer" className="group flex items-center gap-6 text-2xl font-medium hover:text-primary transition-colors">
-                                                <div className="p-4 bg-secondary rounded-full group-hover:bg-primary/10 transition-colors">
-                                                    <Linkedin className="w-8 h-8" />
+                                            <a href={settings.linkedin} target="_blank" rel="noopener noreferrer" className="group flex items-center gap-4 p-3 -ml-3 rounded-xl hover:bg-secondary/30 transition-all">
+                                                <div className="p-3 bg-secondary rounded-full group-hover:bg-primary group-hover:text-primary-foreground transition-all shadow-sm">
+                                                    <Linkedin className="w-5 h-5" />
                                                 </div>
-                                                <span>LinkedIn</span>
+                                                <div className="space-y-0.5">
+                                                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">LinkedIn</p>
+                                                    <p className="text-xl md:text-2xl font-serif font-medium">Connect on LinkedIn</p>
+                                                </div>
                                             </a>
                                         )}
+
                                         {settings.github && (
-                                            <a href={settings.github} target="_blank" rel="noopener noreferrer" className="group flex items-center gap-6 text-2xl font-medium hover:text-primary transition-colors">
-                                                <div className="p-4 bg-secondary rounded-full group-hover:bg-primary/10 transition-colors">
-                                                    <Github className="w-8 h-8" />
+                                            <a href={settings.github} target="_blank" rel="noopener noreferrer" className="group flex items-center gap-4 p-3 -ml-3 rounded-xl hover:bg-secondary/30 transition-all">
+                                                <div className="p-3 bg-secondary rounded-full group-hover:bg-primary group-hover:text-primary-foreground transition-all shadow-sm">
+                                                    <Github className="w-5 h-5" />
                                                 </div>
-                                                <span>Github</span>
+                                                <div className="space-y-0.5">
+                                                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Github</p>
+                                                    <p className="text-xl md:text-2xl font-serif font-medium">Follow on Github</p>
+                                                </div>
                                             </a>
                                         )}
+
                                         {settings.cv_url && (
-                                            <div className="pt-8">
-                                                <Button size="lg" className="rounded-full px-10 py-6 text-lg h-auto" asChild>
-                                                    <a href={settings.cv_url} target="_blank" rel="noopener noreferrer">
-                                                        Download CV <ArrowRight className="ml-2 w-5 h-5" />
+                                            <div className="pt-4">
+                                                <Button size="lg" className="rounded-2xl px-10 py-4 text-base w-full md:w-auto h-auto shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300" asChild>
+                                                    <a href={settings.cv_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3">
+                                                        Download Resume <ArrowRight className="w-5 h-5" />
                                                     </a>
                                                 </Button>
                                             </div>
@@ -313,22 +335,20 @@ export default function About() {
                             </section>
                         </div>
 
-                        {/* Right Column: Timeline Navigation (Sticky) */}
-                        <div className="hidden lg:block lg:col-span-1 relative h-full">
-                            <div className="fixed top-1/2 -translate-y-1/2 right-12 flex flex-col items-end gap-6 z-50">
-                                {navItems.map((item) => (
-                                    <div
-                                        key={item.id}
-                                        onClick={() => scrollToSection(item.id)}
-                                        className="group flex items-center gap-4 cursor-pointer relative"
-                                    >
-                                        <span className={`text-xs font-bold tracking-widest uppercase transition-all duration-300 origin-right ${activeSection === item.id ? 'text-foreground opacity-100 translate-x-0' : 'text-muted-foreground opacity-0 group-hover:opacity-100 translate-x-4'}`}>
-                                            {item.label}
-                                        </span>
-                                        <div className={`w-2 h-2 rounded-full transition-all duration-300 ${activeSection === item.id ? 'bg-foreground scale-150' : 'bg-muted-foreground/30 group-hover:bg-foreground/50'}`} />
-                                    </div>
-                                ))}
-                            </div>
+                        {/* Timeline Navigation (Fixed on right) */}
+                        <div className="fixed top-1/2 -translate-y-1/2 right-4 md:right-12 flex flex-col items-end gap-6 z-50">
+                            {navItems.map((item) => (
+                                <div
+                                    key={item.id}
+                                    onClick={() => scrollToSection(item.id)}
+                                    className="group flex items-center gap-4 cursor-pointer relative"
+                                >
+                                    <span className={`text-xs font-bold tracking-widest uppercase transition-all duration-300 origin-right hidden md:block ${activeSection === item.id ? 'text-foreground opacity-100 translate-x-0' : 'text-muted-foreground opacity-0 group-hover:opacity-100 translate-x-4'}`}>
+                                        {item.label}
+                                    </span>
+                                    <div className={`w-2 h-2 rounded-full transition-all duration-300 ${activeSection === item.id ? 'bg-foreground scale-150' : 'bg-muted-foreground/30 group-hover:bg-foreground/50'}`} />
+                                </div>
+                            ))}
                         </div>
 
                     </div>
@@ -356,4 +376,39 @@ function TimelineItem({ date, title, subtitle, description, icon }) {
             </div>
         </div>
     );
+}
+
+function getSkillIcon(skillName) {
+    const normalize = (s) => s.toLowerCase().replace(/[\s\.]/g, '');
+    const key = normalize(skillName);
+
+    switch (key) {
+        case 'react': return <SiReact />;
+        case 'reactjs': return <SiReact />;
+        case 'nextjs': return <SiNextdotjs />;
+        case 'nodejs': return <SiNodedotjs />;
+        case 'typescript': return <SiTypescript />;
+        case 'javascript': return <SiJavascript />;
+        case 'js': return <SiJavascript />;
+        case 'ts': return <SiTypescript />;
+        case 'tailwindcss': return <SiTailwindcss />;
+        case 'mysql': return <SiMysql />;
+        case 'sql': return <SiMysql />;
+        case 'postgresql': return <SiPostgresql />;
+        case 'mongodb': return <SiMongodb />;
+        case 'docker': return <SiDocker />;
+        case 'figma': return <SiFigma />;
+        case 'python': return <SiPython />;
+        case 'java': return <FaJava />;
+        case 'springboot': return <SiSpringboot />;
+        case 'nestjs': return <SiNestjs />;
+        case 'git': return <SiGit />;
+        case 'github': return <SiGithub />;
+        case 'aws': return <SiAmazonwebservices />;
+        case 'html': return <SiHtml5 />;
+        case 'html5': return <SiHtml5 />;
+        case 'css': return <SiCss3 />;
+        case 'css3': return <SiCss3 />;
+        default: return <Code className="w-4 h-4" />;
+    }
 }
