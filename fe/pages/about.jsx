@@ -7,7 +7,7 @@ import {
 } from "react-icons/si";
 import { FaJava } from "react-icons/fa6";
 import { useState, useEffect, useRef } from 'react';
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 
 import Layout from '@/components/template/Default/Layout';
 import Metadata from '@/components/template/Metadata';
@@ -51,7 +51,7 @@ export default function About() {
 
     const navItems = [
         { id: "story", label: "my story" },
-        { id: "journey", label: "experience" },
+        { id: "journey", label: "education & experience" },
         { id: "skills", label: "skills" },
         { id: "contact", label: "contact" },
     ];
@@ -94,6 +94,16 @@ export default function About() {
         }
     };
 
+    const getSectionImage = () => {
+        switch (activeSection) {
+            case "story": return settings.about_image_story || settings.avatar || placeholder;
+            case "journey": return settings.about_image_journey || settings.avatar || placeholder;
+            case "skills": return settings.about_image_skills || settings.avatar || placeholder;
+            case "contact": return settings.about_image_contact || settings.avatar || placeholder;
+            default: return settings.avatar || placeholder;
+        }
+    };
+
     return (
         <Layout>
             <Metadata
@@ -112,22 +122,26 @@ export default function About() {
 
                         {/* Left Column: Image (Sticky) - 4/10 ratio, Edge-to-Edge */}
                         <div className="hidden lg:block lg:col-span-4 sticky top-0 h-[calc(100vh-64px)] z-10">
-                            <motion.div
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                transition={{ duration: 1 }}
-                                className="relative w-full h-full overflow-hidden"
-                            >
-                                <Image
-                                    src={settings.avatar || placeholder}
-                                    alt="Khoa Nguyen"
-                                    fill
-                                    className="object-cover"
-                                    priority
-                                />
-                                {/* Subtle overlap shadow for depth */}
-                                <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-black/20 to-transparent pointer-events-none" />
-                            </motion.div>
+                            <AnimatePresence mode="wait">
+                                <motion.div
+                                    key={activeSection}
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    transition={{ duration: 0.8 }}
+                                    className="relative w-full h-full overflow-hidden"
+                                >
+                                    <Image
+                                        src={getSectionImage()}
+                                        alt="Khoa Nguyen"
+                                        fill
+                                        className="object-cover"
+                                        priority
+                                    />
+                                    {/* Subtle overlap shadow for depth */}
+                                    <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-black/20 to-transparent pointer-events-none" />
+                                </motion.div>
+                            </AnimatePresence>
                         </div>
 
                         {/* Right Column: Content - 6/10 ratio */}

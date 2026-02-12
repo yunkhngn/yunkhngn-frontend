@@ -35,6 +35,11 @@ const SYSTEM_SETTINGS = [
   'github_username',
   'github_repo_name',
   'chat_api_key',
+  'avatar',
+  'about_image_story',
+  'about_image_journey',
+  'about_image_skills',
+  'about_image_contact',
 ];
 
 @Injectable()
@@ -42,7 +47,7 @@ export class SettingsService implements OnModuleInit {
   constructor(
     private prisma: PrismaService,
     private encryptionService: EncryptionService,
-  ) {}
+  ) { }
 
   async onModuleInit() {
     try {
