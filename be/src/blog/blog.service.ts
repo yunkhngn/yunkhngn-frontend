@@ -9,7 +9,7 @@ export class BlogService {
   constructor(
     private prisma: PrismaService,
     private newsletterService: NewsletterService,
-  ) {}
+  ) { }
 
   async create(createBlogDto: CreateBlogDto) {
     const existing = await this.prisma.blog.findUnique({
@@ -187,7 +187,8 @@ export class BlogService {
       console.log(`[BlogService] Newsletter sent for blog: ${blog.title}`);
     } catch (error) {
       console.error(
-        `[BlogService] Failed to send newsletter for blog: ${blog.title}`,
+        '[BlogService] Failed to send newsletter for blog:',
+        blog.title,
         error,
       );
       // Don't throw error to avoid blocking the blog update/creation
