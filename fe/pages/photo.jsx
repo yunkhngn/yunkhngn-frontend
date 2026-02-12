@@ -516,7 +516,7 @@ export default function Photo() {
                     onTouchEnd={handleTouchEnd}
                 >
                     {viewingPhoto && (
-                        <div className="relative flex items-center justify-center pointer-events-auto">
+                        <div className="relative w-fit h-fit mx-auto pointer-events-auto">
                             {/* Top Controls */}
                             <div className="absolute top-2 right-2 md:top-4 md:right-4 z-50 flex items-center gap-2 md:gap-3">
                                 {/* Reactions */}
@@ -607,6 +607,8 @@ export default function Photo() {
                                     <div className="flex items-center gap-3 mt-2 text-white/50 text-xs">
                                         {viewingPhoto.views > 0 && <span>{viewingPhoto.views} views</span>}
                                         {viewingPhoto.album && <span>{viewingPhoto.album.name}</span>}
+                                        <span className="opacity-50">·</span>
+                                        <span>{viewingIndex + 1} / {photos.length}</span>
                                     </div>
                                 </div>
                             )}
@@ -618,19 +620,17 @@ export default function Photo() {
                                         <Camera className="h-4 w-4" />
                                         <span className="font-semibold">Photo Info</span>
                                     </div>
-                                    {exifParsed.camera && <div className="flex justify-between"><span className="text-white/50">Camera</span><span>{exifParsed.camera}</span></div>}
-                                    {exifParsed.lens && <div className="flex justify-between"><span className="text-white/50">Lens</span><span>{exifParsed.lens}</span></div>}
-                                    {exifParsed.focalLength && <div className="flex justify-between"><span className="text-white/50">Focal</span><span>{exifParsed.focalLength}</span></div>}
-                                    {exifParsed.aperture && <div className="flex justify-between"><span className="text-white/50">Aperture</span><span>{exifParsed.aperture}</span></div>}
-                                    {exifParsed.shutter && <div className="flex justify-between"><span className="text-white/50">Shutter</span><span>{exifParsed.shutter}</span></div>}
-                                    {exifParsed.iso && <div className="flex justify-between"><span className="text-white/50">ISO</span><span>{exifParsed.iso}</span></div>}
+                                    {exifParsed.camera && <div className="flex justify-between gap-4"><span className="text-white/50 shrink-0">Camera</span><span className="text-right">{exifParsed.camera}</span></div>}
+                                    {exifParsed.lens && <div className="flex justify-between gap-4"><span className="text-white/50 shrink-0">Lens</span><span className="text-right">{exifParsed.lens}</span></div>}
+                                    {exifParsed.focalLength && <div className="flex justify-between gap-4"><span className="text-white/50 shrink-0">Focal</span><span className="text-right">{exifParsed.focalLength}</span></div>}
+                                    {exifParsed.aperture && <div className="flex justify-between gap-4"><span className="text-white/50 shrink-0">Aperture</span><span className="text-right">{exifParsed.aperture}</span></div>}
+                                    {exifParsed.shutter && <div className="flex justify-between gap-4"><span className="text-white/50 shrink-0">Shutter</span><span className="text-right">{exifParsed.shutter}</span></div>}
+                                    {exifParsed.iso && <div className="flex justify-between gap-4"><span className="text-white/50 shrink-0">ISO</span><span className="text-right">{exifParsed.iso}</span></div>}
                                 </div>
                             )}
 
                             {/* Photo counter */}
-                            <div className="absolute bottom-2 left-2 md:bottom-4 md:left-4 z-50 text-white/50 text-xs bg-black/40 rounded-full px-2.5 py-1">
-                                {viewingIndex + 1} / {photos.length}
-                            </div>
+
                         </div>
                     )}
                 </DialogContent>
