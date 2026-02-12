@@ -17,7 +17,7 @@ import { RolesGuard } from '../auth/roles.guard';
 
 @Controller('gallery')
 export class GalleryController {
-  constructor(private readonly galleryService: GalleryService) { }
+  constructor(private readonly galleryService: GalleryService) {}
 
   @Post()
   @UseGuards(FirebaseAuthGuard, RolesGuard)
@@ -66,14 +66,18 @@ export class GalleryController {
   @Patch(':id')
   @UseGuards(FirebaseAuthGuard, RolesGuard)
   @Roles('ADMIN')
-  update(@Param('id') id: string, @Body() body: {
-    caption?: string;
-    albumId?: string;
-    tags?: string;
-    exifData?: string;
-    blurHash?: string;
-    sortOrder?: number;
-  }) {
+  update(
+    @Param('id') id: string,
+    @Body()
+    body: {
+      caption?: string;
+      albumId?: string;
+      tags?: string;
+      exifData?: string;
+      blurHash?: string;
+      sortOrder?: number;
+    },
+  ) {
     return this.galleryService.update(id, body);
   }
 
@@ -94,10 +98,13 @@ export class GalleryController {
   @Post('bulk-update')
   @UseGuards(FirebaseAuthGuard, RolesGuard)
   @Roles('ADMIN')
-  bulkUpdate(@Body() body: {
-    ids: string[];
-    data: { caption?: string; albumId?: string; tags?: string };
-  }) {
+  bulkUpdate(
+    @Body()
+    body: {
+      ids: string[];
+      data: { caption?: string; albumId?: string; tags?: string };
+    },
+  ) {
     return this.galleryService.bulkUpdate(body.ids, body.data);
   }
 }

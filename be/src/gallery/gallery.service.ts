@@ -8,7 +8,7 @@ export class GalleryService {
   constructor(
     private prisma: PrismaService,
     private cloudinaryService: CloudinaryService,
-  ) { }
+  ) {}
 
   async create(createGalleryDto: CreateGalleryDto) {
     return this.prisma.gallery.create({
@@ -69,18 +69,21 @@ export class GalleryService {
   incrementViews(id: string) {
     this.prisma.gallery
       .update({ where: { id }, data: { views: { increment: 1 } } })
-      .catch(() => { });
+      .catch(() => {});
     return { success: true };
   }
 
-  async update(id: string, data: {
-    caption?: string;
-    albumId?: string;
-    tags?: string;
-    exifData?: string;
-    blurHash?: string;
-    sortOrder?: number;
-  }) {
+  async update(
+    id: string,
+    data: {
+      caption?: string;
+      albumId?: string;
+      tags?: string;
+      exifData?: string;
+      blurHash?: string;
+      sortOrder?: number;
+    },
+  ) {
     return this.prisma.gallery.update({
       where: { id },
       data,
@@ -94,7 +97,7 @@ export class GalleryService {
   }
 
   async reorder(items: { id: string; sortOrder: number }[]) {
-    const updates = items.map(item =>
+    const updates = items.map((item) =>
       this.prisma.gallery.update({
         where: { id: item.id },
         data: { sortOrder: item.sortOrder },
@@ -104,11 +107,14 @@ export class GalleryService {
     return { updated: items.length };
   }
 
-  async bulkUpdate(ids: string[], data: {
-    caption?: string;
-    albumId?: string;
-    tags?: string;
-  }) {
+  async bulkUpdate(
+    ids: string[],
+    data: {
+      caption?: string;
+      albumId?: string;
+      tags?: string;
+    },
+  ) {
     const result = await this.prisma.gallery.updateMany({
       where: { id: { in: ids } },
       data,
@@ -123,9 +129,9 @@ export class GalleryService {
     });
 
     const tagSet = new Set<string>();
-    photos.forEach(p => {
+    photos.forEach((p) => {
       if (p.tags) {
-        p.tags.split(',').forEach(t => {
+        p.tags.split(',').forEach((t) => {
           const trimmed = t.trim();
           if (trimmed) tagSet.add(trimmed);
         });

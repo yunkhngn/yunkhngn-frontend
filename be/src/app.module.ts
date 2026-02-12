@@ -72,4 +72,4 @@ import { AlbumModule } from './album/album.module';
     },
   ],
 })
-export class AppModule { }
+export class AppModule {}
