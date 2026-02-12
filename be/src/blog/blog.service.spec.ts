@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { BlogService } from './blog.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { NewsletterService } from '../newsletter/newsletter.service';
 
 const mockPrismaService = {
   blog: {
@@ -13,6 +14,10 @@ const mockPrismaService = {
   },
 };
 
+const mockNewsletterService = {
+  sendToAll: jest.fn(),
+};
+
 describe('BlogService', () => {
   let service: BlogService;
   let prisma: PrismaService;
@@ -22,6 +27,7 @@ describe('BlogService', () => {
       providers: [
         BlogService,
         { provide: PrismaService, useValue: mockPrismaService },
+        { provide: NewsletterService, useValue: mockNewsletterService },
       ],
     }).compile();
 
