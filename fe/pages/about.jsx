@@ -115,7 +115,7 @@ export default function About() {
             {/* Scroll Container */}
             <div
                 ref={scrollRef}
-                className="h-[calc(100vh-64px)] overflow-y-auto snap-y snap-mandatory scroll-smooth bg-[#FDFBF7] dark:bg-background text-foreground transition-colors duration-500 font-sans"
+                className="h-[calc(100vh-64px)] overflow-y-auto overflow-x-hidden snap-y snap-mandatory scroll-smooth bg-[#FDFBF7] dark:bg-background text-foreground transition-colors duration-500 font-sans"
             >
                 <div className="relative w-full">
                     <div className="grid grid-cols-1 lg:grid-cols-10 items-start">
@@ -148,23 +148,22 @@ export default function About() {
                         <div className="lg:col-span-6 px-6 md:px-12 lg:px-20 xl:px-32">
 
                             {/* My Story Section */}
-                            <section id="story" className="min-h-[calc(100vh-64px)] flex flex-col justify-center snap-start py-20">
+                            <section id="story" className="min-h-[calc(100vh-64px)] flex flex-col lg:justify-center snap-start pt-0 pb-24 lg:py-20">
+                                {/* Mobile Image (Visible only on small screens) - Edge-to-Edge */}
+                                <div className="lg:hidden -mx-6 md:-mx-12 w-[calc(100%+3rem)] md:w-[calc(100%+6rem)] aspect-[4/3] relative overflow-hidden mb-12">
+                                    <Image
+                                        src={settings.about_image_story || settings.avatar || placeholder}
+                                        alt="Khoa Nguyen"
+                                        fill
+                                        className="object-cover"
+                                        priority
+                                    />
+                                </div>
                                 <motion.div
                                     initial={{ opacity: 0, y: 20 }}
                                     whileInView={{ opacity: 1, y: 0 }}
                                     viewport={{ once: true }}
                                 >
-                                    {/* Mobile Image (Visible only on small screens) */}
-                                    <div className="lg:hidden w-full aspect-square relative rounded-2xl overflow-hidden shadow-xl mb-8">
-                                        <Image
-                                            src={settings.avatar || placeholder}
-                                            alt="Khoa Nguyen"
-                                            fill
-                                            className="object-cover"
-                                            priority
-                                        />
-                                    </div>
-
                                     <h1 className="text-5xl md:text-7xl font-serif font-bold text-foreground mb-8">
                                         My story<span className="text-primary">.</span>
                                     </h1>
@@ -191,7 +190,16 @@ export default function About() {
                             </section>
 
                             {/* Journey Section (Experience & Education) */}
-                            <section id="journey" className="min-h-[calc(100vh-64px)] flex flex-col justify-center snap-start py-20">
+                            <section id="journey" className="min-h-[calc(100vh-64px)] flex flex-col lg:justify-center snap-start pt-0 pb-24 lg:py-20">
+                                {/* Mobile Image for Journey */}
+                                <div className="lg:hidden -mx-6 md:-mx-12 w-[calc(100%+3rem)] md:w-[calc(100%+6rem)] aspect-[4/3] relative overflow-hidden mb-12">
+                                    <Image
+                                        src={settings.about_image_journey || settings.avatar || placeholder}
+                                        alt="Journey"
+                                        fill
+                                        className="object-cover"
+                                    />
+                                </div>
                                 <motion.div
                                     initial={{ opacity: 0, y: 20 }}
                                     whileInView={{ opacity: 1, y: 0 }}
@@ -252,7 +260,16 @@ export default function About() {
                             </section>
 
                             {/* Skills Section */}
-                            <section id="skills" className="min-h-[calc(100vh-64px)] flex flex-col justify-center snap-start py-20">
+                            <section id="skills" className="min-h-[calc(100vh-64px)] flex flex-col lg:justify-center snap-start pt-0 pb-24 lg:py-20">
+                                {/* Mobile Image for Skills */}
+                                <div className="lg:hidden -mx-6 md:-mx-12 w-[calc(100%+3rem)] md:w-[calc(100%+6rem)] aspect-[4/3] relative overflow-hidden mb-12">
+                                    <Image
+                                        src={settings.about_image_skills || settings.avatar || placeholder}
+                                        alt="Skills"
+                                        fill
+                                        className="object-cover"
+                                    />
+                                </div>
                                 <motion.div
                                     initial={{ opacity: 0, y: 20 }}
                                     whileInView={{ opacity: 1, y: 0 }}
@@ -289,7 +306,16 @@ export default function About() {
                             </section>
 
                             {/* Contact Section */}
-                            <section id="contact" className="min-h-[calc(100vh-64px)] flex flex-col justify-center snap-start py-20">
+                            <section id="contact" className="min-h-[calc(100vh-64px)] flex flex-col lg:justify-center snap-start pt-0 pb-32 lg:py-20">
+                                {/* Mobile Image for Contact */}
+                                <div className="lg:hidden -mx-6 md:-mx-12 w-[calc(100%+3rem)] md:w-[calc(100%+6rem)] aspect-[4/3] relative overflow-hidden mb-12">
+                                    <Image
+                                        src={settings.about_image_contact || settings.avatar || placeholder}
+                                        alt="Contact"
+                                        fill
+                                        className="object-cover"
+                                    />
+                                </div>
                                 <motion.div
                                     initial={{ opacity: 0, y: 20 }}
                                     whileInView={{ opacity: 1, y: 0 }}
