@@ -675,7 +675,7 @@ export default function PhotoManager() {
                                 onChange={(e) => setBulkEditData(d => ({ ...d, albumId: e.target.value }))}
                                 className="w-full h-9 rounded-md border border-input bg-background px-3 text-sm"
                             >
-                                <option value="">Don't change</option>
+                                <option value="">Don&apos;t change</option>
                                 {albums.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
                             </select>
                         </div>
