@@ -201,3 +201,19 @@ model Subscriber {
 
   @@map("subscribers")
 }
+
+model ShortLink {
+  id        String    @id @default(uuid())
+  code      String    @unique
+  targetUrl String    @db.NVarChar(2048)
+  title     String?
+  clicks    Int       @default(0)
+  isActive  Boolean   @default(true)
+  expiresAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([code])
+  @@index([isActive])
+  @@map("short_links")
+}
