@@ -1,27 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="jest tests" tests="11" failures="0" errors="0" time="1.805">
-  <testsuite name="ShortlinkService" errors="0" failures="0" skipped="0" timestamp="2026-02-12T17:17:43" time="1.65" tests="11">
-    <testcase classname="ShortlinkService should be defined" name="ShortlinkService should be defined" time="0.006">
+<testsuites name="jest tests" tests="8" failures="0" errors="0" time="2.233">
+  <testsuite name="GalleryService" errors="0" failures="0" skipped="0" timestamp="2026-02-12T18:45:28" time="2.074" tests="8">
+    <testcase classname="GalleryService should be defined" name="GalleryService should be defined" time="0.007">
     </testcase>
-    <testcase classname="ShortlinkService create should create a shortlink with a provided code" name="ShortlinkService create should create a shortlink with a provided code" time="0.002">
+    <testcase classname="GalleryService findAll should return paginated photos with default params" name="GalleryService findAll should return paginated photos with default params" time="0.002">
     </testcase>
-    <testcase classname="ShortlinkService create should throw ConflictException if code already exists" name="ShortlinkService create should throw ConflictException if code already exists" time="0.005">
+    <testcase classname="GalleryService findAll should filter by albumId and tag" name="GalleryService findAll should filter by albumId and tag" time="0.002">
     </testcase>
-    <testcase classname="ShortlinkService create should auto-generate a code if not provided" name="ShortlinkService create should auto-generate a code if not provided" time="0.001">
+    <testcase classname="GalleryService incrementViews should fire and forget" name="GalleryService incrementViews should fire and forget" time="0.001">
     </testcase>
-    <testcase classname="ShortlinkService findAll should return all shortlinks" name="ShortlinkService findAll should return all shortlinks" time="0.001">
+    <testcase classname="GalleryService reorder should update sort orders in transaction" name="GalleryService reorder should update sort orders in transaction" time="0.001">
     </testcase>
-    <testcase classname="ShortlinkService resolve should resolve a valid shortlink and return targetUrl" name="ShortlinkService resolve should resolve a valid shortlink and return targetUrl" time="0.001">
+    <testcase classname="GalleryService bulkUpdate should update multiple photos" name="GalleryService bulkUpdate should update multiple photos" time="0.001">
     </testcase>
-    <testcase classname="ShortlinkService resolve should throw NotFoundException for non-existent code" name="ShortlinkService resolve should throw NotFoundException for non-existent code" time="0.001">
+    <testcase classname="GalleryService getAllTags should extract and deduplicate tags" name="GalleryService getAllTags should extract and deduplicate tags" time="0.001">
     </testcase>
-    <testcase classname="ShortlinkService resolve should throw NotFoundException for inactive link" name="ShortlinkService resolve should throw NotFoundException for inactive link" time="0.001">
-    </testcase>
-    <testcase classname="ShortlinkService resolve should throw NotFoundException for expired link" name="ShortlinkService resolve should throw NotFoundException for expired link" time="0.001">
-    </testcase>
-    <testcase classname="ShortlinkService remove should delete a shortlink" name="ShortlinkService remove should delete a shortlink" time="0.001">
-    </testcase>
-    <testcase classname="ShortlinkService remove should throw NotFoundException if not found" name="ShortlinkService remove should throw NotFoundException if not found" time="0.001">
+    <testcase classname="GalleryService getUploadSignature should return signature" name="GalleryService getUploadSignature should return signature" time="0.002">
     </testcase>
   </testsuite>
 </testsuites>

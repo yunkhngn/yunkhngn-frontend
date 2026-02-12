@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
+import { toast } from 'sonner';
 import { Metadata } from '@/components/template';
 import { useRouter } from 'next/router';
-import { ChevronLeft, Github, ExternalLink, Calendar, Star, GitFork, Scale, BookOpen, Clock, Tag } from 'lucide-react';
+import { ChevronLeft, Github, ExternalLink, Calendar, Star, GitFork, Scale, BookOpen, Clock, Tag, Link2, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/Button';
 import Link from 'next/link';
@@ -11,7 +13,7 @@ import CommentSection from '@/components/blog/CommentSection';
 import { extractTextFromTipTap, stripHtml } from '@/lib/utils';
 import JsonLd from '@/components/seo/JsonLd';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { format } from 'date-fns';
+import { format, formatDistanceToNow } from 'date-fns';
 
 export async function getServerSideProps(context) {
     const { id } = context.params;
@@ -58,6 +60,40 @@ export async function getServerSideProps(context) {
 
 export default function ProjectDetail({ projectData }) {
     const router = useRouter();
+    const { user } = useAuth();
+    const [creatingLink, setCreatingLink] = useState(false);
+
+    const handleCreateShortlink = async () => {
+        setCreatingLink(true);
+        try {
+            const token = await user.getIdToken();
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/shortlinks`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                    targetUrl: `https://yunkhngn.dev/project/${project.slug || project.id}`,
+                    title: project.title,
+                }),
+            });
+            if (res.ok) {
+                const data = await res.json();
+                const shortUrl = `https://yunkhngn.dev/s/${data.code}`;
+                navigator.clipboard.writeText(shortUrl);
+                toast.success(`Shortlink created & copied: ${shortUrl}`);
+            } else {
+                const data = await res.json();
+                toast.error(data.message || 'Failed to create shortlink');
+            }
+        } catch (error) {
+            console.error(error);
+            toast.error('Failed to create shortlink');
+        } finally {
+            setCreatingLink(false);
+        }
+    };
     const [project, setProject] = useState(projectData);
     const [githubStats, setGithubStats] = useState(null);
     const { scrollY } = useScroll();
@@ -199,6 +235,12 @@ export default function ProjectDetail({ projectData }) {
                                     </Button>
                                 </a>
                             )}
+                            {user && user.role === 'ADMIN' && (
+                                <Button size="lg" onClick={handleCreateShortlink} disabled={creatingLink} className="h-12 px-8 text-base bg-white/20 text-white hover:bg-white/30 backdrop-blur-md border-none shadow-lg">
+                                    {creatingLink ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <Link2 className="mr-2 h-5 w-5" />}
+                                    Shortlink
+                                </Button>
+                            )}
                         </div>
                     </motion.div>
                 </div>
@@ -229,6 +271,7 @@ export default function ProjectDetail({ projectData }) {
                                     </span>
                                     <span className="font-medium text-sm">
                                         {format(new Date(project.createdAt), 'MMM d, yyyy')}
+                                        <span className="text-muted-foreground font-normal ml-1.5">({formatDistanceToNow(new Date(project.createdAt), { addSuffix: true })})</span>
                                     </span>
                                 </div>
 

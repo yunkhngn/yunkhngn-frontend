@@ -111,4 +111,19 @@ export class ShortlinkService {
 
         return this.prisma.shortLink.delete({ where: { id } });
     }
+
+    async bulkDelete(ids: string[]) {
+        const result = await this.prisma.shortLink.deleteMany({
+            where: { id: { in: ids } },
+        });
+        return { deleted: result.count };
+    }
+
+    async bulkUpdateStatus(ids: string[], isActive: boolean) {
+        const result = await this.prisma.shortLink.updateMany({
+            where: { id: { in: ids } },
+            data: { isActive },
+        });
+        return { updated: result.count };
+    }
 }

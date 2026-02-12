@@ -28,6 +28,7 @@ import { ChatModule } from './chat/chat.module';
 import { SystemModule } from './system/system.module';
 import { NewsletterModule } from './newsletter/newsletter.module';
 import { ShortlinkModule } from './shortlink/shortlink.module';
+import { AlbumModule } from './album/album.module';
 
 @Module({
   imports: [
@@ -60,6 +61,7 @@ import { ShortlinkModule } from './shortlink/shortlink.module';
     SystemModule,
     NewsletterModule,
     ShortlinkModule,
+    AlbumModule,
   ],
   controllers: [AppController, HealthController],
   providers: [

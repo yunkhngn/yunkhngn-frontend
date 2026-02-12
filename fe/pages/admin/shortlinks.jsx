@@ -1,10 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import Head from 'next/head';
 import AdminLayout from '@/components/template/Admin/Layout';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/Card';
+import { Card, CardContent } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/Dialog';
-import { Link2, Plus, Copy, Trash2, Edit, ExternalLink, Loader2, BarChart3, ToggleLeft, ToggleRight } from 'lucide-react';
+import { Link2, Plus, Copy, Trash2, Edit, ExternalLink, Loader2, BarChart3, ToggleLeft, ToggleRight, CheckSquare, Square, XCircle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
@@ -18,6 +18,8 @@ export default function AdminShortlinks() {
     const [dialogOpen, setDialogOpen] = useState(false);
     const [editing, setEditing] = useState(null);
     const [saving, setSaving] = useState(false);
+    const [selected, setSelected] = useState(new Set());
+    const [bulkLoading, setBulkLoading] = useState(false);
     const [form, setForm] = useState({
         code: '',
         targetUrl: '',
@@ -165,6 +167,83 @@ export default function AdminShortlinks() {
         }
     };
 
+    // Bulk actions
+    const toggleSelect = (id) => {
+        setSelected(prev => {
+            const next = new Set(prev);
+            if (next.has(id)) next.delete(id);
+            else next.add(id);
+            return next;
+        });
+    };
+
+    const toggleSelectAll = () => {
+        if (selected.size === links.length) {
+            setSelected(new Set());
+        } else {
+            setSelected(new Set(links.map(l => l.id)));
+        }
+    };
+
+    const clearSelection = () => setSelected(new Set());
+
+    const bulkDelete = async () => {
+        if (!confirm(`Delete ${selected.size} shortlink(s)?`)) return;
+        setBulkLoading(true);
+        try {
+            const token = await user.getIdToken();
+            const res = await fetch(`${API_URL}/shortlinks/bulk/delete`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({ ids: [...selected] }),
+            });
+            if (res.ok) {
+                const data = await res.json();
+                toast.success(`Deleted ${data.deleted} shortlink(s)`);
+                clearSelection();
+                fetchLinks();
+            } else {
+                toast.error('Bulk delete failed');
+            }
+        } catch (error) {
+            console.error(error);
+            toast.error('Network error');
+        } finally {
+            setBulkLoading(false);
+        }
+    };
+
+    const bulkSetStatus = async (isActive) => {
+        setBulkLoading(true);
+        try {
+            const token = await user.getIdToken();
+            const res = await fetch(`${API_URL}/shortlinks/bulk/status`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({ ids: [...selected], isActive }),
+            });
+            if (res.ok) {
+                const data = await res.json();
+                toast.success(`${isActive ? 'Activated' : 'Deactivated'} ${data.updated} shortlink(s)`);
+                clearSelection();
+                fetchLinks();
+            } else {
+                toast.error('Bulk update failed');
+            }
+        } catch (error) {
+            console.error(error);
+            toast.error('Network error');
+        } finally {
+            setBulkLoading(false);
+        }
+    };
+
     const copyShortUrl = (code) => {
         navigator.clipboard.writeText(`https://yunkhngn.dev/s/${code}`);
         toast.success('Copied to clipboard!');
@@ -190,6 +269,26 @@ export default function AdminShortlinks() {
                     </Button>
                 </div>
 
+                {/* Bulk Action Bar */}
+                {selected.size > 0 && (
+                    <div className="flex items-center gap-3 mb-4 p-3 bg-primary/5 border border-primary/20 rounded-lg animate-in slide-in-from-top-2">
+                        <span className="text-sm font-medium">{selected.size} selected</span>
+                        <div className="flex-1" />
+                        <Button variant="outline" size="sm" onClick={() => bulkSetStatus(true)} disabled={bulkLoading} className="gap-1.5">
+                            <ToggleRight className="h-3.5 w-3.5 text-green-500" /> Activate
+                        </Button>
+                        <Button variant="outline" size="sm" onClick={() => bulkSetStatus(false)} disabled={bulkLoading} className="gap-1.5">
+                            <ToggleLeft className="h-3.5 w-3.5" /> Deactivate
+                        </Button>
+                        <Button variant="outline" size="sm" onClick={bulkDelete} disabled={bulkLoading} className="gap-1.5 text-red-500 hover:text-red-600 border-red-200 hover:border-red-300 hover:bg-red-50 dark:border-red-800 dark:hover:border-red-700 dark:hover:bg-red-950">
+                            {bulkLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />} Delete
+                        </Button>
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={clearSelection}>
+                            <XCircle className="h-4 w-4" />
+                        </Button>
+                    </div>
+                )}
+
                 {loading ? (
                     <div className="flex justify-center items-center h-64">
                         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
@@ -207,34 +306,49 @@ export default function AdminShortlinks() {
                     </Card>
                 ) : (
                     <div className="space-y-3">
+                        {/* Select All */}
+                        <div className="flex items-center gap-2 px-2">
+                            <button onClick={toggleSelectAll} className="text-muted-foreground hover:text-foreground transition-colors">
+                                {selected.size === links.length ? <CheckSquare className="h-4 w-4 text-primary" /> : <Square className="h-4 w-4" />}
+                            </button>
+                            <span className="text-xs text-muted-foreground">
+                                {selected.size === links.length ? 'Deselect all' : 'Select all'}
+                            </span>
+                        </div>
+
                         {links.map((link) => (
-                            <Card key={link.id} className={`transition-opacity ${!link.isActive ? 'opacity-50' : ''}`}>
+                            <Card key={link.id} className={`transition-all ${!link.isActive ? 'opacity-50' : ''} ${selected.has(link.id) ? 'ring-1 ring-primary/50 bg-primary/[0.02]' : ''}`}>
                                 <CardContent className="p-4">
                                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                                        {/* Link Info */}
-                                        <div className="flex-1 min-w-0">
-                                            <div className="flex items-center gap-2 mb-1">
-                                                {link.title && (
-                                                    <span className="font-semibold text-sm">{link.title}</span>
-                                                )}
-                                                <span className={`text-xs px-2 py-0.5 rounded-full ${link.isActive ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'}`}>
-                                                    {link.isActive ? 'Active' : 'Inactive'}
-                                                </span>
-                                                {link.expiresAt && new Date(link.expiresAt) < new Date() && (
-                                                    <span className="text-xs px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400">Expired</span>
-                                                )}
-                                            </div>
+                                        {/* Checkbox + Link Info */}
+                                        <div className="flex items-start gap-3 flex-1 min-w-0">
+                                            <button onClick={() => toggleSelect(link.id)} className="mt-1 text-muted-foreground hover:text-foreground transition-colors shrink-0">
+                                                {selected.has(link.id) ? <CheckSquare className="h-4 w-4 text-primary" /> : <Square className="h-4 w-4" />}
+                                            </button>
+                                            <div className="flex-1 min-w-0">
+                                                <div className="flex items-center gap-2 mb-1">
+                                                    {link.title && (
+                                                        <span className="font-semibold text-sm">{link.title}</span>
+                                                    )}
+                                                    <span className={`text-xs px-2 py-0.5 rounded-full ${link.isActive ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'}`}>
+                                                        {link.isActive ? 'Active' : 'Inactive'}
+                                                    </span>
+                                                    {link.expiresAt && new Date(link.expiresAt) < new Date() && (
+                                                        <span className="text-xs px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400">Expired</span>
+                                                    )}
+                                                </div>
 
-                                            <div className="flex items-center gap-2 mb-1">
-                                                <code className="text-primary font-mono text-sm font-bold">{siteUrl}{link.code}</code>
-                                                <button onClick={() => copyShortUrl(link.code)} className="text-muted-foreground hover:text-foreground transition-colors" title="Copy short URL">
-                                                    <Copy className="h-3.5 w-3.5" />
-                                                </button>
-                                            </div>
+                                                <div className="flex items-center gap-2 mb-1">
+                                                    <code className="text-primary font-mono text-sm font-bold">{siteUrl}{link.code}</code>
+                                                    <button onClick={() => copyShortUrl(link.code)} className="text-muted-foreground hover:text-foreground transition-colors" title="Copy short URL">
+                                                        <Copy className="h-3.5 w-3.5" />
+                                                    </button>
+                                                </div>
 
-                                            <a href={link.targetUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground hover:text-foreground truncate block max-w-lg transition-colors">
-                                                {link.targetUrl}
-                                            </a>
+                                                <a href={link.targetUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground hover:text-foreground truncate block max-w-lg transition-colors">
+                                                    {link.targetUrl}
+                                                </a>
+                                            </div>
                                         </div>
 
                                         {/* Stats & Actions */}

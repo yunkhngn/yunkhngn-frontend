@@ -51,4 +51,18 @@ export class ShortlinkController {
     remove(@Param('id') id: string) {
         return this.shortlinkService.remove(id);
     }
+
+    @Post('bulk/delete')
+    @UseGuards(FirebaseAuthGuard, RolesGuard)
+    @Roles('ADMIN')
+    bulkDelete(@Body() body: { ids: string[] }) {
+        return this.shortlinkService.bulkDelete(body.ids);
+    }
+
+    @Post('bulk/status')
+    @UseGuards(FirebaseAuthGuard, RolesGuard)
+    @Roles('ADMIN')
+    bulkUpdateStatus(@Body() body: { ids: string[]; isActive: boolean }) {
+        return this.shortlinkService.bulkUpdateStatus(body.ids, body.isActive);
+    }
 }

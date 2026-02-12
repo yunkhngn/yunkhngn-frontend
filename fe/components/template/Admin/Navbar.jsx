@@ -33,6 +33,7 @@ const ADMIN_NAV_ITEMS = [
         icon: MessageSquare,
         children: [
             { label: "Chatbot", href: "/admin/chat", icon: Bot },
+            { label: "Shortlinks", href: "/admin/shortlinks", icon: Link2 },
             { label: "Comments", href: "/admin/comments", icon: MessageSquare },
             { label: "Contact", href: "/admin/contact", icon: Mail },
         ]
@@ -41,7 +42,6 @@ const ADMIN_NAV_ITEMS = [
         label: "System",
         icon: Settings,
         children: [
-            { label: "Shortlinks", href: "/admin/shortlinks", icon: Link2 },
             { label: "Profile", href: "/admin/profile", icon: User },
             { label: "Settings", href: "/admin/settings", icon: Settings },
         ]
