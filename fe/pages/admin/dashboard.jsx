@@ -112,7 +112,9 @@ export default function Dashboard() {
 
         const blogs = await blogsRes.json();
         const projects = await projectsRes.json();
-        const gallery = await galleryRes.json();
+        const galleryResult = await galleryRes.json();
+        const gallery = galleryResult.data || [];
+        const galleryTotal = galleryResult.total || gallery.length;
         const commentsData = await commentsRes.json();
         const contacts = await contactRes.json();
 
@@ -132,7 +134,7 @@ export default function Dashboard() {
           blogsDraft: draftBlogs.length,
           blogsPublished: publishedBlogs.length,
           projects: projects.length,
-          gallery: gallery.length,
+          gallery: galleryTotal,
           comments: commentsData.meta?.total || 0,
           mailTotal: contacts.length + respondedContacts.length,
           mailReceived: contacts.length,

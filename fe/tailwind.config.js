@@ -60,6 +60,7 @@ module.exports = {
         sans: ["var(--font-be-vietnam-pro)", "sans-serif"],
         mono: ["var(--font-jetbrains-mono)", "monospace"],
         heading: ["var(--font-be-vietnam-pro)", "sans-serif"],
+        serif: ["var(--font-playfair)", "serif"],
       },
       keyframes: {
         "accordion-down": {

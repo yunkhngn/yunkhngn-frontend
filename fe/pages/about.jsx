@@ -1,20 +1,26 @@
 import Image from "next/image";
-import { Github, Facebook, Instagram, Linkedin, Mail, Database, Code2, Terminal, Layout as LayoutIcon, Server, Settings, Video, Palette, Layers, GraduationCap, Briefcase } from "lucide-react";
+import { Github, Facebook, Instagram, Linkedin, Mail, ArrowRight, Briefcase, GraduationCap, MapPin, Calendar, Globe, Code } from "lucide-react";
 import {
-    SiJavascript, SiTypescript, SiPython, SiCplusplus, SiHtml5, SiCss3,
-    SiReact, SiNextdotjs, SiNestjs, SiNodedotjs, SiExpress, SiPrisma, SiTypeorm, SiTailwindcss, SiShadcnui,
-    SiGit, SiGithubactions, SiDocker, SiCaddy, SiPostman, SiFigma, SiFirebase, SiCloudinary,
-    SiMysql, SiPostgresql, SiMongodb,
-    SiAdobephotoshop, SiAdobeillustrator, SiAdobepremierepro, SiAdobeaftereffects, SiAdobelightroom, SiBlender,
-    SiVercel, SiRailway
+    SiReact, SiNextdotjs, SiNodedotjs, SiTypescript, SiJavascript, SiTailwindcss,
+    SiMysql, SiPostgresql, SiMongodb, SiDocker, SiFigma, SiPython,
+    SiSpringboot, SiNestjs, SiGit, SiGithub, SiAmazonwebservices, SiHtml5, SiCss3
 } from "react-icons/si";
-import { useState, useEffect } from 'react';
+import { FaJava } from "react-icons/fa6";
+import { useState, useEffect, useRef } from 'react';
+import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 
 import Layout from '@/components/template/Default/Layout';
 import Metadata from '@/components/template/Metadata';
+import { Button } from "@/components/ui/Button";
+
+const placeholder = "/image/placeholder.jpg";
 
 export default function About() {
     const [settings, setSettings] = useState({});
+    const [parsedExperience, setParsedExperience] = useState([]);
+    const [parsedEducation, setParsedEducation] = useState([]);
+    const [parsedSkills, setParsedSkills] = useState([]);
+    const scrollRef = useRef(null);
 
     useEffect(() => {
         const fetchSettings = async () => {
@@ -27,6 +33,14 @@ export default function About() {
                         return acc;
                     }, {});
                     setSettings(settingsObj);
+
+                    try {
+                        if (settingsObj.experience) setParsedExperience(JSON.parse(settingsObj.experience));
+                        if (settingsObj.education) setParsedEducation(JSON.parse(settingsObj.education));
+                        if (settingsObj.skills) setParsedSkills(JSON.parse(settingsObj.skills));
+                    } catch (e) {
+                        console.error("Error parsing JSON settings", e);
+                    }
                 }
             } catch (error) {
                 console.error("Failed to fetch settings", error);
@@ -35,204 +49,348 @@ export default function About() {
         fetchSettings();
     }, []);
 
+    const navItems = [
+        { id: "story", label: "my story" },
+        { id: "journey", label: "education & experience" },
+        { id: "skills", label: "skills" },
+        { id: "contact", label: "contact" },
+    ];
+
+    const [activeSection, setActiveSection] = useState("story");
+
+    // Handle scroll to update active section - using container ref
+    useEffect(() => {
+        const container = scrollRef.current;
+        if (!container) return;
+
+        const handleScroll = () => {
+            const sections = navItems.map(item => document.getElementById(item.id));
+            // Adjust scroll position check relative to the container
+            const scrollPosition = container.scrollTop + container.clientHeight / 3;
+
+            for (const section of sections) {
+                // Check offset relative to container
+                if (section && section.offsetTop <= scrollPosition && (section.offsetTop + section.offsetHeight) > scrollPosition) {
+                    setActiveSection(section.id);
+                }
+            }
+        };
+
+        container.addEventListener('scroll', handleScroll);
+        // Initial check
+        handleScroll();
+
+        return () => container.removeEventListener('scroll', handleScroll);
+    }, [navItems]);
+
+    const scrollToSection = (id) => {
+        const element = document.getElementById(id);
+        const container = scrollRef.current;
+        if (element && container) {
+            container.scrollTo({
+                top: element.offsetTop,
+                behavior: 'smooth'
+            });
+        }
+    };
+
+    const getSectionImage = () => {
+        switch (activeSection) {
+            case "story": return settings.about_image_story || settings.avatar || placeholder;
+            case "journey": return settings.about_image_journey || settings.avatar || placeholder;
+            case "skills": return settings.about_image_skills || settings.avatar || placeholder;
+            case "contact": return settings.about_image_contact || settings.avatar || placeholder;
+            default: return settings.avatar || placeholder;
+        }
+    };
+
     return (
         <Layout>
             <Metadata
                 title="About me - Khoa Nguyễn"
-                description="Learn more about Khoa Nguyễn - Software Engineer. Explore my education, experience, and tech stack."
+                description="My Story - Khoa Nguyễn"
                 url="https://yunkhngn.dev/about"
             />
-            <div className="container mx-auto px-4 py-12 max-w-4xl">
-                {/* Hero Section */}
-                <div className="flex flex-col items-center gap-8 mb-16">
-                    <div className="relative w-48 h-48 shrink-0">
-                        <div className="absolute inset-0 bg-gradient-to-br from-primary to-purple-600 rounded-full blur-2xl opacity-20 animate-pulse" />
-                        <Image
-                            src={settings.avatar || "https://github.com/yunkhngn.png"}
-                            alt="Profile"
-                            fill
-                            className="object-cover rounded-full border-4 border-background shadow-xl"
-                            priority
-                        />
-                    </div>
-                    <div className="text-center md:text-left space-y-4">
-                        <h1 className="text-4xl md:text-5xl text-center font-bold tracking-tight">
-                            {settings.name || "Khoa Nguyễn"}
-                        </h1>
-                        <p className="text-xl text-center text-muted-foreground">
-                            {settings.title || "Software Engineer • Graphic Designer • Guitarist"}
-                        </p>
-                        <div className="flex items-center justify-center gap-4">
-                            <SocialLink href={settings.github || "https://github.com/yunkhngn"} icon={<Github className="w-5 h-5" />} />
-                            <SocialLink href={settings.facebook || "https://facebook.com/yunkhngn"} icon={<Facebook className="w-5 h-5" />} />
-                            <SocialLink href={settings.tiktok || "https://www.tiktok.com/@yun.khngn"} icon={<TikTok className="w-5 h-5" />} />
-                            <SocialLink href={settings.instagram || "https://instagram.com/yunkhngn"} icon={<Instagram className="w-5 h-5" />} />
-                            <SocialLink href={settings.linkedin || "https://linkedin.com/in/yunkhngn"} icon={<Linkedin className="w-5 h-5" />} />
-                            <SocialLink href={`mailto:${settings.email || "contact@yunkhngn.dev"}`} icon={<Mail className="w-5 h-5" />} />
+
+            {/* Scroll Container */}
+            <div
+                ref={scrollRef}
+                className="h-[calc(100vh-64px)] overflow-y-auto overflow-x-hidden snap-y snap-mandatory scroll-smooth bg-[#FDFBF7] dark:bg-background text-foreground transition-colors duration-500 font-sans"
+            >
+                <div className="relative w-full">
+                    <div className="grid grid-cols-1 lg:grid-cols-10 items-start">
+
+                        {/* Left Column: Image (Sticky) - 4/10 ratio, Edge-to-Edge */}
+                        <div className="hidden lg:block lg:col-span-4 sticky top-0 h-[calc(100vh-64px)] z-10">
+                            <AnimatePresence mode="wait">
+                                <motion.div
+                                    key={activeSection}
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    transition={{ duration: 0.8 }}
+                                    className="relative w-full h-full overflow-hidden"
+                                >
+                                    <Image
+                                        src={getSectionImage()}
+                                        alt="Khoa Nguyen"
+                                        fill
+                                        className="object-cover"
+                                        priority
+                                    />
+                                    {/* Subtle overlap shadow for depth */}
+                                    <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-black/20 to-transparent pointer-events-none" />
+                                </motion.div>
+                            </AnimatePresence>
                         </div>
-                    </div>
-                </div>
 
-                <div className="space-y-12 text-lg leading-relaxed text-gray-600 dark:text-gray-300 font-medium">
-                    {settings.bio ? (
-                        <div dangerouslySetInnerHTML={{ __html: settings.bio }} className="whitespace-pre-wrap" />
-                    ) : (
-                        <p className="whitespace-pre-wrap">
-                            Xin chào, tớ là <strong className="text-foreground">Khoa Nguyễn (yun.khngn)</strong>, sinh viên chuyên ngành Kỹ thuật phần mềm tại Đại học FPT.
-                            Tớ đang là freelancer thiết kế đồ hoạ và là một guitarist.
-                            Tớ đang hướng tới trở thành một <strong className="text-foreground">Fullstack Developer</strong> và thực hiện thêm nhiều ước mơ phía trước.
-                        </p>
-                    )}
+                        {/* Right Column: Content - 6/10 ratio */}
+                        <div className="lg:col-span-6 px-6 md:px-12 lg:px-20 xl:px-32">
 
-                    <blockquote className="border-l-4 border-primary pl-6 py-2 italic text-xl text-foreground font-serif">
-                        {settings.quote || '"Tương lai thuộc về những người tin vào vẻ đẹp trong chính những giấc mơ, hoài bão to lớn của mình..."'}
-                    </blockquote>
-                    {
-                        settings.about_content && (
-                            <div dangerouslySetInnerHTML={{ __html: settings.about_content }} className="whitespace-pre-wrap" />
-                        )
-                    }
-                    <div className="pt-8 space-y-2 text-center">
-                        <p className="italic">Author of this website.</p>
-                        <p className="font-serif text-xl text-foreground font-bold pt-4">Khoa Nguyễn</p>
-                    </div>
+                            {/* My Story Section */}
+                            <section id="story" className="min-h-[calc(100vh-64px)] flex flex-col lg:justify-center snap-start pt-0 pb-24 lg:py-20">
+                                {/* Mobile Image (Visible only on small screens) - Edge-to-Edge */}
+                                <div className="lg:hidden -mx-6 md:-mx-12 w-[calc(100%+3rem)] md:w-[calc(100%+6rem)] aspect-[4/3] relative overflow-hidden mb-12">
+                                    <Image
+                                        src={settings.about_image_story || settings.avatar || placeholder}
+                                        alt="Khoa Nguyen"
+                                        fill
+                                        className="object-cover"
+                                        priority
+                                    />
+                                </div>
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    whileInView={{ opacity: 1, y: 0 }}
+                                    viewport={{ once: true }}
+                                >
+                                    <h1 className="text-5xl md:text-7xl font-serif font-bold text-foreground mb-8">
+                                        My story<span className="text-primary">.</span>
+                                    </h1>
 
-                    {/* Education & Experience Timeline */}
-                    <div className="grid md:grid-cols-2 gap-12 pt-12">
-                        {/* Education */}
-                        <div className="space-y-8">
-                            <h3 className="text-2xl font-bold flex items-center justify-center gap-2 text-foreground">
-                                <span className="p-2 bg-primary/10 rounded-lg text-primary">
-                                    <GraduationCap className="h-5 w-5" />
-                                </span>
-                                Education
-                            </h3>
-                            <div className="relative border-l-2 border-muted pl-8 space-y-10">
-                                {settings.education ? (
-                                    JSON.parse(settings.education).map((edu, index) => (
-                                        <div key={index} className="relative">
-                                            <div className="absolute -left-[41px] w-4 h-4 bg-background border-2 border-primary rounded-full flex items-center justify-center">
-                                                <div className="w-1.5 h-1.5 bg-primary rounded-full" />
-                                            </div>
-                                            <span className="text-sm text-muted-foreground font-mono">{edu.date}</span>
-                                            <h4 className="text-lg font-bold text-foreground mt-1">{edu.school}</h4>
-                                            <p className="text-primary font-medium">{edu.degree}</p>
-                                            {edu.description && <p className="text-sm mt-2">{edu.description}</p>}
-                                        </div>
-                                    ))
-                                ) : (
-                                    <div className="relative">
-                                        <div className="absolute -left-[41px] w-4 h-4 bg-background border-2 border-primary rounded-full flex items-center justify-center">
-                                            <div className="w-1.5 h-1.5 bg-primary rounded-full" />
-                                        </div>
-                                        <span className="text-sm text-muted-foreground font-mono">2020 - 2024</span>
-                                        <h4 className="text-lg font-bold text-foreground mt-1">FPT University</h4>
-                                        <p className="text-primary font-medium">Software Engineering</p>
+                                    <div className="prose dark:prose-invert text-lg md:text-xl leading-relaxed text-muted-foreground font-light space-y-6">
+                                        {settings.bio ? (
+                                            <div dangerouslySetInnerHTML={{ __html: settings.bio }} />
+                                        ) : (
+                                            <>
+                                                <p>Since I can remember I have always liked to create. That passion evolved and when I was 15 I started to create some simple digital graphics.</p>
+                                                <p>As a Fullstack Developer based in Vietnam, I specialize in building exceptional digital experiences.</p>
+                                            </>
+                                        )}
+                                        {settings.quote && (
+                                            <blockquote className="border-l-4 border-primary pl-6 py-2 italic text-xl text-foreground font-serif my-8">
+                                                &quot;{settings.quote}&quot;
+                                            </blockquote>
+                                        )}
+                                        {settings.about_content && (
+                                            <div dangerouslySetInnerHTML={{ __html: settings.about_content }} className="mt-8 space-y-6" />
+                                        )}
                                     </div>
-                                )}
-                            </div>
-                        </div>
+                                </motion.div>
+                            </section>
 
-                        {/* Experience */}
-                        <div className="space-y-8">
-                            <h3 className="text-2xl font-bold flex items-center justify-center gap-2 text-foreground">
-                                <span className="p-2 bg-primary/10 rounded-lg text-primary">
-                                    <Briefcase className="h-5 w-5" />
-                                </span>
-                                Experience
-                            </h3>
-                            <div className="relative border-l-2 border-muted pl-8 space-y-10">
-                                {settings.experience ? (
-                                    JSON.parse(settings.experience).map((exp, index) => (
-                                        <div key={index} className="relative">
-                                            <div className="absolute -left-[41px] w-4 h-4 bg-background border-2 border-primary rounded-full flex items-center justify-center">
-                                                <div className="w-1.5 h-1.5 bg-primary rounded-full" />
-                                            </div>
-                                            <span className="text-sm text-muted-foreground font-mono">{exp.date}</span>
-                                            <h4 className="text-lg font-bold text-foreground mt-1">{exp.company}</h4>
-                                            <p className="text-primary font-medium">{exp.role}</p>
-                                            {exp.description && <p className="text-sm mt-2">{exp.description}</p>}
+                            {/* Journey Section (Experience & Education) */}
+                            <section id="journey" className="min-h-[calc(100vh-64px)] flex flex-col lg:justify-center snap-start pt-0 pb-24 lg:py-20">
+                                {/* Mobile Image for Journey */}
+                                <div className="lg:hidden -mx-6 md:-mx-12 w-[calc(100%+3rem)] md:w-[calc(100%+6rem)] aspect-[4/3] relative overflow-hidden mb-12">
+                                    <Image
+                                        src={settings.about_image_journey || settings.avatar || placeholder}
+                                        alt="Journey"
+                                        fill
+                                        className="object-cover"
+                                    />
+                                </div>
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    whileInView={{ opacity: 1, y: 0 }}
+                                    viewport={{ once: true }}
+                                    className="space-y-16"
+                                >
+                                    <div>
+                                        <h2 className="text-4xl font-serif font-bold mb-12">Education<span className="text-primary">.</span></h2>
+                                        <div className="space-y-12 border-l border-foreground/10 ml-3 pl-8 md:pl-12">
+                                            {parsedEducation.length > 0 ? (
+                                                parsedEducation.map((edu, i) => (
+                                                    <TimelineItem
+                                                        key={i}
+                                                        date={edu.date}
+                                                        title={edu.school}
+                                                        subtitle={edu.degree}
+                                                        description={edu.description}
+                                                        icon={<GraduationCap className="w-4 h-4" />}
+                                                    />
+                                                ))
+                                            ) : (
+                                                <TimelineItem
+                                                    date="2020 - 2024"
+                                                    title="FPT University"
+                                                    subtitle="Software Engineering"
+                                                    icon={<GraduationCap className="w-4 h-4" />}
+                                                />
+                                            )}
                                         </div>
-                                    ))
-                                ) : (
-                                    <div className="relative">
-                                        <div className="absolute -left-[41px] w-4 h-4 bg-background border-2 border-primary rounded-full flex items-center justify-center">
-                                            <div className="w-1.5 h-1.5 bg-primary rounded-full" />
-                                        </div>
-                                        <span className="text-sm text-muted-foreground font-mono">2023 - Present</span>
-                                        <h4 className="text-lg font-bold text-foreground mt-1">Freelance</h4>
-                                        <p className="text-primary font-medium">Fullstack Developer</p>
                                     </div>
-                                )}
-                            </div>
-                        </div>
-                    </div>
 
-                    {/* Tech Stack & Skills */}
-                    <div className="pt-16 space-y-8">
-                        <h3 className="text-3xl font-bold text-center text-foreground">Tech Stack & Skills</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            {settings.skills ? (
-                                JSON.parse(settings.skills).map((skillGroup, index) => (
-                                    <div key={index} className="bg-card border rounded-xl p-6 hover:border-primary transition-colors">
-                                        <h4 className="text-lg font-bold mb-4 text-foreground">{skillGroup.category}</h4>
-                                        <div className="flex flex-wrap gap-3">
-                                            {skillGroup.items.map((item, i) => {
-                                                const Icon = getSkillIcon(item);
-                                                return (
-                                                    <div key={i} className="flex items-center gap-2 px-3 py-2 bg-secondary text-secondary-foreground rounded-md text-sm font-medium transition-colors hover:bg-secondary/80">
-                                                        <Icon className="h-4 w-4" />
-                                                        <span>{item}</span>
+                                    <div>
+                                        <h2 className="text-4xl font-serif font-bold mb-12">Experience<span className="text-primary">.</span></h2>
+                                        <div className="space-y-12 border-l border-foreground/10 ml-3 pl-8 md:pl-12">
+                                            {parsedExperience.length > 0 ? (
+                                                parsedExperience.map((exp, i) => (
+                                                    <TimelineItem
+                                                        key={i}
+                                                        date={exp.date}
+                                                        title={exp.company}
+                                                        subtitle={exp.role}
+                                                        description={exp.description}
+                                                        icon={<Briefcase className="w-4 h-4" />}
+                                                    />
+                                                ))
+                                            ) : (
+                                                <TimelineItem
+                                                    date="2023 - Present"
+                                                    title="Freelance"
+                                                    subtitle="Fullstack Developer"
+                                                    description="Building modern web applications for clients."
+                                                    icon={<Briefcase className="w-4 h-4" />}
+                                                />
+                                            )}
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            </section>
+
+                            {/* Skills Section */}
+                            <section id="skills" className="min-h-[calc(100vh-64px)] flex flex-col lg:justify-center snap-start pt-0 pb-24 lg:py-20">
+                                {/* Mobile Image for Skills */}
+                                <div className="lg:hidden -mx-6 md:-mx-12 w-[calc(100%+3rem)] md:w-[calc(100%+6rem)] aspect-[4/3] relative overflow-hidden mb-12">
+                                    <Image
+                                        src={settings.about_image_skills || settings.avatar || placeholder}
+                                        alt="Skills"
+                                        fill
+                                        className="object-cover"
+                                    />
+                                </div>
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    whileInView={{ opacity: 1, y: 0 }}
+                                    viewport={{ once: true }}
+                                >
+                                    <h2 className="text-4xl font-serif font-bold mb-12">Skills<span className="text-primary">.</span></h2>
+                                    <div className="grid gap-12">
+                                        {parsedSkills.length > 0 ? (
+                                            parsedSkills.map((group, idx) => (
+                                                <div key={idx} className="space-y-6">
+                                                    <h3 className="text-2xl font-serif text-foreground flex items-center gap-4">
+                                                        <span className="w-12 h-[1px] bg-primary block"></span>
+                                                        {group.category}
+                                                    </h3>
+                                                    <div className="flex flex-wrap gap-4 pl-0 md:pl-16">
+                                                        {group.items.map((skill, i) => (
+                                                            <div key={i} className="flex items-center gap-2 px-4 py-2 bg-secondary/50 rounded-full border border-transparent hover:border-primary/20 transition-all cursor-default group">
+                                                                <span className="text-lg text-primary group-hover:scale-110 transition-transform">
+                                                                    {getSkillIcon(skill)}
+                                                                </span>
+                                                                <span className="text-lg text-muted-foreground group-hover:text-foreground transition-colors font-medium">
+                                                                    {skill}
+                                                                </span>
+                                                            </div>
+                                                        ))}
                                                     </div>
-                                                );
-                                            })}
-                                        </div>
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <p className="text-muted-foreground">Loading skills...</p>
+                                        )}
                                     </div>
-                                ))
-                            ) : (
-                                [
-                                    {
-                                        category: "Languages",
-                                        items: ["JavaScript", "C/C++", "Python", "Java", "SQL", "HTML", "CSS"]
-                                    },
-                                    {
-                                        category: "Frameworks and Libraries",
-                                        items: ["React", "Next.js", "NodeJS", "NestJS", "Express", "Prisma", "TypeORM", "Tailwind CSS", "HeroUI", "shadcn/ui"]
-                                    },
-                                    {
-                                        category: "Tools",
-                                        items: ["Git", "GitHub Actions", "Docker", "Docker Compose", "Caddy", "Postman", "Figma", "VS Code", "Firebase", "Cloudinary"]
-                                    },
-                                    {
-                                        category: "Databases",
-                                        items: ["MSSQL", "MySQL", "PostgreSQL", "MongoDB"]
-                                    },
-                                    {
-                                        category: "DevOps & Deployment",
-                                        items: ["CI/CD", "GitHub Actions Pipelines", "Dockerized Monorepos", "Reverse Proxy (Caddy)", "VPS Deployment", "Environment Configuration"]
-                                    },
-                                    {
-                                        category: "Design & Video Editing",
-                                        items: ["Adobe Photoshop", "Adobe Illustrator", "Adobe Premiere Pro", "Adobe After Effects", "Adobe Lightroom", "CapCut", "Blender"]
-                                    }
-                                ].map((skillGroup, index) => (
-                                    <div key={index} className="bg-card border rounded-xl p-6 hover:border-primary transition-colors">
-                                        <h4 className="text-lg font-bold mb-4 text-foreground">{skillGroup.category}</h4>
-                                        <div className="flex flex-wrap gap-3">
-                                            {skillGroup.items.map((item, i) => {
-                                                const Icon = getSkillIcon(item);
-                                                return (
-                                                    <div key={i} className="flex items-center gap-2 px-3 py-2 bg-secondary text-secondary-foreground rounded-md text-sm font-medium transition-colors hover:bg-secondary/80">
-                                                        <Icon className="h-4 w-4" />
-                                                        <span>{item}</span>
-                                                    </div>
-                                                );
-                                            })}
-                                        </div>
+                                </motion.div>
+                            </section>
+
+                            {/* Contact Section */}
+                            <section id="contact" className="min-h-[calc(100vh-64px)] flex flex-col lg:justify-center snap-start pt-0 pb-32 lg:py-20">
+                                {/* Mobile Image for Contact */}
+                                <div className="lg:hidden -mx-6 md:-mx-12 w-[calc(100%+3rem)] md:w-[calc(100%+6rem)] aspect-[4/3] relative overflow-hidden mb-12">
+                                    <Image
+                                        src={settings.about_image_contact || settings.avatar || placeholder}
+                                        alt="Contact"
+                                        fill
+                                        className="object-cover"
+                                    />
+                                </div>
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    whileInView={{ opacity: 1, y: 0 }}
+                                    viewport={{ once: true }}
+                                >
+                                    <h2 className="text-4xl font-serif font-bold mb-8">Contact<span className="text-primary">.</span></h2>
+                                    <p className="text-xl text-muted-foreground max-w-xl leading-relaxed mb-12">
+                                        I&apos;m always open to discussing new projects, creative ideas or opportunities to be part of your visions.
+                                    </p>
+
+                                    <div className="grid gap-4">
+                                        <a href={`mailto:${settings.email || "contact@yunkhngn.dev"}`} className="group flex items-center gap-4 p-3 -ml-3 rounded-xl hover:bg-secondary/30 transition-all">
+                                            <div className="p-3 bg-secondary rounded-full group-hover:bg-primary group-hover:text-primary-foreground transition-all shadow-sm">
+                                                <Mail className="w-5 h-5" />
+                                            </div>
+                                            <div className="space-y-0.5">
+                                                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Email</p>
+                                                <p className="text-xl md:text-2xl font-serif font-medium">{settings.email || "contact@yunkhngn.dev"}</p>
+                                            </div>
+                                        </a>
+
+                                        {settings.linkedin && (
+                                            <a href={settings.linkedin} target="_blank" rel="noopener noreferrer" className="group flex items-center gap-4 p-3 -ml-3 rounded-xl hover:bg-secondary/30 transition-all">
+                                                <div className="p-3 bg-secondary rounded-full group-hover:bg-primary group-hover:text-primary-foreground transition-all shadow-sm">
+                                                    <Linkedin className="w-5 h-5" />
+                                                </div>
+                                                <div className="space-y-0.5">
+                                                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">LinkedIn</p>
+                                                    <p className="text-xl md:text-2xl font-serif font-medium">Connect on LinkedIn</p>
+                                                </div>
+                                            </a>
+                                        )}
+
+                                        {settings.github && (
+                                            <a href={settings.github} target="_blank" rel="noopener noreferrer" className="group flex items-center gap-4 p-3 -ml-3 rounded-xl hover:bg-secondary/30 transition-all">
+                                                <div className="p-3 bg-secondary rounded-full group-hover:bg-primary group-hover:text-primary-foreground transition-all shadow-sm">
+                                                    <Github className="w-5 h-5" />
+                                                </div>
+                                                <div className="space-y-0.5">
+                                                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Github</p>
+                                                    <p className="text-xl md:text-2xl font-serif font-medium">Follow on Github</p>
+                                                </div>
+                                            </a>
+                                        )}
+
+                                        {settings.cv_url && (
+                                            <div className="pt-4">
+                                                <Button size="lg" className="rounded-2xl px-10 py-4 text-base w-full md:w-auto h-auto shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300" asChild>
+                                                    <a href={settings.cv_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3">
+                                                        Download Resume <ArrowRight className="w-5 h-5" />
+                                                    </a>
+                                                </Button>
+                                            </div>
+                                        )}
                                     </div>
-                                ))
-                            )}
+                                </motion.div>
+                            </section>
                         </div>
+
+                        {/* Timeline Navigation (Fixed on right) */}
+                        <div className="fixed top-1/2 -translate-y-1/2 right-4 md:right-12 flex flex-col items-end gap-6 z-50">
+                            {navItems.map((item) => (
+                                <div
+                                    key={item.id}
+                                    onClick={() => scrollToSection(item.id)}
+                                    className="group flex items-center gap-4 cursor-pointer relative"
+                                >
+                                    <span className={`text-xs font-bold tracking-widest uppercase transition-all duration-300 origin-right hidden md:block ${activeSection === item.id ? 'text-foreground opacity-100 translate-x-0' : 'text-muted-foreground opacity-0 group-hover:opacity-100 translate-x-4'}`}>
+                                        {item.label}
+                                    </span>
+                                    <div className={`w-2 h-2 rounded-full transition-all duration-300 ${activeSection === item.id ? 'bg-foreground scale-150' : 'bg-muted-foreground/30 group-hover:bg-foreground/50'}`} />
+                                </div>
+                            ))}
+                        </div>
+
                     </div>
                 </div>
             </div>
@@ -240,116 +398,57 @@ export default function About() {
     );
 }
 
-function SocialLink({ href, icon }) {
+function TimelineItem({ date, title, subtitle, description, icon }) {
     return (
-        <a
-            href={href}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="p-2 rounded-full hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
-        >
-            {icon}
-        </a>
+        <div className="relative group">
+            <div className="absolute -left-[45px] md:-left-[61px] top-1 bg-background border border-foreground/20 p-1.5 rounded-full text-muted-foreground group-hover:border-primary group-hover:text-primary transition-colors">
+                {icon}
+            </div>
+            <div className="space-y-2">
+                <span className="text-sm font-mono text-muted-foreground">{date}</span>
+                <h3 className="text-xl font-bold ">{title}</h3>
+                <p className="text-primary font-medium">{subtitle}</p>
+                {description && (
+                    <p className="text-muted-foreground leading-relaxed pt-1 max-w-prose">
+                        {description}
+                    </p>
+                )}
+            </div>
+        </div>
     );
 }
 
 function getSkillIcon(skillName) {
-    const normalized = skillName.toLowerCase().replace(/[^a-z0-9]/g, '');
+    const normalize = (s) => s.toLowerCase().replace(/[\s\.]/g, '');
+    const key = normalize(skillName);
 
-    const icons = {
-        // Languages
-        'javascript': SiJavascript,
-        'js': SiJavascript,
-        'typescript': SiTypescript,
-        'ts': SiTypescript,
-        'java': Code2,
-        'c': SiCplusplus,
-        'c++': SiCplusplus,
-        'cpp': SiCplusplus,
-        'cc++': SiCplusplus,
-        'python': SiPython,
-        'sql': Database,
-        'html': SiHtml5,
-        'css': SiCss3,
-        'c#': Code2,
-        'csharp': Code2,
-
-        // Frameworks & Libs
-        'react': SiReact,
-        'nextjs': SiNextdotjs,
-        'next.js': SiNextdotjs,
-        'nodejs': SiNodedotjs,
-        'node.js': SiNodedotjs,
-        'nestjs': SiNestjs,
-        'express': SiExpress,
-        'prisma': SiPrisma,
-        'typeorm': SiTypeorm,
-        'tailwindcss': SiTailwindcss,
-        'tailwind': SiTailwindcss,
-        'heroui': Palette, // Generic for HeroUI
-        'shadcnui': SiShadcnui,
-        'shadcn/ui': SiShadcnui,
-
-        // Tools
-        'git': SiGit,
-        'githubactions': SiGithubactions,
-        'docker': SiDocker,
-        'dockercompose': SiDocker,
-        'caddy': SiCaddy,
-        'postman': SiPostman,
-        'figma': SiFigma,
-        'vscode': Code2,
-        'firebase': SiFirebase,
-        'cloudinary': SiCloudinary,
-
-        // Databases
-        'mssql': Database,
-        'mysql': SiMysql,
-        'postgresql': SiPostgresql,
-        'mongodb': SiMongodb,
-
-        // DevOps
-        'cicd': SiGithubactions,
-        'githubactionspipelines': SiGithubactions,
-        'dockerizedmonorepos': SiDocker,
-        'reverseproxycaddy': SiCaddy,
-        'vpsdeployment': Server,
-        'environmentconfiguration': Settings,
-
-        // Design & Video
-        'adobephotoshop': SiAdobephotoshop,
-        'adobeillustrator': SiAdobeillustrator,
-        'adobepremierepro': SiAdobepremierepro,
-        'adobeaftereffects': SiAdobeaftereffects,
-        'adobelightroom': SiAdobelightroom,
-        'capcut': Video, // Generic for CapCut
-        'blender': SiBlender,
-
-        // Others
-        'vercel': SiVercel,
-        'railway': SiRailway,
-        'terminal': Terminal
-    };
-
-    return icons[normalized] || Code2; // Default to Code2 icon
+    switch (key) {
+        case 'react': return <SiReact />;
+        case 'reactjs': return <SiReact />;
+        case 'nextjs': return <SiNextdotjs />;
+        case 'nodejs': return <SiNodedotjs />;
+        case 'typescript': return <SiTypescript />;
+        case 'javascript': return <SiJavascript />;
+        case 'js': return <SiJavascript />;
+        case 'ts': return <SiTypescript />;
+        case 'tailwindcss': return <SiTailwindcss />;
+        case 'mysql': return <SiMysql />;
+        case 'sql': return <SiMysql />;
+        case 'postgresql': return <SiPostgresql />;
+        case 'mongodb': return <SiMongodb />;
+        case 'docker': return <SiDocker />;
+        case 'figma': return <SiFigma />;
+        case 'python': return <SiPython />;
+        case 'java': return <FaJava />;
+        case 'springboot': return <SiSpringboot />;
+        case 'nestjs': return <SiNestjs />;
+        case 'git': return <SiGit />;
+        case 'github': return <SiGithub />;
+        case 'aws': return <SiAmazonwebservices />;
+        case 'html': return <SiHtml5 />;
+        case 'html5': return <SiHtml5 />;
+        case 'css': return <SiCss3 />;
+        case 'css3': return <SiCss3 />;
+        default: return <Code className="w-4 h-4" />;
+    }
 }
-
-function TikTok({ className }) {
-    return (
-        <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className={className}
-        >
-            <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5" />
-        </svg>
-    );
-}
-
