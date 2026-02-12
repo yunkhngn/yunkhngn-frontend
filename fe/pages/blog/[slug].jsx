@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { Calendar, Clock, ChevronLeft, Tag, Facebook, Twitter, Linkedin, Link as LinkIcon, UploadCloud, Loader2, Edit, Eye, Maximize, Minimize } from 'lucide-react';
+import { Calendar, Clock, ChevronLeft, Tag, Facebook, Twitter, Linkedin, Link as LinkIcon, UploadCloud, Loader2, Edit, Eye, Maximize, Minimize, Link2 } from 'lucide-react';
 import Image from 'next/image';
-import { format } from 'date-fns';
+import { format, formatDistanceToNow } from 'date-fns';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import Link from 'next/link';
@@ -82,6 +82,39 @@ export default function BlogDetail({ blogData }) {
     const [blog, setBlog] = useState(blogData);
     const [scrollProgress, setScrollProgress] = useState(0);
     const [publishing, setPublishing] = useState(false);
+    const [creatingLink, setCreatingLink] = useState(false);
+
+    const handleCreateShortlink = async () => {
+        setCreatingLink(true);
+        try {
+            const token = await user.getIdToken();
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/shortlinks`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                    targetUrl: `https://yunkhngn.dev/blog/${blog.slug}`,
+                    title: blog.title,
+                }),
+            });
+            if (res.ok) {
+                const data = await res.json();
+                const shortUrl = `https://yunkhngn.dev/s/${data.code}`;
+                navigator.clipboard.writeText(shortUrl);
+                toast.success(`Shortlink created & copied: ${shortUrl}`);
+            } else {
+                const data = await res.json();
+                toast.error(data.message || 'Failed to create shortlink');
+            }
+        } catch (error) {
+            console.error(error);
+            toast.error('Failed to create shortlink');
+        } finally {
+            setCreatingLink(false);
+        }
+    };
 
     useEffect(() => {
         const handleScroll = () => {
@@ -230,6 +263,10 @@ export default function BlogDetail({ blogData }) {
                     {/* Admin Controls */}
                     {!isFocusMode && user && user.role === 'ADMIN' && (
                         <div className="absolute top-0 right-4 md:right-8 mt-10 flex gap-2">
+                            <Button variant="outline" size="sm" onClick={handleCreateShortlink} disabled={creatingLink}>
+                                {creatingLink ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Link2 className="mr-2 h-4 w-4" />}
+                                Shortlink
+                            </Button>
                             <Link href={`/admin/blog/${blog.slug}/edit`}>
                                 <Button variant="outline" size="sm">
                                     <Edit className="mr-2 h-4 w-4" /> Edit Blog
@@ -269,6 +306,8 @@ export default function BlogDetail({ blogData }) {
                             <header className="text-center mb-16 pt-4">
                                 <div className="text-sm text-muted-foreground uppercase tracking-widest mb-6">
                                     {format(new Date(blog.createdAt), 'MMMM d, yyyy')}
+                                    <span className="mx-2">·</span>
+                                    <span className="normal-case tracking-normal">{formatDistanceToNow(new Date(blog.createdAt), { addSuffix: true })}</span>
                                 </div>
 
                                 <h1 className="text-4xl md:text-6xl font-bold mb-8 leading-tight text-foreground" style={{ fontFamily: 'var(--font-playfair)' }}>

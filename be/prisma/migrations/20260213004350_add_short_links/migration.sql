@@ -1,3 +1,8 @@
+BEGIN TRY
+
+BEGIN TRAN;
+
+
 -- CreateTable
 CREATE TABLE [dbo].[short_links] (
     [id] NVARCHAR(1000) NOT NULL,
@@ -18,3 +23,16 @@ CREATE NONCLUSTERED INDEX [short_links_code_idx] ON [dbo].[short_links]([code]);
 
 -- CreateIndex
 CREATE NONCLUSTERED INDEX [short_links_isActive_idx] ON [dbo].[short_links]([isActive]);
+
+COMMIT TRAN;
+
+END TRY
+BEGIN CATCH
+
+IF @@TRANCOUNT > 0
+BEGIN
+    ROLLBACK TRAN;
+END;
+THROW
+
+END CATCH
