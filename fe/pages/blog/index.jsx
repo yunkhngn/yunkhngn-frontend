@@ -87,9 +87,11 @@ export default function BlogList() {
             {/* Hero Section */}
             <div className="flex flex-col items-center text-center mb-20 space-y-6">
                 <div className="space-y-4">
-                    <div className="text-sm font-medium text-primary uppercase tracking-wider">My Blog</div>
+                    <div className="text-xs font-bold tracking-[0.2em] text-muted-foreground uppercase mb-4">
+                        Curious Blog
+                    </div>
                     <h1 className="text-4xl md:text-6xl font-bold tracking-tight font-serif">
-                        My Stories & Ideas
+                        My Writings & Ideas
                     </h1>
                     <p className="text-muted-foreground max-w-2xl mx-auto text-lg md:text-xl">
                         The latest writings, news, technologies, and resources from me.
