@@ -15,6 +15,13 @@ import { Button } from "@/components/ui/Button";
 
 const placeholder = "/image/placeholder.jpg";
 
+const navItems = [
+    { id: "story", label: "my story" },
+    { id: "journey", label: "education & experience" },
+    { id: "skills", label: "skills" },
+    { id: "contact", label: "contact" },
+];
+
 export default function About() {
     const [settings, setSettings] = useState({});
     const [parsedExperience, setParsedExperience] = useState([]);
@@ -49,13 +56,6 @@ export default function About() {
         fetchSettings();
     }, []);
 
-    const navItems = [
-        { id: "story", label: "my story" },
-        { id: "journey", label: "education & experience" },
-        { id: "skills", label: "skills" },
-        { id: "contact", label: "contact" },
-    ];
-
     const [activeSection, setActiveSection] = useState("story");
 
     // Handle scroll to update active section - using container ref
@@ -81,7 +81,7 @@ export default function About() {
         handleScroll();
 
         return () => container.removeEventListener('scroll', handleScroll);
-    }, [navItems]);
+    }, []);
 
     const scrollToSection = (id) => {
         const element = document.getElementById(id);

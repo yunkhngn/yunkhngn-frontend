@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import AdminLayout from '@/components/template/Admin/Layout';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -28,7 +28,6 @@ export default function AdminJournal() {
     // Dynamic Moods State
     const [moods, setMoods] = useState(DEFAULT_MOODS);
     const [isMoodManagerOpen, setIsMoodManagerOpen] = useState(false);
-    const [editingMood, setEditingMood] = useState(null); // null = creating new
 
     // Compose state
     const [content, setContent] = useState('');
@@ -42,12 +41,7 @@ export default function AdminJournal() {
     const [deleteId, setDeleteId] = useState(null);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
-    useEffect(() => {
-        fetchEntries();
-        fetchMoods();
-    }, [user]);
-
-    const fetchMoods = async () => {
+    const fetchMoods = useCallback(async () => {
         try {
             const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/settings`);
             const moodSetting = res.data.find(s => s.settingTitle === 'journal_moods');
@@ -56,10 +50,6 @@ export default function AdminJournal() {
                     const parsed = JSON.parse(moodSetting.content);
                     if (Array.isArray(parsed) && parsed.length > 0) {
                         setMoods(parsed);
-                        // Ensure selected mood exists
-                        if (!parsed.find(m => m.key === mood)) {
-                            setMood(parsed[0]?.key || 'happy');
-                        }
                         return;
                     }
                 } catch (e) {
@@ -71,9 +61,9 @@ export default function AdminJournal() {
         } catch (error) {
             console.error("Failed to fetch settings", error);
         }
-    };
+    }, []);
 
-    const fetchEntries = async () => {
+    const fetchEntries = useCallback(async () => {
         try {
             const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/journals`);
             setEntries(res.data);
@@ -83,7 +73,19 @@ export default function AdminJournal() {
         } finally {
             setLoading(false);
         }
-    };
+    }, []);
+
+    useEffect(() => {
+        fetchEntries();
+        fetchMoods();
+    }, [user, fetchEntries, fetchMoods]);
+
+    // Ensure selected mood exists after moods fetch
+    useEffect(() => {
+        if (moods.length > 0 && !moods.find(m => m.key === mood)) {
+            setMood(moods[0]?.key || 'happy');
+        }
+    }, [moods, mood]);
 
     const saveMoods = async (newMoods) => {
         try {
@@ -207,7 +209,7 @@ export default function AdminJournal() {
                         <textarea
                             value={content}
                             onChange={(e) => setContent(e.target.value)}
-                            placeholder="What's on your mind?"
+                            placeholder="What's on your mind? 💭"
                             className="w-full bg-transparent border-none outline-none resize-none text-foreground placeholder:text-muted-foreground/50 text-base min-h-[100px] focus:ring-0"
                             autoFocus
                         />
@@ -389,6 +391,7 @@ function MoodManagerModal({ isOpen, onClose, moods, onSave }) {
     const [editing, setEditing] = useState(null); // { key, label, icon, color } or null (list view)
 
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setLocalMoods(moods);
         setEditing(null);
     }, [moods, isOpen]);
@@ -479,15 +482,16 @@ function MoodEditor({ initialData, onSave, onCancel, existingKeys }) {
     const [data, setData] = useState({ ...initialData });
     const [keyError, setKeyError] = useState('');
 
-    useEffect(() => {
-        if (data.isNew && data.label) {
-            // Auto-generate key from label if new
-            const slug = data.label.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-            if (!data.keyChanged) {
-                setData(prev => ({ ...prev, key: slug }));
-            }
+    const handleLabelChange = (e) => {
+        const newLabel = e.target.value;
+        const updates = { label: newLabel };
+
+        if (data.isNew && !data.keyChanged) {
+            updates.key = newLabel.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
         }
-    }, [data.label]);
+
+        setData(prev => ({ ...prev, ...updates }));
+    };
 
     const handleSave = () => {
         if (!data.label || !data.key) return;
@@ -505,7 +509,7 @@ function MoodEditor({ initialData, onSave, onCancel, existingKeys }) {
                     <label className="text-sm font-medium">Label</label>
                     <Input
                         value={data.label}
-                        onChange={(e) => setData({ ...data, label: e.target.value })}
+                        onChange={handleLabelChange}
                         placeholder="e.g. Excited"
                     />
                 </div>
