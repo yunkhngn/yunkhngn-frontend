@@ -35,11 +35,13 @@ export default function Home() {
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/github/repos`);
         if (res.ok) {
           const data = await res.json();
-          // Sort by stars and take top 3
-          const topRepos = data
-            .sort((a, b) => b.stargazers_count - a.stargazers_count)
-            .slice(0, 3);
-          setFeaturedRepos(topRepos);
+          if (Array.isArray(data)) {
+            // Sort by stars and take top 3
+            const topRepos = data
+              .sort((a, b) => b.stargazers_count - a.stargazers_count)
+              .slice(0, 3);
+            setFeaturedRepos(topRepos);
+          }
         }
       } catch (error) {
         console.error('Failed to fetch repos', error);
@@ -71,17 +73,36 @@ export default function Home() {
 
         if (blogsRes.ok) {
           const blogs = await blogsRes.json();
-          setRecentBlogs(blogs.filter(b => b.status === 'PUBLISHED').slice(0, 3));
+          if (Array.isArray(blogs)) {
+            setRecentBlogs(blogs.filter(b => b.status === 'PUBLISHED').slice(0, 3));
+          }
         }
 
         if (projectsRes.ok) {
           const projects = await projectsRes.json();
-          setFeaturedProjects(projects.slice(0, 5));
+          if (Array.isArray(projects)) {
+            // Parse techStack if it's a string
+            const parsedProjects = projects.map(p => {
+              let techStack = p.techStack;
+              if (typeof techStack === 'string') {
+                try {
+                  techStack = JSON.parse(techStack);
+                } catch (e) {
+                  // console.warn("Failed to parse techStack for project", p.id);
+                  techStack = [];
+                }
+              }
+              return { ...p, techStack };
+            });
+            setFeaturedProjects(parsedProjects.slice(0, 5));
+          }
         }
 
         if (galleryRes.ok) {
           const photos = await galleryRes.json();
-          setGalleryPhotos(photos.slice(0, 10));
+          if (Array.isArray(photos)) {
+            setGalleryPhotos(photos.slice(0, 10));
+          }
         }
 
         if (settingsRes.ok) {
@@ -211,7 +232,7 @@ export default function Home() {
               <div className="relative mb-8">
                 <div className="relative w-32 h-32 md:w-48 md:h-48 rounded-full overflow-hidden border-4 border-white/10 shadow-2xl">
                   <Image
-                    src="https://github.com/yunkhngn.png"
+                    src={settings.avatar || "https://github.com/yunkhngn.png"}
                     alt="Khoa Nguyễn"
                     fill
                     className="object-cover"
