@@ -2,28 +2,13 @@ import { useState, useEffect } from 'react';
 import Layout from '@/components/template/Default/Layout';
 import { format, formatDistanceToNow } from 'date-fns';
 import { vi } from 'date-fns/locale';
-import { Smile, Coffee, Code, Zap, Heart, Flame, Moon, Sun, CloudRain, Music, Sparkles, BookOpen } from 'lucide-react';
+import { Smile, Sparkles } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { ICON_MAP, DEFAULT_MOODS } from '@/lib/moods';
 
-const MOOD_MAP = {
-    happy: { icon: Smile, label: 'Vui vẻ', color: 'text-yellow-500' },
-    coffee: { icon: Coffee, label: 'Cà phê', color: 'text-amber-600' },
-    coding: { icon: Code, label: 'Coding', color: 'text-green-500' },
-    productive: { icon: Zap, label: 'Productive', color: 'text-blue-500' },
-    love: { icon: Heart, label: 'Yêu đời', color: 'text-pink-500' },
-    fire: { icon: Flame, label: 'On Fire', color: 'text-orange-500' },
-    tired: { icon: Moon, label: 'Mệt', color: 'text-indigo-400' },
-    chill: { icon: Sun, label: 'Chill', color: 'text-yellow-400' },
-    rainy: { icon: CloudRain, label: 'Buồn', color: 'text-slate-400' },
-    music: { icon: Music, label: 'Music', color: 'text-purple-500' },
-    inspired: { icon: Sparkles, label: 'Cảm hứng', color: 'text-cyan-400' },
-    reading: { icon: BookOpen, label: 'Đọc sách', color: 'text-emerald-500' },
-};
-
-function JournalEntry({ entry }) {
-    const mood = MOOD_MAP[entry.mood] || MOOD_MAP.happy;
-    const MoodIcon = mood.icon;
+function JournalEntry({ entry, moodInfo }) {
+    const MoodIcon = ICON_MAP[moodInfo?.icon] || Smile;
     const createdAt = new Date(entry.createdAt);
     const timeAgo = formatDistanceToNow(createdAt, { addSuffix: true, locale: vi });
     const fullDate = format(createdAt, "d MMM yyyy 'lúc' HH:mm", { locale: vi });
@@ -37,10 +22,10 @@ function JournalEntry({ entry }) {
                 {/* Header */}
                 <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
-                        <div className={`p-1.5 rounded-lg bg-muted ${mood.color}`}>
+                        <div className={`p-1.5 rounded-lg bg-muted ${moodInfo?.color}`}>
                             <MoodIcon className="h-4 w-4" />
                         </div>
-                        <span className="text-xs font-medium text-muted-foreground">{mood.label}</span>
+                        <span className="text-xs font-medium text-muted-foreground">{moodInfo?.label}</span>
                     </div>
                     <time className="text-xs text-muted-foreground" title={fullDate}>
                         {timeAgo}
@@ -88,21 +73,36 @@ export default function JournalPage() {
     const [entries, setEntries] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selectedMood, setSelectedMood] = useState(null);
+    const [moods, setMoods] = useState(DEFAULT_MOODS);
 
     useEffect(() => {
-        const fetchEntries = async () => {
+        const fetchData = async () => {
             try {
-                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/journals`);
-                if (!res.ok) throw new Error('Failed to fetch');
-                const data = await res.json();
-                setEntries(data);
+                // Fetch entries
+                const resEntries = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/journals`);
+                if (!resEntries.ok) throw new Error('Failed to fetch entries');
+                const dataEntries = await resEntries.json();
+                setEntries(dataEntries);
+
+                // Fetch moods
+                const resSettings = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/settings`);
+                if (resSettings.ok) {
+                    const settings = await resSettings.json();
+                    const moodSetting = settings.find(s => s.settingTitle === 'journal_moods');
+                    if (moodSetting && moodSetting.content) {
+                        const parsed = JSON.parse(moodSetting.content);
+                        if (Array.isArray(parsed) && parsed.length > 0) {
+                            setMoods(parsed);
+                        }
+                    }
+                }
             } catch (error) {
-                console.error('Error fetching journal entries:', error);
+                console.error('Error fetching data:', error);
             } finally {
                 setLoading(false);
             }
         };
-        fetchEntries();
+        fetchData();
     }, []);
 
     const filteredEntries = selectedMood
@@ -130,7 +130,7 @@ export default function JournalPage() {
                     Thoughts & Notes
                 </h1>
                 <p className="text-muted-foreground max-w-lg text-lg">
-                    Những suy nghĩ ngắn, ý tưởng, TIL, và chuyện code hàng ngày.
+                    Short thoughts, ideas, TIL, and daily code snippets. Or just anything that comes to mind.
                 </p>
             </div>
 
@@ -139,25 +139,28 @@ export default function JournalPage() {
                 <button
                     onClick={() => setSelectedMood(null)}
                     className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${selectedMood === null
-                            ? 'bg-primary text-primary-foreground shadow-md'
-                            : 'bg-muted text-muted-foreground hover:text-foreground'
+                        ? 'bg-primary text-primary-foreground shadow-md'
+                        : 'bg-muted text-muted-foreground hover:text-foreground'
                         }`}
                 >
                     Tất cả
                 </button>
-                {Object.entries(MOOD_MAP).map(([key, { icon: Icon, label, color }]) => (
-                    <button
-                        key={key}
-                        onClick={() => setSelectedMood(selectedMood === key ? null : key)}
-                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${selectedMood === key
+                {moods.map((m) => {
+                    const Icon = ICON_MAP[m.icon] || Smile;
+                    return (
+                        <button
+                            key={m.key}
+                            onClick={() => setSelectedMood(selectedMood === m.key ? null : m.key)}
+                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${selectedMood === m.key
                                 ? 'bg-primary text-primary-foreground shadow-md'
                                 : 'bg-muted text-muted-foreground hover:text-foreground'
-                            }`}
-                    >
-                        <Icon className={`h-3 w-3 ${selectedMood === key ? '' : color}`} />
-                        {label}
-                    </button>
-                ))}
+                                }`}
+                        >
+                            <Icon className={`h-3 w-3 ${selectedMood === m.key ? '' : m.color}`} />
+                            {m.label}
+                        </button>
+                    );
+                })}
             </div>
 
             {/* Timeline Feed */}
@@ -182,9 +185,12 @@ export default function JournalPage() {
 
                             {/* Entries for this date */}
                             <div className="md:border-l-2 md:border-border md:ml-3 md:pl-6 space-y-4">
-                                {groupedEntries[date].map(entry => (
-                                    <JournalEntry key={entry.id} entry={entry} />
-                                ))}
+                                {groupedEntries[date].map(entry => {
+                                    const moodInfo = moods.find(m => m.key === entry.mood) || moods[0];
+                                    return (
+                                        <JournalEntry key={entry.id} entry={entry} moodInfo={moodInfo} />
+                                    );
+                                })}
                             </div>
                         </div>
                     ))}
