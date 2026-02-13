@@ -40,6 +40,10 @@ const SETTINGS_GROUPS = [
         keys: ['bio', 'quote', 'email', 'homepage_description', 'footer_description', 'about_content', 'comment_forbidden_keywords']
     },
     {
+        title: "Appearance",
+        keys: ['avatar', 'about_image_story', 'about_image_journey', 'about_image_skills', 'about_image_contact']
+    },
+    {
         title: "Social Media",
         keys: ['facebook', 'github', 'instagram', 'tiktok', 'linkedin']
     },
@@ -500,7 +504,7 @@ export default function Settings() {
                                 />
                             </div>
 
-                            {(currentSetting.settingTitle === 'cv_url' || currentSetting.settingTitle.endsWith('_image')) ? (
+                            {(currentSetting.settingTitle === 'cv_url' || currentSetting.settingTitle === 'avatar' || currentSetting.settingTitle.includes('_image')) ? (
                                 <div className="space-y-4">
                                     <div className="flex flex-col gap-2">
                                         <div className="flex gap-2">
