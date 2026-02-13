@@ -80,7 +80,7 @@ export default function Footer() {
                             <ul className="space-y-3">
                                 <FooterLink href="/project">Project</FooterLink>
                                 <FooterLink href="/blog">Blog</FooterLink>
-                                <FooterLink href="/photo">Photo</FooterLink>
+                                <FooterLink href="/journal">Journal</FooterLink>
                                 <FooterLink href="/about">About Me</FooterLink>
                                 <FooterLink href="/showcase">Showcase</FooterLink>
                             </ul>

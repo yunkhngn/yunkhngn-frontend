@@ -29,6 +29,7 @@ import { SystemModule } from './system/system.module';
 import { NewsletterModule } from './newsletter/newsletter.module';
 import { ShortlinkModule } from './shortlink/shortlink.module';
 import { AlbumModule } from './album/album.module';
+import { JournalModule } from './journal/journal.module';
 
 @Module({
   imports: [
@@ -62,6 +63,7 @@ import { AlbumModule } from './album/album.module';
     NewsletterModule,
     ShortlinkModule,
     AlbumModule,
+    JournalModule,
   ],
   controllers: [AppController, HealthController],
   providers: [
@@ -72,4 +74,4 @@ import { AlbumModule } from './album/album.module';
     },
   ],
 })
-export class AppModule {}
+export class AppModule { }

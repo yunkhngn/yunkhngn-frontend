@@ -239,3 +239,16 @@ model ShortLink {
   @@index([isActive])
   @@map("short_links")
 }
+
+model Journal {
+  id        String   @id @default(uuid())
+  content   String   @db.NVarChar(Max)
+  mood      String   @default("coding") // happy, coffee, coding, productive, love, fire, tired, chill, rainy, music, inspired, reading
+  tags      String?  @db.NVarChar(Max) // Stored as JSON array string
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([createdAt])
+  @@index([mood])
+  @@map("journals")
+}
