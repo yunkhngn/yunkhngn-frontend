@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import Image from 'next/image';
 import { Dialog, DialogContent } from '@/components/ui/Dialog';
-import { X, ThumbsUp, Heart, Cat, Flame, Laugh, Download, Share2, ChevronLeft, ChevronRight, Play, Pause, Camera, Grid, LayoutGrid, List, Info } from 'lucide-react';
+import { X, ThumbsUp, Heart, Cat, Flame, Laugh, Download, Share2, ChevronLeft, ChevronRight, Play, Pause, Camera, Grid, LayoutGrid, List, Info, ArrowUpDown } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Skeleton } from "@/components/ui/Skeleton";
 import Layout from '@/components/template/Default/Layout';
@@ -36,6 +36,7 @@ export default function Photo() {
     const [selectedAlbum, setSelectedAlbum] = useState(null);
     const [selectedTag, setSelectedTag] = useState(null);
     const [layout, setLayout] = useState('masonry');
+    const [sortOrder, setSortOrder] = useState('desc');
     const [viewingIndex, setViewingIndex] = useState(null);
     const [selectedReaction, setSelectedReaction] = useState(null);
     const [reactionCounts, setReactionCounts] = useState({ like: 0, heart: 0, cat: 0, fire: 0, laugh: 0 });
@@ -71,7 +72,7 @@ export default function Photo() {
         else setLoadingMore(true);
 
         try {
-            const params = new URLSearchParams({ page: String(pageNum), limit: String(PHOTOS_PER_PAGE) });
+            const params = new URLSearchParams({ page: String(pageNum), limit: String(PHOTOS_PER_PAGE), sort: 'createdAt', order: sortOrder });
             if (selectedAlbum) params.set('albumId', selectedAlbum);
             if (selectedTag) params.set('tag', selectedTag);
 
@@ -88,7 +89,7 @@ export default function Photo() {
             setLoading(false);
             setLoadingMore(false);
         }
-    }, [selectedAlbum, selectedTag]);
+    }, [selectedAlbum, selectedTag, sortOrder]);
 
     useEffect(() => {
         fetchPhotos(1, false);
@@ -367,145 +368,169 @@ export default function Photo() {
                         </div>
                     )}
 
-                    {/* Layout toggle */}
-                    <div className="flex items-center gap-1 bg-muted rounded-lg p-1 shrink-0">
-                        {LAYOUTS.map((l) => {
-                            const Icon = l.icon;
-                            return (
-                                <button
-                                    key={l.id}
-                                    onClick={() => setLayout(l.id)}
-                                    className={`p-1.5 rounded-md transition-all ${layout === l.id
-                                        ? 'bg-background text-foreground shadow-sm'
-                                        : 'text-muted-foreground hover:text-foreground'
-                                        }`}
-                                    title={l.label}
-                                >
-                                    <Icon className="h-4 w-4" />
-                                </button>
-                            );
-                        })}
+                    {/* Layout & Sort */}
+                    <div className="flex items-center gap-2">
+                        {/* Sort Toggle */}
+                        <button
+                            onClick={() => {
+                                setSortOrder(prev => prev === 'desc' ? 'asc' : 'desc');
+                                setPhotos([]); // Clear photos to give immediate feedback
+                                setLoading(true); // Show skeleton immediately
+                                window.scrollTo({ top: 0, behavior: 'smooth' });
+                            }}
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-muted text-muted-foreground hover:text-foreground text-sm font-medium transition-all"
+                            title={sortOrder === 'desc' ? 'Newest first' : 'Oldest first'}
+                        >
+                            <ArrowUpDown className="h-4 w-4" />
+                            <span className="hidden sm:inline">{sortOrder === 'desc' ? 'Newest' : 'Oldest'}</span>
+                        </button>
+
+                        <div className="w-px h-6 bg-border mx-1" />
+
+                        {/* Layout toggle */}
+                        <div className="flex items-center gap-1 bg-muted rounded-lg p-1 shrink-0">
+                            {LAYOUTS.map((l) => {
+                                const Icon = l.icon;
+                                return (
+                                    <button
+                                        key={l.id}
+                                        onClick={() => setLayout(l.id)}
+                                        className={`p-1.5 rounded-md transition-all ${layout === l.id
+                                            ? 'bg-background text-foreground shadow-sm'
+                                            : 'text-muted-foreground hover:text-foreground'
+                                            }`}
+                                        title={l.label}
+                                    >
+                                        <Icon className="h-4 w-4" />
+                                    </button>
+                                );
+                            })}
+                        </div>
                     </div>
                 </div>
             </div>
 
             {/* Photo Grid */}
-            {loading ? (
-                <div className={layout === 'masonry' ? 'columns-1 sm:columns-2 md:columns-3 gap-4 space-y-4' : layout === 'grid' ? 'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3' : 'space-y-4 max-w-3xl mx-auto'}>
-                    {Array.from({ length: 9 }).map((_, i) => (
-                        <div key={i} className={layout === 'masonry' ? 'break-inside-avoid' : ''}>
-                            <Skeleton className={`w-full rounded-xl ${layout === 'list' ? 'h-48' : i % 3 === 0 ? 'aspect-[3/4]' : i % 2 === 0 ? 'aspect-video' : 'aspect-square'}`} />
-                        </div>
-                    ))}
-                </div>
-            ) : (
-                <>
-                    {/* Masonry */}
-                    {layout === 'masonry' && (
-                        <div className="columns-1 sm:columns-2 md:columns-3 gap-4 space-y-4">
-                            {photos.map((photo, i) => (
-                                <div
-                                    key={photo.id}
-                                    ref={i === photos.length - 1 ? lastPhotoRef : null}
-                                    className="break-inside-avoid relative group cursor-pointer rounded-xl overflow-hidden bg-muted"
-                                    onClick={() => openPhoto(i)}
-                                >
-                                    <Image
-                                        src={photo.imageUrl}
-                                        alt={photo.caption || 'Gallery Photo'}
-                                        width={0}
-                                        height={0}
-                                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                                        className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105"
-                                        placeholder={getBlurUrl(photo.imageUrl) ? 'blur' : 'empty'}
-                                        blurDataURL={getBlurUrl(photo.imageUrl)}
-                                        unoptimized
-                                    />
-                                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
-                                    {photo.caption && (
-                                        <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/70 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                            <p className="text-white text-sm font-medium line-clamp-2">{photo.caption}</p>
-                                        </div>
-                                    )}
-                                </div>
-                            ))}
-                        </div>
-                    )}
-
-                    {/* Grid */}
-                    {layout === 'grid' && (
-                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                            {photos.map((photo, i) => (
-                                <div
-                                    key={photo.id}
-                                    ref={i === photos.length - 1 ? lastPhotoRef : null}
-                                    className="aspect-square relative group cursor-pointer rounded-xl overflow-hidden bg-muted"
-                                    onClick={() => openPhoto(i)}
-                                >
-                                    <Image
-                                        src={photo.imageUrl}
-                                        alt={photo.caption || 'Gallery Photo'}
-                                        fill
-                                        sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
-                                        className="object-cover transition-transform duration-500 group-hover:scale-105"
-                                        unoptimized
-                                    />
-                                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
-                                </div>
-                            ))}
-                        </div>
-                    )}
-
-                    {/* List */}
-                    {layout === 'list' && (
-                        <div className="space-y-6 max-w-3xl mx-auto">
-                            {photos.map((photo, i) => (
-                                <div
-                                    key={photo.id}
-                                    ref={i === photos.length - 1 ? lastPhotoRef : null}
-                                    className="group cursor-pointer rounded-xl overflow-hidden bg-muted"
-                                    onClick={() => openPhoto(i)}
-                                >
-                                    <div className="relative">
+            {
+                loading ? (
+                    <div className={layout === 'masonry' ? 'columns-1 sm:columns-2 md:columns-3 gap-4 space-y-4' : layout === 'grid' ? 'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3' : 'space-y-4 max-w-3xl mx-auto'}>
+                        {Array.from({ length: 9 }).map((_, i) => (
+                            <div key={i} className={layout === 'masonry' ? 'break-inside-avoid' : ''}>
+                                <Skeleton className={`w-full rounded-xl ${layout === 'list' ? 'h-48' : i % 3 === 0 ? 'aspect-[3/4]' : i % 2 === 0 ? 'aspect-video' : 'aspect-square'}`} />
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <>
+                        {/* Masonry */}
+                        {layout === 'masonry' && (
+                            <div className="columns-1 sm:columns-2 md:columns-3 gap-4 space-y-4">
+                                {photos.map((photo, i) => (
+                                    <div
+                                        key={photo.id}
+                                        ref={i === photos.length - 1 ? lastPhotoRef : null}
+                                        className="break-inside-avoid relative group cursor-pointer rounded-xl overflow-hidden bg-muted"
+                                        onClick={() => openPhoto(i)}
+                                    >
                                         <Image
                                             src={photo.imageUrl}
                                             alt={photo.caption || 'Gallery Photo'}
                                             width={0}
                                             height={0}
-                                            sizes="(max-width: 768px) 100vw, 768px"
-                                            className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+                                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                            className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105"
+                                            placeholder={getBlurUrl(photo.imageUrl) ? 'blur' : 'empty'}
+                                            blurDataURL={getBlurUrl(photo.imageUrl)}
                                             unoptimized
                                         />
+                                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
+                                        {photo.caption && (
+                                            <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/70 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                                <p className="text-white text-sm font-medium line-clamp-2">{photo.caption}</p>
+                                            </div>
+                                        )}
                                     </div>
-                                    {photo.caption && (
-                                        <div className="p-4 bg-card">
-                                            <p className="text-sm text-foreground">{photo.caption}</p>
-                                            {photo.tags && (
-                                                <div className="flex gap-1.5 mt-2 flex-wrap">
-                                                    {photo.tags.split(',').map(t => (
-                                                        <span key={t.trim()} className="text-xs text-muted-foreground">#{t.trim()}</span>
-                                                    ))}
-                                                </div>
-                                            )}
+                                ))}
+                            </div>
+                        )}
+
+                        {/* Grid */}
+                        {layout === 'grid' && (
+                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                                {photos.map((photo, i) => (
+                                    <div
+                                        key={photo.id}
+                                        ref={i === photos.length - 1 ? lastPhotoRef : null}
+                                        className="aspect-square relative group cursor-pointer rounded-xl overflow-hidden bg-muted"
+                                        onClick={() => openPhoto(i)}
+                                    >
+                                        <Image
+                                            src={photo.imageUrl}
+                                            alt={photo.caption || 'Gallery Photo'}
+                                            fill
+                                            sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+                                            className="object-cover transition-transform duration-500 group-hover:scale-105"
+                                            unoptimized
+                                        />
+                                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+
+                        {/* List */}
+                        {layout === 'list' && (
+                            <div className="space-y-6 max-w-3xl mx-auto">
+                                {photos.map((photo, i) => (
+                                    <div
+                                        key={photo.id}
+                                        ref={i === photos.length - 1 ? lastPhotoRef : null}
+                                        className="group cursor-pointer rounded-xl overflow-hidden bg-muted"
+                                        onClick={() => openPhoto(i)}
+                                    >
+                                        <div className="relative">
+                                            <Image
+                                                src={photo.imageUrl}
+                                                alt={photo.caption || 'Gallery Photo'}
+                                                width={0}
+                                                height={0}
+                                                sizes="(max-width: 768px) 100vw, 768px"
+                                                className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+                                                unoptimized
+                                            />
                                         </div>
-                                    )}
-                                </div>
-                            ))}
-                        </div>
-                    )}
+                                        {photo.caption && (
+                                            <div className="p-4 bg-card">
+                                                <p className="text-sm text-foreground">{photo.caption}</p>
+                                                {photo.tags && (
+                                                    <div className="flex gap-1.5 mt-2 flex-wrap">
+                                                        {photo.tags.split(',').map(t => (
+                                                            <span key={t.trim()} className="text-xs text-muted-foreground">#{t.trim()}</span>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        )}
 
-                    {/* Loading more indicator */}
-                    {loadingMore && (
-                        <div className="flex justify-center py-8">
-                            <div className="h-8 w-8 border-2 border-muted-foreground/30 border-t-foreground rounded-full animate-spin" />
-                        </div>
-                    )}
-                </>
-            )}
+                        {/* Loading more indicator */}
+                        {loadingMore && (
+                            <div className="flex justify-center py-8">
+                                <div className="h-8 w-8 border-2 border-muted-foreground/30 border-t-foreground rounded-full animate-spin" />
+                            </div>
+                        )}
+                    </>
+                )
+            }
 
-            {!loading && photos.length === 0 && (
-                <div className="text-center py-20 text-muted-foreground">No photos yet.</div>
-            )}
+            {
+                !loading && photos.length === 0 && (
+                    <div className="text-center py-20 text-muted-foreground">No photos yet.</div>
+                )
+            }
 
             {/* Lightbox Modal */}
             <Dialog open={viewingIndex !== null} onOpenChange={(open) => !open && closePhoto()}>
@@ -635,7 +660,7 @@ export default function Photo() {
                     )}
                 </DialogContent>
             </Dialog>
-        </div>
+        </div >
     );
 }
 
