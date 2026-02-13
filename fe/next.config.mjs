@@ -9,7 +9,7 @@ const nextConfig = {
   /* config options here */
   reactStrictMode: false,
   images: {
-    unoptimized: true,
+    unoptimized: false,
     domains: [
       'res.cloudinary.com', 
       'github.com', 

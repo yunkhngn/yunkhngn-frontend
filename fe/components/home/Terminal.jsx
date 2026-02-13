@@ -10,6 +10,9 @@ export default function Terminal({ embedded = false, className = '' }) {
     ]);
     const [input, setInput] = useState('');
     const [currentDir, setCurrentDir] = useState('~');
+    const [isChatMode, setIsChatMode] = useState(false);
+    const [chatContext, setChatContext] = useState([]);
+    const [isThinking, setIsThinking] = useState(false);
     const [fileSystem, setFileSystem] = useState({
         'about.txt': "Loading...",
         'contact.md': "Loading...",
@@ -106,6 +109,7 @@ export default function Terminal({ embedded = false, className = '' }) {
                 return [
                     'Available commands:',
                     '  help        - Show this help message',
+                    '  khoa-cli    - Start Khoa chatbot CLI',
                     '  ls          - List files in current directory',
                     '  cat [file]  - Show file content',
                     '  cd [dir]    - Change directory',
@@ -114,6 +118,10 @@ export default function Terminal({ embedded = false, className = '' }) {
                     '  date        - Display current date',
                     '  open [page] - Navigate to page/project (e.g., blog, project-name)'
                 ].join('\n');
+
+            case 'khoa-cli':
+                setIsChatMode(true);
+                return 'Entering Khoa CLI v1.0.0... Type \'exit\' to return.';
 
             case 'ls':
                 if (currentDir === '~') {
@@ -181,21 +189,57 @@ export default function Terminal({ embedded = false, className = '' }) {
         }
     };
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        if (!input.trim()) return;
-
-        const newHistory = [...history, { type: 'command', content: input }];
-        const output = handleCommand(input);
-
-        if (output !== null) {
-            if (typeof output === 'string') {
-                newHistory.push({ type: 'output', content: output });
-            }
-            setHistory(newHistory);
+    const handleChat = async (msg) => {
+        if (msg.trim().toLowerCase() === 'exit') {
+            setIsChatMode(false);
+            setChatContext([]);
+            return 'Exiting Khoa CLI...';
         }
 
+        try {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/chat`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    message: msg,
+                    history: JSON.stringify(chatContext.slice(-10))
+                })
+            });
+
+            if (!res.ok) throw new Error('API Error');
+            const data = await res.json();
+
+            setChatContext(prev => [...prev, { role: 'user', content: msg }, { role: 'assistant', content: data.response }]);
+            return data.response;
+        } catch (error) {
+            console.error(error);
+            return 'Error: Could not connect to Khoa\'s brain. Try again later.';
+        }
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (!input.trim() || isThinking) return;
+
+        const cmd = input;
         setInput('');
+
+        // Add command/message to history immediately
+        setHistory(prev => [...prev, { type: 'command', content: cmd, isChat: isChatMode }]);
+
+        if (isChatMode) {
+            setIsThinking(true);
+            const response = await handleChat(cmd);
+            setIsThinking(false);
+            if (response) {
+                setHistory(prev => [...prev, { type: 'output', content: response }]);
+            }
+        } else {
+            const output = handleCommand(cmd);
+            if (output !== null) {
+                setHistory(prev => [...prev, { type: 'output', content: output }]);
+            }
+        }
     };
 
     return (
@@ -222,15 +266,21 @@ export default function Terminal({ embedded = false, className = '' }) {
             {/* Terminal Body */}
             <div
                 ref={scrollRef}
-                className="p-4 h-[400px] overflow-y-auto text-green-400"
+                className="p-4 h-[650px] overflow-y-auto text-green-400"
                 onClick={() => inputRef.current?.focus()}
             >
                 {history.map((line, i) => (
                     <div key={i} className="mb-1 whitespace-pre-wrap break-words">
                         {line.type === 'command' ? (
                             <div className="flex gap-2 text-white">
-                                <span className="text-blue-400 leading-tight">nerd@yunkhngn:</span>
-                                <span className="text-yellow-400 leading-tight">{currentDir}$</span>
+                                {line.isChat ? (
+                                    <span className="text-purple-400 leading-tight">&gt;&gt;&gt;</span>
+                                ) : (
+                                    <>
+                                        <span className="text-blue-400 leading-tight">nerd@yunkhngn:</span>
+                                        <span className="text-yellow-400 leading-tight">{currentDir}$</span>
+                                    </>
+                                )}
                                 <span>{line.content}</span>
                             </div>
                         ) : (
@@ -239,9 +289,21 @@ export default function Terminal({ embedded = false, className = '' }) {
                     </div>
                 ))}
 
+                {isThinking && (
+                    <div className="mb-1 text-purple-400 animate-pulse">
+                        &gt;&gt;&gt; Thinking...
+                    </div>
+                )}
+
                 <form onSubmit={handleSubmit} className="flex gap-2 mt-2">
-                    <span className="text-blue-400 leading-tight">nerd@yunkhngn:</span>
-                    <span className="text-yellow-400 leading-tight">{currentDir}$</span>
+                    {isChatMode ? (
+                        <span className="text-purple-400 leading-tight">&gt;&gt;&gt;</span>
+                    ) : (
+                        <>
+                            <span className="text-blue-400 leading-tight">nerd@yunkhngn:</span>
+                            <span className="text-yellow-400 leading-tight">{currentDir}$</span>
+                        </>
+                    )}
                     <input
                         ref={inputRef}
                         type="text"
@@ -250,6 +312,8 @@ export default function Terminal({ embedded = false, className = '' }) {
                         className="flex-1 bg-transparent outline-none text-white border-none p-0 focus:ring-0"
                         spellCheck="false"
                         autoComplete="off"
+                        disabled={isThinking}
+                        autoFocus
                     />
                 </form>
             </div>
