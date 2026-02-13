@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import AdminLayout from '@/components/template/Admin/Layout';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { Plus, Trash2, Search, Smile, Coffee, Code, Zap, Heart, Flame, Moon, Sun, CloudRain, Music, Sparkles, BookOpen, X, Send } from 'lucide-react';
+import { Plus, Trash2, Search, Smile, X, Send, Settings, Check } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { format, formatDistanceToNow } from 'date-fns';
@@ -10,27 +10,24 @@ import { vi } from 'date-fns/locale';
 import { Badge } from '@/components/ui/Badge';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import axios from 'axios';
-
-const MOOD_OPTIONS = [
-    { key: 'happy', icon: Smile, label: 'Vui vẻ', color: 'text-yellow-500' },
-    { key: 'coffee', icon: Coffee, label: 'Cà phê', color: 'text-amber-600' },
-    { key: 'coding', icon: Code, label: 'Coding', color: 'text-green-500' },
-    { key: 'productive', icon: Zap, label: 'Productive', color: 'text-blue-500' },
-    { key: 'love', icon: Heart, label: 'Yêu đời', color: 'text-pink-500' },
-    { key: 'fire', icon: Flame, label: 'On Fire', color: 'text-orange-500' },
-    { key: 'tired', icon: Moon, label: 'Mệt', color: 'text-indigo-400' },
-    { key: 'chill', icon: Sun, label: 'Chill', color: 'text-yellow-400' },
-    { key: 'rainy', icon: CloudRain, label: 'Buồn', color: 'text-slate-400' },
-    { key: 'music', icon: Music, label: 'Music', color: 'text-purple-500' },
-    { key: 'inspired', icon: Sparkles, label: 'Cảm hứng', color: 'text-cyan-400' },
-    { key: 'reading', icon: BookOpen, label: 'Đọc sách', color: 'text-emerald-500' },
-];
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogFooter,
+} from "@/components/ui/Dialog";
+import { ICON_MAP, DEFAULT_MOODS, COLOR_OPTIONS } from '@/lib/moods';
 
 export default function AdminJournal() {
     const { user } = useAuth();
     const [entries, setEntries] = useState([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
+
+    // Dynamic Moods State
+    const [moods, setMoods] = useState(DEFAULT_MOODS);
+    const [isMoodManagerOpen, setIsMoodManagerOpen] = useState(false);
 
     // Compose state
     const [content, setContent] = useState('');
@@ -44,11 +41,29 @@ export default function AdminJournal() {
     const [deleteId, setDeleteId] = useState(null);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
-    useEffect(() => {
-        fetchEntries();
-    }, [user]);
+    const fetchMoods = useCallback(async () => {
+        try {
+            const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/settings`);
+            const moodSetting = res.data.find(s => s.settingTitle === 'journal_moods');
+            if (moodSetting && moodSetting.content) {
+                try {
+                    const parsed = JSON.parse(moodSetting.content);
+                    if (Array.isArray(parsed) && parsed.length > 0) {
+                        setMoods(parsed);
+                        return;
+                    }
+                } catch (e) {
+                    console.error("Failed to parse mood settings", e);
+                }
+            }
+            // Fallback to defaults
+            setMoods(DEFAULT_MOODS);
+        } catch (error) {
+            console.error("Failed to fetch settings", error);
+        }
+    }, []);
 
-    const fetchEntries = async () => {
+    const fetchEntries = useCallback(async () => {
         try {
             const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/journals`);
             setEntries(res.data);
@@ -57,6 +72,35 @@ export default function AdminJournal() {
             toast.error('Failed to fetch journal entries');
         } finally {
             setLoading(false);
+        }
+    }, []);
+
+    useEffect(() => {
+        fetchEntries();
+        fetchMoods();
+    }, [user, fetchEntries, fetchMoods]);
+
+    // Ensure selected mood exists after moods fetch
+    useEffect(() => {
+        if (moods.length > 0 && !moods.find(m => m.key === mood)) {
+            setMood(moods[0]?.key || 'happy');
+        }
+    }, [moods, mood]);
+
+    const saveMoods = async (newMoods) => {
+        try {
+            const token = await user.getIdToken();
+            await axios.patch(`${process.env.NEXT_PUBLIC_API_URL}/settings`, {
+                settingTitle: 'journal_moods',
+                content: JSON.stringify(newMoods)
+            }, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            setMoods(newMoods);
+            toast.success('Moods updated successfully');
+        } catch (error) {
+            console.error(error);
+            toast.error('Failed to update moods');
         }
     };
 
@@ -76,9 +120,9 @@ export default function AdminJournal() {
             setContent('');
             setTags([]);
             setTagInput('');
-            setMood('coding');
+            // Keep current selected mood
             setIsComposeOpen(false);
-            toast.success('Journal entry posted! 🎉');
+            toast.success('Journal entry posted!');
         } catch (error) {
             console.error(error);
             toast.error('Failed to post entry');
@@ -130,7 +174,7 @@ export default function AdminJournal() {
         entry.tags?.some(t => t.toLowerCase().includes(search.toLowerCase()))
     );
 
-    const selectedMoodOption = MOOD_OPTIONS.find(m => m.key === mood);
+    const selectedMoodOption = moods.find(m => m.key === mood) || moods[0];
 
     return (
         <AdminLayout>
@@ -141,13 +185,18 @@ export default function AdminJournal() {
                         <h1 className="text-3xl font-bold tracking-tight">Journal</h1>
                         <p className="text-muted-foreground">Micro-blog & daily thoughts</p>
                     </div>
-                    <Button onClick={() => setIsComposeOpen(!isComposeOpen)}>
-                        {isComposeOpen ? (
-                            <><X className="mr-2 h-4 w-4" /> Close</>
-                        ) : (
-                            <><Plus className="mr-2 h-4 w-4" /> New Entry</>
-                        )}
-                    </Button>
+                    <div className="flex gap-2">
+                        <Button variant="outline" onClick={() => setIsMoodManagerOpen(true)}>
+                            <Settings className="mr-2 h-4 w-4" /> Manage Moods
+                        </Button>
+                        <Button onClick={() => setIsComposeOpen(!isComposeOpen)}>
+                            {isComposeOpen ? (
+                                <><X className="mr-2 h-4 w-4" /> Close</>
+                            ) : (
+                                <><Plus className="mr-2 h-4 w-4" /> New Entry</>
+                            )}
+                        </Button>
+                    </div>
                 </div>
 
                 {/* Compose */}
@@ -186,15 +235,15 @@ export default function AdminJournal() {
                             {/* Left: Mood + Tags */}
                             <div className="flex items-center gap-2 flex-1 flex-wrap">
                                 {/* Mood selector */}
-                                <div className="flex items-center gap-1 bg-muted rounded-lg p-1 overflow-x-auto">
-                                    {MOOD_OPTIONS.map((m) => {
-                                        const Icon = m.icon;
+                                <div className="flex items-center gap-1 bg-muted rounded-lg p-1 overflow-x-auto max-w-[200px] sm:max-w-md scrollbar-hide">
+                                    {moods.map((m) => {
+                                        const Icon = ICON_MAP[m.icon] || Smile;
                                         return (
                                             <button
                                                 key={m.key}
                                                 type="button"
                                                 onClick={() => setMood(m.key)}
-                                                className={`p-1.5 rounded-md transition-all ${mood === m.key ? 'bg-background shadow-sm' : 'hover:bg-background/50'
+                                                className={`p-1.5 rounded-md transition-all shrink-0 ${mood === m.key ? 'bg-background shadow-sm' : 'hover:bg-background/50'
                                                     }`}
                                                 title={m.label}
                                             >
@@ -210,7 +259,7 @@ export default function AdminJournal() {
                                     onChange={(e) => setTagInput(e.target.value)}
                                     onKeyDown={handleAddTag}
                                     placeholder="Add tag (Enter)"
-                                    className="h-8 w-32 text-xs"
+                                    className="h-8 w-24 sm:w-32 text-xs"
                                 />
                             </div>
 
@@ -258,8 +307,8 @@ export default function AdminJournal() {
                 ) : filteredEntries.length > 0 ? (
                     <div className="space-y-3">
                         {filteredEntries.map(entry => {
-                            const moodInfo = MOOD_OPTIONS.find(m => m.key === entry.mood);
-                            const MoodIcon = moodInfo?.icon || Smile;
+                            const moodInfo = moods.find(m => m.key === entry.mood) || moods[0];
+                            const MoodIcon = ICON_MAP[moodInfo?.icon] || Smile;
                             const createdAt = new Date(entry.createdAt);
                             const timeAgo = formatDistanceToNow(createdAt, { addSuffix: true, locale: vi });
                             const fullDate = format(createdAt, "d MMM yyyy 'lúc' HH:mm", { locale: vi });
@@ -275,7 +324,7 @@ export default function AdminJournal() {
                                             <div className="flex items-center gap-2 mb-2">
                                                 <MoodIcon className={`h-4 w-4 ${moodInfo?.color || ''}`} />
                                                 <span className="text-xs font-medium text-muted-foreground">
-                                                    {moodInfo?.label || 'Unknown'}
+                                                    {moodInfo?.label || entry.mood}
                                                 </span>
                                                 <span className="text-xs text-muted-foreground/50">•</span>
                                                 <time className="text-xs text-muted-foreground" title={fullDate}>
@@ -325,7 +374,213 @@ export default function AdminJournal() {
                     title="Delete Entry"
                     description="Are you sure you want to delete this journal entry? This action cannot be undone."
                 />
+
+                <MoodManagerModal
+                    isOpen={isMoodManagerOpen}
+                    onClose={() => setIsMoodManagerOpen(false)}
+                    moods={moods}
+                    onSave={saveMoods}
+                />
             </div>
         </AdminLayout>
+    );
+}
+
+function MoodManagerModal({ isOpen, onClose, moods, onSave }) {
+    const [localMoods, setLocalMoods] = useState(moods);
+    const [editing, setEditing] = useState(null); // { key, label, icon, color } or null (list view)
+
+    useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setLocalMoods(moods);
+        setEditing(null);
+    }, [moods, isOpen]);
+
+    const handleSaveList = () => {
+        onSave(localMoods);
+        onClose();
+    };
+
+    const handleDelete = (key) => {
+        if (localMoods.length <= 1) {
+            toast.error("Must have at least one mood");
+            return;
+        }
+        setLocalMoods(localMoods.filter(m => m.key !== key));
+    };
+
+    const handleEditSave = (mood) => {
+        const existingIndex = localMoods.findIndex(m => m.key === mood.key);
+        if (existingIndex >= 0) {
+            // Update
+            const newMoods = [...localMoods];
+            newMoods[existingIndex] = mood;
+            setLocalMoods(newMoods);
+        } else {
+            // Add new
+            setLocalMoods([...localMoods, mood]);
+        }
+        setEditing(null);
+    };
+
+    return (
+        <Dialog open={isOpen} onOpenChange={onClose}>
+            <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+                <DialogHeader>
+                    <DialogTitle>{editing ? (editing.isNew ? 'New Mood' : 'Edit Mood') : 'Manage Moods'}</DialogTitle>
+                </DialogHeader>
+
+                {editing ? (
+                    <MoodEditor
+                        initialData={editing}
+                        onSave={handleEditSave}
+                        onCancel={() => setEditing(null)}
+                        existingKeys={localMoods.map(m => m.key)}
+                    />
+                ) : (
+                    <div className="space-y-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            {localMoods.map(mood => {
+                                const Icon = ICON_MAP[mood.icon] || Smile;
+                                return (
+                                    <div key={mood.key} className="flex items-center justify-between p-2 border rounded-md bg-card">
+                                        <div className="flex items-center gap-2">
+                                            <div className={`p-1.5 rounded-md bg-muted ${mood.color}`}>
+                                                <Icon className="h-4 w-4" />
+                                            </div>
+                                            <span className="font-medium text-sm">{mood.label}</span>
+                                            <span className="text-xs text-muted-foreground font-mono">({mood.key})</span>
+                                        </div>
+                                        <div className="flex gap-1">
+                                            <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => setEditing(mood)}>
+                                                <Settings className="h-3 w-3" />
+                                            </Button>
+                                            <Button size="icon" variant="ghost" className="h-7 w-7 text-destructive hover:text-destructive" onClick={() => handleDelete(mood.key)}>
+                                                <Trash2 className="h-3 w-3" />
+                                            </Button>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                        <Button className="w-full" variant="outline" onClick={() => setEditing({ isNew: true, key: '', label: '', icon: 'Smile', color: 'text-yellow-500' })}>
+                            <Plus className="mr-2 h-4 w-4" /> Add Custom Mood
+                        </Button>
+
+                        <DialogFooter className="gap-2 sm:gap-0">
+                            <Button variant="ghost" onClick={onClose}>Cancel</Button>
+                            <Button onClick={handleSaveList}>Save Changes</Button>
+                        </DialogFooter>
+                    </div>
+                )}
+            </DialogContent>
+        </Dialog>
+    );
+}
+
+function MoodEditor({ initialData, onSave, onCancel, existingKeys }) {
+    const [data, setData] = useState({ ...initialData });
+    const [keyError, setKeyError] = useState('');
+
+    const handleLabelChange = (e) => {
+        const newLabel = e.target.value;
+        const updates = { label: newLabel };
+
+        if (data.isNew && !data.keyChanged) {
+            updates.key = newLabel.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+        }
+
+        setData(prev => ({ ...prev, ...updates }));
+    };
+
+    const handleSave = () => {
+        if (!data.label || !data.key) return;
+        if (data.isNew && existingKeys.includes(data.key)) {
+            setKeyError('Key already exists');
+            return;
+        }
+        onSave(data);
+    };
+
+    return (
+        <div className="space-y-5">
+            <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                    <label className="text-sm font-medium">Label</label>
+                    <Input
+                        value={data.label}
+                        onChange={handleLabelChange}
+                        placeholder="e.g. Excited"
+                    />
+                </div>
+                <div className="space-y-2">
+                    <label className="text-sm font-medium">Key (ID)</label>
+                    <Input
+                        value={data.key}
+                        onChange={(e) => setData({ ...data, key: e.target.value, keyChanged: true })}
+                        placeholder="excited"
+                        disabled={!data.isNew}
+                    />
+                    {keyError && <p className="text-xs text-destructive">{keyError}</p>}
+                </div>
+            </div>
+
+            <div className="space-y-2">
+                <label className="text-sm font-medium">Icon</label>
+                <div className="grid grid-cols-8 sm:grid-cols-10 gap-2 h-40 overflow-y-auto p-2 border rounded-md bg-muted/20">
+                    {Object.keys(ICON_MAP).map(iconKey => {
+                        const Icon = ICON_MAP[iconKey];
+                        return (
+                            <button
+                                key={iconKey}
+                                type="button"
+                                onClick={() => setData({ ...data, icon: iconKey })}
+                                className={`p-2 rounded-md hover:bg-background transition-all flex items-center justify-center ${data.icon === iconKey ? 'bg-background shadow-md ring-2 ring-primary' : ''}`}
+                                title={iconKey}
+                            >
+                                <Icon className={`h-5 w-5 ${data.color}`} />
+                            </button>
+                        );
+                    })}
+                </div>
+            </div>
+
+            <div className="space-y-2">
+                <label className="text-sm font-medium">Color</label>
+                <div className="flex flex-wrap gap-2">
+                    {COLOR_OPTIONS.map(c => (
+                        <button
+                            key={c.value}
+                            type="button"
+                            onClick={() => setData({ ...data, color: c.value })}
+                            className={`w-8 h-8 rounded-full ${c.bg} hover:opacity-80 transition-all ${data.color === c.value ? 'ring-2 ring-offset-2 ring-primary' : ''}`}
+                            title={c.label}
+                        >
+                            {data.color === c.value && <Check className="h-4 w-4 text-white mx-auto" />}
+                        </button>
+                    ))}
+                </div>
+            </div>
+
+            <div className="space-y-2 p-4 border rounded-md bg-muted/30 flex items-center justify-center gap-3">
+                <span className="text-sm text-muted-foreground">Preview:</span>
+                <Badge variant="outline" className="pl-1 pr-3 py-1 flex items-center gap-1.5 text-sm font-normal">
+                    <div className={`p-1 rounded-full bg-muted-foreground/10 ${data.color}`}>
+                        {(() => {
+                            const Icon = ICON_MAP[data.icon] || Smile;
+                            return <Icon className="h-4 w-4" />;
+                        })()}
+                    </div>
+                    {data.label || 'Mood Label'}
+                </Badge>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-2">
+                <Button variant="ghost" onClick={onCancel}>Back</Button>
+                <Button onClick={handleSave} disabled={!data.label || !data.key}>
+                    Save Mood
+                </Button>
+            </div>
+        </div>
     );
 }

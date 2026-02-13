@@ -124,25 +124,31 @@ export default function Photo() {
         fetch(`${API_URL}/gallery/views/${photos[index].id}`, { method: 'POST' }).catch(() => { });
     };
 
-    const closePhoto = () => {
+    const closePhoto = useCallback(() => {
         setViewingIndex(null);
         setShowExif(false);
         setSlideshow(false);
-    };
+    }, []);
 
-    const goToPrev = () => {
-        if (viewingIndex > 0) {
-            setViewingIndex(viewingIndex - 1);
-            fetch(`${API_URL}/gallery/views/${photos[viewingIndex - 1].id}`, { method: 'POST' }).catch(() => { });
-        }
-    };
+    const goToPrev = useCallback(() => {
+        setViewingIndex(currentIndex => {
+            if (currentIndex > 0) {
+                fetch(`${API_URL}/gallery/views/${photos[currentIndex - 1].id}`, { method: 'POST' }).catch(() => { });
+                return currentIndex - 1;
+            }
+            return currentIndex;
+        });
+    }, [photos]);
 
-    const goToNext = () => {
-        if (viewingIndex < photos.length - 1) {
-            setViewingIndex(viewingIndex + 1);
-            fetch(`${API_URL}/gallery/views/${photos[viewingIndex + 1].id}`, { method: 'POST' }).catch(() => { });
-        }
-    };
+    const goToNext = useCallback(() => {
+        setViewingIndex(currentIndex => {
+            if (currentIndex < photos.length - 1) {
+                fetch(`${API_URL}/gallery/views/${photos[currentIndex + 1].id}`, { method: 'POST' }).catch(() => { });
+                return currentIndex + 1;
+            }
+            return currentIndex;
+        });
+    }, [photos]);
 
     // Keyboard navigation
     useEffect(() => {
@@ -154,7 +160,7 @@ export default function Photo() {
         };
         window.addEventListener('keydown', handleKey);
         return () => window.removeEventListener('keydown', handleKey);
-    }, [viewingIndex]);
+    }, [viewingIndex, goToNext, goToPrev, closePhoto]);
 
     // Slideshow
     useEffect(() => {
@@ -186,12 +192,13 @@ export default function Photo() {
     // Reactions
     useEffect(() => {
         if (viewingPhoto) {
+            // Only fetch if ID changed
             fetchReactions(viewingPhoto.id);
         } else {
             setSelectedReaction(null);
             setReactionCounts({ like: 0, heart: 0, cat: 0, fire: 0, laugh: 0 });
         }
-    }, [viewingPhoto?.id]);
+    }, [viewingPhoto]);
 
     const fetchReactions = async (photoId) => {
         try {
