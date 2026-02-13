@@ -45,7 +45,7 @@ export default function Resume() {
                     <h1 className="text-3xl font-bold tracking-tight">Resume</h1>
                 </div>
 
-                <a href={cvUrl} download="KhoaNguyen_CV" target="_blank" rel="noopener noreferrer">
+                <a href={cvUrl} download="CV - Nguyen Dang Khoa - Fresher Fullstack" target="_blank" rel="noopener noreferrer">
                     <Button className="gap-2">
                         <Download className="h-4 w-4" /> Download CV
                     </Button>
