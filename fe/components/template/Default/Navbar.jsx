@@ -22,6 +22,7 @@ import NotificationDropdown from "@/components/ui/NotificationDropdown";
 const NAV_ITEMS = [
     { label: "Project", href: "/project" },
     { label: "Blog", href: "/blog" },
+    { label: "Journal", href: "/journal" },
     { label: "Photo", href: "/photo" },
     { label: "About Me", href: "/about" },
     { label: "Contact", href: "/contact" },

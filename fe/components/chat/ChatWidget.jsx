@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import Link from 'next/link';
 import Image from 'next/image';
 import { X, Send, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
@@ -97,7 +98,25 @@ export default function ChatWindow({ isOpen, onClose }) {
                                     msg.role === 'user' ? "bg-primary text-primary-foreground rounded-tr-sm" : "bg-muted/50 rounded-tl-sm border border-border/50"
                                 )}>
                                     <div className="prose prose-sm dark:prose-invert max-w-none break-words">
-                                        <ReactMarkdown>
+                                        <ReactMarkdown
+                                            components={{
+                                                a: ({ node, href, children, ...props }) => {
+                                                    const isInternal = href && (href.startsWith('/') || href.startsWith('#'));
+                                                    if (isInternal) {
+                                                        return (
+                                                            <Link href={href} className="text-blue-500 hover:underline" {...props}>
+                                                                {children}
+                                                            </Link>
+                                                        );
+                                                    }
+                                                    return (
+                                                        <a href={href} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline" {...props}>
+                                                            {children}
+                                                        </a>
+                                                    );
+                                                }
+                                            }}
+                                        >
                                             {msg.content}
                                         </ReactMarkdown>
                                     </div>

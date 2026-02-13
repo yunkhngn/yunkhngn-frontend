@@ -70,6 +70,7 @@ export default function Dashboard() {
 
   const [analyticsData, setAnalyticsData] = useState(null);
   const [analyticsPeriod, setAnalyticsPeriod] = useState('24h');
+  const [activityData, setActivityData] = useState([]);
   const [systemStats, setSystemStats] = useState(null);
   // Real-time server stats polling
   useEffect(() => {
@@ -185,6 +186,29 @@ export default function Dashboard() {
         ].sort((a, b) => b.timestamp - a.timestamp).slice(0, 8);
 
         setActivities(allActivities);
+
+        // Build activityData for the Activity Timeline chart (last 7 days)
+        const last7Days = Array.from({ length: 7 }, (_, i) => {
+          const d = new Date();
+          d.setDate(d.getDate() - (6 - i));
+          return d.toISOString().split('T')[0];
+        });
+        const allItems = [
+          ...blogs.map(b => b.createdAt),
+          ...projects.map(p => p.createdAt),
+          ...gallery.map(g => g.createdAt),
+          ...contacts.map(c => c.createdAt),
+        ];
+        const countsByDate = {};
+        last7Days.forEach(d => { countsByDate[d] = 0; });
+        allItems.forEach(ts => {
+          const date = new Date(ts).toISOString().split('T')[0];
+          if (countsByDate[date] !== undefined) countsByDate[date]++;
+        });
+        setActivityData(last7Days.map(d => ({
+          date: new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+          total: countsByDate[d],
+        })));
       } catch (error) {
         console.error("Failed to fetch dashboard data", error);
       } finally {
