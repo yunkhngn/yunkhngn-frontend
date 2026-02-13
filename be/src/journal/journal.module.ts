@@ -3,8 +3,8 @@ import { JournalController } from './journal.controller';
 import { JournalService } from './journal.service';
 
 @Module({
-    controllers: [JournalController],
-    providers: [JournalService],
-    exports: [JournalService],
+  controllers: [JournalController],
+  providers: [JournalService],
+  exports: [JournalService],
 })
-export class JournalModule { }
+export class JournalModule {}

@@ -16,7 +16,7 @@ import { Roles } from '../auth/roles.decorator';
 @UseGuards(FirebaseAuthGuard, RolesGuard)
 @Roles('ADMIN')
 export class MediaController {
-  constructor(private readonly cloudinaryService: CloudinaryService) { }
+  constructor(private readonly cloudinaryService: CloudinaryService) {}
 
   @Get('signature')
   getSignature(

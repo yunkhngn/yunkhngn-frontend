@@ -74,4 +74,4 @@ import { JournalModule } from './journal/journal.module';
     },
   ],
 })
-export class AppModule { }
+export class AppModule {}
