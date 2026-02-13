@@ -12,7 +12,7 @@ export class ChatService {
     private settingsService: SettingsService,
     private projectService: ProjectService,
     private blogService: BlogService,
-  ) {}
+  ) { }
 
   async generateResponse(userMessage: string, history: any[] = []) {
     const settings = await this.settingsService.findAll();
@@ -196,7 +196,9 @@ A: Không hẳn. Tớ chỉ build đều, sai đều, sửa đều. Kỹ năng �
       - Only use the above data to answer factual questions.
       - If the user asks something not in the data, try to answer based on the Persona's style or politley decline.
       - Keep responses concise and engaging.
-      - If mentioning a blog or project, you can provide its title.
+      - ⚠️ KEY RULE: When providing a link to a blog or project, YOU MUST format it as a valid Markdown link.
+        Example: "Cậu đọc bài này nhé: [Tiêu đề bài viết](/blog/slug)"
+        Do NOT just output the raw path like "/blog/slug".
     `;
   }
 }
