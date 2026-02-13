@@ -364,7 +364,7 @@ export default function About() {
                                         {settings.cv_url && (
                                             <div className="pt-4">
                                                 <Button size="lg" className="rounded-2xl px-10 py-4 text-base w-full md:w-auto h-auto shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300" asChild>
-                                                    <a href={settings.cv_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3">
+                                                    <a href={settings.cv_url} download="CV - Nguyen Dang Khoa - Fresher Fullstack" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3">
                                                         Download Resume <ArrowRight className="w-5 h-5" />
                                                     </a>
                                                 </Button>

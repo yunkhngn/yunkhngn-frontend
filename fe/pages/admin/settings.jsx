@@ -167,9 +167,16 @@ export default function Settings() {
         try {
             // 1. Get signature
             const token = await user.getIdToken();
-            const signParams = { folder: 'cv' };
-            if (file.type === 'application/pdf') {
-                signParams.format = 'pdf';
+            const isCV = currentSetting.settingTitle === 'cv_url';
+            const folder = isCV ? 'cv' : 'appearance';
+            const signParams = { folder };
+
+            if (isCV) {
+                // Professional naming for CV
+                signParams.public_id = "CV - Nguyen Dang Khoa - Fresher Fullstack";
+                if (file.type === 'application/pdf') {
+                    signParams.format = 'pdf';
+                }
             }
 
             const signRes = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/media/signature`, {
@@ -184,7 +191,10 @@ export default function Settings() {
             formData.append('api_key', apiKey);
             formData.append('timestamp', timestamp);
             formData.append('signature', signature);
-            formData.append('folder', 'cv');
+            formData.append('folder', folder);
+            if (signParams.public_id) {
+                formData.append('public_id', signParams.public_id);
+            }
 
             // Force PDF format if it's a PDF file (fixes Illustrator PDF saving as .ai sometimes)
             if (file.type === 'application/pdf') {
