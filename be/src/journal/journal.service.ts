@@ -25,7 +25,7 @@ export class JournalService {
       orderBy: { createdAt: 'desc' },
     });
 
-    return entries.map(this.formatEntry);
+    return entries.map((entry) => this.formatEntry(entry));
   }
 
   async findOne(id: string) {

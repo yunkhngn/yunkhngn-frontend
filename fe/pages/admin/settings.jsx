@@ -89,7 +89,28 @@ export default function Settings() {
     const [saving, setSaving] = useState(false);
     const [uploading, setUploading] = useState(false);
     const [openSections, setOpenSections] = useState(SETTINGS_GROUPS.map(g => g.title)); // Default all open
+    const [isLoaded, setIsLoaded] = useState(false);
     const fileInputRef = useRef(null);
+
+    // Load state from local storage on mount
+    useEffect(() => {
+        const saved = localStorage.getItem('settings_open_sections');
+        if (saved) {
+            try {
+                setOpenSections(JSON.parse(saved));
+            } catch (e) {
+                console.error("Failed to parse saved sections state");
+            }
+        }
+        setIsLoaded(true);
+    }, []);
+
+    // Save state to local storage whenever it changes
+    useEffect(() => {
+        if (isLoaded) {
+            localStorage.setItem('settings_open_sections', JSON.stringify(openSections));
+        }
+    }, [openSections, isLoaded]);
 
     const fetchSettings = async () => {
         try {
