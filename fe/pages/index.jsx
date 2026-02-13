@@ -99,7 +99,10 @@ export default function Home() {
         }
 
         if (galleryRes.ok) {
-          const photos = await galleryRes.json();
+          const result = await galleryRes.json();
+          // The API returns { data: [...], total, ... } so need to access .data
+          const photos = result.data || (Array.isArray(result) ? result : []);
+
           if (Array.isArray(photos)) {
             setGalleryPhotos(photos.slice(0, 10));
           }
