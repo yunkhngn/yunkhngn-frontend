@@ -11,7 +11,7 @@ export class LastFmService implements OnModuleInit {
   constructor(
     private configService: ConfigService,
     private settingsService: SettingsService,
-  ) { }
+  ) {}
 
   async onModuleInit() {
     // Check if keys exist

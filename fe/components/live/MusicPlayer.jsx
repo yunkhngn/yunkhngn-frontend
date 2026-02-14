@@ -20,11 +20,8 @@ export default function MusicPlayer({ track, loading }) {
     const { name, artist, art, isNowPlaying, url } = track;
 
     return (
-        <a
-            href={url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group flex items-center gap-3 p-2 pr-4 rounded-2xl bg-card/40 backdrop-blur-xl border hover:bg-card/50 transition-all hover:scale-[1.02] w-64 overflow-hidden relative"
+        <div
+            className="group flex items-center gap-3 p-2 pr-4 rounded-2xl bg-card/40 backdrop-blur-xl border border-border/40 hover:bg-card/50 transition-all hover:scale-[1.02] w-64 overflow-hidden relative"
         >
             {/* Background Blur Effect */}
             {art && (
@@ -83,7 +80,15 @@ export default function MusicPlayer({ track, loading }) {
                 </span>
             </div>
 
-            <ExternalLink className="h-3 w-3 text-muted-foreground/30 group-hover:text-foreground/50 ml-1 z-10" />
-        </a>
+            <a
+                href={url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="z-10 p-1 rounded-full hover:bg-background/20 transition-colors"
+                title="Open in Spotify/Apple Music"
+            >
+                <ExternalLink className="h-3 w-3 text-muted-foreground/30 group-hover:text-foreground/50" />
+            </a>
+        </div>
     );
 }

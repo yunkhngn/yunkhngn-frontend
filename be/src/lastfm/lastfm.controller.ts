@@ -5,7 +5,7 @@ import { ApiTags, ApiOperation } from '@nestjs/swagger';
 @ApiTags('LastFm')
 @Controller('lastfm')
 export class LastFmController {
-  constructor(private readonly lastFmService: LastFmService) { }
+  constructor(private readonly lastFmService: LastFmService) {}
 
   @Get('playing')
   @ApiOperation({ summary: 'Get currently playing or last played track' })
@@ -32,17 +32,24 @@ export class LastFmController {
     const escapeXml = (unsafe: string) =>
       unsafe.replace(/[<>&'"]/g, (c) => {
         switch (c) {
-          case '<': return '&lt;';
-          case '>': return '&gt;';
-          case '&': return '&amp;';
-          case '\'': return '&apos;';
-          case '"': return '&quot;';
+          case '<':
+            return '&lt;';
+          case '>':
+            return '&gt;';
+          case '&':
+            return '&amp;';
+          case "'":
+            return '&apos;';
+          case '"':
+            return '&quot;';
         }
       });
 
     const name = escapeXml(data.name || 'Unknown Track');
     const artist = escapeXml(data.artist || 'Unknown Artist');
-    const art = data.art || 'https://raw.githubusercontent.com/yunkhngn/yunkhngn/main/assets/disc.png'; // Fallback
+    const art =
+      data.art ||
+      'https://raw.githubusercontent.com/yunkhngn/yunkhngn/main/assets/disc.png'; // Fallback
     const isPlaying = data.isNowPlaying;
 
     const width = 300;
@@ -71,13 +78,17 @@ export class LastFmController {
         <image x="12" y="12" width="56" height="56" href="${art}" clip-path="url(#clip)" />
         
         <!-- Status Indicator -->
-        ${isPlaying ? `
+        ${
+          isPlaying
+            ? `
           <g transform="translate(200, 25)">
              <circle cx="80" cy="-6" r="4" fill="#22c55e">
               <animate attributeName="opacity" values="1;0.5;1" dur="2s" repeatCount="indefinite" />
              </circle>
           </g>
-        ` : ''}
+        `
+            : ''
+        }
 
         <!-- Text Content -->
         <g transform="translate(80, 26)">
