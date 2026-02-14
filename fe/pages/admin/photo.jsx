@@ -9,27 +9,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import Image from 'next/image';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import { toast } from 'sonner';
-import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
-import { SortableContext, useSortable, rectSortingStrategy, arrayMove } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
+
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-function SortablePhoto({ photo, isSelected, onToggleSelect, onView, onEdit, onDelete }) {
-    const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: photo.id });
-    const style = {
-        transform: CSS.Transform.toString(transform),
-        transition,
-        opacity: isDragging ? 0.5 : 1,
-        zIndex: isDragging ? 50 : 'auto',
-    };
-
+function PhotoCard({ photo, isSelected, onToggleSelect, onView, onEdit, onDelete }) {
     return (
-        <div ref={setNodeRef} style={style} className={`aspect-square relative rounded-xl overflow-hidden group bg-muted ${isSelected ? 'ring-2 ring-primary ring-offset-2' : ''}`}>
-            {/* Drag handle */}
-            <div {...attributes} {...listeners} className="absolute top-1 left-1 z-20 p-1 rounded bg-black/50 text-white opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing">
-                <GripVertical className="h-3.5 w-3.5" />
-            </div>
+        <div className={`aspect-square relative rounded-xl overflow-hidden group bg-muted ${isSelected ? 'ring-2 ring-primary ring-offset-2' : ''}`}>
 
             {/* Select checkbox */}
             <button
@@ -114,10 +100,6 @@ export default function PhotoManager() {
     // Drag
     const [isDragging, setIsDragging] = useState(false);
     const fileInputRef = useRef(null);
-
-    const sensors = useSensors(
-        useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
-    );
 
     // Fetch photos
     const fetchPhotos = useCallback(async (page = 1) => {
@@ -325,26 +307,7 @@ export default function PhotoManager() {
         } catch { toast.error('Failed to delete album'); }
     };
 
-    // Drag-to-reorder
-    const handleDragEnd = async (event) => {
-        const { active, over } = event;
-        if (!over || active.id === over.id) return;
-
-        const oldIndex = photos.findIndex(p => p.id === active.id);
-        const newIndex = photos.findIndex(p => p.id === over.id);
-        const reordered = arrayMove(photos, oldIndex, newIndex);
-        setPhotos(reordered);
-
-        try {
-            const token = await user.getIdToken();
-            const items = reordered.map((p, i) => ({ id: p.id, sortOrder: i }));
-            await fetch(`${API_URL}/gallery/reorder`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-                body: JSON.stringify({ items }),
-            });
-        } catch { toast.error('Failed to save order'); }
-    };
+    // Drag-to-reorder removed
 
     // Multi-select
     const toggleSelect = (id) => setSelected(prev => {
@@ -538,23 +501,19 @@ export default function PhotoManager() {
                             </span>
                         </div>
 
-                        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-                            <SortableContext items={photos.map(p => p.id)} strategy={rectSortingStrategy}>
-                                <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                                    {photos.map((photo) => (
-                                        <SortablePhoto
-                                            key={photo.id}
-                                            photo={photo}
-                                            isSelected={selected.has(photo.id)}
-                                            onToggleSelect={toggleSelect}
-                                            onView={setViewingPhoto}
-                                            onEdit={openEdit}
-                                            onDelete={handleDelete}
-                                        />
-                                    ))}
-                                </div>
-                            </SortableContext>
-                        </DndContext>
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                            {photos.map((photo) => (
+                                <PhotoCard
+                                    key={photo.id}
+                                    photo={photo}
+                                    isSelected={selected.has(photo.id)}
+                                    onToggleSelect={toggleSelect}
+                                    onView={setViewingPhoto}
+                                    onEdit={openEdit}
+                                    onDelete={handleDelete}
+                                />
+                            ))}
+                        </div>
 
                         {/* Pagination */}
                         {totalPages > 1 && (

@@ -360,7 +360,7 @@ function ComposeModal({ moods, onSuccess, avatarUrl, initialData, isOpen, onClos
                 But user wants "New Entry" button.
                 Let's move "New Entry" button out to parent JournalPage to keep it clean.
              */}
-            <DialogContent className="sm:max-w-[500px] max-h-[90vh] flex flex-col p-0 gap-0 overflow-hidden">
+            <DialogContent className="w-[95vw] h-[90vh] sm:max-w-none md:w-[800px] md:h-[500px] flex flex-col p-0 gap-0 overflow-hidden rounded-xl">
                 <DialogHeader className="p-4 pb-2">
                     <DialogTitle>
                         {isEditing ? 'Edit Entry' : parentId ? 'Reply to Entry' : 'Create Journal Entry'}
@@ -376,7 +376,7 @@ function ComposeModal({ moods, onSuccess, avatarUrl, initialData, isOpen, onClos
                                 value={content}
                                 onChange={(e) => setContent(e.target.value)}
                                 placeholder={parentId ? "Add a reply..." : "What's on your mind?"}
-                                className="w-full bg-transparent border-none outline-none resize-none text-foreground text-sm min-h-[100px] p-0 focus:ring-0"
+                                className="w-full bg-transparent border-none outline-none resize-none text-foreground text-sm min-h-[200px] p-0 focus:ring-0"
                                 autoFocus
                             />
 
@@ -631,7 +631,7 @@ export default function JournalPage() {
                 onSuccess={fetchData}
                 avatarUrl={avatarUrl}
             />        {/* Filter */}
-            <div className="flex gap-2 mb-12 overflow-x-auto pb-4 scrollbar-hide justify-center">
+            <div className="flex flex-wrap gap-2 mb-12 justify-center">
                 <Button
                     variant={selectedMood === null ? "default" : "outline"}
                     size="sm"
