@@ -1,16 +1,18 @@
-name: Frontend Quality
+name: Quality Checks
 
 on:
   push:
     branches: [ "main", "dev" ]
     paths:
       - 'fe/**'
-      - '.github/workflows/fe-quality.yml'
+      - 'be/**'
+      - '.github/workflows/quality-checks.yml'
   pull_request:
     branches: [ "main" ]
     paths:
       - 'fe/**'
-      - '.github/workflows/fe-quality.yml'
+      - 'be/**'
+      - '.github/workflows/quality-checks.yml'
 
 jobs:
   fe-quality:
@@ -47,3 +49,38 @@ jobs:
         with:
           name: fe-test-reports
           path: fe/reports/*.xml
+
+  be-quality:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'yarn'
+          cache-dependency-path: 'be/yarn.lock'
+
+      - name: Install Dependencies
+        run: |
+          cd be && yarn install --frozen-lockfile
+
+      - name: Lint Backend
+        run: |
+          cd be && yarn lint
+
+      - name: Test Backend
+        run: |
+          cd be
+          export JEST_JUNIT_OUTPUT_DIR="reports"
+          export JEST_JUNIT_OUTPUT_NAME="be-test-report.xml"
+          yarn test
+
+      - name: Upload Test Reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: be-test-reports
+          path: be/reports/*.xml
