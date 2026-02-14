@@ -13,6 +13,10 @@ export class CreateJournalDto {
   @IsOptional()
   tags?: string[];
 
+  @IsString()
+  @IsOptional()
+  parentId?: string;
+
   @IsArray()
   @IsOptional()
   images?: string[];

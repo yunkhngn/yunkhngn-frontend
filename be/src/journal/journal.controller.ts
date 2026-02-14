@@ -14,10 +14,11 @@ import { UpdateJournalDto } from './dto/update-journal.dto';
 import { FirebaseAuthGuard } from '../auth/firebase-auth.guard';
 import { Roles } from '../auth/roles.decorator';
 import { RolesGuard } from '../auth/roles.guard';
+import { User } from '../auth/user.decorator';
 
 @Controller('journals')
 export class JournalController {
-  constructor(private readonly journalService: JournalService) {}
+  constructor(private readonly journalService: JournalService) { }
 
   @Post()
   @UseGuards(FirebaseAuthGuard, RolesGuard)
@@ -41,6 +42,13 @@ export class JournalController {
   @Roles('ADMIN')
   update(@Param('id') id: string, @Body() updateJournalDto: UpdateJournalDto) {
     return this.journalService.update(id, updateJournalDto);
+  }
+
+  @Post(':id/reactions')
+  @UseGuards(FirebaseAuthGuard)
+  toggleReaction(@Param('id') id: string, @Body('type') type: string, @User() user) {
+    if (!user) throw new Error("User not found in request");
+    return this.journalService.toggleReaction(id, user.uid, type);
   }
 
   @Delete(':id')
