@@ -313,7 +313,7 @@ export default function Terminal({ embedded = false, className = '' }) {
                         spellCheck="false"
                         autoComplete="off"
                         disabled={isThinking}
-                        autoFocus
+
                     />
                 </form>
             </div>

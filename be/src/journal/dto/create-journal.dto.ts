@@ -12,4 +12,8 @@ export class CreateJournalDto {
   @IsArray()
   @IsOptional()
   tags?: string[];
+
+  @IsArray()
+  @IsOptional()
+  images?: string[];
 }
