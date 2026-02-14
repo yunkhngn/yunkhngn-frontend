@@ -6,12 +6,12 @@ import axios from 'axios';
 @Injectable()
 export class LastFmService implements OnModuleInit {
   private readonly logger = new Logger(LastFmService.name);
-  private readonly baseUrl = 'http://ws.audioscrobbler.com/2.0/';
+  private readonly baseUrl = 'https://ws.audioscrobbler.com/2.0/';
 
   constructor(
     private configService: ConfigService,
     private settingsService: SettingsService,
-  ) {}
+  ) { }
 
   async onModuleInit() {
     // Check if keys exist
