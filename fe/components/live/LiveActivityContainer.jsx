@@ -40,7 +40,7 @@ export default function LiveActivityContainer() {
         const interval = setInterval(() => {
             fetchCoding();
             fetchMusic();
-        }, 60000);
+        }, 10000);
 
         return () => clearInterval(interval);
     }, []);

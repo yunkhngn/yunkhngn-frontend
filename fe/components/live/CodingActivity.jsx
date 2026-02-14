@@ -14,21 +14,14 @@ export default function CodingActivity({ activity, loading, error }) {
 
     if (error || !activity) {
         return null;
-        // Or render a "Clean Code" state?
-        // return (
-        //     <div className="flex items-center gap-3 p-3 rounded-2xl bg-card/50 backdrop-blur-sm border border-border/50 w-fit">
-        //         <Github className="h-5 w-5 text-muted-foreground" />
-        //         <span className="text-xs text-muted-foreground">No recent activity</span>
-        //     </div>
-        // )
     }
 
     const { type, repo, timestamp, url, isPrivate } = activity;
     const date = new Date(timestamp);
     const timeAgo = formatDistanceToNow(date, { addSuffix: true });
 
-    // Pulse if active in last 30 mins
-    const isActiveNow = (new Date() - date) < 30 * 60 * 1000;
+    // Pulse if active in last 10 mins
+    const isActiveNow = (new Date() - date) < 10 * 60 * 1000;
 
     let Icon = Github;
     let actionText = "Active on";
