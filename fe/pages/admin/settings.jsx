@@ -525,144 +525,146 @@ export default function Settings() {
                 </div>
 
                 <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                    <DialogContent className="w-[90vw] max-w-[90vw]">
-                        <DialogHeader>
+                    <DialogContent className="w-[95vw] h-[90vh] sm:max-w-none md:w-[900px] md:h-[80vh] flex flex-col p-0 gap-0 overflow-hidden rounded-xl">
+                        <DialogHeader className="p-6 pb-2 border-b">
                             <DialogTitle>Edit Setting</DialogTitle>
                         </DialogHeader>
-                        <form onSubmit={handleSave} className="space-y-4">
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium">Setting Key (Title)</label>
-                                <Input
-                                    value={currentSetting.settingTitle}
-                                    disabled
-                                    className="bg-muted"
-                                />
-                            </div>
+                        <div className="flex-1 overflow-y-auto p-6">
+                            <form onSubmit={handleSave} className="space-y-4">
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium">Setting Key (Title)</label>
+                                    <Input
+                                        value={currentSetting.settingTitle}
+                                        disabled
+                                        className="bg-muted"
+                                    />
+                                </div>
 
-                            {(currentSetting.settingTitle === 'cv_url' || currentSetting.settingTitle === 'avatar' || currentSetting.settingTitle.includes('_image')) ? (
-                                <div className="space-y-4">
-                                    <div className="flex flex-col gap-2">
-                                        <div className="flex gap-2">
-                                            <Input
-                                                value={currentSetting.content}
-                                                onChange={(e) => setCurrentSetting({ ...currentSetting, content: e.target.value })}
-                                                placeholder="https://..."
-                                                className="flex-1"
+                                {(currentSetting.settingTitle === 'cv_url' || currentSetting.settingTitle === 'avatar' || currentSetting.settingTitle.includes('_image')) ? (
+                                    <div className="space-y-4">
+                                        <div className="flex flex-col gap-2">
+                                            <div className="flex gap-2">
+                                                <Input
+                                                    value={currentSetting.content}
+                                                    onChange={(e) => setCurrentSetting({ ...currentSetting, content: e.target.value })}
+                                                    placeholder="https://..."
+                                                    className="flex-1"
+                                                />
+                                                <Button
+                                                    type="button"
+                                                    variant="outline"
+                                                    onClick={() => fileInputRef.current?.click()}
+                                                    disabled={uploading}
+                                                    className="whitespace-nowrap shrink-0"
+                                                >
+                                                    {uploading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <UploadCloud className="mr-2 h-4 w-4" />}
+                                                    {currentSetting.settingTitle === 'cv_url' ? 'Upload CV' : 'Upload Image'}
+                                                </Button>
+                                            </div>
+                                            <input
+                                                type="file"
+                                                ref={fileInputRef}
+                                                className="hidden"
+                                                accept={currentSetting.settingTitle === 'cv_url' ? '.pdf,.png,.jpg,.jpeg,.svg' : '.png,.jpg,.jpeg,.webp'}
+                                                onChange={handleUploadCV}
                                             />
-                                            <Button
-                                                type="button"
-                                                variant="outline"
-                                                onClick={() => fileInputRef.current?.click()}
-                                                disabled={uploading}
-                                                className="whitespace-nowrap shrink-0"
-                                            >
-                                                {uploading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <UploadCloud className="mr-2 h-4 w-4" />}
-                                                {currentSetting.settingTitle === 'cv_url' ? 'Upload CV' : 'Upload Image'}
-                                            </Button>
                                         </div>
-                                        <input
-                                            type="file"
-                                            ref={fileInputRef}
-                                            className="hidden"
-                                            accept={currentSetting.settingTitle === 'cv_url' ? '.pdf,.png,.jpg,.jpeg,.svg' : '.png,.jpg,.jpeg,.webp'}
-                                            onChange={handleUploadCV}
+                                        <p className="text-xs text-muted-foreground">
+                                            {currentSetting.settingTitle === 'cv_url'
+                                                ? 'Supported formats: PDF, PNG, JPG, SVG.'
+                                                : 'Supported formats: PNG, JPG, JPEG, WebP. Recommended size: 1200x630px for SEO.'}
+                                        </p>
+                                        {currentSetting.content && (
+                                            <div className="mt-2 text-sm break-all">
+                                                <span className="text-muted-foreground">Current: </span>
+                                                <a href={currentSetting.content} target="_blank" rel="noopener noreferrer" className="text-green-500 hover:underline">
+                                                    {currentSetting.content}
+                                                </a>
+                                                {currentSetting.settingTitle === 'cv_url' && currentSetting.content.endsWith('.ai') && (
+                                                    <p className="text-yellow-500 text-xs mt-1">
+                                                        Warning: .ai format detected. This may not display correctly in browsers. Please upload a PDF or Image.
+                                                    </p>
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
+                                ) : (currentSetting.settingTitle.includes('api_key') || currentSetting.settingTitle.includes('api_secret') || currentSetting.settingTitle.includes('token') || currentSetting.settingTitle.includes('password')) ? (
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-medium">
+                                            {formatSettingTitle(currentSetting.settingTitle)}
+                                        </label>
+                                        <Input
+                                            type="password"
+                                            value={currentSetting.content}
+                                            onChange={(e) => setCurrentSetting({ ...currentSetting, content: e.target.value })}
+                                            placeholder="Enter Secret Key"
+                                            className="font-mono"
+                                        />
+                                        <p className="text-xs text-muted-foreground">
+                                            Value is encrypted in the database. Enter a new key to update.
+                                        </p>
+                                    </div>
+                                ) : ['cloudinary_cloud_name', 'resend_domain', 'admin_email', 'cloudflare_zone_id', 'cloudflare_account_id', 'github_username', 'github_repo_name'].includes(currentSetting.settingTitle) ? (
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-medium">Value</label>
+                                        <Input
+                                            value={currentSetting.content}
+                                            onChange={(e) => setCurrentSetting({ ...currentSetting, content: e.target.value })}
+                                            placeholder="Enter value"
+                                            className="font-mono"
                                         />
                                     </div>
-                                    <p className="text-xs text-muted-foreground">
-                                        {currentSetting.settingTitle === 'cv_url'
-                                            ? 'Supported formats: PDF, PNG, JPG, SVG.'
-                                            : 'Supported formats: PNG, JPG, JPEG, WebP. Recommended size: 1200x630px for SEO.'}
-                                    </p>
-                                    {currentSetting.content && (
-                                        <div className="mt-2 text-sm break-all">
-                                            <span className="text-muted-foreground">Current: </span>
-                                            <a href={currentSetting.content} target="_blank" rel="noopener noreferrer" className="text-green-500 hover:underline">
-                                                {currentSetting.content}
-                                            </a>
-                                            {currentSetting.settingTitle === 'cv_url' && currentSetting.content.endsWith('.ai') && (
-                                                <p className="text-yellow-500 text-xs mt-1">
-                                                    Warning: .ai format detected. This may not display correctly in browsers. Please upload a PDF or Image.
-                                                </p>
-                                            )}
-                                        </div>
-                                    )}
-                                </div>
-                            ) : (currentSetting.settingTitle.includes('api_key') || currentSetting.settingTitle.includes('api_secret') || currentSetting.settingTitle.includes('token') || currentSetting.settingTitle.includes('password')) ? (
-                                <div className="space-y-2">
-                                    <label className="text-sm font-medium">
-                                        {formatSettingTitle(currentSetting.settingTitle)}
-                                    </label>
-                                    <Input
-                                        type="password"
-                                        value={currentSetting.content}
-                                        onChange={(e) => setCurrentSetting({ ...currentSetting, content: e.target.value })}
-                                        placeholder="Enter Secret Key"
-                                        className="font-mono"
-                                    />
-                                    <p className="text-xs text-muted-foreground">
-                                        Value is encrypted in the database. Enter a new key to update.
-                                    </p>
-                                </div>
-                            ) : ['cloudinary_cloud_name', 'resend_domain', 'admin_email', 'cloudflare_zone_id', 'cloudflare_account_id', 'github_username', 'github_repo_name'].includes(currentSetting.settingTitle) ? (
-                                <div className="space-y-2">
-                                    <label className="text-sm font-medium">Value</label>
-                                    <Input
-                                        value={currentSetting.content}
-                                        onChange={(e) => setCurrentSetting({ ...currentSetting, content: e.target.value })}
-                                        placeholder="Enter value"
-                                        className="font-mono"
-                                    />
-                                </div>
-                            ) : (
-                                <div className="space-y-2">
-                                    <label className="text-sm font-medium">Content</label>
-                                    <Tabs defaultValue="code" className="w-full">
-                                        <TabsList className="grid w-full grid-cols-2 mb-4">
-                                            <TabsTrigger value="code">Code Editor (JSON)</TabsTrigger>
-                                            <TabsTrigger value="text">Plain Text</TabsTrigger>
-                                        </TabsList>
-                                        <TabsContent value="code" className="mt-0">
-                                            <div className="border rounded-md overflow-hidden">
-                                                <Editor
-                                                    height="600px"
-                                                    defaultLanguage="json"
-                                                    theme="vs-dark"
+                                ) : (
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-medium">Content</label>
+                                        <Tabs defaultValue="code" className="w-full">
+                                            <TabsList className="grid w-full grid-cols-2 mb-4">
+                                                <TabsTrigger value="code">Code Editor (JSON)</TabsTrigger>
+                                                <TabsTrigger value="text">Plain Text</TabsTrigger>
+                                            </TabsList>
+                                            <TabsContent value="code" className="mt-0">
+                                                <div className="border rounded-md overflow-hidden">
+                                                    <Editor
+                                                        height="400px"
+                                                        defaultLanguage="json"
+                                                        theme="vs-dark"
+                                                        value={currentSetting.content}
+                                                        onChange={(value) => setCurrentSetting({ ...currentSetting, content: value })}
+                                                        options={{
+                                                            minimap: { enabled: false },
+                                                            fontSize: 14,
+                                                            lineNumbers: 'on',
+                                                            scrollBeyondLastLine: false,
+                                                            automaticLayout: true,
+                                                            tabSize: 2,
+                                                            wordWrap: 'on'
+                                                        }}
+                                                    />
+                                                </div>
+                                            </TabsContent>
+                                            <TabsContent value="text" className="mt-0">
+                                                <Textarea
                                                     value={currentSetting.content}
-                                                    onChange={(value) => setCurrentSetting({ ...currentSetting, content: value })}
-                                                    options={{
-                                                        minimap: { enabled: false },
-                                                        fontSize: 14,
-                                                        lineNumbers: 'on',
-                                                        scrollBeyondLastLine: false,
-                                                        automaticLayout: true,
-                                                        tabSize: 2,
-                                                        wordWrap: 'on'
-                                                    }}
+                                                    onChange={(e) => setCurrentSetting({ ...currentSetting, content: e.target.value })}
+                                                    placeholder="Enter plain text content..."
+                                                    className="min-h-[400px] font-mono"
                                                 />
-                                            </div>
-                                        </TabsContent>
-                                        <TabsContent value="text" className="mt-0">
-                                            <Textarea
-                                                value={currentSetting.content}
-                                                onChange={(e) => setCurrentSetting({ ...currentSetting, content: e.target.value })}
-                                                placeholder="Enter plain text content..."
-                                                className="min-h-[600px] font-mono"
-                                            />
-                                        </TabsContent>
-                                    </Tabs>
-                                </div>
-                            )}
+                                            </TabsContent>
+                                        </Tabs>
+                                    </div>
+                                )}
 
-                            <div className="flex justify-end gap-2">
-                                <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
-                                    Cancel
-                                </Button>
-                                <Button type="submit" disabled={saving}>
-                                    {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                    Save
-                                </Button>
-                            </div>
-                        </form>
+                                <div className="flex justify-end gap-2 pt-4 sticky bottom-0 bg-background/95 backdrop-blur z-10 border-t mt-4 pb-2">
+                                    <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
+                                        Cancel
+                                    </Button>
+                                    <Button type="submit" disabled={saving}>
+                                        {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                        Save
+                                    </Button>
+                                </div>
+                            </form>
+                        </div>
                     </DialogContent>
                 </Dialog>
             </div>

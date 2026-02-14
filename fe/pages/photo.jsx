@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import Image from 'next/image';
 import { Dialog, DialogContent } from '@/components/ui/Dialog';
-import { X, ThumbsUp, Heart, Cat, Flame, Laugh, Download, Share2, ChevronLeft, ChevronRight, Play, Pause, Camera, Grid, LayoutGrid, List, Info, ArrowUpDown } from 'lucide-react';
+import { X, ThumbsUp, Heart, Cat, Flame, Laugh, Download, Share2, ChevronLeft, ChevronRight, Play, Pause, Camera, Grid, LayoutGrid, List, Info } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Skeleton } from "@/components/ui/Skeleton";
 import Layout from '@/components/template/Default/Layout';
@@ -36,7 +36,7 @@ export default function Photo() {
     const [selectedAlbum, setSelectedAlbum] = useState(null);
     const [selectedTag, setSelectedTag] = useState(null);
     const [layout, setLayout] = useState('masonry');
-    const [sortOrder, setSortOrder] = useState('desc');
+
     const [viewingIndex, setViewingIndex] = useState(null);
     const [selectedReaction, setSelectedReaction] = useState(null);
     const [reactionCounts, setReactionCounts] = useState({ like: 0, heart: 0, cat: 0, fire: 0, laugh: 0 });
@@ -72,7 +72,7 @@ export default function Photo() {
         else setLoadingMore(true);
 
         try {
-            const params = new URLSearchParams({ page: String(pageNum), limit: String(PHOTOS_PER_PAGE), sort: 'createdAt', order: sortOrder });
+            const params = new URLSearchParams({ page: String(pageNum), limit: String(PHOTOS_PER_PAGE), sort: 'createdAt', order: 'desc' });
             if (selectedAlbum) params.set('albumId', selectedAlbum);
             if (selectedTag) params.set('tag', selectedTag);
 
@@ -89,7 +89,7 @@ export default function Photo() {
             setLoading(false);
             setLoadingMore(false);
         }
-    }, [selectedAlbum, selectedTag, sortOrder]);
+    }, [selectedAlbum, selectedTag]);
 
     useEffect(() => {
         fetchPhotos(1, false);
@@ -378,19 +378,7 @@ export default function Photo() {
                     {/* Layout & Sort */}
                     <div className="flex items-center gap-2">
                         {/* Sort Toggle */}
-                        <button
-                            onClick={() => {
-                                setSortOrder(prev => prev === 'desc' ? 'asc' : 'desc');
-                                setPhotos([]); // Clear photos to give immediate feedback
-                                setLoading(true); // Show skeleton immediately
-                                window.scrollTo({ top: 0, behavior: 'smooth' });
-                            }}
-                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-muted text-muted-foreground hover:text-foreground text-sm font-medium transition-all"
-                            title={sortOrder === 'desc' ? 'Newest first' : 'Oldest first'}
-                        >
-                            <ArrowUpDown className="h-4 w-4" />
-                            <span className="hidden sm:inline">{sortOrder === 'desc' ? 'Newest' : 'Oldest'}</span>
-                        </button>
+
 
                         <div className="w-px h-6 bg-border mx-1" />
 
