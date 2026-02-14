@@ -76,6 +76,14 @@ const nextConfig = {
       },
     ];
   },
+  async rewrites() {
+    return [
+      {
+        source: '/lastfm/widget',
+        destination: `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/lastfm/widget`,
+      },
+    ];
+  },
   async headers() {
     return [
       {
