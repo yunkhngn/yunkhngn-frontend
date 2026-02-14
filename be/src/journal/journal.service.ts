@@ -5,7 +5,7 @@ import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class JournalService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
   async create(createJournalDto: CreateJournalDto) {
     const { tags, ...rest } = createJournalDto;
@@ -78,7 +78,9 @@ export class JournalService {
     // But since they are self-referencing and we want cascade delete logic usually...
     // Actually, let's just delete the entry. If schema says NoAction, SQL might error if children exist.
     // Let's delete children first if any.
-    const children = await this.prisma.journal.findMany({ where: { parentId: id } });
+    const children = await this.prisma.journal.findMany({
+      where: { parentId: id },
+    });
     for (const child of children) {
       await this.remove(child.id); // Recursive delete
     }
@@ -128,7 +130,7 @@ export class JournalService {
     };
 
     if (entry.replies) {
-      formatted.replies = entry.replies.map(r => this.formatEntry(r));
+      formatted.replies = entry.replies.map((r) => this.formatEntry(r));
     }
 
     return formatted;

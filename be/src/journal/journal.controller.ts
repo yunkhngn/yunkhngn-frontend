@@ -18,7 +18,7 @@ import { User } from '../auth/user.decorator';
 
 @Controller('journals')
 export class JournalController {
-  constructor(private readonly journalService: JournalService) { }
+  constructor(private readonly journalService: JournalService) {}
 
   @Post()
   @UseGuards(FirebaseAuthGuard, RolesGuard)
@@ -46,8 +46,12 @@ export class JournalController {
 
   @Post(':id/reactions')
   @UseGuards(FirebaseAuthGuard)
-  toggleReaction(@Param('id') id: string, @Body('type') type: string, @User() user) {
-    if (!user) throw new Error("User not found in request");
+  toggleReaction(
+    @Param('id') id: string,
+    @Body('type') type: string,
+    @User() user,
+  ) {
+    if (!user) throw new Error('User not found in request');
     return this.journalService.toggleReaction(id, user.uid, type);
   }
 
