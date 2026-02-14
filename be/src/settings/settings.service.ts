@@ -40,6 +40,8 @@ const SYSTEM_SETTINGS = [
   'about_image_journey',
   'about_image_skills',
   'about_image_contact',
+  'lastfm_api_key',
+  'lastfm_username',
 ];
 
 @Injectable()
@@ -47,7 +49,7 @@ export class SettingsService implements OnModuleInit {
   constructor(
     private prisma: PrismaService,
     private encryptionService: EncryptionService,
-  ) {}
+  ) { }
 
   async onModuleInit() {
     try {
@@ -79,6 +81,7 @@ export class SettingsService implements OnModuleInit {
           s.settingTitle === 'resend_api_key' ||
           s.settingTitle === 'cloudflare_api_token' ||
           s.settingTitle === 'github_api_key' ||
+          s.settingTitle === 'lastfm_api_key' ||
           s.settingTitle === 'chat_api_key') &&
         s.content
       ) {
@@ -104,6 +107,7 @@ export class SettingsService implements OnModuleInit {
       settingTitle === 'cloudflare_api_token' ||
       settingTitle === 'cloudflare_api_token' ||
       settingTitle === 'github_api_key' ||
+      settingTitle === 'lastfm_api_key' ||
       settingTitle === 'chat_api_key'
     ) {
       if (content === '********') {
@@ -144,6 +148,7 @@ export class SettingsService implements OnModuleInit {
         title === 'resend_api_key' ||
         title === 'cloudflare_api_token' ||
         title === 'github_api_key' ||
+        title === 'lastfm_api_key' ||
         title === 'chat_api_key'
       ) {
         return this.encryptionService.decrypt(setting.content);

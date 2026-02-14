@@ -1,6 +1,7 @@
 import { DefaultFooter, DefaultNavbar } from "@/components/template";
 import InteractiveBackground from "@/components/ui/InteractiveBackground";
 import { Metadata } from "@/components/template";
+import LiveActivityContainer from "@/components/live/LiveActivityContainer";
 
 import { useFocusMode } from "@/contexts/FocusModeContext";
 
@@ -25,6 +26,7 @@ export default function DefaultLayout({ children, title, description, image, url
 
             {!isFocusMode && <DefaultFooter />}
 
+            {!isFocusMode && <LiveActivityContainer />}
         </div>
     );
 }

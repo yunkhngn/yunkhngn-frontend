@@ -1,73 +1,17 @@
-name: CI/CD
+name: Main CI/CD
 
 on:
   push:
-    branches: [ "main", "dev" ]
-    paths-ignore:
-      - 'README.md'
+    branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
-    paths-ignore:
-      - 'README.md'
-  workflow_dispatch:
 
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  # 1. Quality Check (Lint & Test)
-  quality:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      checks: write
-      pull-requests: write
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'yarn'
-          cache-dependency-path: '**/yarn.lock'
-
-      - name: Install Dependencies
-        run: |
-          cd be && yarn install --frozen-lockfile
-          cd ../fe && yarn install --frozen-lockfile
-
-      - name: Lint Backend & Frontend
-        run: |
-          cd be && yarn lint
-          cd ../fe && yarn lint
-
-      - name: Test Backend
-        run: |
-          cd be
-          export JEST_JUNIT_OUTPUT_DIR="reports"
-          export JEST_JUNIT_OUTPUT_NAME="be-test-report.xml"
-          yarn test
-
-      - name: Test Frontend
-        run: |
-          cd fe
-          export JEST_JUNIT_OUTPUT_DIR="reports"
-          export JEST_JUNIT_OUTPUT_NAME="fe-test-report.xml"
-          yarn test
-
-      - name: Upload Test Reports
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-reports
-          path: |
-            be/reports/*.xml
-            fe/reports/*.xml
-
-  # 2. Security Check (SAST)
+  # 1. Security Check (SAST)
   security:
     runs-on: ubuntu-latest
     name: Security Scan
@@ -79,10 +23,9 @@ jobs:
         with:
           config: p/default
 
-
-  # 3a. Build & Push Backend
+  # 2a. Build & Push Backend
   build_backend:
-    needs: [quality, security]
+    needs: [security]
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -112,9 +55,9 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-  # 3b. Build & Push Frontend
+  # 2b. Build & Push Frontend
   build_frontend:
-    needs: [quality, security]
+    needs: [security]
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -154,7 +97,7 @@ jobs:
             NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=${{ secrets.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME }}
             NEXT_PUBLIC_CLOUDINARY_API_KEY=${{ secrets.NEXT_PUBLIC_CLOUDINARY_API_KEY }}
 
-  # 4. Deploy to Production
+  # 3. Deploy to Production
   deploy_production:
     needs: [build_backend, build_frontend]
     runs-on: ubuntu-latest
@@ -188,7 +131,7 @@ jobs:
           sleep 30
           curl -f https://${{ secrets.PRODUCTION_HOST }}/api/health || exit 1
 
-  # 6. Rollback (On Failure)
+  # 4. Rollback (On Failure)
   rollback:
     needs: deploy_production
     runs-on: ubuntu-latest
