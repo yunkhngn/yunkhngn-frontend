@@ -10,7 +10,7 @@ export class GithubService implements OnModuleInit {
   constructor(
     private configService: ConfigService,
     private settingsService: SettingsService,
-  ) { }
+  ) {}
 
   async onModuleInit() {
     const token =
@@ -107,7 +107,7 @@ export class GithubService implements OnModuleInit {
         duration:
           run.updated_at && run.created_at
             ? new Date(run.updated_at).getTime() -
-            new Date(run.created_at).getTime()
+              new Date(run.created_at).getTime()
             : 0,
       }));
     } catch (error) {
@@ -127,14 +127,17 @@ export class GithubService implements OnModuleInit {
     if (!this.octokit || !username) return null;
 
     try {
-      const { data } = await this.octokit.request('GET /users/{username}/events/public', {
-        username,
-        per_page: 5
-      });
+      const { data } = await this.octokit.request(
+        'GET /users/{username}/events/public',
+        {
+          username,
+          per_page: 5,
+        },
+      );
 
       // Find first PushEvent, PullRequestEvent, or WatchEvent
-      const relevantEvent = data.find(e =>
-        ['PushEvent', 'PullRequestEvent', 'WatchEvent'].includes(e.type)
+      const relevantEvent = data.find((e) =>
+        ['PushEvent', 'PullRequestEvent', 'WatchEvent'].includes(e.type),
       );
 
       if (!relevantEvent) return null;
@@ -143,7 +146,7 @@ export class GithubService implements OnModuleInit {
         type: relevantEvent.type,
         repo: relevantEvent.repo.name,
         timestamp: relevantEvent.created_at,
-        url: `https://github.com/${relevantEvent.repo.name}`
+        url: `https://github.com/${relevantEvent.repo.name}`,
       };
     } catch (error) {
       this.logger.error('Failed to fetch user events', error);

@@ -5,9 +5,9 @@ import { SettingsModule } from '../settings/settings.module';
 import { ConfigModule } from '@nestjs/config';
 
 @Module({
-    imports: [SettingsModule, ConfigModule],
-    controllers: [LastFmController],
-    providers: [LastFmService],
-    exports: [LastFmService],
+  imports: [SettingsModule, ConfigModule],
+  controllers: [LastFmController],
+  providers: [LastFmService],
+  exports: [LastFmService],
 })
-export class LastFmModule { }
+export class LastFmModule {}

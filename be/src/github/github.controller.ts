@@ -8,7 +8,7 @@ import { Roles } from '../auth/roles.decorator';
 @ApiTags('Github')
 @Controller('admin/github')
 export class GithubController {
-  constructor(private readonly githubService: GithubService) { }
+  constructor(private readonly githubService: GithubService) {}
 
   @Get('repos')
   @ApiOperation({ summary: 'Get public repositories' })
