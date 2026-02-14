@@ -20,8 +20,8 @@ export default function CodingActivity({ activity, loading, error }) {
     const date = new Date(timestamp);
     const timeAgo = formatDistanceToNow(date, { addSuffix: true });
 
-    // Pulse if active in last 30 mins
-    const isActiveNow = (new Date() - date) < 30 * 60 * 1000;
+    // Pulse if active in last 10 mins
+    const isActiveNow = (new Date() - date) < 10 * 60 * 1000;
 
     let Icon = Github;
     let actionText = "Active on";
