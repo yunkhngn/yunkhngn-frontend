@@ -33,8 +33,8 @@ import Image from 'next/image';
 
 
 function JournalEntry({ entry, moodInfo, moods, avatarUrl, onEdit, onDelete, onReaction, onViewImage, onReply, isReply = false }) {
-    const { user } = useAuth();
-    const isOwner = user?.uid === entry.uid || user?.role === 'ADMIN';
+    const { user, signInAnonymously } = useAuth();
+    const isOwner = user?.role === 'ADMIN';
     const [isReacting, setIsReacting] = useState(false);
 
     // Derive mood info if not provided directly (for replies)
@@ -46,10 +46,24 @@ function JournalEntry({ entry, moodInfo, moods, avatarUrl, onEdit, onDelete, onR
     }
 
     const handleReaction = async () => {
-        if (!user) return toast.error("Login to react");
         setIsReacting(true);
         try {
-            await onReaction(entry.id, 'heart');
+            let currentUser = user;
+            if (!currentUser) {
+                try {
+                    const result = await signInAnonymously();
+                    currentUser = result.user;
+                } catch (error) {
+                    console.error("Anonymous login failed", error);
+                    toast.error("Login failed");
+                    setIsReacting(false);
+                    return;
+                }
+            }
+
+            if (currentUser) {
+                await onReaction(entry.id, 'heart');
+            }
         } catch (e) {
             console.error(e);
         } finally {
@@ -177,15 +191,17 @@ function JournalEntry({ entry, moodInfo, moods, avatarUrl, onEdit, onDelete, onR
                             {reactionCount > 0 && reactionCount}
                         </Button>
 
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-8 px-2 text-xs gap-1.5 text-muted-foreground hover:bg-muted"
-                            onClick={() => onReply && onReply(entry)}
-                        >
-                            <MessageCircle className="h-3.5 w-3.5" />
-                            {entry.replies?.length > 0 && entry.replies.length}
-                        </Button>
+                        {user?.role === 'ADMIN' && (
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-8 px-2 text-xs gap-1.5 text-muted-foreground hover:bg-muted"
+                                onClick={() => onReply && onReply(entry)}
+                            >
+                                <MessageCircle className="h-3.5 w-3.5" />
+                                {entry.replies?.length > 0 && entry.replies.length}
+                            </Button>
+                        )}
                     </div>
                 </div>
             </div>
