@@ -245,6 +245,7 @@ model Journal {
   content   String   @db.NVarChar(Max)
   mood      String   @default("coding") // happy, coffee, coding, productive, love, fire, tired, chill, rainy, music, inspired, reading
   tags      String?  @db.NVarChar(Max) // Stored as JSON array string
+  images    String?  @db.NVarChar(Max) // Stored as JSON array string
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

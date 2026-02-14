@@ -14,6 +14,7 @@ export class JournalService {
       data: {
         ...rest,
         tags: tags ? JSON.stringify(tags) : null,
+        images: rest.images ? JSON.stringify(rest.images) : null,
       },
     });
 
@@ -44,6 +45,9 @@ export class JournalService {
     if (tags !== undefined) {
       data.tags = tags ? JSON.stringify(tags) : null;
     }
+    if (rest.images !== undefined) {
+      data.images = rest.images ? JSON.stringify(rest.images) : null;
+    }
 
     const entry = await this.prisma.journal.update({
       where: { id },
@@ -64,6 +68,7 @@ export class JournalService {
     return {
       ...entry,
       tags: entry.tags ? JSON.parse(entry.tags) : [],
+      images: entry.images ? JSON.parse(entry.images) : [],
     };
   }
 }
