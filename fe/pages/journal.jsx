@@ -737,10 +737,13 @@ export default function JournalPage() {
                             >
                                 <X className="h-5 w-5 md:h-8 md:w-8" />
                             </button>
-                            <img
+                            <Image
                                 src={viewingImage}
                                 alt="View"
-                                className="max-w-[90vw] max-h-[85vh] object-contain rounded-lg shadow-2xl"
+                                width={1200}
+                                height={800}
+                                className="w-auto h-auto max-w-[90vw] max-h-[85vh] object-contain rounded-lg shadow-2xl"
+                                unoptimized
                             />
                         </div>
                     )}
