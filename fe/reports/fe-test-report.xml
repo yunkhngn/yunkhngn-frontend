@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="jest tests" tests="3" failures="0" errors="0" time="0.737">
-  <testsuite name="Badge" errors="0" failures="0" skipped="0" timestamp="2026-02-14T18:40:24" time="0.296" tests="3">
-    <testcase classname="Badge renders the badge with text" name="Badge renders the badge with text" time="0.025">
+<testsuites name="jest tests" tests="3" failures="0" errors="0" time="1.701">
+  <testsuite name="Badge" errors="0" failures="0" skipped="0" timestamp="2026-02-14T19:10:13" time="0.778" tests="3">
+    <testcase classname="Badge renders the badge with text" name="Badge renders the badge with text" time="0.02">
     </testcase>
-    <testcase classname="Badge applies default variant class" name="Badge applies default variant class" time="0.002">
+    <testcase classname="Badge applies default variant class" name="Badge applies default variant class" time="0.003">
     </testcase>
-    <testcase classname="Badge applies secondary variant class" name="Badge applies secondary variant class" time="0.003">
+    <testcase classname="Badge applies secondary variant class" name="Badge applies secondary variant class" time="0.026">
     </testcase>
   </testsuite>
 </testsuites>
