@@ -54,7 +54,7 @@ export default function LiveActivityContainer() {
     if (!loadingCoding && !codingData && !loadingMusic && !musicData) return null;
 
     return (
-        <div className="fixed bottom-4 left-4 z-40 flex flex-col gap-3 items-start">
+        <div className="fixed bottom-8 md:bottom-20 left-6 z-40 flex flex-col gap-3 items-start">
             <CodingActivity activity={codingData} loading={loadingCoding} />
             <MusicPlayer track={musicData} loading={loadingMusic} />
         </div>

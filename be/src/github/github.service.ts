@@ -10,7 +10,7 @@ export class GithubService implements OnModuleInit {
   constructor(
     private configService: ConfigService,
     private settingsService: SettingsService,
-  ) {}
+  ) { }
 
   async onModuleInit() {
     const token =
@@ -107,7 +107,7 @@ export class GithubService implements OnModuleInit {
         duration:
           run.updated_at && run.created_at
             ? new Date(run.updated_at).getTime() -
-              new Date(run.created_at).getTime()
+            new Date(run.created_at).getTime()
             : 0,
       }));
     } catch (error) {
@@ -128,25 +128,28 @@ export class GithubService implements OnModuleInit {
 
     try {
       const { data } = await this.octokit.request(
-        'GET /users/{username}/events/public',
+        'GET /users/{username}/events',
         {
           username,
-          per_page: 5,
+          per_page: 10,
         },
       );
 
-      // Find first PushEvent, PullRequestEvent, or WatchEvent
+      // Find first relevant event (Push, PR, Watch, Create, etc.)
       const relevantEvent = data.find((e) =>
-        ['PushEvent', 'PullRequestEvent', 'WatchEvent'].includes(e.type),
+        ['PushEvent', 'PullRequestEvent', 'WatchEvent', 'CreateEvent', 'IssuesEvent'].includes(e.type),
       );
 
       if (!relevantEvent) return null;
 
+      const isPrivate = !relevantEvent.public;
+
       return {
         type: relevantEvent.type,
-        repo: relevantEvent.repo.name,
+        repo: isPrivate ? 'Private Repository' : relevantEvent.repo.name,
+        isPrivate,
         timestamp: relevantEvent.created_at,
-        url: `https://github.com/${relevantEvent.repo.name}`,
+        url: isPrivate ? null : `https://github.com/${relevantEvent.repo.name}`,
       };
     } catch (error) {
       this.logger.error('Failed to fetch user events', error);

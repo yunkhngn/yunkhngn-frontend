@@ -5,9 +5,9 @@ import { motion } from 'framer-motion';
 export default function MusicPlayer({ track, loading }) {
     if (loading) {
         return (
-            <div className="flex items-center gap-3 p-3 rounded-2xl bg-card/50 backdrop-blur-sm border border-border/50 w-fit">
+            <div className="flex items-center gap-3 p-3 rounded-2xl bg-card/50 backdrop-blur-sm border border-border/50 w-64">
                 <div className="w-10 h-10 rounded-md bg-muted animate-pulse" />
-                <div className="space-y-1">
+                <div className="space-y-1 flex-1">
                     <div className="h-3 w-20 bg-muted animate-pulse rounded" />
                     <div className="h-2 w-16 bg-muted animate-pulse rounded" />
                 </div>
@@ -24,7 +24,7 @@ export default function MusicPlayer({ track, loading }) {
             href={url}
             target="_blank"
             rel="noopener noreferrer"
-            className="group flex items-center gap-3 p-2 pr-4 rounded-2xl bg-card/30 backdrop-blur-md border border-border/40 hover:bg-card/50 transition-all hover:scale-[1.02] w-fit overflow-hidden relative"
+            className="group flex items-center gap-3 p-2 pr-4 rounded-2xl bg-card/40 backdrop-blur-xl border hover:bg-card/50 transition-all hover:scale-[1.02] w-64 overflow-hidden relative"
         >
             {/* Background Blur Effect */}
             {art && (
@@ -51,7 +51,7 @@ export default function MusicPlayer({ track, loading }) {
                         {[1, 2, 3, 4].map((i) => (
                             <motion.div
                                 key={i}
-                                className="w-1 bg-primary/80 rounded-t-sm"
+                                className="w-1 bg-green-500/80 rounded-t-sm"
                                 animate={{ height: [4, 12, 6, 14, 4] }}
                                 transition={{
                                     duration: 0.5,
@@ -65,20 +65,20 @@ export default function MusicPlayer({ track, loading }) {
                 )}
             </div>
 
-            <div className="flex flex-col min-w-[100px] z-10">
-                <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider flex items-center gap-1.5">
+            <div className="flex flex-col min-w-0 flex-1 z-10 overflow-hidden">
+                <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider flex items-center gap-1.5 whitespace-nowrap">
                     {isNowPlaying ? "Vibing to" : "Last played"}
                     {isNowPlaying && (
                         <span className="relative flex h-2 w-2">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                            <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
                         </span>
                     )}
                 </span>
-                <span className="text-xs font-bold text-foreground truncate max-w-[150px] group-hover:text-primary transition-colors">
+                <span className="text-xs font-bold text-foreground truncate w-full group-hover:text-primary transition-colors">
                     {name}
                 </span>
-                <span className="text-[10px] text-muted-foreground truncate max-w-[150px]">
+                <span className="text-[10px] text-muted-foreground truncate w-full">
                     {artist}
                 </span>
             </div>
