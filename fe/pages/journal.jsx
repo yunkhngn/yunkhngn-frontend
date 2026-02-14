@@ -728,21 +728,19 @@ export default function JournalPage() {
 
             {/* View Image Modal */}
             <Dialog open={!!viewingImage} onOpenChange={() => setViewingImage(null)}>
-                <DialogContent className="max-w-[90vw] md:max-w-4xl p-0 bg-transparent border-none shadow-none flex items-center justify-center">
+                <DialogContent className="max-w-[95vw] h-auto p-0 bg-transparent border-none shadow-none flex items-center justify-center outline-none my-auto">
                     {viewingImage && (
-                        <div className="relative w-full max-h-[90vh]">
+                        <div className="relative flex items-center justify-center">
                             <button
                                 onClick={() => setViewingImage(null)}
-                                className="absolute -top-10 right-0 text-white hover:text-gray-300 transition-colors z-50 md:hidden"
+                                className="absolute top-2 right-2 md:-right-10 md:-top-10 text-white/70 hover:text-white transition-colors z-50 bg-black/50 md:bg-transparent rounded-full p-1.5 md:p-0 backdrop-blur-sm md:backdrop-blur-none"
                             >
-                                <X className="h-8 w-8" />
+                                <X className="h-5 w-5 md:h-8 md:w-8" />
                             </button>
-                            <Image
+                            <img
                                 src={viewingImage}
                                 alt="View"
-                                width={1200}
-                                height={800}
-                                className="object-contain w-full h-full rounded-md"
+                                className="max-w-[90vw] max-h-[85vh] object-contain rounded-lg shadow-2xl"
                             />
                         </div>
                     )}

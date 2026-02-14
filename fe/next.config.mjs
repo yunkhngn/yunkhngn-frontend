@@ -59,6 +59,11 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'cdn.buymeacoffee.com',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'lastfm.freetls.fastly.net',
+        pathname: '/i/u/**'
       }
     ],
   },
