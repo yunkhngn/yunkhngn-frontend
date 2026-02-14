@@ -70,6 +70,10 @@ const SETTINGS_GROUPS = [
     {
         title: "AI / System",
         keys: ['gemini_api_key', 'ai_persona', 'chat_api_key']
+    },
+    {
+        title: "Music / Last.fm",
+        keys: ['lastfm_api_key', 'lastfm_username']
     }
 ];
 
