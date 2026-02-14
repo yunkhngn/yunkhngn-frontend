@@ -287,9 +287,19 @@ function ComposeModal({ moods, onSuccess }) {
                                     <input value={tagInput} onChange={(e) => setTagInput(e.target.value)} onKeyDown={handleAddTag} placeholder="#tag" className="bg-transparent border-none outline-none text-xs w-16 placeholder:text-muted-foreground/50 focus:w-24 transition-all ml-2" />
                                 </div>
 
-                                <Button onClick={handleSubmit} disabled={(!content.trim() && imageFiles.length === 0) || isSubmitting} size="sm" className="rounded-full">
-                                    {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Post"}
-                                </Button>
+                                <div className="flex items-center gap-3">
+                                    <span className={`text-xs ${content.trim().split(/\s+/).filter(Boolean).length > 200 ? 'text-red-500 font-bold' : 'text-muted-foreground'}`}>
+                                        {content.trim().split(/\s+/).filter(Boolean).length}/200
+                                    </span>
+                                    <Button
+                                        onClick={handleSubmit}
+                                        disabled={(!content.trim() && imageFiles.length === 0) || isSubmitting || content.trim().split(/\s+/).filter(Boolean).length > 200}
+                                        size="sm"
+                                        className="rounded-full"
+                                    >
+                                        {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Post"}
+                                    </Button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -376,7 +386,7 @@ export default function JournalPage() {
                 <div className="text-xs font-bold tracking-[0.2em] text-muted-foreground uppercase">
                     Daily Journal
                 </div>
-                <h1 className="text-4xl md:text-5xl font-bold tracking-tight font-serif">
+                <h1 className="text-5xl md:text-7xl font-bold tracking-tight font-serif">
                     Thoughts & Notes
                 </h1>
                 <p className="text-muted-foreground max-w-lg text-lg">
