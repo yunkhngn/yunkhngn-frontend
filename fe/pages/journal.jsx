@@ -8,6 +8,23 @@ import { Badge } from '@/components/ui/Badge';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { Button } from '@/components/ui/Button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/Dialog';
+import ReactMarkdown from 'react-markdown';
+import {
+    MoreVertical,
+    Heart,
+    MessageCircle,
+    Copy,
+    Trash2,
+    Edit3,
+    BookOpen
+} from 'lucide-react';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/DropdownMenu";
+import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import { ICON_MAP, DEFAULT_MOODS } from '@/lib/moods';
 import api from '@/lib/api/client';
 import { toast } from 'sonner';
@@ -15,144 +32,233 @@ import Image from 'next/image';
 
 
 
-function JournalEntry({ entry, moodInfo }) {
-    const MoodIcon = ICON_MAP[moodInfo?.icon] || Smile;
-    const createdAt = new Date(entry.createdAt);
-    const timeAgo = formatDistanceToNow(createdAt, { addSuffix: true, locale: vi });
-    const fullDate = format(createdAt, "HH:mm", { locale: vi }); // Only time for timeline items
-    const [viewingImage, setViewingImage] = useState(null);
+function JournalEntry({ entry, moodInfo, moods, avatarUrl, onEdit, onDelete, onReaction, onViewImage, onReply, isReply = false }) {
+    const { user } = useAuth();
+    const isOwner = user?.uid === entry.uid || user?.role === 'ADMIN';
+    const [isReacting, setIsReacting] = useState(false);
+
+    // Derive mood info if not provided directly (for replies)
+    const currentMoodInfo = moodInfo || (moods && moods.find(m => m.key === entry.mood)) || DEFAULT_MOODS[0];
+
+    const handleCopy = () => {
+        navigator.clipboard.writeText(entry.content);
+        toast.success("Copied to clipboard");
+    }
+
+    const handleReaction = async () => {
+        if (!user) return toast.error("Login to react");
+        setIsReacting(true);
+        try {
+            await onReaction(entry.id, 'heart');
+        } catch (e) {
+            console.error(e);
+        } finally {
+            setIsReacting(false);
+        }
+    }
+
+    const hasReacted = entry.reactions?.some(r => r.uid === user?.uid);
+    const reactionCount = entry.reactions?.length || 0;
 
     return (
-        <article className="group relative pl-8 pb-8 last:pb-0">
-            {/* Timeline Line */}
-            <div className="absolute left-[3px] top-3 bottom-0 w-[2px] bg-border group-last:bottom-auto group-last:h-full"></div>
+        <article className={`group relative ${isReply ? 'mt-4' : 'pl-8 pb-8 last:pb-0'}`}>
+            {/* Timeline connector - only for top level */}
+            {!isReply && <div className="absolute left-[15px] top-[30px] bottom-0 w-px bg-border group-last:hidden" />}
 
-            {/* Timeline Dot */}
-            <div className={`absolute left-0 top-3 w-2 h-2 rounded-full ring-4 ring-background ${moodInfo?.color ? moodInfo.color.replace('text-', 'bg-') : 'bg-primary'}`}></div>
+            {/* Timeline dot - only for top level */}
+            {!isReply && (
+                <div className={`absolute left-0 top-[2px] w-[30px] h-[30px] rounded-full border-2 border-background flex items-center justify-center shrink-0 z-10 ${currentMoodInfo.bg || 'bg-muted'}`}>
+                    {(() => {
+                        const Icon = ICON_MAP[currentMoodInfo.icon] || Smile;
+                        return <Icon className={`h-4 w-4 ${currentMoodInfo.color}`} />;
+                    })()}
+                </div>
+            )}
 
-            <div className="bg-card/40 backdrop-blur-sm border border-border/60 rounded-2xl p-5 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300">
-                {/* Header with Avatar */}
+            <div className={`backdrop-blur-sm border rounded-2xl p-5 transition-all duration-300 ${isReply
+                ? 'bg-muted/30 border-border/40'
+                : 'bg-card/40 border-border/60 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5'
+                }`}>
+                {/* Header with Avatar and Actions */}
                 <div className="flex items-start justify-between mb-3">
                     <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-full overflow-hidden border border-border bg-muted relative shrink-0">
                             <Image
-                                src="https://github.com/yunkhngn.png"
+                                src={avatarUrl || "https://github.com/yunkhngn.png"}
                                 alt="yun.khngn"
                                 fill
                                 className="object-cover"
                             />
                         </div>
-                        <div className="flex flex-col">
+                        <div>
                             <div className="flex items-center gap-2">
                                 <span className="font-semibold text-sm">yun.khngn</span>
-                                <div className={`flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-muted/50 ${moodInfo?.color}`}>
-                                    <MoodIcon className="h-3 w-3" />
-                                    <span className="text-[10px] font-medium">{moodInfo?.label}</span>
-                                </div>
+                                {currentMoodInfo.key !== 'happy' && (
+                                    <span className="text-xs text-muted-foreground flex items-center gap-1 bg-muted/50 px-2 py-0.5 rounded-full">
+                                        is feeling {currentMoodInfo.label.toLowerCase()}
+                                    </span>
+                                )}
                             </div>
-                            <time className="text-xs text-muted-foreground" title={format(createdAt, "d MMM yyyy HH:mm", { locale: vi })}>
-                                {fullDate} • {timeAgo}
+                            <time className="text-[10px] text-muted-foreground/80 block">
+                                {format(new Date(entry.createdAt), "HH:mm • d MMM, yyyy")}
                             </time>
                         </div>
                     </div>
+
+                    <div className="flex items-center gap-1">
+                        {isOwner && (
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground">
+                                        <MoreVertical className="h-4 w-4" />
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                    <DropdownMenuItem onClick={handleCopy}>
+                                        <Copy className="mr-2 h-4 w-4" /> Copy text
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => onEdit(entry)}>
+                                        <Edit3 className="mr-2 h-4 w-4" /> Edit
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => onDelete(entry.id)} className="text-destructive focus:text-destructive">
+                                        <Trash2 className="mr-2 h-4 w-4" /> Delete
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        )}
+                    </div>
                 </div>
 
-                {/* Content */}
-                <div className="prose prose-sm dark:prose-invert max-w-none mb-3 pl-11">
-                    <p className="text-foreground leading-relaxed whitespace-pre-wrap">{entry.content}</p>
+                {/* Content with Markdown */}
+                <div className="prose prose-sm dark:prose-invert max-w-none mb-3 break-words text-foreground/90 leading-relaxed font-light">
+                    <ReactMarkdown>{entry.content}</ReactMarkdown>
                 </div>
 
-                {/* Image Grid */}
+                {/* Images Grid (Masonry-like) */}
                 {entry.images && entry.images.length > 0 && (
-                    <div className={`grid gap-2 mb-3 rounded-xl overflow-hidden pl-11 ${entry.images.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}>
+                    <div className={`grid gap-2 mb-4 ${entry.images.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}>
                         {entry.images.map((img, idx) => (
                             <div
                                 key={idx}
-                                className={`relative bg-muted cursor-zoom-in ${entry.images.length === 1 ? 'aspect-auto max-h-[400px]' : 'aspect-square'}`}
-                                onClick={() => setViewingImage(img)}
+                                className={`relative rounded-xl overflow-hidden border border-border/50 bg-muted aspect-[4/3] ${entry.images.length === 3 && idx === 0 ? 'col-span-2 aspect-[2/1]' : ''
+                                    }`}
+                                onClick={() => onViewImage && onViewImage(img)}
                             >
                                 <Image
                                     src={img}
-                                    alt={`Image ${idx + 1}`}
-                                    fill={entry.images.length > 1}
-                                    width={entry.images.length === 1 ? 800 : undefined}
-                                    height={entry.images.length === 1 ? 600 : undefined}
-                                    className="object-cover w-full h-full"
+                                    alt={`Attachment ${idx + 1}`}
+                                    fill
+                                    className="object-cover hover:scale-105 transition-transform duration-500 cursor-pointer"
                                 />
                             </div>
                         ))}
                     </div>
                 )}
 
-                {/* Tags */}
-                {entry.tags && entry.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-1.5 mt-3 pt-3 border-t border-border/30 pl-11">
-                        {entry.tags.map((tag, i) => (
-                            <Badge key={i} variant="outline" className="text-xs rounded-full font-normal px-2.5 py-0.5">
+                {/* Footer: Tags and Interactions */}
+                <div className="flex items-center justify-between pt-2 border-t border-border/40 mt-2">
+                    <div className="flex flex-wrap gap-1.5">
+                        {entry.tags && entry.tags.map((tag, i) => (
+                            <span key={i} className="text-[10px] text-muted-foreground hover:text-primary cursor-pointer transition-colors">
                                 #{tag}
-                            </Badge>
+                            </span>
                         ))}
                     </div>
-                )}
+
+                    <div className="flex items-center gap-2">
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            className={`h-8 px-2 text-xs gap-1.5 hover:bg-muted ${hasReacted ? 'text-red-500 hover:text-red-600 hover:bg-red-500/10' : 'text-muted-foreground'}`}
+                            onClick={handleReaction}
+                            disabled={isReacting}
+                        >
+                            <Heart className={`h-3.5 w-3.5 ${hasReacted ? 'fill-current' : ''}`} />
+                            {reactionCount > 0 && reactionCount}
+                        </Button>
+
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 px-2 text-xs gap-1.5 text-muted-foreground hover:bg-muted"
+                            onClick={() => onReply && onReply(entry)}
+                        >
+                            <MessageCircle className="h-3.5 w-3.5" />
+                            {entry.replies?.length > 0 && entry.replies.length}
+                        </Button>
+                    </div>
+                </div>
             </div>
 
-            {/* Lightbox */}
-            <Dialog open={!!viewingImage} onOpenChange={() => setViewingImage(null)}>
-                <DialogContent className="max-w-[90vw] md:max-w-4xl p-0 bg-transparent border-none shadow-none flex items-center justify-center">
-                    {viewingImage && (
-                        <div className="relative w-full max-h-[90vh]">
-                            <button
-                                onClick={() => setViewingImage(null)}
-                                className="absolute -top-10 right-0 text-white hover:text-gray-300 transition-colors z-50 md:hidden"
-                            >
-                                <X className="h-8 w-8" />
-                            </button>
-                            <Image
-                                src={viewingImage}
-                                alt="View"
-                                width={1200}
-                                height={800}
-                                className="object-contain w-full h-full rounded-md"
-                            />
-                        </div>
-                    )}
-                </DialogContent>
-            </Dialog>
+            {/* Recursive Replies */}
+            {entry.replies && entry.replies.length > 0 && (
+                <div className="pl-6 mt-4 space-y-4 border-l-2 border-border/40">
+                    {entry.replies.map(reply => (
+                        <JournalEntry
+                            key={reply.id}
+                            entry={reply}
+                            moods={moods}
+                            avatarUrl={avatarUrl}
+                            onEdit={onEdit}
+                            onDelete={onDelete}
+                            onReaction={onReaction}
+                            onViewImage={onViewImage}
+                            onReply={onReply}
+                            isReply={true}
+                        />
+                    ))}
+                </div>
+            )}
         </article>
     );
 }
-
-function ComposeModal({ moods, onSuccess }) {
+function ComposeModal({ moods, onSuccess, avatarUrl, initialData, isOpen, onClose, parentId }) {
+    const isEditing = !!initialData;
     const [content, setContent] = useState('');
     const [mood, setMood] = useState('coding');
-    const [imageFiles, setImageFiles] = useState([]);
-    const [imagePreviews, setImagePreviews] = useState([]);
     const [tags, setTags] = useState([]);
     const [tagInput, setTagInput] = useState('');
+    const [attachments, setAttachments] = useState([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [isOpen, setIsOpen] = useState(false);
     const fileInputRef = useRef(null);
 
-    const handleImageSelect = (e) => {
+    // Sync attachments with initialData
+    // Also reset state when modal opens/closes or initialData/parentId changes
+    useEffect(() => {
+        if (isOpen) {
+            if (initialData) {
+                setContent(initialData.content || '');
+                setMood(initialData.mood || 'coding');
+                setTags(initialData.tags || []);
+                setAttachments(initialData.images?.map(url => ({ url, isNew: false })) || []);
+            } else {
+                setContent('');
+                setMood('coding');
+                setTags([]);
+                setAttachments([]);
+            }
+        }
+    }, [isOpen, initialData, parentId]); // Added parentId to dependencies
+
+    const handleAttachmentSelect = (e) => {
         const files = Array.from(e.target.files);
-        if (files.length + imageFiles.length > 4) {
-            toast.error("Maximum 4 images allowed");
+        if (files.length + attachments.length > 4) {
+            toast.error("Max 4 images");
             return;
         }
-        const newFiles = [...imageFiles, ...files];
-        setImageFiles(newFiles);
-        const newPreviews = files.map(file => URL.createObjectURL(file));
-        setImagePreviews(prev => [...prev, ...newPreviews]);
+        const newAttachments = files.map(file => ({
+            url: URL.createObjectURL(file),
+            file,
+            isNew: true
+        }));
+        setAttachments([...attachments, ...newAttachments]);
     };
 
-    const removeImage = (index) => {
-        const newFiles = [...imageFiles];
-        newFiles.splice(index, 1);
-        setImageFiles(newFiles);
-        const newPreviews = [...imagePreviews];
-        URL.revokeObjectURL(newPreviews[index]);
-        newPreviews.splice(index, 1);
-        setImagePreviews(newPreviews);
+    const removeAttachment = (index) => {
+        const newAtts = [...attachments];
+        if (newAtts[index].isNew) URL.revokeObjectURL(newAtts[index].url);
+        newAtts.splice(index, 1);
+        setAttachments(newAtts);
     };
 
     const handleAddTag = (e) => {
@@ -171,38 +277,58 @@ function ComposeModal({ moods, onSuccess }) {
     };
 
     const handleSubmit = async () => {
-        if (!content.trim() && imageFiles.length === 0) return;
+        const hasContent = content.trim().length > 0;
+        const hasImages = attachments.length > 0;
+
+        if (!hasContent && !hasImages) return;
+
         setIsSubmitting(true);
         try {
             const uploadedUrls = [];
-            if (imageFiles.length > 0) {
-                const { data: { signature, timestamp, cloudName, apiKey } } = await api.post('/gallery/upload-signature', { folder: 'journal' });
-                for (const file of imageFiles) {
+
+            // 1. Keep existing URLs
+            const existingUrls = attachments.filter(a => !a.isNew).map(a => a.url);
+            uploadedUrls.push(...existingUrls);
+
+            // 2. Upload new files
+            const newFiles = attachments.filter(a => a.isNew).map(a => a.file);
+
+            if (newFiles.length > 0) {
+                const { data: { signature, timestamp, cloudName, apiKey } } = await api.get('/gallery/signature', { params: { folder: 'journal' } });
+
+                for (const file of newFiles) {
                     const formData = new FormData();
                     formData.append('file', file);
                     formData.append('api_key', apiKey);
                     formData.append('timestamp', timestamp);
                     formData.append('signature', signature);
                     formData.append('folder', 'journal');
-                    const cloudinaryRes = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, { method: 'POST', body: formData });
-                    if (!cloudinaryRes.ok) throw new Error('Image upload failed');
-                    const data = await cloudinaryRes.json();
+
+                    const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, { method: 'POST', body: formData });
+                    if (!res.ok) throw new Error('Upload failed');
+                    const data = await res.json();
                     uploadedUrls.push(data.secure_url);
                 }
             }
 
-            await api.post('/journals', { content, mood, tags, images: uploadedUrls });
+            const payload = { content, mood, tags, images: uploadedUrls, parentId };
+
+            if (isEditing) {
+                await api.patch(`/journals/${initialData.id}`, payload);
+                toast.success("Entry updated!");
+            } else {
+                await api.post('/journals', payload);
+                toast.success("Posted!");
+            }
 
             setContent('');
-            setImageFiles([]);
-            setImagePreviews([]);
+            setAttachments([]);
             setTags([]);
-            setIsOpen(false);
-            toast.success("Posted!");
+            onClose();
             onSuccess();
         } catch (error) {
             console.error(error);
-            toast.error("Failed to post. Are you logged in?");
+            toast.error("Failed to save entry");
         } finally {
             setIsSubmitting(false);
         }
@@ -212,37 +338,38 @@ function ComposeModal({ moods, onSuccess }) {
     const MoodIcon = ICON_MAP[selectedMoodInfo?.icon] || Smile;
 
     return (
-        <Dialog open={isOpen} onOpenChange={setIsOpen}>
-            <DialogTrigger asChild>
-                <Button size="icon" className="rounded-full h-10 w-10 shadow-lg fixed bottom-8 right-8 md:static md:shadow-none md:h-9 md:w-auto md:px-4 md:rounded-md z-50">
-                    <Plus className="h-5 w-5 md:mr-2" />
-                    <span className="hidden md:inline">New Entry</span>
-                </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[500px]">
-                <DialogHeader>
-                    <DialogTitle>Create Journal Entry</DialogTitle>
+        <Dialog open={isOpen} onOpenChange={onClose}>
+            {/* Trigger is handled by parent now, or we allow button inside?
+                Actually parent manages state. We don't need Trigger here if isOpen is controlled.
+                But user wants "New Entry" button.
+                Let's move "New Entry" button out to parent JournalPage to keep it clean.
+             */}
+            <DialogContent className="sm:max-w-[500px] max-h-[90vh] flex flex-col p-0 gap-0 overflow-hidden">
+                <DialogHeader className="p-4 pb-2">
+                    <DialogTitle>
+                        {isEditing ? 'Edit Entry' : parentId ? 'Reply to Entry' : 'Create Journal Entry'}
+                    </DialogTitle>
                 </DialogHeader>
-                <div className="space-y-4 py-2">
+                <div className="flex-1 overflow-y-auto p-4 pt-2 space-y-4">
                     <div className="flex gap-3">
                         <div className="w-10 h-10 rounded-full overflow-hidden shrink-0 relative border border-border">
-                            <Image src="https://github.com/yunkhngn.png" alt="Avatar" fill className="object-cover" />
+                            <Image src={avatarUrl || "https://github.com/yunkhngn.png"} alt="Avatar" fill className="object-cover" />
                         </div>
                         <div className="flex-1 space-y-3">
                             <textarea
                                 value={content}
                                 onChange={(e) => setContent(e.target.value)}
-                                placeholder="What's on your mind?"
+                                placeholder={parentId ? "Add a reply..." : "What's on your mind?"}
                                 className="w-full bg-transparent border-none outline-none resize-none text-foreground text-sm min-h-[100px] p-0 focus:ring-0"
                                 autoFocus
                             />
 
-                            {imagePreviews.length > 0 && (
-                                <div className="flex gap-2 overflow-x-auto pb-2">
-                                    {imagePreviews.map((url, i) => (
+                            {attachments.length > 0 && (
+                                <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin">
+                                    {attachments.map((att, i) => (
                                         <div key={i} className="relative w-20 h-20 rounded-lg overflow-hidden shrink-0 border border-border group">
-                                            <Image src={url} alt="Preview" fill className="object-cover" />
-                                            <button onClick={() => removeImage(i)} className="absolute top-1 right-1 p-0.5 bg-black/50 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <Image src={att.url} alt="Preview" fill className="object-cover" />
+                                            <button onClick={() => removeAttachment(i)} className="absolute top-1 right-1 p-0.5 bg-black/50 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
                                                 <X className="h-3 w-3" />
                                             </button>
                                         </div>
@@ -259,48 +386,50 @@ function ComposeModal({ moods, onSuccess }) {
                                     ))}
                                 </div>
                             )}
+                        </div>
+                    </div>
+                </div>
 
-                            <div className="flex items-center justify-between border-t pt-3">
-                                <div className="flex items-center gap-2">
-                                    <button onClick={() => fileInputRef.current?.click()} className="p-2 hover:bg-muted rounded-full text-muted-foreground hover:text-primary transition-colors">
-                                        <ImageIcon className="h-5 w-5" />
-                                    </button>
-                                    <input type="file" ref={fileInputRef} className="hidden" accept="image/*" multiple onChange={handleImageSelect} />
+                <div className="p-3 border-t bg-background/95 backdrop-blur z-10">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                            <button onClick={() => fileInputRef.current?.click()} className="p-2 hover:bg-muted rounded-full text-muted-foreground hover:text-primary transition-colors">
+                                <ImageIcon className="h-5 w-5" />
+                            </button>
+                            <input type="file" ref={fileInputRef} className="hidden" accept="image/*" multiple onChange={handleAttachmentSelect} />
 
-                                    <div className="relative group">
-                                        <button className={`flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium transition-colors ${selectedMoodInfo.color} bg-muted/50 hover:bg-muted`}>
-                                            <MoodIcon className="h-4 w-4" />
-                                            {selectedMoodInfo.label}
-                                        </button>
-                                        <div className="absolute top-full left-0 mt-2 p-2 bg-popover border rounded-xl shadow-lg grid grid-cols-4 gap-1 w-64 z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
-                                            {moods.map(m => {
-                                                const Icon = ICON_MAP[m.icon] || Smile;
-                                                return (
-                                                    <button key={m.key} onClick={() => setMood(m.key)} className={`p-2 rounded-lg hover:bg-muted flex flex-col items-center gap-1 ${mood === m.key ? 'bg-muted' : ''}`}>
-                                                        <Icon className={`h-4 w-4 ${m.color}`} />
-                                                        <span className="text-[10px] truncate w-full text-center">{m.label}</span>
-                                                    </button>
-                                                )
-                                            })}
-                                        </div>
-                                    </div>
-                                    <input value={tagInput} onChange={(e) => setTagInput(e.target.value)} onKeyDown={handleAddTag} placeholder="#tag" className="bg-transparent border-none outline-none text-xs w-16 placeholder:text-muted-foreground/50 focus:w-24 transition-all ml-2" />
-                                </div>
-
-                                <div className="flex items-center gap-3">
-                                    <span className={`text-xs ${content.trim().split(/\s+/).filter(Boolean).length > 200 ? 'text-red-500 font-bold' : 'text-muted-foreground'}`}>
-                                        {content.trim().split(/\s+/).filter(Boolean).length}/200
-                                    </span>
-                                    <Button
-                                        onClick={handleSubmit}
-                                        disabled={(!content.trim() && imageFiles.length === 0) || isSubmitting || content.trim().split(/\s+/).filter(Boolean).length > 200}
-                                        size="sm"
-                                        className="rounded-full"
-                                    >
-                                        {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Post"}
-                                    </Button>
+                            <div className="relative group">
+                                <button className={`flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium transition-colors ${selectedMoodInfo.color} bg-muted/50 hover:bg-muted`}>
+                                    <MoodIcon className="h-4 w-4" />
+                                    {selectedMoodInfo.label}
+                                </button>
+                                <div className="absolute bottom-full left-0 mb-2 p-2 bg-popover border rounded-xl shadow-lg grid grid-cols-4 gap-1 w-64 z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
+                                    {moods.map(m => {
+                                        const Icon = ICON_MAP[m.icon] || Smile;
+                                        return (
+                                            <button key={m.key} onClick={() => setMood(m.key)} className={`p-2 rounded-lg hover:bg-muted flex flex-col items-center gap-1 ${mood === m.key ? 'bg-muted' : ''}`}>
+                                                <Icon className={`h-4 w-4 ${m.color}`} />
+                                                <span className="text-[10px] truncate w-full text-center">{m.label}</span>
+                                            </button>
+                                        )
+                                    })}
                                 </div>
                             </div>
+                            <input value={tagInput} onChange={(e) => setTagInput(e.target.value)} onKeyDown={handleAddTag} placeholder="#tag" className="bg-transparent border-none outline-none text-xs w-16 placeholder:text-muted-foreground/50 focus:w-24 transition-all ml-2" />
+                        </div>
+
+                        <div className="flex items-center gap-3">
+                            <span className={`text-xs ${content.trim().split(/\s+/).filter(Boolean).length > 200 ? 'text-red-500 font-bold' : 'text-muted-foreground'}`}>
+                                {content.trim().split(/\s+/).filter(Boolean).length}/200
+                            </span>
+                            <Button
+                                onClick={handleSubmit}
+                                disabled={(!content.trim() && attachments.length === 0) || isSubmitting || content.trim().split(/\s+/).filter(Boolean).length > 200}
+                                size="sm"
+                                className="rounded-full"
+                            >
+                                {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : (isEditing ? "Save" : "Post")}
+                            </Button>
                         </div>
                     </div>
                 </div>
@@ -335,6 +464,15 @@ export default function JournalPage() {
     const [loading, setLoading] = useState(true);
     const [selectedMood, setSelectedMood] = useState(null);
     const [moods, setMoods] = useState(DEFAULT_MOODS);
+    const [avatarUrl, setAvatarUrl] = useState("https://github.com/yunkhngn.png");
+
+    // Edit/Delete/Reply State
+    const [editingEntry, setEditingEntry] = useState(null);
+    const [replyingTo, setReplyingTo] = useState(null); // Add replying state
+    const [isComposeOpen, setIsComposeOpen] = useState(false);
+    const [deleteId, setDeleteId] = useState(null);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [viewingImage, setViewingImage] = useState(null);
 
     const fetchData = async () => {
         try {
@@ -346,12 +484,20 @@ export default function JournalPage() {
             const resSettings = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/settings`);
             if (resSettings.ok) {
                 const settings = await resSettings.json();
+
+                // Moods
                 const moodSetting = settings.find(s => s.settingTitle === 'journal_moods');
                 if (moodSetting && moodSetting.content) {
                     const parsed = JSON.parse(moodSetting.content);
                     if (Array.isArray(parsed) && parsed.length > 0) {
                         setMoods(parsed);
                     }
+                }
+
+                // Avatar
+                const avatarSetting = settings.find(s => s.settingTitle === 'avatar');
+                if (avatarSetting && avatarSetting.content) {
+                    setAvatarUrl(avatarSetting.content);
                 }
             }
         } catch (error) {
@@ -364,6 +510,53 @@ export default function JournalPage() {
     useEffect(() => {
         fetchData();
     }, []);
+
+    const handleEdit = (entry) => {
+        setEditingEntry(entry);
+        setReplyingTo(null); // Clear replying state when editing
+        setIsComposeOpen(true);
+    };
+
+    const handleReply = (entry) => {
+        setReplyingTo(entry);
+        setEditingEntry(null); // Clear editing state when replying
+        setIsComposeOpen(true);
+    };
+
+    const handleDelete = (id) => {
+        setDeleteId(id);
+        setIsDeleteModalOpen(true);
+    };
+
+    const confirmDelete = async () => {
+        if (!deleteId) return;
+        try {
+            await api.delete(`/journals/${deleteId}`);
+            // For simplicity and correctness with nested replies, re-fetch all data after delete
+            fetchData();
+            toast.success("Entry deleted");
+        } catch (error) {
+            console.error(error);
+            toast.error("Failed to delete");
+        } finally {
+            setIsDeleteModalOpen(false);
+            setDeleteId(null);
+        }
+    };
+
+    const handleReaction = async (id, type) => {
+        try {
+            // Optimistic update for top-level entries (if not nested)
+            // For nested replies, a full re-fetch is simpler to ensure correctness
+            // Given the current API structure, re-fetching is safer for any reaction.
+            await api.post(`/journals/${id}/reactions`, { type });
+            fetchData(); // Re-fetch to update reaction counts and states correctly
+        } catch (error) {
+            console.error(error);
+            toast.error("Failed to react");
+            // If optimistic update was used, revert here. With re-fetch, no revert needed.
+        }
+    };
 
     const filteredEntries = selectedMood
         ? entries.filter(e => e.mood === selectedMood)
@@ -392,69 +585,100 @@ export default function JournalPage() {
                 <p className="text-muted-foreground max-w-lg text-lg">
                     Short thoughts, ideas, TIL, and daily code snippets. Or just anything that comes to mind.
                 </p>
+
+                {user && (
+                    <div className="pt-4">
+                        <Button
+                            onClick={() => {
+                                setEditingEntry(null);
+                                setReplyingTo(null); // Clear replying state when creating new entry
+                                setIsComposeOpen(true);
+                            }}
+                            className="rounded-full shadow-lg h-12 px-6 text-base"
+                        >
+                            <Plus className="mr-2 h-5 w-5" /> Write Something
+                        </Button>
+                    </div>
+                )}
             </div>
 
-            {/* Mood Filter */}
-            <div className="flex flex-wrap justify-center gap-2 mb-12">
-                <button
+            <ComposeModal
+                isOpen={isComposeOpen}
+                onClose={() => {
+                    setIsComposeOpen(false);
+                    setEditingEntry(null);
+                    setReplyingTo(null); // Clear all related states on close
+                }}
+                initialData={editingEntry}
+                parentId={replyingTo?.id} // Pass parentId for replies
+                moods={moods}
+                onSuccess={fetchData}
+                avatarUrl={avatarUrl}
+            />        {/* Filter */}
+            <div className="flex gap-2 mb-12 overflow-x-auto pb-4 scrollbar-hide justify-center">
+                <Button
+                    variant={selectedMood === null ? "default" : "outline"}
+                    size="sm"
+                    className="rounded-full"
                     onClick={() => setSelectedMood(null)}
-                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${selectedMood === null
-                        ? 'bg-primary text-primary-foreground shadow-md'
-                        : 'bg-muted text-muted-foreground hover:text-foreground'
-                        }`}
                 >
-                    Tất cả
-                </button>
-                {moods.map((m) => {
+                    All
+                </Button>
+                {moods.map(m => {
                     const Icon = ICON_MAP[m.icon] || Smile;
                     return (
-                        <button
+                        <Button
                             key={m.key}
+                            variant={selectedMood === m.key ? "default" : "outline"}
+                            size="sm"
+                            className={`rounded-full gap-1.5 ${selectedMood === m.key ? '' : 'hover:bg-muted'}`}
                             onClick={() => setSelectedMood(selectedMood === m.key ? null : m.key)}
-                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${selectedMood === m.key
-                                ? 'bg-primary text-primary-foreground shadow-md'
-                                : 'bg-muted text-muted-foreground hover:text-foreground'
-                                }`}
                         >
-                            <Icon className={`h-3 w-3 ${selectedMood === m.key ? '' : m.color}`} />
+                            <Icon className={`h-3.5 w-3.5 ${selectedMood === m.key ? '' : m.color}`} />
                             {m.label}
-                        </button>
+                        </Button>
                     );
                 })}
             </div>
 
-            {/* Header Action: Compose Button (Modal Trigger) */}
-            {user && (
-                <div className="mb-8 flex justify-end">
-                    <ComposeModal moods={moods} onSuccess={fetchData} />
-                </div>
-            )}
-
-            {/* Timeline Feed */}
+            {/* Timeline */}
             {loading ? (
-                <div className="space-y-4">
+                <div className="space-y-8">
                     {[1, 2, 3].map(i => <JournalSkeleton key={i} />)}
                 </div>
             ) : sortedDates.length > 0 ? (
                 <div className="space-y-10 relative">
-                    {/* Global Timeline Line for continuity (optional, but per-group looks better) */}
+                    {/* Timeline Main Line */}
+                    <div className="absolute left-[15px] top-4 bottom-4 w-px bg-border/40 z-0"></div>
 
                     {sortedDates.map(date => (
-                        <div key={date}>
+                        <div key={date} className="relative z-10">
                             {/* Date Header */}
-                            <div className="flex items-center gap-3 mb-6">
-                                <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider bg-background pr-4 z-10 sticky top-16">
-                                    {format(new Date(date), 'EEEE, d MMMM yyyy', { locale: vi })}
-                                </span>
-                                <div className="h-px flex-1 bg-border/50" />
+                            <div className="flex items-center gap-4 mb-6 sticky top-20 bg-background/80 backdrop-blur-md py-2 z-20">
+                                <div className="w-[30px] flex justify-center shrink-0">
+                                    <div className="w-2.5 h-2.5 rounded-full bg-primary ring-4 ring-background"></div>
+                                </div>
+                                <h3 className="text-lg font-bold font-serif">
+                                    {format(new Date(date), "EEEE, d MMMM yyyy", { locale: vi })}
+                                </h3>
                             </div>
 
-                            {/* Entries for this date */}
                             <div className="space-y-0">
                                 {groupedEntries[date].map(entry => {
                                     const moodInfo = moods.find(m => m.key === entry.mood) || moods[0];
                                     return (
-                                        <JournalEntry key={entry.id} entry={entry} moodInfo={moodInfo} />
+                                        <JournalEntry
+                                            key={entry.id}
+                                            entry={entry}
+                                            moodInfo={moodInfo}
+                                            moods={moods} // Pass moods for recursive replies
+                                            avatarUrl={avatarUrl}
+                                            onEdit={handleEdit}
+                                            onDelete={handleDelete}
+                                            onReaction={handleReaction}
+                                            onViewImage={setViewingImage}
+                                            onReply={handleReply} // Pass onReply handler
+                                        />
                                     );
                                 })}
                             </div>
@@ -462,15 +686,55 @@ export default function JournalPage() {
                     ))}
                 </div>
             ) : (
-                <div className="text-center py-20">
-                    <Sparkles className="h-12 w-12 text-muted-foreground/30 mx-auto mb-4" />
-                    <p className="text-muted-foreground text-lg">Chưa có gì ở đây cả...</p>
-                    <p className="text-muted-foreground/60 text-sm mt-1">Hãy quay lại sau nhé!</p>
+                <div className="text-center py-20 bg-muted/30 rounded-3xl border border-dashed border-border">
+                    <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+                        <BookOpen className="h-8 w-8 text-muted-foreground/50" />
+                    </div>
+                    <h3 className="text-xl font-bold mb-2">My Journal is empty</h3>
+                    <p className="text-muted-foreground max-w-xs mx-auto mb-6">
+                        Start capturing your daily thoughts, code snippets, and moments.
+                    </p>
+                    {user && (
+                        <Button onClick={() => setIsComposeOpen(true)} className="rounded-full">
+                            <Plus className="mr-2 h-4 w-4" /> Create First Entry
+                        </Button>
+                    )}
                 </div>
             )}
+
+            <ConfirmModal
+                isOpen={isDeleteModalOpen}
+                onClose={() => setIsDeleteModalOpen(false)}
+                onConfirm={confirmDelete}
+                title="Delete Entry"
+                description="Are you sure you want to delete this journal entry? This action cannot be undone."
+            />
+
+            {/* View Image Modal */}
+            <Dialog open={!!viewingImage} onOpenChange={() => setViewingImage(null)}>
+                <DialogContent className="max-w-[90vw] md:max-w-4xl p-0 bg-transparent border-none shadow-none flex items-center justify-center">
+                    {viewingImage && (
+                        <div className="relative w-full max-h-[90vh]">
+                            <button
+                                onClick={() => setViewingImage(null)}
+                                className="absolute -top-10 right-0 text-white hover:text-gray-300 transition-colors z-50 md:hidden"
+                            >
+                                <X className="h-8 w-8" />
+                            </button>
+                            <Image
+                                src={viewingImage}
+                                alt="View"
+                                width={1200}
+                                height={800}
+                                className="object-contain w-full h-full rounded-md"
+                            />
+                        </div>
+                    )}
+                </DialogContent>
+            </Dialog>
         </div>
     );
-}
+};
 
 JournalPage.getLayout = function getLayout(page) {
     return (

@@ -556,7 +556,7 @@ function MoodEditor({ initialData, onSave, onCancel, existingKeys }) {
                             className={`w-8 h-8 rounded-full ${c.bg} hover:opacity-80 transition-all ${data.color === c.value ? 'ring-2 ring-offset-2 ring-primary' : ''}`}
                             title={c.label}
                         >
-                            {data.color === c.value && <Check className="h-4 w-4 text-white mx-auto" />}
+                            {data.color === c.value && <Check className="h-4 w-4 text-white mx-auto drop-shadow-md" />}
                         </button>
                     ))}
                 </div>

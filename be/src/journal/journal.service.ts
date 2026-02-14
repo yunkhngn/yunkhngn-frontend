@@ -5,7 +5,7 @@ import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class JournalService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async create(createJournalDto: CreateJournalDto) {
     const { tags, ...rest } = createJournalDto;
@@ -23,7 +23,15 @@ export class JournalService {
 
   async findAll() {
     const entries = await this.prisma.journal.findMany({
+      where: { parentId: null },
       orderBy: { createdAt: 'desc' },
+      include: {
+        reactions: true,
+        replies: {
+          orderBy: { createdAt: 'asc' },
+          include: { reactions: true },
+        },
+      },
     });
 
     return entries.map((entry) => this.formatEntry(entry));
@@ -32,6 +40,13 @@ export class JournalService {
   async findOne(id: string) {
     const entry = await this.prisma.journal.findUnique({
       where: { id },
+      include: {
+        reactions: true,
+        replies: {
+          orderBy: { createdAt: 'asc' },
+          include: { reactions: true },
+        },
+      },
     });
 
     if (!entry) return null;
@@ -52,23 +67,70 @@ export class JournalService {
     const entry = await this.prisma.journal.update({
       where: { id },
       data,
+      include: { reactions: true, replies: { include: { reactions: true } } },
     });
 
     return this.formatEntry(entry);
   }
 
   async remove(id: string) {
+    // Replies are set to NoAction, so we should delete them manually or change schema
+    // But since they are self-referencing and we want cascade delete logic usually...
+    // Actually, let's just delete the entry. If schema says NoAction, SQL might error if children exist.
+    // Let's delete children first if any.
+    const children = await this.prisma.journal.findMany({ where: { parentId: id } });
+    for (const child of children) {
+      await this.remove(child.id); // Recursive delete
+    }
+
     return this.prisma.journal.delete({
       where: { id },
     });
   }
 
+  async toggleReaction(journalId: string, uid: string, type: string) {
+    const existing = await this.prisma.journalReaction.findUnique({
+      where: {
+        journalId_uid: { journalId, uid },
+      },
+    });
+
+    if (existing) {
+      if (existing.type === type) {
+        // Remove reaction
+        await this.prisma.journalReaction.delete({
+          where: { id: existing.id },
+        });
+        return { action: 'removed', type };
+      } else {
+        // Update reaction
+        await this.prisma.journalReaction.update({
+          where: { id: existing.id },
+          data: { type },
+        });
+        return { action: 'updated', type };
+      }
+    } else {
+      // Create reaction
+      await this.prisma.journalReaction.create({
+        data: { journalId, uid, type },
+      });
+      return { action: 'created', type };
+    }
+  }
+
   // Parse the JSON tags string back to an array for the frontend
   private formatEntry(entry: any) {
-    return {
+    const formatted = {
       ...entry,
       tags: entry.tags ? JSON.parse(entry.tags) : [],
       images: entry.images ? JSON.parse(entry.images) : [],
     };
+
+    if (entry.replies) {
+      formatted.replies = entry.replies.map(r => this.formatEntry(r));
+    }
+
+    return formatted;
   }
 }
