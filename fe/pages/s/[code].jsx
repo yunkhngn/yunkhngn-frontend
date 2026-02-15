@@ -55,7 +55,10 @@ export default function ShortlinkRedirect({ targetUrl, code }) {
             setCountdown((prev) => {
                 if (prev <= 1) {
                     clearInterval(timer);
-                    window.location.href = targetUrl;
+                    // Final safety check before redirect
+                    if (/^https?:\/\//i.test(targetUrl)) {
+                        window.location.href = targetUrl;
+                    }
                     return 0;
                 }
                 return prev - 1;
