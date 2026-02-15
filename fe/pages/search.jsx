@@ -42,22 +42,24 @@ export default function Search() {
 
             const lowerQuery = query.toLowerCase();
 
-            const filteredBlogs = blogs.filter(blog =>
+            const filteredBlogs = Array.isArray(blogs) ? blogs.filter(blog =>
                 blog.status === 'PUBLISHED' && (
                     blog.title?.toLowerCase().includes(lowerQuery) ||
                     blog.tags?.toLowerCase().includes(lowerQuery)
                 )
-            );
+            ) : [];
 
-            const filteredProjects = projects.filter(project =>
+            const filteredProjects = Array.isArray(projects) ? projects.filter(project =>
                 project.title?.toLowerCase().includes(lowerQuery) ||
                 project.description?.toLowerCase().includes(lowerQuery) ||
                 project.tech?.some(t => t.toLowerCase().includes(lowerQuery))
-            );
+            ) : [];
 
-            const filteredPhotos = photos.filter(photo =>
+            // Gallery response is paginated { data: [], total: ... }
+            const photoList = photos.data || (Array.isArray(photos) ? photos : []);
+            const filteredPhotos = Array.isArray(photoList) ? photoList.filter(photo =>
                 photo.caption?.toLowerCase().includes(lowerQuery)
-            );
+            ) : [];
 
             setResults({
                 blogs: filteredBlogs,

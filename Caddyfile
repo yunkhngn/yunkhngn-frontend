@@ -12,7 +12,7 @@ yunkhngn.dev, www.yunkhngn.dev {
         reverse_proxy backend:3001
     }
 
-    @socketio path /socket.io/*
+    @socketio path /socket.io*
     handle @socketio {
         reverse_proxy backend:3001
     }

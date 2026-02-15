@@ -1,97 +1,113 @@
-# Developer Blog & Portfolio Platform
+# Yunkhngn Website
 
-A comprehensive, enterprise-grade Blog and Portfolio platform designed for developers. It features a Codecademy-inspired UI, rich text editing, AI-powered interactions, and a robust, secure CI/CD pipeline.
+A modern, enterprise-grade Portfolio & Blog platform built for high performance, rich interactivity, and seamless developer experience.
 
 ## Project Overview
 
-This system serves as a personal brand hub, allowing the owner to showcase projects, write technical blogs, and interact with the community. It leverages **Google Gemini AI** for intelligent features and employs an **Enterprise CI/CD** workflow for reliable deployments.
+This platform serves as a central hub for showcasing projects, sharing technical insights, and engaging with the developer community. It integrates **Google Gemini AI** for content assistance, uses **Socket.IO** for real-time notifications, and is deployed via a robust **Docker + Caddy** pipeline.
 
 ### Key Features
-*   **AI Integration**: Powered by Google Gemini for content assistance and intelligent interactions.
-*   **Advanced Blog**: Rich text editor (TipTap) with code blocks, embeds, and image support.
-*   **Portfolio**: Showcase projects with detailed descriptions and tech stacks.
-*   **Gallery**: Image gallery powered by Cloudinary with **Photo Reactions**.
-*   **Interaction**: Anonymous commenting system via Firebase Auth.
-*   **Support**: BuyMeACoffee integration.
-*   **Admin Panel**: Full CMS for managing content, site settings, and users.
-*   **Customization**: Editable design tokens (colors, spacing, typography).
+- **AI-Powered**: Integrated with Google Gemini for intelligent content generation and assistance.
+- **Advanced Blog Engine**: Built with TipTap for a rich editing experience (code blocks, embeds, images).
+- **Real-time Notifications**: Socket.IO integration for instant updates on interactions.
+- **Smart Gallery**: Cloudinary-powered image gallery with unique photo reactions.
+- **Secure Auth**: Firebase Authentication (Admin + Anonymous support).
+- **Modern UI**: Crafted with Next.js 14, TailwindCSS, and shadcn/ui for a clean, responsive design.
+- **Admin Dashboard**: Comprehensive CMS for managing content, users, and settings.
 
-## Tech Stack
+## 🛠 Tech Stack
 
 ### Frontend (`/fe`)
-*   **Framework**: Next.js 14
-*   **Styling**: TailwindCSS + shadcn/ui
-*   **State/Auth**: Firebase Auth (Anonymous + Admin)
-*   **Editor**: TipTap
-*   **Media**: Cloudinary SDK
+- **Framework**: Next.js 14 (App Router)
+- **Language**: TypeScript
+- **Styling**: TailwindCSS, shadcn/ui, Framer Motion
+- **State & Auth**: Firebase Auth, Context API
+- **Editor**: TipTap (Headless WYSIWYG)
+- **Real-time**: Socket.IO Client
 
 ### Backend (`/be`)
-*   **Framework**: NestJS
-*   **Database**: MSSQL (Microsoft SQL Server)
-*   **ORM**: Prisma
-*   **AI**: Google Gemini API
-*   **API**: RESTful API + Swagger Docs
-*   **Auth**: Firebase Admin SDK
+- **Framework**: NestJS (Modular Architecture)
+- **Database**: MSSQL (via Azure SQL Edge)
+- **ORM**: Prisma
+- **AI Integration**: Google Gemini API
+- **Real-time**: Socket.IO Gateway
+- **Auth**: Firebase Admin SDK
 
 ### Infrastructure & DevOps
-*   **Containerization**: Docker & Docker Compose
-*   **Proxy**: Caddy (Reverse Proxy)
-*   **CI/CD**: GitHub Actions
-    *   **SAST**: Semgrep Security Scanning
-    *   **Registry**: GitHub Container Registry (GHCR)
-    *   **Deployment**: SSH to VPS
+- **Containerization**: Docker & Docker Compose
+- **Reverse Proxy**: Caddy (Automatic HTTPS & Routing)
+- **CI/CD**: GitHub Actions (Linting, Testing, Building, Deploying)
+- **Registry**: GitHub Container Registry (GHCR)
 
-## Enterprise CI/CD Pipeline
-
-The project uses an advanced CI/CD pipeline defined in `.github/workflows/ci-cd.yml`:
-
-1.  **Quality Check**: Runs ESLint and Unit Tests for both Frontend and Backend.
-2.  **Security Scan (SAST)**: Uses **Semgrep** to scan for security vulnerabilities (OWASP Top 10).
-3.  **Build & Push**: Builds Docker images and pushes them to GHCR with unique SHA tags.
-4.  **Deploy Production**: Deploys the approved images to the production server via SSH.
-    *   **Health Check**: Automatically verifies the deployment via a `/health` endpoint.
-5.  **Rollback**: Automatically reverts to the previous stable image tag if the production deployment fails.
-
-## Setup & Installation
+## Getting Started
 
 ### Prerequisites
-*   Docker & Docker Compose
-*   Node.js (v20+)
-*   Yarn
+- Docker & Docker Compose
+- Node.js (v20+)
+- Package Manager: Yarn (Preferred)
 
-### Environment Variables
-Create `.env` files in `/fe` and `/be` based on the examples.
+### Environment Setup
 
-**Backend (`/be/.env`)**
-```env
-DATABASE_URL="sqlserver://mssql:1433;database=mydb;..."
-FIREBASE_CREDENTIALS="..."
-CLOUDINARY_URL="..."
-GEMINI_API_KEY="..."
-CORS_ORIGIN="..."
-```
+1.  **Frontend (`/fe/.env`)**
+    ```env
+    NEXT_PUBLIC_FIREBASE_API_KEY="..."
+    NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN="..."
+    NEXT_PUBLIC_FIREBASE_PROJECT_ID="..."
+    NEXT_PUBLIC_API_URL="http://localhost:3001" # Or https://your-domain.com/api
+    ```
 
-**Frontend (`/fe/.env`)**
-```env
-NEXT_PUBLIC_FIREBASE_CONFIG="..."
-NEXT_PUBLIC_API_URL="http://localhost:3000"
-```
+2.  **Backend (`/be/.env`)**
+    ```env
+    DATABASE_URL="sqlserver://mssql:1433;database=blogdb;..."
+    FIREBASE_CREDENTIALS="..."
+    GEMINI_API_KEY="..."
+    CLOUDINARY_URL="..."
+    CORS_ORIGIN="*"
+    ```
 
-### Running Locally
+### Running Locally (Recommended)
+
+The easiest way to run the full stack (Frontend, Backend, Database, Caddy) is via Docker Compose.
+
 ```bash
-# Start all services
+# Start all services in detached mode
 docker-compose up -d
 
-# The application will be available at:
-# Frontend: http://localhost
-# Backend API: http://localhost/api
-# Swagger Docs: http://localhost/api/docs
+# Check logs
+docker-compose logs -f
+```
+
+- **Frontend**: `http://localhost:3000`
+- **Backend API**: `http://localhost:3001`
+- **Swagger Docs**: `http://localhost:3001/api/docs`
+
+### Manual Development
+
+If you prefer running services individually for development:
+
+**Backend:**
+```bash
+cd be
+yarn install
+yarn prisma generate
+yarn start:dev
+```
+
+**Frontend:**
+```bash
+cd fe
+yarn install
+yarn dev
 ```
 
 ## Contributing
-1.  Fork the repository
-2.  Create your feature branch (`git checkout -b feat/amazing-feature`)
-3.  Commit your changes (`git commit -m 'feat: add some amazing feature'`)
-4.  Push to the branch (`git push origin feat/amazing-feature`)
-5.  Open a Pull Request
-# Last updated: Wed Feb  4 00:25:49 +07 2026
+
+1.  Fork the repository.
+2.  Create a feature branch (`git checkout -b feature/amazing-feature`).
+3.  Commit your changes (`git commit -m 'feat: Add amazing feature'`).
+4.  Push to the branch (`git push origin feature/amazing-feature`).
+5.  Open a Pull Request.
+
+## License
+
+This project is licensed under the MIT License.

@@ -62,6 +62,11 @@ module.exports = {
         heading: ["var(--font-be-vietnam-pro)", "sans-serif"],
         serif: ["var(--font-playfair)", "serif"],
       },
+      animation: {
+        "accordion-down": "accordion-down 0.2s ease-out",
+        "accordion-up": "accordion-up 0.2s ease-out",
+        marquee: "marquee 15s linear infinite",
+      },
       keyframes: {
         "accordion-down": {
           from: { height: 0 },
@@ -71,10 +76,10 @@ module.exports = {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: 0 },
         },
-      },
-      animation: {
-        "accordion-down": "accordion-down 0.2s ease-out",
-        "accordion-up": "accordion-up 0.2s ease-out",
+        marquee: {
+          "0%": { transform: "translateX(0%)" },
+          "100%": { transform: "translateX(-50%)" },
+        },
       },
     },
   },
