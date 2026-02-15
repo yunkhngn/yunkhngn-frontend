@@ -104,7 +104,7 @@ export default function Home() {
           const photos = result.data || (Array.isArray(result) ? result : []);
 
           if (Array.isArray(photos)) {
-            setGalleryPhotos(photos.slice(0, 10));
+            setGalleryPhotos(photos.slice(0, 12));
           }
         }
 
