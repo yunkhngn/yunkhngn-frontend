@@ -20,8 +20,6 @@ export function NotificationProvider({ children }) {
         userRef.current = user;
     }, [user]);
 
-    const [isAdminOnline, setIsAdminOnline] = useState(false);
-
     useEffect(() => {
         // Remove /api from URL for socket connection if present
         const startUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
@@ -35,14 +33,6 @@ export function NotificationProvider({ children }) {
 
         newSocket.on('connect', () => {
             console.log('Connected to socket server');
-            if (user?.role === 'ADMIN') {
-                newSocket.emit('identity-admin');
-            }
-            newSocket.emit('check-admin-status');
-        });
-
-        newSocket.on('admin-status', (data) => {
-            setIsAdminOnline(data.online);
         });
 
         newSocket.on('connect_error', (error) => {
@@ -129,8 +119,7 @@ export function NotificationProvider({ children }) {
         markAsRead,
         markAllAsRead,
         fetchNotifications,
-        isAdminOnline,
-    }), [notifications, unreadCount, markAsRead, markAllAsRead, fetchNotifications, isAdminOnline]);
+    }), [notifications, unreadCount, markAsRead, markAllAsRead, fetchNotifications]);
 
     return (
         <NotificationContext.Provider value={value}>

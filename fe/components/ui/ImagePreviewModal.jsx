@@ -41,7 +41,7 @@ export function ImagePreviewModal({ isOpen, onClose, imageSrc, caption }) {
 
                         {/* Caption Overlay */}
                         {caption && (
-                            <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6 bg-gradient-to-t from-black/90 via-black/50 to-transparent rounded-b-2xl text-left z-40">
+                            <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6 bg-gradient-to-t from-black/90 via-black/50 to-transparent rounded-b-2xl text-center z-40">
                                 <p className="text-white text-sm md:text-lg font-medium leading-relaxed">{caption}</p>
                             </div>
                         )}
