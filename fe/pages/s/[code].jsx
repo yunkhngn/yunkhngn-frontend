@@ -59,6 +59,7 @@ export default function ShortlinkRedirect({ targetUrl, code }) {
                     try {
                         const url = new URL(targetUrl);
                         if (url.protocol === 'http:' || url.protocol === 'https:') {
+                            // nosemgrep: javascript.lang.security.detect-eval-with-expression.detect-eval-with-expression
                             window.location.href = url.href;
                         }
                     } catch (e) {
