@@ -56,8 +56,13 @@ export default function ShortlinkRedirect({ targetUrl, code }) {
                 if (prev <= 1) {
                     clearInterval(timer);
                     // Final safety check before redirect
-                    if (/^https?:\/\//i.test(targetUrl)) {
-                        window.location.href = targetUrl;
+                    try {
+                        const url = new URL(targetUrl);
+                        if (url.protocol === 'http:' || url.protocol === 'https:') {
+                            window.location.href = url.href;
+                        }
+                    } catch (e) {
+                        // Invalid URL, do nothing
                     }
                     return 0;
                 }
