@@ -1,6 +1,7 @@
 import { Music, Disc3, ExternalLink } from 'lucide-react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
+import { MarqueeText } from '../ui/MarqueeText';
 
 export default function MusicPlayer({ track, loading }) {
     if (loading) {
@@ -72,12 +73,12 @@ export default function MusicPlayer({ track, loading }) {
                         </span>
                     )}
                 </span>
-                <span className="text-xs font-bold text-foreground truncate w-full group-hover:text-primary transition-colors">
+                <MarqueeText className="text-xs font-bold text-foreground w-full group-hover:text-primary transition-colors">
                     {name}
-                </span>
-                <span className="text-[10px] text-muted-foreground truncate w-full">
+                </MarqueeText>
+                <MarqueeText className="text-[10px] text-muted-foreground w-full">
                     {artist}
-                </span>
+                </MarqueeText>
             </div>
 
             <a
