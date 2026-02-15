@@ -20,17 +20,11 @@ export function NotificationProvider({ children }) {
         userRef.current = user;
     }, [user]);
 
+    const [isAdminOnline, setIsAdminOnline] = useState(false);
+
     useEffect(() => {
-        // Socket.io is temporarily disabled until backend WebSocket server is set up
-        // Uncomment when backend has socket.io endpoint ready
-
-        /*
-        // Only connect if user is admin
-        if (!user || user.role !== 'ADMIN') {
-            return;
-        }
-
-        const newSocket = io(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001', {
+        const socketUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+        const newSocket = io(socketUrl, {
             reconnection: true,
             reconnectionDelay: 1000,
             reconnectionAttempts: 5,
@@ -38,6 +32,14 @@ export function NotificationProvider({ children }) {
 
         newSocket.on('connect', () => {
             console.log('Connected to socket server');
+            if (user?.role === 'ADMIN') {
+                newSocket.emit('identity-admin');
+            }
+            newSocket.emit('check-admin-status');
+        });
+
+        newSocket.on('admin-status', (data) => {
+            setIsAdminOnline(data.online);
         });
 
         newSocket.on('connect_error', (error) => {
@@ -56,9 +58,8 @@ export function NotificationProvider({ children }) {
         });
 
         return () => {
-            newSocket.close();
+            newSocket.disconnect();
         };
-        */
     }, [user]);
 
     const fetchNotifications = useCallback(async () => {
@@ -125,7 +126,8 @@ export function NotificationProvider({ children }) {
         markAsRead,
         markAllAsRead,
         fetchNotifications,
-    }), [notifications, unreadCount, markAsRead, markAllAsRead, fetchNotifications]);
+        isAdminOnline,
+    }), [notifications, unreadCount, markAsRead, markAllAsRead, fetchNotifications, isAdminOnline]);
 
     return (
         <NotificationContext.Provider value={value}>
