@@ -8,7 +8,7 @@ export class GalleryService {
   constructor(
     private prisma: PrismaService,
     private cloudinaryService: CloudinaryService,
-  ) { }
+  ) {}
 
   async create(createGalleryDto: CreateGalleryDto) {
     return this.prisma.gallery.create({
@@ -69,7 +69,7 @@ export class GalleryService {
   incrementViews(id: string) {
     this.prisma.gallery
       .update({ where: { id }, data: { views: { increment: 1 } } })
-      .catch(() => { });
+      .catch(() => {});
     return { success: true };
   }
 
