@@ -16,12 +16,17 @@ export async function getServerSideProps(context) {
         const data = await res.json();
 
         if (data?.targetUrl) {
-            return {
-                props: {
-                    targetUrl: data.targetUrl,
-                    code,
-                },
-            };
+            // Security check: Ensure URL uses http or https protocol
+            const isValidProtocol = /^https?:\/\//i.test(data.targetUrl);
+
+            if (isValidProtocol) {
+                return {
+                    props: {
+                        targetUrl: data.targetUrl,
+                        code,
+                    },
+                };
+            }
         }
 
         return { notFound: true };
@@ -43,7 +48,8 @@ export default function ShortlinkRedirect({ targetUrl, code }) {
     }, []);
 
     useEffect(() => {
-        if (!targetUrl) return;
+        // Double check protocol on client side before starting redirect
+        if (!targetUrl || !/^https?:\/\//i.test(targetUrl)) return;
 
         const timer = setInterval(() => {
             setCountdown((prev) => {
