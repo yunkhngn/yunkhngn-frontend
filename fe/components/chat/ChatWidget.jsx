@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { X, Send, Loader2 } from 'lucide-react';
+import { X, Send, Loader2, Maximize2, Minimize2 } from 'lucide-react';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/Button';
 import ReactMarkdown from 'react-markdown';
 import { cn } from '@/lib/utils';
@@ -13,7 +14,15 @@ export default function ChatWindow({ isOpen, onClose }) {
     ]);
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    const [hasLoadedHistory, setHasLoadedHistory] = useState(false);
+    const [isExpanded, setIsExpanded] = useState(false);
+    const [forbiddenWords, setForbiddenWords] = useState([]);
+
+    // Safety & Anti-spam refs
+    const lastSentTime = useRef(0);
+    const lastMessageContent = useRef('');
+
+    const MAX_WORD_COUNT = 100;
+    const RATE_LIMIT_MS = 3000; // 3 seconds
     const scrollRef = useRef(null);
 
     // Scroll to bottom when messages change
@@ -23,11 +32,68 @@ export default function ChatWindow({ isOpen, onClose }) {
         }
     }, [messages, isOpen]);
 
+    // Fetch forbidden words settings
+    useEffect(() => {
+        const fetchSettings = async () => {
+            try {
+                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/settings`);
+                if (res.ok) {
+                    const data = await res.json();
+                    const forbiddenSetting = data.find(s => s.settingTitle === 'chat_forbidden_words');
+                    if (forbiddenSetting && forbiddenSetting.content) {
+                        // Support comma or newline separated
+                        const words = forbiddenSetting.content.split(/[,\n]+/).map(w => w.trim().toLowerCase()).filter(Boolean);
+                        setForbiddenWords(words);
+                    }
+                }
+            } catch (error) {
+                console.error("Failed to fetch chat settings", error);
+            }
+        };
+
+        if (isOpen) {
+            fetchSettings();
+        }
+    }, [isOpen]);
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!input.trim() || isLoading) return;
 
         const userMessage = input.trim();
+
+        // 1. Check Word Limit
+        const wordCount = userMessage.split(/\s+/).length;
+        if (wordCount > MAX_WORD_COUNT) {
+            toast.error(`Message is too long! Please keep it under ${MAX_WORD_COUNT} words. (Current: ${wordCount})`);
+            return;
+        }
+
+        // 2. Anti-Spam: Rate Limiting
+        const now = Date.now();
+        if (now - lastSentTime.current < RATE_LIMIT_MS) {
+            toast.warning("You are sending messages too fast. Please slow down.");
+            return;
+        }
+
+        // 3. Anti-Spam: Duplicate Message
+        if (userMessage === lastMessageContent.current) {
+            toast.warning("You just sent this message. Please say something new.");
+            return;
+        }
+
+        // 4. Forbidden Words Filter
+        const lowerCaseMessage = userMessage.toLowerCase();
+        const foundForbiddenWord = forbiddenWords.find(word => lowerCaseMessage.includes(word));
+        if (foundForbiddenWord) {
+            toast.error("Your message contains prohibited words. Please be polite.");
+            return;
+        }
+
+        // Passed all checks
+        lastSentTime.current = now;
+        lastMessageContent.current = userMessage;
+
         setInput('');
         setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
         setIsLoading(true);
@@ -59,10 +125,21 @@ export default function ChatWindow({ isOpen, onClose }) {
             {isOpen && (
                 <motion.div
                     initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    animate={{
+                        opacity: 1,
+                        scale: 1,
+                        y: 0,
+                        width: isExpanded ? 'calc(100vw - 2rem)' : undefined,
+                        height: isExpanded ? 'calc(100vh - 2rem)' : undefined,
+                        right: isExpanded ? '1rem' : undefined,
+                        bottom: isExpanded ? '1rem' : undefined,
+                    }}
                     exit={{ opacity: 0, scale: 0.9, y: 20 }}
                     transition={{ duration: 0.2 }}
-                    className="fixed bottom-24 right-4 sm:right-8 z-[70] w-[calc(100vw-2rem)] sm:w-[400px] h-[550px] max-h-[70vh] shadow-2xl rounded-2xl overflow-hidden border border-border/50 bg-background/80 backdrop-blur-xl flex flex-col"
+                    className={cn(
+                        "fixed z-[70] shadow-2xl rounded-2xl overflow-hidden border border-border/50 bg-background/80 backdrop-blur-xl flex flex-col transition-all duration-300",
+                        isExpanded ? "w-[calc(100vw-2rem)] h-[calc(100vh-2rem)] right-4 bottom-4 md:right-8 md:bottom-8" : "bottom-24 right-4 sm:right-8 w-[calc(100vw-2rem)] sm:w-[400px] h-[550px] max-h-[70vh]"
+                    )}
                 >
                     {/* Header */}
                     <div className="p-4 border-b border-border/50 bg-primary/5 flex items-center justify-between">
@@ -78,6 +155,9 @@ export default function ChatWindow({ isOpen, onClose }) {
                                 <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Khoa Phiên bản AI</p>
                             </div>
                         </div>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full hover:bg-muted" onClick={() => setIsExpanded(!isExpanded)} title={isExpanded ? "Collapse" : "Expand"}>
+                            {isExpanded ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+                        </Button>
                         <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full hover:bg-destructive/10 hover:text-destructive" onClick={onClose}>
                             <X className="w-4 h-4" />
                         </Button>
@@ -138,7 +218,15 @@ export default function ChatWindow({ isOpen, onClose }) {
                     </div>
 
                     {/* Input */}
-                    <form onSubmit={handleSubmit} className="p-3 border-t border-border/50 bg-background/50">
+                    <form onSubmit={handleSubmit} className="p-3 border-t border-border/50 bg-background/50 relative">
+                        {input.length > 30 && (
+                            <div className={cn(
+                                "absolute -top-6 right-4 text-[10px] px-2 py-0.5 rounded-full backdrop-blur-md border",
+                                input.split(/\s+/).length > MAX_WORD_COUNT ? "bg-destructive/20 text-destructive border-destructive/50 animate-pulse" : "bg-muted/50 text-muted-foreground border-border/50"
+                            )}>
+                                {input.split(/\s+/).filter(Boolean).length}/{MAX_WORD_COUNT} words
+                            </div>
+                        )}
                         <div className="relative flex items-center">
                             <input
                                 type="text"
