@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import CodingActivity from './CodingActivity';
 import MusicPlayer from './MusicPlayer';
-import AdminPresenceWidget from '../common/AdminPresenceWidget';
 import api from '@/lib/api/client';
 import { AnimatePresence, motion } from 'framer-motion';
 
@@ -111,7 +110,6 @@ export default function LiveActivityContainer() {
                         transition={{ type: "spring", stiffness: 300, damping: 25 }}
                         className="flex flex-col gap-3"
                     >
-                        <AdminPresenceWidget />
                         <CodingActivity activity={codingData} loading={loadingCoding} />
                         <MusicPlayer track={musicData} loading={loadingMusic} />
                     </motion.div>
