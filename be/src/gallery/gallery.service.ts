@@ -82,6 +82,8 @@ export class GalleryService {
       exifData?: string;
       blurHash?: string;
       sortOrder?: number;
+      width?: number;
+      height?: number;
     },
   ) {
     return this.prisma.gallery.update({

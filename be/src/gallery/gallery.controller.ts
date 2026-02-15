@@ -17,7 +17,7 @@ import { RolesGuard } from '../auth/roles.guard';
 
 @Controller('gallery')
 export class GalleryController {
-  constructor(private readonly galleryService: GalleryService) {}
+  constructor(private readonly galleryService: GalleryService) { }
 
   @Post()
   @UseGuards(FirebaseAuthGuard, RolesGuard)
@@ -76,6 +76,8 @@ export class GalleryController {
       exifData?: string;
       blurHash?: string;
       sortOrder?: number;
+      width?: number;
+      height?: number;
     },
   ) {
     return this.galleryService.update(id, body);

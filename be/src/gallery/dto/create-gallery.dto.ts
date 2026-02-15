@@ -28,4 +28,12 @@ export class CreateGalleryDto {
   @IsInt()
   @IsOptional()
   sortOrder?: number;
+
+  @IsInt()
+  @IsOptional()
+  width?: number;
+
+  @IsInt()
+  @IsOptional()
+  height?: number;
 }

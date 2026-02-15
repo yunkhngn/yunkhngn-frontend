@@ -140,6 +140,8 @@ model Gallery {
   sortOrder Int      @default(0)
   exifData  String?  @db.NVarChar(Max) // JSON: camera, lens, focalLength, aperture, shutter, iso
   blurHash  String?  // Cloudinary blur placeholder URL
+  width     Int?
+  height    Int?
   createdAt DateTime @default(now())
   reactions PhotoReaction[]
 

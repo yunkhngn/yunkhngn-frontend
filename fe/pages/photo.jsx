@@ -417,36 +417,10 @@ export default function Photo() {
                     </div>
                 ) : (
                     <>
+
                         {/* Masonry */}
                         {layout === 'masonry' && (
-                            <div className="columns-1 sm:columns-2 md:columns-3 gap-4 space-y-4">
-                                {photos.map((photo, i) => (
-                                    <div
-                                        key={photo.id}
-                                        ref={i === photos.length - 1 ? lastPhotoRef : null}
-                                        className="break-inside-avoid relative group cursor-pointer rounded-xl overflow-hidden bg-muted"
-                                        onClick={() => openPhoto(i)}
-                                    >
-                                        <Image
-                                            src={photo.imageUrl}
-                                            alt={photo.caption || 'Gallery Photo'}
-                                            width={0}
-                                            height={0}
-                                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                                            className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105"
-                                            placeholder={getBlurUrl(photo.imageUrl) ? 'blur' : 'empty'}
-                                            blurDataURL={getBlurUrl(photo.imageUrl)}
-                                            unoptimized
-                                        />
-                                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
-                                        {photo.caption && (
-                                            <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/70 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                                <p className="text-white text-sm font-medium line-clamp-2">{photo.caption}</p>
-                                            </div>
-                                        )}
-                                    </div>
-                                ))}
-                            </div>
+                            <MasonryGrid photos={photos} openPhoto={openPhoto} lastPhotoRef={lastPhotoRef} getBlurUrl={getBlurUrl} />
                         )}
 
                         {/* Grid */}
@@ -656,6 +630,71 @@ export default function Photo() {
                 </DialogContent>
             </Dialog>
         </div >
+    );
+}
+
+
+function MasonryGrid({ photos, openPhoto, lastPhotoRef, getBlurUrl }) {
+    const [columns, setColumns] = useState(3);
+
+    useEffect(() => {
+        const updateCols = () => {
+            if (window.innerWidth >= 768) setColumns(3);
+            else if (window.innerWidth >= 640) setColumns(2);
+            else setColumns(1);
+        };
+        updateCols();
+        window.addEventListener('resize', updateCols);
+        return () => window.removeEventListener('resize', updateCols);
+    }, []);
+
+    // Distribute photos into columns
+    const photoColumns = Array.from({ length: columns }, () => []);
+    photos.forEach((photo, i) => {
+        photoColumns[i % columns].push(photo);
+    });
+
+    return (
+        <div className="grid gap-4" style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}>
+            {photoColumns.map((colPhotos, colIndex) => (
+                <div key={colIndex} className="space-y-4">
+                    {colPhotos.map((photo) => {
+                        const originalIndex = photos.indexOf(photo);
+                        const isLast = originalIndex === photos.length - 1;
+                        return (
+                            <div
+                                key={photo.id}
+                                ref={isLast ? lastPhotoRef : null}
+                                className="relative group cursor-pointer rounded-xl overflow-hidden bg-muted transform translate-z-0"
+                                onClick={() => openPhoto(originalIndex)}
+                                style={{
+                                    aspectRatio: photo.width && photo.height ? `${photo.width} / ${photo.height}` : 'auto',
+                                    contain: 'content'
+                                }}
+                            >
+                                <Image
+                                    src={photo.imageUrl}
+                                    alt={photo.caption || 'Gallery Photo'}
+                                    width={photo.width || 800}
+                                    height={photo.height || 600}
+                                    sizes={columns === 3 ? "33vw" : columns === 2 ? "50vw" : "100vw"}
+                                    className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105"
+                                    placeholder={getBlurUrl(photo.imageUrl) ? 'blur' : 'empty'}
+                                    blurDataURL={getBlurUrl(photo.imageUrl)}
+                                    unoptimized
+                                />
+                                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
+                                {photo.caption && (
+                                    <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/70 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                        <p className="text-white text-sm font-medium line-clamp-2">{photo.caption}</p>
+                                    </div>
+                                )}
+                            </div>
+                        );
+                    })}
+                </div>
+            ))}
+        </div>
     );
 }
 
