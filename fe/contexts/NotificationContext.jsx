@@ -23,7 +23,10 @@ export function NotificationProvider({ children }) {
     const [isAdminOnline, setIsAdminOnline] = useState(false);
 
     useEffect(() => {
-        const socketUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+        // Remove /api from URL for socket connection if present
+        const startUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+        const socketUrl = startUrl.replace(/\/api$/, '');
+
         const newSocket = io(socketUrl, {
             reconnection: true,
             reconnectionDelay: 1000,
