@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, BadRequestException } from '@nestjs/common';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { SettingsService } from '../settings/settings.service';
 import { ProjectService } from '../project/project.service';
@@ -20,6 +20,35 @@ export class ChatService {
       (acc, curr) => ({ ...acc, [curr.settingTitle]: curr.content }),
       {},
     );
+
+    // --- VALIDATION START ---
+    const MAX_WORD_COUNT = 100;
+    const wordCount = userMessage.split(/\s+/).length;
+    if (wordCount > MAX_WORD_COUNT) {
+      throw new BadRequestException(
+        `Message is too long. Limit is ${MAX_WORD_COUNT} words.`,
+      );
+    }
+
+    const forbiddenWordsRaw = settingsMap['chat_forbidden_words'];
+    if (forbiddenWordsRaw) {
+      const forbiddenWords = forbiddenWordsRaw
+        .split(/[,\n]+/)
+        .map((w) => w.trim().toLowerCase())
+        .filter(Boolean);
+
+      const lowerCaseMessage = userMessage.toLowerCase();
+      const foundForbidden = forbiddenWords.find((word) =>
+        lowerCaseMessage.includes(word),
+      );
+
+      if (foundForbidden) {
+        throw new BadRequestException(
+          'Your message contains prohibited words.',
+        );
+      }
+    }
+    // --- VALIDATION END ---
 
     const systemPrompt = await this.buildSystemPrompt();
 
