@@ -626,7 +626,7 @@ export default function JournalPage() {
                     setReplyingTo(null); // Clear all related states on close
                 }}
                 initialData={editingEntry}
-                parentId={replyingTo?.id} // Pass parentId for replies
+                parentId={replyingTo?.parentId || replyingTo?.id} // Pass root parentId for replies
                 moods={moods}
                 onSuccess={fetchData}
                 avatarUrl={avatarUrl}
