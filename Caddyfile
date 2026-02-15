@@ -12,6 +12,11 @@ yunkhngn.dev, www.yunkhngn.dev {
         reverse_proxy backend:3001
     }
 
+    @socketio path /socket.io/*
+    handle @socketio {
+        reverse_proxy backend:3001
+    }
+
     @www host www.yunkhngn.dev
     handle @www {
         redir https://yunkhngn.dev{uri} permanent
