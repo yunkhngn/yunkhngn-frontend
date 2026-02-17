@@ -234,13 +234,13 @@ export default function Settings() {
             );
 
             setCurrentSetting(prev => ({ ...prev, content: uploadRes.data.secure_url }));
-            toast.success('CV uploaded successfully');
+            toast.success(isCV ? 'CV uploaded successfully' : 'Image uploaded successfully');
         } catch (error) {
             console.error(error);
             if (error.response?.data?.error?.message) {
                 toast.error(`Upload failed: ${error.response.data.error.message}`);
             } else {
-                toast.error('Failed to upload CV');
+                toast.error(isCV ? 'Failed to upload CV' : 'Failed to upload image');
             }
         } finally {
             setUploading(false);

@@ -1,8 +1,29 @@
 import { Injectable, Logger, BadRequestException } from '@nestjs/common';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenAI } from '@google/genai';
 import { SettingsService } from '../settings/settings.service';
 import { ProjectService } from '../project/project.service';
 import { BlogService } from '../blog/blog.service';
+import { v2 as cloudinary } from 'cloudinary';
+
+// Keywords that indicate user wants image generation
+const IMAGE_KEYWORDS_VI = [
+  'vẽ',
+  'tạo ảnh',
+  'tạo hình',
+  'sinh ảnh',
+  'gen ảnh',
+  'generate image',
+  'draw',
+  'create image',
+  'create picture',
+  'make image',
+  'make picture',
+  'draw me',
+  'vẽ cho',
+  'tạo cho',
+  'thiết kế',
+];
 
 @Injectable()
 export class ChatService {
@@ -12,9 +33,84 @@ export class ChatService {
     private settingsService: SettingsService,
     private projectService: ProjectService,
     private blogService: BlogService,
-  ) {}
+  ) { }
 
-  async generateResponse(userMessage: string, history: any[] = []) {
+  /**
+   * Detect if the user's message is asking for image generation.
+   */
+  private isImageRequest(message: string): boolean {
+    const lower = message.toLowerCase();
+    return IMAGE_KEYWORDS_VI.some((kw) => lower.includes(kw));
+  }
+
+  /**
+   * Generate an image using Gemini's image generation model (new @google/genai SDK).
+   * Returns a Cloudinary URL of the uploaded image, or null if failed.
+   */
+  private async generateImage(
+    prompt: string,
+    apiKey: string,
+  ): Promise<{ text: string; imageUrl: string | null }> {
+    try {
+      const ai = new GoogleGenAI({ apiKey });
+
+      const response = await ai.models.generateContent({
+        model: 'gemini-2.5-flash-preview-04-17',
+        contents: prompt,
+        config: {
+          responseModalities: ['Text', 'Image'],
+        },
+      });
+
+      let text = '';
+      let imageUrl: string | null = null;
+
+      for (const part of response.candidates[0].content.parts) {
+        if (part.text) {
+          text += part.text;
+        } else if (part.inlineData) {
+          // Upload base64 image to Cloudinary
+          const mimeType = part.inlineData.mimeType || 'image/png';
+          const dataUri = `data:${mimeType};base64,${part.inlineData.data}`;
+
+          try {
+            const uploadResult = await cloudinary.uploader.upload(dataUri, {
+              folder: 'blog-portfolio/chat-generated',
+              resource_type: 'image',
+            });
+            imageUrl = uploadResult.secure_url;
+          } catch (uploadError) {
+            this.logger.error('Failed to upload generated image to Cloudinary', uploadError);
+          }
+        }
+      }
+
+      if (!text && imageUrl) {
+        text = 'Đây nha! Tớ vừa vẽ xong cho cậu rồi đó 🎨';
+      } else if (!text && !imageUrl) {
+        text = 'Hmm, tớ không vẽ được ảnh này. Cậu thử mô tả lại chi tiết hơn nhé!';
+      }
+
+      return { text, imageUrl };
+    } catch (error) {
+      this.logger.error('Error generating image', error);
+      if (error.status === 429 || error.message?.includes('429')) {
+        return {
+          text: 'Tớ đang bị quá tải rồi cậu ơi (Rate Limit). Đợi một chút rồi thử lại nhé! 🤯',
+          imageUrl: null,
+        };
+      }
+      return {
+        text: 'Hmm, tớ gặp lỗi khi vẽ ảnh rồi. Cậu thử lại sau nhé! 😅',
+        imageUrl: null,
+      };
+    }
+  }
+
+  async generateResponse(
+    userMessage: string,
+    history: any[] = [],
+  ): Promise<{ text: string; imageUrl?: string }> {
     const settings = await this.settingsService.findAll();
     const settingsMap = settings.reduce(
       (acc, curr) => ({ ...acc, [curr.settingTitle]: curr.content }),
@@ -50,8 +146,6 @@ export class ChatService {
     }
     // --- VALIDATION END ---
 
-    const systemPrompt = await this.buildSystemPrompt();
-
     // 1. Get API Key (Env or DB)
     let apiKeyString = process.env.GEMINI_API_KEY;
     if (!apiKeyString) {
@@ -59,7 +153,9 @@ export class ChatService {
     }
 
     if (!apiKeyString) {
-      return 'Xin lỗi, tớ đang ngủ (Thiếu API Key). Đánh thức tớ sau nhé! 😴';
+      return {
+        text: 'Xin lỗi, tớ đang ngủ (Thiếu API Key). Đánh thức tớ sau nhé! 😴',
+      };
     }
 
     // Support multiple keys (comma separated)
@@ -69,12 +165,18 @@ export class ChatService {
       .filter((k) => k);
     const apiKey = apiKeys[Math.floor(Math.random() * apiKeys.length)];
 
-    try {
-      // 2. Init SDK on the fly
-      const genAI = new GoogleGenerativeAI(apiKey);
-      const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+    // 2. Check if this is an image generation request
+    if (this.isImageRequest(userMessage)) {
+      const result = await this.generateImage(userMessage, apiKey);
+      return { text: result.text, imageUrl: result.imageUrl || undefined };
+    }
 
-      // Reuse systemPrompt built above
+    // 3. Regular text chat
+    const systemPrompt = await this.buildSystemPrompt();
+
+    try {
+      const genAI = new GoogleGenerativeAI(apiKey);
+      const model = genAI.getGenerativeModel({ model: 'gemini-3-flash-preview' });
 
       // Limit history to last 4 messages for Gemini to save tokens
       const geminiHistory = history.slice(-4).map((msg) => ({
@@ -101,10 +203,8 @@ export class ChatService {
       // Merge history to ensure no Model -> Model violation at the start
       if (geminiHistory.length > 0) {
         if (geminiHistory[0].role === 'model') {
-          // Append the first model message to the Ack message
           chatHistory[1].parts[0].text +=
             '\n\n' + geminiHistory[0].parts[0].text;
-          // Remove it from the history array we append
           geminiHistory.shift();
         }
       }
@@ -116,13 +216,17 @@ export class ChatService {
       const result = await chat.sendMessage(userMessage);
       const response = result.response;
       const text = response.text();
-      return text;
+      return { text };
     } catch (error) {
       this.logger.error('Error generating AI response', error);
       if (error.status === 429 || error.message?.includes('429')) {
-        return 'Xin lỗi cậu, tớ đang bị quá tải (Rate Limit). Đợi một chút rồi hỏi lại tớ nhé! 🤯';
+        return {
+          text: 'Xin lỗi cậu, tớ đang bị quá tải (Rate Limit). Đợi một chút rồi hỏi lại tớ nhé! 🤯',
+        };
       }
-      return 'U là trời, tớ quên mất mình định nói gì rồi. Cậu hỏi lại được không? 😅';
+      return {
+        text: 'U là trời, tớ quên mất mình định nói gì rồi. Cậu hỏi lại được không? 😅',
+      };
     }
   }
 
@@ -228,6 +332,7 @@ A: Không hẳn. Tớ chỉ build đều, sai đều, sửa đều. Kỹ năng �
       - ⚠️ KEY RULE: When providing a link to a blog or project, YOU MUST format it as a valid Markdown link.
         Example: "Cậu đọc bài này nhé: [Tiêu đề bài viết](/blog/slug)"
         Do NOT just output the raw path like "/blog/slug".
+      - 🎨 IMAGE GENERATION: You can generate images! If the user asks you to draw/create/generate an image, the system will handle it automatically. No need to decline image requests.
     `;
   }
 }
