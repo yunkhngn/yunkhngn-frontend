@@ -50,12 +50,12 @@ export class ChatService {
   private async generateImage(
     prompt: string,
     apiKey: string,
-  ): Promise<{ text: string; imageUrl: string | null }> {
+  ): Promise<{ text: string; imageUrl: string }> {
     try {
       const ai = new GoogleGenAI({ apiKey });
 
       const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash-preview-04-17',
+        model: 'gemini-2.5-flash-image',
         contents: prompt,
         config: {
           responseModalities: ['Text', 'Image'],
@@ -63,7 +63,7 @@ export class ChatService {
       });
 
       let text = '';
-      let imageUrl: string | null = null;
+      let imageUrl: string = null;
 
       for (const part of response.candidates[0].content.parts) {
         if (part.text) {
@@ -80,7 +80,10 @@ export class ChatService {
             });
             imageUrl = uploadResult.secure_url;
           } catch (uploadError) {
-            this.logger.error('Failed to upload generated image to Cloudinary', uploadError);
+            this.logger.error(
+              'Failed to upload generated image to Cloudinary',
+              uploadError,
+            );
           }
         }
       }
@@ -88,7 +91,8 @@ export class ChatService {
       if (!text && imageUrl) {
         text = 'Đây nha! Tớ vừa vẽ xong cho cậu rồi đó 🎨';
       } else if (!text && !imageUrl) {
-        text = 'Hmm, tớ không vẽ được ảnh này. Cậu thử mô tả lại chi tiết hơn nhé!';
+        text =
+          'Hmm, tớ không vẽ được ảnh này. Cậu thử mô tả lại chi tiết hơn nhé!';
       }
 
       return { text, imageUrl };
@@ -176,7 +180,9 @@ export class ChatService {
 
     try {
       const genAI = new GoogleGenerativeAI(apiKey);
-      const model = genAI.getGenerativeModel({ model: 'gemini-3-flash-preview' });
+      const model = genAI.getGenerativeModel({
+        model: 'gemini-3-flash-preview',
+      });
 
       // Limit history to last 4 messages for Gemini to save tokens
       const geminiHistory = history.slice(-4).map((msg) => ({

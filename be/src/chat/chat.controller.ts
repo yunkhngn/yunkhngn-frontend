@@ -6,7 +6,7 @@ import { ApiKeyGuard } from '../common/guards/api-key.guard';
 
 @Controller('chat')
 export class ChatController {
-  constructor(private readonly chatService: ChatService) { }
+  constructor(private readonly chatService: ChatService) {}
 
   @Post()
   @UseGuards(ThrottlerGuard)
@@ -46,4 +46,3 @@ export class ChatController {
     return { response: result.text, imageUrl: result.imageUrl };
   }
 }
-
