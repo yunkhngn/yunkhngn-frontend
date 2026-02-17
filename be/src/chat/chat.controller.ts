@@ -6,12 +6,11 @@ import { ApiKeyGuard } from '../common/guards/api-key.guard';
 
 @Controller('chat')
 export class ChatController {
-  constructor(private readonly chatService: ChatService) {}
+  constructor(private readonly chatService: ChatService) { }
 
   @Post()
-  @UseGuards(ThrottlerGuard) // Undo comment when Rate Limiter is configured globally
+  @UseGuards(ThrottlerGuard)
   async chat(@Body() body: ChatMessageDto) {
-    // Basic formatting for history
     let history = [];
     try {
       if (body.history) {
@@ -21,17 +20,16 @@ export class ChatController {
       // ignore invalid history
     }
 
-    const response = await this.chatService.generateResponse(
+    const result = await this.chatService.generateResponse(
       body.message,
       history,
     );
-    return { response };
+    return { response: result.text, imageUrl: result.imageUrl };
   }
 
   @Post('external')
   @UseGuards(ApiKeyGuard)
   async externalChat(@Body() body: ChatMessageDto) {
-    // Used for other websites
     let history = [];
     try {
       if (body.history) {
@@ -41,10 +39,11 @@ export class ChatController {
       // ignore invalid history
     }
 
-    const response = await this.chatService.generateResponse(
+    const result = await this.chatService.generateResponse(
       body.message,
       history,
     );
-    return { response };
+    return { response: result.text, imageUrl: result.imageUrl };
   }
 }
+

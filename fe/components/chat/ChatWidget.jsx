@@ -111,7 +111,7 @@ export default function ChatWindow({ isOpen, onClose }) {
             if (!res.ok) throw new Error('Failed to fetch response');
 
             const data = await res.json();
-            setMessages(prev => [...prev, { role: 'assistant', content: data.response }]);
+            setMessages(prev => [...prev, { role: 'assistant', content: data.response, imageUrl: data.imageUrl || null }]);
         } catch (error) {
             console.error(error);
             setMessages(prev => [...prev, { role: 'assistant', content: 'Oops! Mất kết nối tới não tớ rồi cậu ơi. Thử lại sau nhé!' }]);
@@ -199,6 +199,18 @@ export default function ChatWindow({ isOpen, onClose }) {
                                         >
                                             {msg.content}
                                         </ReactMarkdown>
+                                        {msg.imageUrl && (
+                                            <a href={msg.imageUrl} target="_blank" rel="noopener noreferrer" className="block mt-2">
+                                                <Image
+                                                    src={msg.imageUrl}
+                                                    alt="Generated image"
+                                                    width={400}
+                                                    height={400}
+                                                    className="rounded-lg max-w-full h-auto cursor-pointer hover:opacity-90 transition-opacity border border-border/50"
+                                                    unoptimized
+                                                />
+                                            </a>
+                                        )}
                                     </div>
                                 </div>
                             </div>
