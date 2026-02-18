@@ -253,7 +253,7 @@ export default function BlogDetail({ blogData }) {
                     {!isFocusMode && (
                         <div className="absolute top-0 left-4 md:left-8 mt-10">
                             <Link href="/blog">
-                                <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
+                                <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground" aria-label="Back to Blog">
                                     <ChevronLeft className="mr-2 h-4 w-4" /> Back
                                 </Button>
                             </Link>
@@ -263,17 +263,17 @@ export default function BlogDetail({ blogData }) {
                     {/* Admin Controls */}
                     {!isFocusMode && user && user.role === 'ADMIN' && (
                         <div className="absolute top-0 right-4 md:right-8 mt-10 flex gap-2">
-                            <Button variant="outline" size="sm" onClick={handleCreateShortlink} disabled={creatingLink}>
+                            <Button variant="outline" size="sm" onClick={handleCreateShortlink} disabled={creatingLink} aria-label="Create Shortlink">
                                 {creatingLink ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Link2 className="mr-2 h-4 w-4" />}
                                 Shortlink
                             </Button>
                             <Link href={`/admin/blog/${blog.slug}/edit`}>
-                                <Button variant="outline" size="sm">
+                                <Button variant="outline" size="sm" aria-label="Edit Blog">
                                     <Edit className="mr-2 h-4 w-4" /> Edit Blog
                                 </Button>
                             </Link>
                             {blog.status === 'DRAFT' && (
-                                <Button size="sm" onClick={handlePublish} disabled={publishing}>
+                                <Button size="sm" onClick={handlePublish} disabled={publishing} aria-label="Publish Blog">
                                     {publishing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <UploadCloud className="mr-2 h-4 w-4" />}
                                     Publish
                                 </Button>
@@ -286,16 +286,16 @@ export default function BlogDetail({ blogData }) {
                         {!isFocusMode && (
                             <aside className="hidden lg:flex flex-col gap-4 sticky top-32 h-fit w-12 items-center pt-8">
                                 <div className="text-xs font-medium text-muted-foreground mb-2" style={{ writingMode: 'vertical-rl' }}>SHARE</div>
-                                <Button variant="ghost" size="icon" className="rounded-full hover:bg-muted" onClick={() => handleShare('facebook')}>
+                                <Button variant="ghost" size="icon" className="rounded-full hover:bg-muted" onClick={() => handleShare('facebook')} aria-label="Share on Facebook">
                                     <Facebook className="h-4 w-4" />
                                 </Button>
-                                <Button variant="ghost" size="icon" className="rounded-full hover:bg-muted" onClick={() => handleShare('twitter')}>
+                                <Button variant="ghost" size="icon" className="rounded-full hover:bg-muted" onClick={() => handleShare('twitter')} aria-label="Share on Twitter">
                                     <Twitter className="h-4 w-4" />
                                 </Button>
-                                <Button variant="ghost" size="icon" className="rounded-full hover:bg-muted" onClick={() => handleShare('linkedin')}>
+                                <Button variant="ghost" size="icon" className="rounded-full hover:bg-muted" onClick={() => handleShare('linkedin')} aria-label="Share on LinkedIn">
                                     <Linkedin className="h-4 w-4" />
                                 </Button>
-                                <Button variant="ghost" size="icon" className="rounded-full hover:bg-muted" onClick={() => handleCopyLink()}>
+                                <Button variant="ghost" size="icon" className="rounded-full hover:bg-muted" onClick={() => handleCopyLink()} aria-label="Copy Link">
                                     <LinkIcon className="h-4 w-4" />
                                 </Button>
                             </aside>

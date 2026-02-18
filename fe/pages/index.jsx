@@ -25,12 +25,12 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import JsonLd from '@/components/seo/JsonLd';
 import Terminal from '@/components/home/Terminal';
 
-export default function Home({ 
-  recentBlogs = [], 
-  featuredRepos = [], 
-  featuredProjects = [], 
-  galleryPhotos = [], 
-  settings = {} 
+export default function Home({
+  recentBlogs = [],
+  featuredRepos = [],
+  featuredProjects = [],
+  galleryPhotos = [],
+  settings = {}
 }) {
   const calculateReadTime = (contentJSON) => {
     const text = extractTextFromTipTap(contentJSON);
@@ -233,7 +233,7 @@ export default function Home({
 
                 <div className="space-y-3 flex-1 flex flex-col">
                   <div className="text-xs font-medium text-muted-foreground flex items-center gap-2">
-                    <span>{format(new Date(blog.createdAt), 'd MMM yyyy')}</span>
+                    <span suppressHydrationWarning>{format(new Date(blog.createdAt), 'd MMM yyyy')}</span>
                     <span className="w-1 h-1 rounded-full bg-muted-foreground/50" />
                     <span>{readTime}</span>
                   </div>
