@@ -190,7 +190,8 @@ export default function ProjectDetail({ projectData }) {
                             fill
                             className="object-cover"
                             priority
-                            quality={100}
+                            quality={85}
+                            sizes="100vw"
                         />
                     ) : (
                         <div className="w-full h-full bg-muted/30 flex items-center justify-center">

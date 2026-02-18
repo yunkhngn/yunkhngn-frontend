@@ -311,6 +311,7 @@ BlogList.getLayout = function getLayout(page) {
         <Layout
             title="Blog - Khoa Nguyễn"
             description="Sharing my thoughts and experiences on web development, technology, and life."
+            url="/blog"
         >
             {page}
         </Layout>

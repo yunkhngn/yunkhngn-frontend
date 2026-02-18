@@ -11,6 +11,7 @@ export function Pagination({ currentPage, totalPages, onPageChange }) {
                 size="icon"
                 onClick={() => onPageChange(currentPage - 1)}
                 disabled={currentPage === 1}
+                aria-label="Previous page"
             >
                 <ChevronLeft className="h-4 w-4" />
             </Button>
@@ -22,6 +23,7 @@ export function Pagination({ currentPage, totalPages, onPageChange }) {
                 size="icon"
                 onClick={() => onPageChange(currentPage + 1)}
                 disabled={currentPage === totalPages}
+                aria-label="Next page"
             >
                 <ChevronRight className="h-4 w-4" />
             </Button>

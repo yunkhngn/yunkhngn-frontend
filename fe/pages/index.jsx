@@ -25,106 +25,19 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import JsonLd from '@/components/seo/JsonLd';
 import Terminal from '@/components/home/Terminal';
 
-export default function Home() {
-  const [recentBlogs, setRecentBlogs] = useState([]);
-  const [featuredRepos, setFeaturedRepos] = useState([]);
-
-  useEffect(() => {
-    const fetchRepos = async () => {
-      try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/github/repos`);
-        if (res.ok) {
-          const data = await res.json();
-          if (Array.isArray(data)) {
-            // Sort by stars and take top 3
-            const topRepos = data
-              .sort((a, b) => b.stargazers_count - a.stargazers_count)
-              .slice(0, 3);
-            setFeaturedRepos(topRepos);
-          }
-        }
-      } catch (error) {
-        console.error('Failed to fetch repos', error);
-      }
-    };
-    fetchRepos();
-  }, []);
-  const [featuredProjects, setFeaturedProjects] = useState([]);
-  const [galleryPhotos, setGalleryPhotos] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [settings, setSettings] = useState({});
-
+export default function Home({
+  recentBlogs = [],
+  featuredRepos = [],
+  featuredProjects = [],
+  galleryPhotos = [],
+  settings = {}
+}) {
   const calculateReadTime = (contentJSON) => {
     const text = extractTextFromTipTap(contentJSON);
     const words = text.trim().split(/\s+/).length;
     const minutes = Math.ceil(words / 200);
     return `${minutes} mins read`;
   };
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [blogsRes, projectsRes, galleryRes, settingsRes] = await Promise.all([
-          fetch(`${process.env.NEXT_PUBLIC_API_URL}/blogs`),
-          fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects`),
-          fetch(`${process.env.NEXT_PUBLIC_API_URL}/gallery`),
-          fetch(`${process.env.NEXT_PUBLIC_API_URL}/settings`)
-        ]);
-
-        if (blogsRes.ok) {
-          const blogs = await blogsRes.json();
-          if (Array.isArray(blogs)) {
-            setRecentBlogs(blogs.filter(b => b.status === 'PUBLISHED').slice(0, 3));
-          }
-        }
-
-        if (projectsRes.ok) {
-          const projects = await projectsRes.json();
-          if (Array.isArray(projects)) {
-            // Parse techStack if it's a string
-            const parsedProjects = projects.map(p => {
-              let techStack = p.techStack;
-              if (typeof techStack === 'string') {
-                try {
-                  techStack = JSON.parse(techStack);
-                } catch (e) {
-                  // console.warn("Failed to parse techStack for project", p.id);
-                  techStack = [];
-                }
-              }
-              return { ...p, techStack };
-            });
-            setFeaturedProjects(parsedProjects.slice(0, 5));
-          }
-        }
-
-        if (galleryRes.ok) {
-          const result = await galleryRes.json();
-          // The API returns { data: [...], total, ... } so need to access .data
-          const photos = result.data || (Array.isArray(result) ? result : []);
-
-          if (Array.isArray(photos)) {
-            setGalleryPhotos(photos.slice(0, 12));
-          }
-        }
-
-        if (settingsRes.ok) {
-          const settingsData = await settingsRes.json();
-          const settingsObj = settingsData.reduce((acc, curr) => {
-            acc[curr.settingTitle] = curr.content;
-            return acc;
-          }, {});
-          setSettings(settingsObj);
-        }
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
 
   const jsonLdData = [
     {
@@ -320,7 +233,7 @@ export default function Home() {
 
                 <div className="space-y-3 flex-1 flex flex-col">
                   <div className="text-xs font-medium text-muted-foreground flex items-center gap-2">
-                    <span>{format(new Date(blog.createdAt), 'd MMM yyyy')}</span>
+                    <span suppressHydrationWarning>{format(new Date(blog.createdAt), 'd MMM yyyy')}</span>
                     <span className="w-1 h-1 rounded-full bg-muted-foreground/50" />
                     <span>{readTime}</span>
                   </div>
@@ -431,7 +344,7 @@ export default function Home() {
           ))}
           {featuredRepos.length === 0 && (
             <div className="col-span-full text-center text-muted-foreground py-8">
-              {loading ? 'Loading repositories...' : 'No featured repositories found.'}
+              No featured repositories found.
             </div>
           )}
         </div>
@@ -476,6 +389,95 @@ export default function Home() {
       </section>
     </div>
   );
+}
+
+export async function getServerSideProps() {
+  try {
+    const [blogsRes, projectsRes, galleryRes, settingsRes, reposRes] = await Promise.all([
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/blogs`),
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects`),
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/gallery`),
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/settings`),
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/github/repos`)
+    ]);
+
+    let recentBlogs = [];
+    if (blogsRes.ok) {
+      const blogs = await blogsRes.json();
+      if (Array.isArray(blogs)) {
+        recentBlogs = blogs.filter(b => b.status === 'PUBLISHED').slice(0, 3);
+      }
+    }
+
+    let featuredProjects = [];
+    if (projectsRes.ok) {
+      const projects = await projectsRes.json();
+      if (Array.isArray(projects)) {
+        // Parse techStack if it's a string
+        const parsedProjects = projects.map(p => {
+          let techStack = p.techStack;
+          if (typeof techStack === 'string') {
+            try {
+              techStack = JSON.parse(techStack);
+            } catch (e) {
+              techStack = [];
+            }
+          }
+          return { ...p, techStack };
+        });
+        featuredProjects = parsedProjects.slice(0, 5);
+      }
+    }
+
+    let galleryPhotos = [];
+    if (galleryRes.ok) {
+      const result = await galleryRes.json();
+      const photos = result.data || (Array.isArray(result) ? result : []);
+      if (Array.isArray(photos)) {
+        galleryPhotos = photos.slice(0, 12);
+      }
+    }
+
+    let settings = {};
+    if (settingsRes.ok) {
+      const settingsData = await settingsRes.json();
+      settings = settingsData.reduce((acc, curr) => {
+        acc[curr.settingTitle] = curr.content;
+        return acc;
+      }, {});
+    }
+
+    let featuredRepos = [];
+    if (reposRes.ok) {
+      const data = await reposRes.json();
+      if (Array.isArray(data)) {
+        featuredRepos = data
+          .sort((a, b) => b.stargazers_count - a.stargazers_count)
+          .slice(0, 3);
+      }
+    }
+
+    return {
+      props: {
+        recentBlogs,
+        featuredProjects,
+        galleryPhotos,
+        settings,
+        featuredRepos
+      }
+    };
+  } catch (error) {
+    console.error('Error fetching homepage data:', error);
+    return {
+      props: {
+        recentBlogs: [],
+        featuredProjects: [],
+        galleryPhotos: [],
+        settings: {},
+        featuredRepos: []
+      }
+    };
+  }
 }
 
 Home.getLayout = function getLayout(page) {
