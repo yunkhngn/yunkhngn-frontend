@@ -36,4 +36,8 @@ export class CreateBlogDto {
   @IsString()
   @IsOptional()
   seoImage?: string;
+
+  @IsString()
+  @IsOptional()
+  imageSettings?: string; // JSON: { desktop: {x,y}, mobile: {x,y}, seo: {x,y} }
 }

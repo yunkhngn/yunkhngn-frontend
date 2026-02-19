@@ -21,6 +21,7 @@ model Blog {
   seoTitle       String?   @db.NVarChar(60)
   seoDescription String?   @db.NVarChar(160)
   seoImage       String?
+  imageSettings  String?   @db.NVarChar(Max) // JSON: { desktop: {x,y}, mobile: {x,y}, seo: {x,y} }
 
   views       Int?      @default(0)
 

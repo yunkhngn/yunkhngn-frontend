@@ -89,4 +89,4 @@ import { LastFmModule } from './lastfm/lastfm.module';
     },
   ],
 })
-export class AppModule { }
+export class AppModule {}

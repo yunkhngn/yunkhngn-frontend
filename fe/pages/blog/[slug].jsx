@@ -222,6 +222,14 @@ export default function BlogDetail({ blogData }) {
         }
     };
 
+    // Parse image settings
+    const imageSettings = blog.imageSettings
+        ? (typeof blog.imageSettings === 'string' ? JSON.parse(blog.imageSettings) : blog.imageSettings)
+        : null;
+
+    const mobilePos = imageSettings?.mobile ? `${imageSettings.mobile.x}% ${imageSettings.mobile.y}%` : 'center';
+    const desktopPos = imageSettings?.desktop ? `${imageSettings.desktop.x}% ${imageSettings.desktop.y}%` : 'center';
+
     return (
         <div className="bg-background text-foreground">
             <JsonLd data={jsonLdData} />
@@ -235,6 +243,19 @@ export default function BlogDetail({ blogData }) {
                 modifiedTime={blog.updatedAt}
                 tags={blog.tags}
             />
+
+            {/* Inject dynamic styles for object-position */}
+            <style jsx global>{`
+                .banner-image {
+                    object-position: ${mobilePos};
+                }
+                @media (min-width: 768px) {
+                    .banner-image {
+                        object-position: ${desktopPos};
+                    }
+                }
+            `}</style>
+
             <div className="fixed top-0 left-0 h-full w-1 z-[9999] bg-transparent">
                 <div
                     className="w-full bg-sky-600 transition-all duration-200 ease-out"
@@ -245,12 +266,12 @@ export default function BlogDetail({ blogData }) {
             <div className="relative">
                 {/* Full Width Banner */}
                 {blog.thumbnail && (
-                    <div className="w-full h-64 md:h-96 relative bg-muted overflow-hidden">
+                    <div className="w-full aspect-[1.91/1] md:aspect-[21/9] max-h-[85vh] relative bg-muted overflow-hidden">
                         <Image
                             src={blog.thumbnail}
                             alt={blog.title}
                             fill
-                            className="object-cover"
+                            className="object-cover banner-image"
                             priority
                         />
                     </div>
