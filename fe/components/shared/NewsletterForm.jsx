@@ -37,6 +37,7 @@ export default function NewsletterForm() {
 
     return (
         <div className="w-full max-w-md mx-auto">
+            <h2 className="text-xl font-bold mb-4 text-foreground">Newsletter</h2>
             <AnimatePresence mode='wait'>
                 {status === 'success' ? (
                     <motion.div
@@ -47,10 +48,10 @@ export default function NewsletterForm() {
                     >
                         <CheckCircle2 className="w-10 h-10 text-green-500 mb-2" />
                         <h3 className="text-lg font-semibold text-green-500">Subscribed!</h3>
-                        <p className="text-sm text-zinc-400 mt-1">{message}</p>
+                        <p className="text-sm text-zinc-500 mt-1">{message}</p>
                         <button
                             onClick={() => setStatus('idle')}
-                            className="mt-4 text-xs text-zinc-500 hover:text-zinc-300 underline"
+                            className="mt-4 text-xs text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 underline"
                         >
                             Subscribe another email
                         </button>
@@ -64,25 +65,27 @@ export default function NewsletterForm() {
                         className="relative"
                     >
                         <div className="relative group">
-                            <div className="absolute -inset-0.5 bg-gradient-to-r from-pink-600 to-purple-600 rounded-lg blur opacity-30 group-hover:opacity-60 transition duration-1000 group-hover:duration-200"></div>
-                            <div className="relative flex items-center bg-black border border-zinc-800 rounded-lg p-1 pr-1.5 focus-within:border-zinc-700 focus-within:ring-1 focus-within:ring-zinc-700 transition shadow-xl">
+                            {/* Glow effect - stronger in dark mode */}
+                            <div className="absolute -inset-1 bg-gradient-to-r from-pink-600 to-purple-600 rounded-lg blur opacity-25 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 dark:opacity-30 dark:group-hover:opacity-70"></div>
+
+                            <div className="relative flex items-center bg-background border border-border rounded-lg p-1 pr-1.5 focus-within:ring-2 focus-within:ring-primary/20 transition shadow-sm dark:bg-black dark:border-zinc-800">
                                 <input
                                     type="email"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     placeholder="Enter your email address"
-                                    className="flex-1 bg-transparent border-none focus:ring-0 text-sm text-zinc-200 placeholder-zinc-500 px-3 py-2"
+                                    className="flex-1 bg-transparent border-none focus:ring-0 text-sm text-foreground placeholder:text-muted-foreground px-3 py-3"
                                     disabled={status === 'loading'}
                                 />
                                 <button
                                     type="submit"
                                     disabled={status === 'loading' || !email}
-                                    className="bg-white text-black hover:bg-zinc-200 disabled:opacity-50 disabled:cursor-not-allowed rounded-md p-2 transition-colors"
+                                    className="bg-zinc-200 dark:bg-zinc-800 text-foreground hover:bg-zinc-300 dark:hover:bg-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-md p-2 m-1 transition-colors"
                                 >
                                     {status === 'loading' ? (
-                                        <Loader2 className="w-4 h-4 animate-spin" />
+                                        <Loader2 className="w-5 h-5 animate-spin" />
                                     ) : (
-                                        <Send className="w-4 h-4" />
+                                        <Send className="w-5 h-5" />
                                     )}
                                 </button>
                             </div>
@@ -91,12 +94,12 @@ export default function NewsletterForm() {
                             <motion.p
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
-                                className="absolute top-full left-0 mt-2 text-xs text-red-500"
+                                className="absolute top-full left-0 mt-2 text-xs text-destructive"
                             >
                                 {message}
                             </motion.p>
                         )}
-                        <p className="mt-3 text-[10px] text-zinc-500 text-center">
+                        <p className="mt-3 text-[10px] text-muted-foreground text-center">
                             No spam. Unsubscribe at any time.
                         </p>
                     </motion.form>

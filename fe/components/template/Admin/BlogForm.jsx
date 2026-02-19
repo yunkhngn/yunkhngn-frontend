@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea'; // Not strictly needed if no description, but maybe for SEO? Schema doesn't have description.
 import { TagInput } from '@/components/ui/TagInput';
 import TipTapEditor from '@/components/ui/TipTapEditor';
-import { Loader2, Plus, X, Image as ImageIcon, Save, RotateCcw, UploadCloud } from 'lucide-react';
+import { Loader2, Plus, X, Image as ImageIcon, Save, RotateCcw, UploadCloud, Maximize } from 'lucide-react';
 import Image from 'next/image';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
@@ -531,14 +531,14 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
 
             {/* Crop Image Dialog */}
             <Dialog open={isCropOpen} onOpenChange={setIsCropOpen}>
-                <DialogContent className="max-w-2xl">
+                <DialogContent className="max-w-5xl">
                     <DialogHeader>
                         <DialogTitle>Crop Thumbnail</DialogTitle>
                         <DialogDescription>
                             Adjust the crop area for your blog thumbnail (landscape recommended)
                         </DialogDescription>
                     </DialogHeader>
-                    <div className="relative w-full h-96 bg-black rounded-md overflow-hidden">
+                    <div className="relative w-full h-[60vh] bg-black rounded-md overflow-hidden">
                         <Cropper
                             image={tempImgUrl}
                             crop={crop}

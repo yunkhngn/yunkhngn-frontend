@@ -8,7 +8,7 @@ export function ImagePreviewModal({ isOpen, onClose, imageSrc, caption }) {
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
             <DialogContent
-                className="max-w-[95vw] max-h-[95vh] w-auto h-auto p-0 border-none bg-transparent shadow-none flex items-center justify-center overflow-hidden focus:outline-none"
+                className="!max-w-[95vw] max-h-[95vh] w-auto h-auto p-0 border-none bg-transparent shadow-none flex items-center justify-center overflow-hidden focus:outline-none"
                 showCloseButton={false}
             >
                 <DialogTitle className="sr-only">Image Preview</DialogTitle>
@@ -33,7 +33,7 @@ export function ImagePreviewModal({ isOpen, onClose, imageSrc, caption }) {
                         <img
                             src={imageSrc}
                             alt="Preview"
-                            className="max-w-full max-h-[80vh] w-auto h-auto object-contain mx-auto rounded-md"
+                            className="max-w-full max-h-[90vh] w-auto h-auto object-contain mx-auto rounded-md"
                         />
 
                         {/* Caption Overlay */}

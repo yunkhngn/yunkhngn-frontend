@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Loader2, ExternalLink, ArrowRight, Terminal } from 'lucide-react';
-import Link from 'next/link';
+import Head from 'next/head';
 
 export async function getServerSideProps(context) {
     const { code } = context.params;
@@ -20,10 +20,48 @@ export async function getServerSideProps(context) {
             const isValidProtocol = /^https?:\/\//i.test(data.targetUrl);
 
             if (isValidProtocol) {
+                let meta = {
+                    title: 'Redirecting...',
+                    description: `Redirecting to ${data.targetUrl}`,
+                    image: '',
+                    url: data.targetUrl
+                };
+
+                // Attempt to fetch metadata from target URL (with timeout)
+                try {
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 2000); // 2s timeout
+
+                    const targetRes = await fetch(data.targetUrl, {
+                        signal: controller.signal,
+                        headers: {
+                            'User-Agent': 'YunkhngnBot/1.0 (+https://yunkhngn.dev)'
+                        }
+                    });
+                    clearTimeout(timeoutId);
+
+                    if (targetRes.ok) {
+                        const html = await targetRes.text();
+
+                        // Simple regex extraction for metadata
+                        const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i) || html.match(/<meta\s+property="og:title"\s+content="([^"]+)"/i);
+                        const descMatch = html.match(/<meta\s+name="description"\s+content="([^"]+)"/i) || html.match(/<meta\s+property="og:description"\s+content="([^"]+)"/i);
+                        const imageMatch = html.match(/<meta\s+property="og:image"\s+content="([^"]+)"/i);
+
+                        if (titleMatch) meta.title = titleMatch[1];
+                        if (descMatch) meta.description = descMatch[1];
+                        if (imageMatch) meta.image = imageMatch[1];
+                    }
+                } catch (e) {
+                    // Ignore fetching errors, fallback to default
+                    console.error('Failed to fetch target metadata', e);
+                }
+
                 return {
                     props: {
                         targetUrl: data.targetUrl,
                         code,
+                        meta
                     },
                 };
             }
@@ -36,7 +74,7 @@ export async function getServerSideProps(context) {
     }
 }
 
-export default function ShortlinkRedirect({ targetUrl, code }) {
+export default function ShortlinkRedirect({ targetUrl, code, meta }) {
     const [countdown, setCountdown] = useState(3);
     const [dots, setDots] = useState('');
 
@@ -75,6 +113,25 @@ export default function ShortlinkRedirect({ targetUrl, code }) {
 
     return (
         <div className="min-h-screen bg-background flex items-center justify-center p-4 font-mono">
+            <Head>
+                <title>{meta?.title || 'Redirecting...'}</title>
+                <meta name="description" content={meta?.description || 'Redirecting...'} />
+
+                {/* Open Graph / Facebook */}
+                <meta property="og:type" content="website" />
+                <meta property="og:url" content={meta?.url || targetUrl} />
+                <meta property="og:title" content={meta?.title || 'Redirecting...'} />
+                <meta property="og:description" content={meta?.description || 'Redirecting...'} />
+                {meta?.image && <meta property="og:image" content={meta.image} />}
+
+                {/* Twitter */}
+                <meta property="twitter:card" content="summary_large_image" />
+                <meta property="twitter:url" content={meta?.url || targetUrl} />
+                <meta property="twitter:title" content={meta?.title || 'Redirecting...'} />
+                <meta property="twitter:description" content={meta?.description || 'Redirecting...'} />
+                {meta?.image && <meta property="twitter:image" content={meta.image} />}
+            </Head>
+
             <div className="max-w-md w-full space-y-8">
                 {/* Header */}
                 <div className="flex items-center gap-2 text-primary border-b border-border pb-4">
