@@ -4,8 +4,10 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { CacheModule } from '@nestjs/cache-manager';
+import * as redisStore from 'cache-manager-redis-store';
 
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { BlogModule } from './blog/blog.module';
@@ -40,9 +42,20 @@ import { LastFmModule } from './lastfm/lastfm.module';
     ThrottlerModule.forRoot([
       {
         ttl: 60000,
-        limit: 15,
+        limit: 100,
       },
     ]),
+    CacheModule.registerAsync({
+      isGlobal: true,
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        store: redisStore,
+        host: configService.get<string>('REDIS_HOST') || 'localhost',
+        port: parseInt(configService.get<string>('REDIS_PORT') || '6379'),
+        ttl: 600, // 10 minutes default
+      }),
+      inject: [ConfigService],
+    }),
     AuthModule,
     CloudinaryModule,
     PrismaModule,
@@ -76,4 +89,4 @@ import { LastFmModule } from './lastfm/lastfm.module';
     },
   ],
 })
-export class AppModule {}
+export class AppModule { }

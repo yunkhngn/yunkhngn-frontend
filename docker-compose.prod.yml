@@ -1,5 +1,16 @@
 services:
   # nosemgrep: yaml.docker-compose.security.writable-filesystem-service.writable-filesystem-service
+  redis:
+    image: redis:alpine
+    container_name: yunkhngn-redis
+    restart: always
+    volumes:
+      - redis_data:/data
+    networks:
+      - app-network
+    security_opt:
+      - no-new-privileges:true
+
   mssql:
     image: mcr.microsoft.com/azure-sql-edge:latest
     container_name: yunkhngn-mssql
@@ -27,6 +38,8 @@ services:
     restart: always
     env_file:
       - ./be/.env
+    environment:
+      - REDIS_HOST=redis
     ports:
       - "3001:3001"
     networks:
@@ -79,6 +92,7 @@ networks:
     driver: bridge
 
 volumes:
+  redis_data:
   mssql_data:
   caddy_data:
   caddy_config:
