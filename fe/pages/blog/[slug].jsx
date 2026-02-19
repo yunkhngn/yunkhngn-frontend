@@ -266,7 +266,7 @@ export default function BlogDetail({ blogData }) {
             <div className="relative">
                 {/* Full Width Banner */}
                 {blog.thumbnail && (
-                    <div className="w-full aspect-[1.91/1] md:aspect-[21/9] max-h-[85vh] relative bg-muted overflow-hidden">
+                    <div className="w-full aspect-[1.91/1] md:aspect-[21/9] max-h-[60vh] relative bg-muted overflow-hidden">
                         <Image
                             src={blog.thumbnail}
                             alt={blog.title}
