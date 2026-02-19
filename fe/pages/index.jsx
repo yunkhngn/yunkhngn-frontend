@@ -391,7 +391,7 @@ export default function Home({
   );
 }
 
-export async function getServerSideProps() {
+export async function getServerSideProps(context) {
   try {
     const [blogsRes, projectsRes, galleryRes, settingsRes, reposRes] = await Promise.all([
       fetch(`${process.env.NEXT_PUBLIC_API_URL}/blogs`),
