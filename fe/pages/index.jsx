@@ -401,6 +401,14 @@ export async function getServerSideProps() {
       fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/github/repos`)
     ]);
 
+    // Cache the response for 60 seconds, revalidate in background after 300 seconds
+    if (context && context.res) {
+      context.res.setHeader(
+        'Cache-Control',
+        'public, s-maxage=60, stale-while-revalidate=300'
+      );
+    }
+
     let recentBlogs = [];
     if (blogsRes.ok) {
       const blogs = await blogsRes.json();

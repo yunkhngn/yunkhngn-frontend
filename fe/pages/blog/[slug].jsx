@@ -19,6 +19,14 @@ import { Metadata } from '@/components/template';
 export async function getServerSideProps(context) {
     const { slug } = context.params;
 
+    // Cache the response for 60 seconds, revalidate in background after 300 seconds
+    if (context.res) {
+        context.res.setHeader(
+            'Cache-Control',
+            'public, s-maxage=60, stale-while-revalidate=300'
+        );
+    }
+
     try {
         const apiUrl = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL;
         const res = await fetch(`${apiUrl}/blogs/${slug}`);
