@@ -36,7 +36,7 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          cd be && yarn install --frozen-lockfile
+          cd be && yarn install --frozen-lockfile && npx prisma generate
           cd ../fe && yarn install --frozen-lockfile
 
       - name: Lint Backend & Frontend

@@ -53,6 +53,7 @@ describe('BlogService', () => {
         seoTitle: null,
         seoDescription: null,
         seoImage: null,
+        imageSettings: null,
         views: 0,
       };
 
@@ -79,6 +80,7 @@ describe('BlogService', () => {
           seoTitle: null,
           seoDescription: null,
           seoImage: null,
+          imageSettings: null,
           views: 0,
         },
       ];
@@ -103,6 +105,7 @@ describe('BlogService', () => {
         seoTitle: null,
         seoDescription: null,
         seoImage: null,
+        imageSettings: null,
         views: 0,
       };
       jest.spyOn(prisma.blog, 'findFirst').mockResolvedValue(result);
