@@ -15,7 +15,7 @@ import { UnsavedChangesModal } from '@/components/ui/UnsavedChangesModal';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/Dialog';
 import { Sparkles, Crop as CropIcon, Move } from 'lucide-react';
 import Cropper from 'react-easy-crop';
-import getCroppedImg from '@/lib/cropImage';
+import getCroppedImg, { getPaddedImg } from '@/lib/cropImage';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/Tabs";
 import SEOEditor from "@/components/admin/SEOEditor";
 import ImageAlignmentModal from '@/components/admin/ImageAlignmentModal';
@@ -543,7 +543,7 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
                             image={tempImgUrl}
                             crop={crop}
                             zoom={zoom}
-                            aspect={3.5 / 1}
+                            aspect={1.91 / 1}
                             onCropChange={setCrop}
                             onCropComplete={onCropComplete}
                             onZoomChange={setZoom}
@@ -566,6 +566,20 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
                     <DialogFooter>
                         <Button variant="outline" onClick={() => setIsCropOpen(false)}>
                             Cancel
+                        </Button>
+                        <Button variant="secondary" onClick={async () => {
+                            try {
+                                setUploading(true);
+                                const paddedBlob = await getPaddedImg(tempImgUrl, 1.91 / 1);
+                                setIsCropOpen(false);
+                                await uploadCroppedImage(paddedBlob);
+                            } catch (e) {
+                                console.error(e);
+                                toast.error('Failed to process image');
+                                setUploading(false);
+                            }
+                        }} disabled={uploading}>
+                            <Maximize className="mr-2 h-4 w-4" /> Fit (No Crop)
                         </Button>
                         <Button onClick={handleCropDone} disabled={uploading}>
                             {uploading ? (
