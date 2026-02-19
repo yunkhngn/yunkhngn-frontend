@@ -48,7 +48,7 @@ import { LastFmModule } from './lastfm/lastfm.module';
     CacheModule.registerAsync({
       isGlobal: true,
       imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => ({
+      useFactory: (configService: ConfigService) => ({
         store: redisStore,
         host: configService.get<string>('REDIS_HOST') || 'localhost',
         port: parseInt(configService.get<string>('REDIS_PORT') || '6379'),
