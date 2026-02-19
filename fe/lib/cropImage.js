@@ -90,3 +90,48 @@ export default async function getCroppedImg(
     }, 'image/jpeg')
   })
 }
+
+export async function getPaddedImg(imageSrc, aspectRatio) {
+  const image = await createImage(imageSrc);
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+
+  if (!ctx) {
+    return null;
+  }
+
+  const { width, height } = image;
+  const currentAspectRatio = width / height;
+
+  let newWidth, newHeight;
+  let offsetX = 0;
+  let offsetY = 0;
+
+  if (currentAspectRatio > aspectRatio) {
+    // Image is wider than target
+    newWidth = width;
+    newHeight = width / aspectRatio;
+    offsetY = (newHeight - height) / 2;
+  } else {
+    // Image is taller than target
+    newHeight = height;
+    newWidth = height * aspectRatio;
+    offsetX = (newWidth - width) / 2;
+  }
+
+  canvas.width = newWidth;
+  canvas.height = newHeight;
+
+  // Fill with black background (or any color)
+  ctx.fillStyle = '#000000';
+  ctx.fillRect(0, 0, newWidth, newHeight);
+
+  // Draw image centered
+  ctx.drawImage(image, offsetX, offsetY);
+
+  return new Promise((resolve, reject) => {
+    canvas.toBlob((file) => {
+      resolve(file);
+    }, 'image/jpeg');
+  });
+}

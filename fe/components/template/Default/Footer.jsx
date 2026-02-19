@@ -99,10 +99,7 @@ export default function Footer() {
                                 )}
                             </ul>
 
-                            <h3 className="font-semibold text-foreground mb-4">Newsletter</h3>
-                            <div className="-ml-1">
-                                <NewsletterForm />
-                            </div>
+                            <NewsletterForm />
                         </div>
                     </div>
                 </div>
