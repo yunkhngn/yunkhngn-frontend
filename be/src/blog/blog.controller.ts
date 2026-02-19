@@ -20,7 +20,7 @@ import { CacheInterceptor } from '@nestjs/cache-manager';
 @Controller('blogs')
 @UseInterceptors(CacheInterceptor)
 export class BlogController {
-  constructor(private readonly blogService: BlogService) { }
+  constructor(private readonly blogService: BlogService) {}
 
   @Post()
   @Post()

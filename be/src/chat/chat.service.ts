@@ -33,7 +33,7 @@ export class ChatService {
     private settingsService: SettingsService,
     private projectService: ProjectService,
     private blogService: BlogService,
-  ) { }
+  ) {}
 
   /**
    * Detect if the user's message is asking for image generation.

@@ -13,11 +13,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useUnsavedChanges } from '@/hooks/useUnsavedChanges';
 import { UnsavedChangesModal } from '@/components/ui/UnsavedChangesModal';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/Dialog';
-import { Sparkles, Crop as CropIcon } from 'lucide-react';
+import { Sparkles, Crop as CropIcon, Move } from 'lucide-react';
 import Cropper from 'react-easy-crop';
 import getCroppedImg from '@/lib/cropImage';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/Tabs";
 import SEOEditor from "@/components/admin/SEOEditor";
+import ImageAlignmentModal from '@/components/admin/ImageAlignmentModal';
 
 export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
     const router = useRouter();
@@ -31,7 +32,8 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
         status: 'DRAFT',
         seoTitle: '',
         seoDescription: '',
-        seoImage: ''
+        seoImage: '',
+        imageSettings: null
     });
     const [submitting, setSubmitting] = useState(false);
     const [uploading, setUploading] = useState(false);
@@ -44,6 +46,7 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
     const [editorKey, setEditorKey] = useState(0);
     const [isDragging, setIsDragging] = useState(false);
     const [isCropOpen, setIsCropOpen] = useState(false);
+    const [isAlignmentOpen, setIsAlignmentOpen] = useState(false);
     const [tempImgUrl, setTempImgUrl] = useState('');
     const [crop, setCrop] = useState({ x: 0, y: 0 });
     const [zoom, setZoom] = useState(1);
@@ -54,7 +57,6 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
 
     const { showModal, setShowModal, confirmNavigation } = useUnsavedChanges(isDirty);
 
-    // Helper to get draft key
     // Helper to get draft key
     const getDraftKey = useCallback(() => {
         if (isEditing && initialData?.id) {
@@ -71,22 +73,13 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
         if (savedDraft) {
             try {
                 const parsedDraft = JSON.parse(savedDraft);
-                // For new posts, always restore. For edits, maybe check timestamp? 
-                // For now, let's restore and notify.
-
-                // Don't restore if we just loaded initialData and it matches (avoid overwrite loop if logic complex)
-                // But here initialData comes from props.
-
                 if (isEditing && initialData) {
                     // Only restore if draft is different/newer? 
-                    // Simple check: if draft exists, ask user or just notify.
-                    // Let's auto-restore and show toast.
                 }
 
                 setFormData(prev => ({
                     ...prev,
                     ...parsedDraft,
-                    // Ensure we don't overwrite status if not intended, but draft usually has status
                 }));
                 setSlugManuallyEdited(true); // Assume manual edit if restored
                 setIsDirty(true);
@@ -96,13 +89,28 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
                 console.error('Failed to parse draft', e);
             }
         } else if (initialData) {
+            let parsedSettings = null;
+            if (initialData.imageSettings) {
+                try {
+                    parsedSettings = typeof initialData.imageSettings === 'string'
+                        ? JSON.parse(initialData.imageSettings)
+                        : initialData.imageSettings;
+                } catch (e) {
+                    console.error("Failed to parse imageSettings", e);
+                }
+            }
+
             setFormData({
                 title: initialData.title || '',
                 slug: initialData.slug || '',
                 thumbnail: initialData.thumbnail || '',
                 tags: initialData.tags || '',
                 contentJSON: initialData.content || initialData.contentJSON || '',
-                status: initialData.status || 'DRAFT'
+                status: initialData.status || 'DRAFT',
+                seoTitle: initialData.seoTitle || '',
+                seoDescription: initialData.seoDescription || '',
+                seoImage: initialData.seoImage || '',
+                imageSettings: parsedSettings
             });
         }
     }, [initialData, isEditing, getDraftKey]);
@@ -138,6 +146,11 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
         setLastSaved(null);
 
         if (initialData) {
+            let parsedSettings = null;
+            try {
+                parsedSettings = initialData.imageSettings ? JSON.parse(initialData.imageSettings) : null;
+            } catch (e) { }
+
             setFormData({
                 title: initialData.title || '',
                 slug: initialData.slug || '',
@@ -147,7 +160,8 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
                 status: initialData.status || 'DRAFT',
                 seoTitle: initialData.seoTitle || '',
                 seoDescription: initialData.seoDescription || '',
-                seoImage: initialData.seoImage || ''
+                seoImage: initialData.seoImage || '',
+                imageSettings: parsedSettings
             });
         } else {
             setFormData({
@@ -159,7 +173,8 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
                 status: 'DRAFT',
                 seoTitle: '',
                 seoDescription: '',
-                seoImage: ''
+                seoImage: '',
+                imageSettings: null
             });
             setSlugManuallyEdited(false);
         }
@@ -204,10 +219,7 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
     const handleCropDone = async () => {
         try {
             const croppedImageBlob = await getCroppedImg(tempImgUrl, croppedAreaPixels);
-            // setSelectedFile(croppedImageBlob); // Not defined in original code, likely mistake in previous context or unused
             setIsCropOpen(false);
-
-            // Auto-upload after crop
             await uploadCroppedImage(croppedImageBlob);
         } catch (e) {
             console.error(e);
@@ -347,11 +359,11 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
                 thumbnail: formData.thumbnail,
                 tags: formData.tags,
                 contentJSON: formData.contentJSON,
-                contentJSON: formData.contentJSON,
                 status: statusOverride || formData.status || 'DRAFT',
                 seoTitle: formData.seoTitle,
                 seoDescription: formData.seoDescription,
-                seoImage: formData.seoImage
+                seoImage: formData.seoImage,
+                imageSettings: formData.imageSettings ? JSON.stringify(formData.imageSettings) : null
             };
             await onSubmit(payload);
 
@@ -450,6 +462,17 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
                 open={showModal}
                 onOpenChange={setShowModal}
                 onConfirm={confirmNavigation}
+            />
+
+            <ImageAlignmentModal
+                isOpen={isAlignmentOpen}
+                onClose={() => setIsAlignmentOpen(false)}
+                imageSrc={formData.thumbnail}
+                initialSettings={formData.imageSettings}
+                onSave={(settings) => {
+                    setFormData(prev => ({ ...prev, imageSettings: settings }));
+                    setIsDirty(true);
+                }}
             />
 
             {/* AI Assistant Modal */}
@@ -586,7 +609,11 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
                 <div
                     className={`w-full h-64 md:h-96 relative bg-muted group cursor-pointer transition-all ${isDragging ? 'ring-4 ring-primary ring-offset-2 scale-[0.98]' : ''
                         }`}
-                    onClick={() => fileInputRef.current?.click()}
+                    onClick={(e) => {
+                        // Don't trigger file upload if clicking alignment button
+                        if (e.target.closest('.alignment-btn')) return;
+                        fileInputRef.current?.click();
+                    }}
                     onDragOver={handleDragOver}
                     onDragLeave={handleDragLeave}
                     onDrop={handleDrop}
@@ -596,6 +623,21 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
                             <Image src={formData.thumbnail} alt="Thumbnail" fill className="object-cover" />
                             <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white font-medium">
                                 <ImageIcon className="mr-2 h-6 w-6" /> Change Cover Image
+                            </div>
+
+                            {/* Alignment Button */}
+                            <div className="absolute bottom-4 right-4 z-20">
+                                <Button
+                                    type="button"
+                                    size="sm"
+                                    className="alignment-btn bg-background/80 backdrop-blur-sm text-foreground hover:bg-background"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setIsAlignmentOpen(true);
+                                    }}
+                                >
+                                    <Move className="mr-2 h-4 w-4" /> Adjust Alignment
+                                </Button>
                             </div>
                         </>
                     ) : (
