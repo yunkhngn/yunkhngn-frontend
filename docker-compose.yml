@@ -45,6 +45,7 @@ services:
       - DATABASE_URL=sqlserver://mssql:1433;database=blogdb;user=sa;password=YourStrong@Passw0rd;encrypt=false;trustServerCertificate=true
       - PORT=3001
       - REDIS_HOST=redis
+      - FRONTEND_URL=http://localhost:3000
     ports:
       - "3001:3001"
     networks:

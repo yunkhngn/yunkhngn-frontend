@@ -41,6 +41,7 @@ services:
       - ./be/.env
     environment:
       - REDIS_HOST=redis
+      - FRONTEND_URL=https://yunkhngn.dev
     ports:
       - "3001:3001"
     networks:
