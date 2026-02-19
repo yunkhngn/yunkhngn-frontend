@@ -29,10 +29,11 @@ export function ImagePreviewModal({ isOpen, onClose, imageSrc, caption }) {
                             </button>
                         </div>
 
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                             src={imageSrc}
                             alt="Preview"
-                            className="max-w-[95vw] max-h-[85vh] w-auto h-auto object-contain rounded-2xl shadow-2xl bg-black/20"
+                            className="max-w-full max-h-[80vh] w-auto h-auto object-contain mx-auto rounded-md"
                         />
 
                         {/* Caption Overlay */}

@@ -1,8 +1,8 @@
+/* eslint-disable @next/next/no-img-element */
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/Dialog';
 import { Button } from '@/components/ui/Button';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
-import Image from 'next/image';
 import { Monitor, Smartphone, Globe } from 'lucide-react';
 
 export default function ImageAlignmentModal({ isOpen, onClose, imageSrc, initialSettings, onSave }) {
@@ -14,7 +14,7 @@ export default function ImageAlignmentModal({ isOpen, onClose, imageSrc, initial
     });
     const [activeTab, setActiveTab] = useState('desktop');
 
-    // Reset settings when modal opens or initialSettings change
+    // Reset settings when modal opens
     useEffect(() => {
         if (isOpen) {
             setSettings({
@@ -24,7 +24,8 @@ export default function ImageAlignmentModal({ isOpen, onClose, imageSrc, initial
                 ...initialSettings
             });
         }
-    }, [isOpen, initialSettings]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isOpen]);
 
     const handleImageClick = (e, type) => {
         const rect = e.target.getBoundingClientRect();
