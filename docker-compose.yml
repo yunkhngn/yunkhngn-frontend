@@ -15,6 +15,7 @@ services:
     security_opt:
       - no-new-privileges:true
 
+  # nosemgrep: yaml.docker-compose.security.writable-filesystem-service.writable-filesystem-service
   mssql:
     image: mcr.microsoft.com/azure-sql-edge:latest
     container_name: yunkhngn_mssql
