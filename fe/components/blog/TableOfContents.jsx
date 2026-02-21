@@ -29,7 +29,9 @@ export default function TableOfContents({ selector = '.prose' }) {
             };
         });
 
-        setHeadings(headingData);
+        setTimeout(() => {
+            setHeadings(headingData);
+        }, 0);
 
         // Intersection Observer to highlight active section
         const observer = new IntersectionObserver(
