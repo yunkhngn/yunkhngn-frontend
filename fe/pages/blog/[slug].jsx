@@ -14,7 +14,6 @@ import { useFocusMode } from '@/contexts/FocusModeContext';
 import Layout from '@/components/template/Default/Layout';
 import { extractTextFromTipTap, stripHtml } from '@/lib/utils';
 import JsonLd from '@/components/seo/JsonLd';
-import JsonLd from '@/components/seo/JsonLd';
 import { Metadata } from '@/components/template';
 import TableOfContents from '@/components/blog/TableOfContents';
 
