@@ -1,27 +1,29 @@
 import { NodeViewContent, NodeViewWrapper } from '@tiptap/react';
-import React from 'react';
+import React, { useState } from 'react';
 import SyntaxHighlighter from 'react-syntax-highlighter/dist/cjs/prism';
 import { atomDark } from 'react-syntax-highlighter/dist/cjs/styles/prism';
+import { Copy, Check } from 'lucide-react';
 
 export default function CodeBlockComponent({ node, updateAttributes, extension, editor }) {
     const { attrs: { language: defaultLanguage } } = node;
     const isEditable = editor.isEditable;
+    const [copied, setCopied] = useState(false);
 
     return (
         <NodeViewWrapper className="code-block relative my-4 rounded-lg overflow-hidden border border-border bg-[#282c34] shadow-sm">
             {/* macOS-style Header */}
             <div className="flex items-center justify-between px-4 py-2 bg-[#21252b] border-b border-[#181a1f]">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 w-16">
                     <div className="w-3 h-3 rounded-full bg-[#ff5f56]" /> {/* Red */}
                     <div className="w-3 h-3 rounded-full bg-[#ffbd2e]" /> {/* Yellow */}
                     <div className="w-3 h-3 rounded-full bg-[#27c93f]" /> {/* Green */}
                 </div>
-                <div className="relative group">
+                <div className="relative group flex-1 flex justify-center">
                     <select
                         contentEditable={false}
                         defaultValue={defaultLanguage || 'text'}
                         onChange={(event) => updateAttributes({ language: event.target.value })}
-                        className="bg-transparent text-xs font-mono text-muted-foreground focus:outline-none cursor-pointer appearance-none pr-2 text-center hover:text-white transition-colors"
+                        className="bg-transparent text-xs font-mono text-muted-foreground focus:outline-none cursor-pointer appearance-none text-center hover:text-white transition-colors"
                         disabled={!isEditable}
                     >
                         <option value="null">auto</option>
@@ -42,7 +44,23 @@ export default function CodeBlockComponent({ node, updateAttributes, extension, 
                         <option value="xml">xml</option>
                     </select>
                 </div>
-                <div className="w-12" /> {/* Spacer for centering */}
+                <div className="w-16 flex justify-end">
+                    <button
+                        onClick={() => {
+                            navigator.clipboard.writeText(node.textContent);
+                            setCopied(true);
+                            setTimeout(() => setCopied(false), 2000);
+                        }}
+                        className="text-muted-foreground hover:text-white transition-colors p-1 rounded hover:bg-white/10"
+                        title="Copy code"
+                    >
+                        {copied ? (
+                            <Check className="h-4 w-4 text-green-500" />
+                        ) : (
+                            <Copy className="h-4 w-4" />
+                        )}
+                    </button>
+                </div>
             </div>
 
             {/* Code Content */}

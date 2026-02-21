@@ -14,7 +14,9 @@ import { useFocusMode } from '@/contexts/FocusModeContext';
 import Layout from '@/components/template/Default/Layout';
 import { extractTextFromTipTap, stripHtml } from '@/lib/utils';
 import JsonLd from '@/components/seo/JsonLd';
+import JsonLd from '@/components/seo/JsonLd';
 import { Metadata } from '@/components/template';
+import TableOfContents from '@/components/blog/TableOfContents';
 
 export async function getServerSideProps(context) {
     const { slug } = context.params;
@@ -41,37 +43,39 @@ export async function getServerSideProps(context) {
             return { notFound: true };
         }
 
-        // Generate description from content if missing
+        // Calculate reading time
+        let cleanContent = '';
+        if (foundBlog.contentJSON) {
+            cleanContent = extractTextFromTipTap(foundBlog.contentJSON);
+        } else if (foundBlog.content) {
+            cleanContent = stripHtml(foundBlog.content);
+        }
+
         let description = foundBlog.description;
         let excerpt = foundBlog.description;
 
-        if (!description) {
-            let cleanContent = '';
-            if (foundBlog.contentJSON) {
-                cleanContent = extractTextFromTipTap(foundBlog.contentJSON);
-            } else if (foundBlog.content) {
-                cleanContent = stripHtml(foundBlog.content);
-            }
+        if (!description && cleanContent) {
+            // For UI: longer 300 chars
+            excerpt = cleanContent.length > 300
+                ? cleanContent.substring(0, 297) + '...'
+                : cleanContent;
 
-            if (cleanContent) {
-                // For UI: longer 300 chars
-                excerpt = cleanContent.length > 300
-                    ? cleanContent.substring(0, 297) + '...'
-                    : cleanContent;
-
-                // For SEO: standard 160 chars
-                description = cleanContent.length > 160
-                    ? cleanContent.substring(0, 157) + '...'
-                    : cleanContent;
-            }
+            // For SEO: standard 160 chars
+            description = cleanContent.length > 160
+                ? cleanContent.substring(0, 157) + '...'
+                : cleanContent;
         }
+
+        const wordCount = cleanContent.trim().split(/\s+/).length;
+        const readingTime = Math.max(1, Math.ceil(wordCount / 200));
 
         return {
             props: {
                 blogData: {
                     ...foundBlog,
                     description: excerpt || `Read ${foundBlog.title} on Yunkhngn`, // Use longer excerpt for UI default
-                    seoDescription: foundBlog.seoDescription || description // Use shorter description for SEO fallback
+                    seoDescription: foundBlog.seoDescription || description, // Use shorter description for SEO fallback
+                    readingTime
                 },
             },
         };
@@ -207,20 +211,46 @@ export default function BlogDetail({ blogData }) {
         );
     }
 
-    const jsonLdData = {
-        '@context': 'https://schema.org',
-        '@type': 'BlogPosting',
-        headline: blog.seoTitle || blog.title,
-        description: blog.seoDescription || blog.description,
-        image: (blog.seoImage || blog.thumbnail) ? [blog.seoImage || blog.thumbnail] : [],
-        datePublished: blog.createdAt,
-        dateModified: blog.updatedAt || blog.createdAt,
-        author: {
-            '@type': 'Person',
-            name: 'Khoa Nguyễn',
-            url: 'https://yunkhngn.dev'
+    const jsonLdData = [
+        {
+            '@context': 'https://schema.org',
+            '@type': 'BlogPosting',
+            headline: blog.seoTitle || blog.title,
+            description: blog.seoDescription || blog.description,
+            image: (blog.seoImage || blog.thumbnail) ? [blog.seoImage || blog.thumbnail] : [],
+            datePublished: blog.createdAt,
+            dateModified: blog.updatedAt || blog.createdAt,
+            author: {
+                '@type': 'Person',
+                name: 'Khoa Nguyễn',
+                url: 'https://yunkhngn.dev'
+            }
+        },
+        {
+            '@context': 'https://schema.org',
+            '@type': 'BreadcrumbList',
+            'itemListElement': [
+                {
+                    '@type': 'ListItem',
+                    'position': 1,
+                    'name': 'Home',
+                    'item': 'https://yunkhngn.dev'
+                },
+                {
+                    '@type': 'ListItem',
+                    'position': 2,
+                    'name': 'Blog',
+                    'item': 'https://yunkhngn.dev/blog'
+                },
+                {
+                    '@type': 'ListItem',
+                    'position': 3,
+                    'name': blog.seoTitle || blog.title,
+                    'item': `https://yunkhngn.dev/blog/${blog.slug}`
+                }
+            ]
         }
-    };
+    ];
 
     // Parse image settings
     const imageSettings = blog.imageSettings
@@ -310,7 +340,7 @@ export default function BlogDetail({ blogData }) {
                         </div>
                     )}
 
-                    <div className="flex flex-col lg:flex-row gap-12 max-w-6xl mx-auto pt-12">
+                    <div className="flex flex-col lg:flex-row gap-8 xl:gap-12 max-w-[90rem] mx-auto pt-12 px-2 xl:px-4">
                         {/* Social Sidebar (Desktop) */}
                         {!isFocusMode && (
                             <aside className="hidden lg:flex flex-col gap-4 sticky top-32 h-fit w-12 items-center pt-8">
@@ -331,7 +361,7 @@ export default function BlogDetail({ blogData }) {
                         )}
 
                         {/* Main Content */}
-                        <div className="flex-1 max-w-5xl mx-auto">
+                        <div className="flex-1 max-w-4xl min-w-0 mx-auto w-full">
                             <header className="text-center mb-16 pt-4">
                                 <div className="text-sm text-muted-foreground uppercase tracking-widest mb-6">
                                     {format(new Date(blog.createdAt), 'MMMM d, yyyy')}
@@ -348,9 +378,11 @@ export default function BlogDetail({ blogData }) {
                                 {blog.tags && (
                                     <div className="flex flex-wrap gap-2 mb-8 justify-center">
                                         {blog.tags.split(',').map((tag, i) => (
-                                            <Badge key={i} variant="secondary" className="rounded-full px-4 py-1">
-                                                {tag.trim()}
-                                            </Badge>
+                                            <Link key={i} href={`/blog?tag=${encodeURIComponent(tag.trim())}`}>
+                                                <Badge variant="secondary" className="rounded-full px-4 py-1 hover:bg-secondary/80 cursor-pointer transition-colors">
+                                                    {tag.trim()}
+                                                </Badge>
+                                            </Link>
                                         ))}
                                     </div>
                                 )}
@@ -366,9 +398,15 @@ export default function BlogDetail({ blogData }) {
                                         </div>
                                     </div>
                                     <div className="h-6 w-px bg-border"></div>
-                                    <div className="flex items-center gap-2 text-muted-foreground">
-                                        <Eye className="h-4 w-4" />
-                                        <span className="text-sm">{blog.views || 0} views</span>
+                                    <div className="flex items-center gap-4 text-muted-foreground">
+                                        <div className="flex items-center gap-2">
+                                            <Eye className="h-4 w-4" />
+                                            <span className="text-sm">{blog.views || 0} views</span>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <Clock className="h-4 w-4" />
+                                            <span className="text-sm">{blog.readingTime || 1} min read</span>
+                                        </div>
                                     </div>
                                 </div>
                             </header>
@@ -400,9 +438,11 @@ export default function BlogDetail({ blogData }) {
                                     {blog.tags && (
                                         <div className="flex flex-wrap gap-2">
                                             {blog.tags.split(',').map((tag, i) => (
-                                                <Badge key={i} variant="outline" className="rounded-full px-4 py-1 hover:bg-secondary/50 transition-colors">
-                                                    {tag.trim()}
-                                                </Badge>
+                                                <Link key={i} href={`/blog?tag=${encodeURIComponent(tag.trim())}`}>
+                                                    <Badge variant="outline" className="rounded-full px-4 py-1 hover:bg-secondary/50 cursor-pointer transition-colors">
+                                                        {tag.trim()}
+                                                    </Badge>
+                                                </Link>
                                             ))}
                                         </div>
                                     )}
@@ -416,71 +456,79 @@ export default function BlogDetail({ blogData }) {
                                 </div>
                             )}
 
-                            {/* Suggested Posts */}
-                            {!isFocusMode && blog.relatedPosts && blog.relatedPosts.length > 0 && (
-                                <div className="mt-20 border-t border-border/40 pt-12">
-                                    <h3 className="text-2xl font-bold mb-8 font-serif">Suggested Posts</h3>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                        {blog.relatedPosts.map((post) => {
-                                            // Calculate excerpt for related post
-                                            let excerpt = post.description;
-                                            if (!excerpt) {
-                                                let cleanContent = '';
-                                                if (post.contentJSON) {
-                                                    cleanContent = extractTextFromTipTap(post.contentJSON);
-                                                } else if (post.content) {
-                                                    cleanContent = stripHtml(post.content);
-                                                }
-                                                if (cleanContent) {
-                                                    excerpt = cleanContent.length > 120
-                                                        ? cleanContent.substring(0, 117) + '...'
-                                                        : cleanContent;
-                                                }
-                                            }
-
-                                            return (
-                                                <Link key={post.id} href={`/blog/${post.slug}`} className="group block">
-                                                    <div className="relative aspect-[16/9] mb-4 overflow-hidden rounded-lg bg-muted">
-                                                        {post.thumbnail ? (
-                                                            <Image
-                                                                src={post.thumbnail}
-                                                                alt={post.title}
-                                                                fill
-                                                                className="object-cover transition-transform duration-300 group-hover:scale-105"
-                                                            />
-                                                        ) : (
-                                                            <div className="flex items-center justify-center h-full text-muted-foreground bg-secondary/30">
-                                                                <span className="text-4xl font-serif opacity-20">Y</span>
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                    <div className="space-y-2">
-                                                        <div className="flex items-center gap-2 text-xs text-muted-foreground uppercase tracking-wider">
-                                                            <span>{format(new Date(post.createdAt), 'MMM d, yyyy')}</span>
-                                                            {post.tags && (
-                                                                <>
-                                                                    <span>•</span>
-                                                                    <span>{post.tags.split(',')[0]}</span>
-                                                                </>
-                                                            )}
-                                                        </div>
-                                                        <h4 className="text-xl font-bold font-serif group-hover:text-sky-600 transition-colors">
-                                                            {post.title}
-                                                        </h4>
-                                                        {excerpt && (
-                                                            <p className="text-muted-foreground line-clamp-2 text-sm leading-relaxed">
-                                                                {excerpt}
-                                                            </p>
-                                                        )}
-                                                    </div>
-                                                </Link>
-                                            );
-                                        })}
-                                    </div>
-                                </div>
-                            )}
                         </div>
+
+                        {/* Right Sidebar: Table of Contents */}
+                        {!isFocusMode && (
+                            <div className="hidden xl:block w-64 flex-shrink-0">
+                                <TableOfContents selector="article" />
+                            </div>
+                        )}
                     </div>
+
+                    {/* Suggested Posts */}
+                    {!isFocusMode && blog.relatedPosts && blog.relatedPosts.length > 0 && (
+                        <div className="mt-20 border-t border-border/40 pt-12">
+                            <h3 className="text-2xl font-bold mb-8 font-serif">Suggested Posts</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                {blog.relatedPosts.map((post) => {
+                                    // Calculate excerpt for related post
+                                    let excerpt = post.description;
+                                    if (!excerpt) {
+                                        let cleanContent = '';
+                                        if (post.contentJSON) {
+                                            cleanContent = extractTextFromTipTap(post.contentJSON);
+                                        } else if (post.content) {
+                                            cleanContent = stripHtml(post.content);
+                                        }
+                                        if (cleanContent) {
+                                            excerpt = cleanContent.length > 120
+                                                ? cleanContent.substring(0, 117) + '...'
+                                                : cleanContent;
+                                        }
+                                    }
+
+                                    return (
+                                        <Link key={post.id} href={`/blog/${post.slug}`} className="group block">
+                                            <div className="relative aspect-[16/9] mb-4 overflow-hidden rounded-lg bg-muted">
+                                                {post.thumbnail ? (
+                                                    <Image
+                                                        src={post.thumbnail}
+                                                        alt={post.title}
+                                                        fill
+                                                        className="object-cover transition-transform duration-300 group-hover:scale-105"
+                                                    />
+                                                ) : (
+                                                    <div className="flex items-center justify-center h-full text-muted-foreground bg-secondary/30">
+                                                        <span className="text-4xl font-serif opacity-20">Y</span>
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <div className="space-y-2">
+                                                <div className="flex items-center gap-2 text-xs text-muted-foreground uppercase tracking-wider">
+                                                    <span>{format(new Date(post.createdAt), 'MMM d, yyyy')}</span>
+                                                    {post.tags && (
+                                                        <>
+                                                            <span>•</span>
+                                                            <span>{post.tags.split(',')[0]}</span>
+                                                        </>
+                                                    )}
+                                                </div>
+                                                <h4 className="text-xl font-bold font-serif group-hover:text-sky-600 transition-colors">
+                                                    {post.title}
+                                                </h4>
+                                                {excerpt && (
+                                                    <p className="text-muted-foreground line-clamp-2 text-sm leading-relaxed">
+                                                        {excerpt}
+                                                    </p>
+                                                )}
+                                            </div>
+                                        </Link>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

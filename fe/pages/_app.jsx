@@ -12,6 +12,7 @@ import { AppProgressBar as ProgressBar } from 'next-nprogress-bar';
 import { AnimatePresence, motion } from 'framer-motion';
 import GoogleAnalytics from "@/components/seo/GoogleAnalytics";
 import CookieConsent from "@/components/ui/CookieConsent";
+import ErrorBoundary from "@/components/shared/ErrorBoundary";
 
 import { Toaster } from 'sonner';
 
@@ -78,30 +79,32 @@ export default function App({ Component, pageProps }) {
             />
             <GoogleAnalytics />
             <AuthGuard>
-              <main>
-                {getLayout(
-                  isAdminRoute ? (
-                    <Component {...pageProps} />
-                  ) : (
-                    <AnimatePresence mode="wait">
-                      <motion.div
-                        key={router.route}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -10 }}
-                        transition={{ duration: 0.3 }}
-                      >
-                        <Component {...pageProps} />
-                      </motion.div>
-                    </AnimatePresence>
-                  )
-                )}
-                <FloatingControls />
-                <CommandMenu />
+              <ErrorBoundary>
+                <main>
+                  {getLayout(
+                    isAdminRoute ? (
+                      <Component {...pageProps} />
+                    ) : (
+                      <AnimatePresence mode="wait">
+                        <motion.div
+                          key={router.route}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -10 }}
+                          transition={{ duration: 0.3 }}
+                        >
+                          <Component {...pageProps} />
+                        </motion.div>
+                      </AnimatePresence>
+                    )
+                  )}
+                  <FloatingControls />
+                  <CommandMenu />
 
-                <Toaster position="top-right" offset="80px" />
-                <CookieConsent />
-              </main>
+                  <Toaster position="top-right" offset="80px" />
+                  <CookieConsent />
+                </main>
+              </ErrorBoundary>
             </AuthGuard>
           </ThemeProvider>
         </FocusModeProvider>

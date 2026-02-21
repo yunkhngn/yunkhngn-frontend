@@ -36,6 +36,10 @@ export default function TipTapViewer({ content }) {
                         ['span', { class: 'block text-base italic text-muted-foreground mt-2' }, HTMLAttributes.alt],
                     ];
                 },
+            }).configure({
+                HTMLAttributes: {
+                    loading: 'lazy'
+                }
             }),
             Link.extend({
                 addAttributes() {
