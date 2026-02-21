@@ -11,6 +11,7 @@ import { ConfirmModal } from '@/components/ui/ConfirmModal';
 
 export default function MediaManager() {
     const [images, setImages] = useState([]);
+    const [searchQuery, setSearchQuery] = useState('');
     const [loading, setLoading] = useState(true);
     const [uploading, setUploading] = useState(false);
     const [nextCursor, setNextCursor] = useState(null);
@@ -126,6 +127,10 @@ export default function MediaManager() {
         toast.success('URL copied to clipboard');
     };
 
+    const filteredImages = images.filter(img =>
+        img.public_id.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
     return (
         <AdminLayout title="Media Manager">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
@@ -148,8 +153,20 @@ export default function MediaManager() {
                 </div>
             </div>
 
+            <div className="mb-6 flex items-center justify-between gap-4">
+                <div className="relative max-w-sm w-full">
+                    <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Input
+                        placeholder="Search images by name..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="pl-9"
+                    />
+                </div>
+            </div>
+
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-                {images.map((img) => (
+                {filteredImages.map((img) => (
                     <div key={img.public_id} className="group relative aspect-square bg-muted rounded-lg overflow-hidden border">
                         <Image
                             src={img.secure_url}
@@ -200,10 +217,10 @@ export default function MediaManager() {
                 ))}
             </div>
 
-            {!loading && images.length === 0 && (
-                <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
+            {!loading && filteredImages.length === 0 && (
+                <div className="flex flex-col items-center justify-center py-20 text-muted-foreground col-span-full">
                     <ImageIcon className="h-16 w-16 mb-4 opacity-20" />
-                    <p>No images found.</p>
+                    <p>{searchQuery ? 'No images match your search.' : 'No images found.'}</p>
                 </div>
             )}
 

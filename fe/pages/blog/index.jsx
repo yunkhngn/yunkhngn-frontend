@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { Search, ArrowUpRight } from 'lucide-react';
@@ -17,6 +18,13 @@ export default function BlogList() {
     const itemsPerPage = 6;
 
     const [selectedTag, setSelectedTag] = useState(null);
+    const router = useRouter();
+
+    useEffect(() => {
+        if (router.isReady && router.query.tag) {
+            setSelectedTag(router.query.tag);
+        }
+    }, [router.isReady, router.query.tag]);
 
     useEffect(() => {
         const fetchBlogs = async () => {
