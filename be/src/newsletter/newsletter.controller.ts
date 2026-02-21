@@ -1,11 +1,11 @@
 import { Controller, Post, Body, Get, Query, UseGuards } from '@nestjs/common';
 import { NewsletterService } from './newsletter.service';
 import { FirebaseAuthGuard } from '../auth/firebase-auth.guard';
-import { Throttle, SkipThrottle } from '@nestjs/throttler';
+import { Throttle } from '@nestjs/throttler';
 
 @Controller('newsletter')
 export class NewsletterController {
-  constructor(private readonly newsletterService: NewsletterService) { }
+  constructor(private readonly newsletterService: NewsletterService) {}
 
   @Post('subscribe')
   @Throttle({ default: { limit: 3, ttl: 60000 } })
