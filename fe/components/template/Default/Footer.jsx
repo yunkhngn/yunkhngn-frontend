@@ -106,8 +106,14 @@ export default function Footer() {
 
                 {/* Bottom Section */}
                 <div className="pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
-                    <p>© {new Date().getFullYear()} Khoa Nguyen. All rights reserved.</p>
-                    <div className="flex gap-6">
+                    <div className="flex flex-col md:flex-row items-center gap-4">
+                        <p>© {new Date().getFullYear()} Khoa Nguyen. All rights reserved.</p>
+                        <a href="https://www.digitalocean.com/?refcode=00c47b2667b2&utm_campaign=Referral_Invite&utm_medium=Referral_Program&utm_source=badge" target="_blank" rel="noopener noreferrer" className="hover:opacity-80 transition-opacity">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src="/do-badge.svg" alt="DigitalOcean Referral Badge" className="h-8" />
+                        </a>
+                    </div>
+                    <div className="flex gap-6 items-center">
                         <Link href="/privacy" className="hover:text-primary transition-colors">Privacy Policy</Link>
                         <Link href="/terms" className="hover:text-primary transition-colors">Terms of Service</Link>
                     </div>
