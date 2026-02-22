@@ -7,7 +7,8 @@ import { ChevronLeft, Github, ExternalLink, Calendar, Star, GitFork, Scale, Book
 import Image from 'next/image';
 import { Button } from '@/components/ui/Button';
 import Link from 'next/link';
-import TipTapViewer from '@/components/ui/TipTapViewer';
+import dynamic from 'next/dynamic';
+const TipTapViewer = dynamic(() => import('@/components/ui/TipTapViewer'), { ssr: false });
 import Layout from '@/components/template/Default/Layout';
 import CommentSection from '@/components/blog/CommentSection';
 import { extractTextFromTipTap, stripHtml } from '@/lib/utils';

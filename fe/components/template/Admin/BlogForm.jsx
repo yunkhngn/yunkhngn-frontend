@@ -4,7 +4,8 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea'; // Not strictly needed if no description, but maybe for SEO? Schema doesn't have description.
 import { TagInput } from '@/components/ui/TagInput';
-import TipTapEditor from '@/components/ui/TipTapEditor';
+import dynamic from 'next/dynamic';
+const TipTapEditor = dynamic(() => import('@/components/ui/TipTapEditor'), { ssr: false });
 import { Loader2, Plus, X, Image as ImageIcon, Save, RotateCcw, UploadCloud, Maximize } from 'lucide-react';
 import Image from 'next/image';
 import { useAuth } from '@/contexts/AuthContext';

@@ -4,7 +4,8 @@ import { ChevronLeft, Github, ExternalLink, Star, GitFork, Scale, BookOpen, Edit
 import Image from 'next/image';
 import { Button } from '@/components/ui/Button';
 import Link from 'next/link';
-import TipTapViewer from '@/components/ui/TipTapViewer';
+import dynamic from 'next/dynamic';
+const TipTapViewer = dynamic(() => import('@/components/ui/TipTapViewer'), { ssr: false });
 import AdminLayout from '@/components/template/Admin/Layout';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';

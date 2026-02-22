@@ -302,10 +302,15 @@ export default function Home({
 
       {/* Open Source Section */}
       <section className="container mx-auto px-4 py-20">
-        <h2 className="text-3xl font-bold mb-12 text-center flex items-center justify-center gap-3">
-          <Github className="h-8 w-8" />
-          Open Source
-        </h2>
+        <div className="flex flex-col md:flex-row items-center justify-between mb-12 gap-4">
+          <h2 className="text-3xl font-bold flex items-center gap-3">
+            <Github className="h-8 w-8" />
+            Open Source
+          </h2>
+          <a href="https://www.digitalocean.com/?refcode=623e10fe3eb7&utm_campaign=Referral_Invite&utm_medium=Referral_Program&utm_source=badge" target="_blank" rel="noopener noreferrer">
+            <img src="https://web-platforms.sfo2.cdn.digitaloceanspaces.com/WWW/Badge%201.svg" alt="DigitalOcean Referral Badge" className="h-[48px] rounded hover:opacity-90 transition-opacity" />
+          </a>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {featuredRepos.map((repo) => (
             <a

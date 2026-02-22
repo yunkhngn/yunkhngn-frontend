@@ -10,7 +10,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/Badge';
-import TipTapViewer from '@/components/ui/TipTapViewer';
+import dynamic from 'next/dynamic';
+const TipTapViewer = dynamic(() => import('@/components/ui/TipTapViewer'), { ssr: false });
 
 export default function ViewBlog() {
     const router = useRouter();
