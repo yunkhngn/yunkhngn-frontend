@@ -10,7 +10,7 @@ export class GithubService implements OnModuleInit {
   constructor(
     private configService: ConfigService,
     private settingsService: SettingsService,
-  ) {}
+  ) { }
 
   async onModuleInit() {
     const token =
@@ -65,7 +65,7 @@ export class GithubService implements OnModuleInit {
         {
           username: username,
           sort: 'updated',
-          per_page: 10,
+          per_page: 9,
           type: 'public',
         },
       );
@@ -107,7 +107,7 @@ export class GithubService implements OnModuleInit {
         duration:
           run.updated_at && run.created_at
             ? new Date(run.updated_at).getTime() -
-              new Date(run.created_at).getTime()
+            new Date(run.created_at).getTime()
             : 0,
       }));
     } catch (error) {
