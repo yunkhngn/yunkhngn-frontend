@@ -65,7 +65,7 @@ export class GithubService implements OnModuleInit {
         {
           username: username,
           sort: 'updated',
-          per_page: 9,
+          per_page: 10,
           type: 'public',
         },
       );
