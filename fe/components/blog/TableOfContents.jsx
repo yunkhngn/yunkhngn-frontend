@@ -5,49 +5,68 @@ export default function TableOfContents({ selector = '.prose' }) {
     const [activeId, setActiveId] = useState('');
 
     useEffect(() => {
-        // Find all headings inside the specific container
-        const elements = Array.from(document.querySelectorAll(`${selector} h2, ${selector} h3`));
+        let intersectionObserver = null;
 
-        // Add IDs and collect heading info
-        const headingData = elements.map((element, index) => {
-            if (!element.id) {
-                // Generate a friendly ID from the text
-                const textId = element.innerText
-                    .toLowerCase()
-                    .replace(/[^a-z0-9]+/g, '-')
-                    .replace(/(^-|-$)+/g, '');
+        const collectHeadings = () => {
+            const elements = Array.from(document.querySelectorAll(`${selector} h2, ${selector} h3`));
+            if (elements.length === 0) return false;
 
-                // Ensure uniqueness
-                element.id = textId || `heading-${index}`;
+            const headingData = elements.map((element, index) => {
+                if (!element.id) {
+                    const textId = element.innerText
+                        .toLowerCase()
+                        .replace(/[^a-z0-9]+/g, '-')
+                        .replace(/(^-|-$)+/g, '');
+                    element.id = textId || `heading-${index}`;
+                }
+
+                return {
+                    id: element.id,
+                    text: element.innerText,
+                    level: Number(element.tagName.replace('H', '')),
+                    top: element.offsetTop
+                };
+            });
+
+            setHeadings(headingData);
+
+            // Set up Intersection Observer once headings are found
+            if (intersectionObserver) intersectionObserver.disconnect();
+            intersectionObserver = new IntersectionObserver(
+                (entries) => {
+                    entries.forEach((entry) => {
+                        if (entry.isIntersecting) {
+                            setActiveId(entry.target.id);
+                        }
+                    });
+                },
+                { rootMargin: '0px 0px -80% 0px', threshold: 0.1 }
+            );
+            elements.forEach((elem) => intersectionObserver.observe(elem));
+
+            return true;
+        };
+
+        // Try immediately first (in case content is already rendered)
+        if (collectHeadings()) return () => intersectionObserver?.disconnect();
+
+        // TipTapViewer loads lazily — watch for DOM changes until headings appear
+        const container = document.querySelector(selector);
+        const mutationObserver = new MutationObserver(() => {
+            if (collectHeadings()) {
+                mutationObserver.disconnect();
             }
-
-            return {
-                id: element.id,
-                text: element.innerText,
-                level: Number(element.tagName.replace('H', '')),
-                top: element.offsetTop
-            };
         });
 
-        setTimeout(() => {
-            setHeadings(headingData);
-        }, 0);
+        mutationObserver.observe(container || document.body, {
+            childList: true,
+            subtree: true,
+        });
 
-        // Intersection Observer to highlight active section
-        const observer = new IntersectionObserver(
-            (entries) => {
-                entries.forEach((entry) => {
-                    if (entry.isIntersecting) {
-                        setActiveId(entry.target.id);
-                    }
-                });
-            },
-            { rootMargin: '0px 0px -80% 0px', threshold: 0.1 }
-        );
-
-        elements.forEach((elem) => observer.observe(elem));
-
-        return () => observer.disconnect();
+        return () => {
+            mutationObserver.disconnect();
+            intersectionObserver?.disconnect();
+        };
     }, [selector]);
 
     if (headings.length === 0) return null;
