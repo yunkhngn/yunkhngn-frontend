@@ -341,24 +341,26 @@ export default function BlogDetail({ blogData }) {
                     )}
 
                     <div className="flex flex-col lg:flex-row gap-8 xl:gap-12 max-w-[90rem] mx-auto pt-12 px-2 xl:px-4">
-                        {/* Social Sidebar (Desktop) */}
-                        {!isFocusMode && (
-                            <aside className="hidden lg:flex flex-col gap-4 sticky top-32 h-fit w-12 items-center pt-8">
-                                <div className="text-xs font-medium text-muted-foreground mb-2" style={{ writingMode: 'vertical-rl' }}>SHARE</div>
-                                <Button variant="ghost" size="icon" className="rounded-full hover:bg-muted" onClick={() => handleShare('facebook')} aria-label="Share on Facebook">
-                                    <Facebook className="h-4 w-4" />
-                                </Button>
-                                <Button variant="ghost" size="icon" className="rounded-full hover:bg-muted" onClick={() => handleShare('twitter')} aria-label="Share on Twitter">
-                                    <Twitter className="h-4 w-4" />
-                                </Button>
-                                <Button variant="ghost" size="icon" className="rounded-full hover:bg-muted" onClick={() => handleShare('linkedin')} aria-label="Share on LinkedIn">
-                                    <Linkedin className="h-4 w-4" />
-                                </Button>
-                                <Button variant="ghost" size="icon" className="rounded-full hover:bg-muted" onClick={() => handleCopyLink()} aria-label="Copy Link">
-                                    <LinkIcon className="h-4 w-4" />
-                                </Button>
-                            </aside>
-                        )}
+                        {/* Social Sidebar (Desktop) — wrapped in w-64 to balance the TOC sidebar */}
+                        <div className="hidden xl:block w-64 flex-shrink-0">
+                            {!isFocusMode && (
+                                <aside className="flex flex-col gap-4 sticky top-32 h-fit w-12 items-center pt-8">
+                                    <div className="text-xs font-medium text-muted-foreground mb-2" style={{ writingMode: 'vertical-rl' }}>SHARE</div>
+                                    <Button variant="ghost" size="icon" className="rounded-full hover:bg-muted" onClick={() => handleShare('facebook')} aria-label="Share on Facebook">
+                                        <Facebook className="h-4 w-4" />
+                                    </Button>
+                                    <Button variant="ghost" size="icon" className="rounded-full hover:bg-muted" onClick={() => handleShare('twitter')} aria-label="Share on Twitter">
+                                        <Twitter className="h-4 w-4" />
+                                    </Button>
+                                    <Button variant="ghost" size="icon" className="rounded-full hover:bg-muted" onClick={() => handleShare('linkedin')} aria-label="Share on LinkedIn">
+                                        <Linkedin className="h-4 w-4" />
+                                    </Button>
+                                    <Button variant="ghost" size="icon" className="rounded-full hover:bg-muted" onClick={() => handleCopyLink()} aria-label="Copy Link">
+                                        <LinkIcon className="h-4 w-4" />
+                                    </Button>
+                                </aside>
+                            )}
+                        </div>
 
                         {/* Main Content */}
                         <div className="flex-1 max-w-4xl min-w-0 mx-auto w-full">
@@ -459,11 +461,11 @@ export default function BlogDetail({ blogData }) {
                         </div>
 
                         {/* Right Sidebar: Table of Contents */}
-                        {!isFocusMode && (
-                            <div className="hidden xl:block w-64 flex-shrink-0">
+                        <div className="hidden xl:block w-64 flex-shrink-0">
+                            {!isFocusMode && (
                                 <TableOfContents selector="article" />
-                            </div>
-                        )}
+                            )}
+                        </div>
                     </div>
 
                     {/* Suggested Posts */}
