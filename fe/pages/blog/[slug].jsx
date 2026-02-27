@@ -252,7 +252,7 @@ export default function BlogDetail({ blogData }) {
         }
     ];
 
-    // Parse image settings
+
     const imageSettings = blog.imageSettings
         ? (typeof blog.imageSettings === 'string' ? JSON.parse(blog.imageSettings) : blog.imageSettings)
         : null;
