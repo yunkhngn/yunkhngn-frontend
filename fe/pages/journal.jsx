@@ -681,7 +681,7 @@ export default function JournalPage() {
                 initialData={editingEntry}
                 parentId={replyingTo?.parentId || replyingTo?.id} // Pass root parentId for replies
                 moods={moods}
-                onSuccess={fetchData}
+                onSuccess={() => fetchEntries(1, true)}
                 avatarUrl={avatarUrl}
             />        {/* Filter */}
             <div className="flex flex-wrap gap-2 mb-12 justify-center">
