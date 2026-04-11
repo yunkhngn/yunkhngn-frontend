@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import Layout from '@/components/template/Default/Layout';
 import { format, formatDistanceToNow } from 'date-fns';
@@ -29,6 +29,7 @@ import { ICON_MAP, DEFAULT_MOODS } from '@/lib/moods';
 import api from '@/lib/api/client';
 import { toast } from 'sonner';
 import Image from 'next/image';
+import { getOptimizedUrl, getBlurUrl } from '@/lib/cloudinary';
 
 
 
@@ -159,10 +160,12 @@ function JournalEntry({ entry, moodInfo, moods, avatarUrl, onEdit, onDelete, onR
                                 onClick={() => onViewImage && onViewImage(img)}
                             >
                                 <Image
-                                    src={img}
+                                    src={getOptimizedUrl(img, { width: 600 })}
                                     alt={`Attachment ${idx + 1}`}
                                     fill
                                     className="object-cover hover:scale-105 transition-transform duration-500 cursor-pointer"
+                                    placeholder={getBlurUrl(img) ? 'blur' : 'empty'}
+                                    blurDataURL={getBlurUrl(img)}
                                 />
                             </div>
                         ))}
@@ -490,18 +493,15 @@ export default function JournalPage() {
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [viewingImage, setViewingImage] = useState(null);
 
-    const fetchData = async () => {
-        try {
-            const resEntries = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/journals`);
-            if (!resEntries.ok) throw new Error('Failed to fetch entries');
-            const dataEntries = await resEntries.json();
-            setEntries(dataEntries);
+    const [page, setPage] = useState(1);
+    const [hasMore, setHasMore] = useState(true);
+    const [loadingMore, setLoadingMore] = useState(false);
 
+    const fetchSettings = useCallback(async () => {
+        try {
             const resSettings = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/settings`);
             if (resSettings.ok) {
                 const settings = await resSettings.json();
-
-                // Moods
                 const moodSetting = settings.find(s => s.settingTitle === 'journal_moods');
                 if (moodSetting && moodSetting.content) {
                     const parsed = JSON.parse(moodSetting.content);
@@ -509,23 +509,53 @@ export default function JournalPage() {
                         setMoods(parsed);
                     }
                 }
-
-                // Avatar
                 const avatarSetting = settings.find(s => s.settingTitle === 'avatar');
-                if (avatarSetting && avatarSetting.content) {
-                    setAvatarUrl(avatarSetting.content);
-                }
+                if (avatarSetting && avatarSetting.content) setAvatarUrl(avatarSetting.content);
             }
         } catch (error) {
-            console.error('Error fetching data:', error);
+            console.error('Error fetching settings:', error);
+        }
+    }, []);
+
+    const fetchEntries = useCallback(async (pageNum, overwrite = false) => {
+        if (!hasMore && !overwrite) return;
+
+        try {
+            if (pageNum === 1) setLoading(true);
+            else setLoadingMore(true);
+
+            const resEntries = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/journals?page=${pageNum}&limit=10`);
+            if (!resEntries.ok) throw new Error('Failed to fetch entries');
+            const data = await resEntries.json();
+
+            setEntries(prev => overwrite ? data.data : [...prev, ...data.data]);
+            setHasMore(data.page < data.totalPages);
+            setPage(data.page);
+        } catch (error) {
+            console.error('Error fetching entries:', error);
         } finally {
             setLoading(false);
+            setLoadingMore(false);
         }
-    };
+    }, [hasMore]);
 
     useEffect(() => {
-        fetchData();
-    }, []);
+        fetchSettings();
+        fetchEntries(1, true);
+    }, [fetchSettings, fetchEntries]);
+
+    useEffect(() => {
+        const handleScroll = () => {
+            if (window.innerHeight + document.documentElement.scrollTop >= document.documentElement.offsetHeight - 500) {
+                if (!loading && !loadingMore && hasMore) {
+                    fetchEntries(page + 1);
+                }
+            }
+        };
+
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, [loading, loadingMore, hasMore, page, fetchEntries]);
 
     const handleEdit = (entry) => {
         setEditingEntry(entry);
@@ -544,12 +574,11 @@ export default function JournalPage() {
         setIsDeleteModalOpen(true);
     };
 
-    const confirmDelete = async () => {
+    confirmDelete = async () => {
         if (!deleteId) return;
         try {
             await api.delete(`/journals/${deleteId}`);
-            // For simplicity and correctness with nested replies, re-fetch all data after delete
-            fetchData();
+            fetchEntries(1, true);
             toast.success("Entry deleted");
         } catch (error) {
             console.error(error);
@@ -562,15 +591,23 @@ export default function JournalPage() {
 
     const handleReaction = async (id, type) => {
         try {
-            // Optimistic update for top-level entries (if not nested)
-            // For nested replies, a full re-fetch is simpler to ensure correctness
-            // Given the current API structure, re-fetching is safer for any reaction.
             await api.post(`/journals/${id}/reactions`, { type });
-            fetchData(); // Re-fetch to update reaction counts and states correctly
+            // For reaction, we could just re-fetch page 1 or do an optimistic update,
+            // but since a re-fetch can reset infinite scroll if not careful, we should 
+            // optimistically update the state instead.
+            setEntries(prev => prev.map(e => {
+                if (e.id === id) {
+                    const existing = e.reactions?.findIndex(r => r.uid === user?.uid);
+                    let newReactions = [...(e.reactions || [])];
+                    if (existing >= 0) newReactions.splice(existing, 1);
+                    else newReactions.push({ uid: user?.uid, type });
+                    return { ...e, reactions: newReactions };
+                }
+                return e;
+            }));
         } catch (error) {
             console.error(error);
             toast.error("Failed to react");
-            // If optimistic update was used, revert here. With re-fetch, no revert needed.
         }
     };
 
@@ -738,12 +775,13 @@ export default function JournalPage() {
                                 <X className="h-5 w-5 md:h-8 md:w-8" />
                             </button>
                             <Image
-                                src={viewingImage}
+                                src={getOptimizedUrl(viewingImage, { width: 1920 })}
                                 alt="View"
                                 width={1200}
                                 height={800}
                                 className="w-auto h-auto max-w-[90vw] max-h-[85vh] object-contain rounded-lg shadow-2xl"
-                                unoptimized
+                                placeholder={getBlurUrl(viewingImage) ? 'blur' : 'empty'}
+                                blurDataURL={getBlurUrl(viewingImage)}
                             />
                         </div>
                     )}

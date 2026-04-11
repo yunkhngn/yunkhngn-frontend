@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { JournalService } from './journal.service';
 import { CreateJournalDto } from './dto/create-journal.dto';
@@ -28,8 +29,11 @@ export class JournalController {
   }
 
   @Get()
-  findAll() {
-    return this.journalService.findAll();
+  findAll(@Query('page') page?: string, @Query('limit') limit?: string) {
+    return this.journalService.findAll(
+      page ? parseInt(page) : 1,
+      limit ? parseInt(limit) : 20,
+    );
   }
 
   @Get(':id')
