@@ -415,7 +415,7 @@ export default function Photo() {
 
                         {/* Masonry */}
                         {layout === 'masonry' && (
-                            <MasonryGrid photos={photos} openPhoto={openPhoto} lastPhotoRef={lastPhotoRef} getBlurUrl={getBlurUrl} />
+                            <MasonryGrid photos={photos} openPhoto={openPhoto} lastPhotoRef={lastPhotoRef} />
                         )}
 
                         {/* Grid */}
@@ -632,7 +632,7 @@ export default function Photo() {
 }
 
 
-function MasonryGrid({ photos, openPhoto, lastPhotoRef, getBlurUrl }) {
+function MasonryGrid({ photos, openPhoto, lastPhotoRef }) {
     const [columns, setColumns] = useState(3);
 
     useEffect(() => {

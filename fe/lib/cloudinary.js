@@ -1,8 +1,8 @@
 export const getOptimizedUrl = (url, options = {}) => {
     if (!url || !url.includes('cloudinary.com')) return url;
     
-    // Cloudinary URL format usually goes: .../upload/v12345/folder/image.png
-    // We want to inject transformations right after /upload/
+    // Guard: If URL already contains transformations (anything not starting with 'v' after /upload/)
+    if (/\/upload\/[^v][^\/]+\//.test(url)) return url;
     
     const { width = 800, quality = 'auto', format = 'auto' } = options;
     
@@ -18,5 +18,6 @@ export const getOptimizedUrl = (url, options = {}) => {
 
 export const getBlurUrl = (url) => {
     if (!url || !url.includes('cloudinary.com')) return undefined;
+    if (url.includes('e_blur:')) return url; // Already has blur or similar
     return url.replace('/upload/', '/upload/w_20,q_auto:low,f_auto,e_blur:1000/');
 };

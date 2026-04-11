@@ -152,23 +152,26 @@ function JournalEntry({ entry, moodInfo, moods, avatarUrl, onEdit, onDelete, onR
                 {/* Images Grid (Masonry-like) */}
                 {entry.images && entry.images.length > 0 && (
                     <div className={`grid gap-2 mb-4 ${entry.images.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}>
-                        {entry.images.map((img, idx) => (
-                            <div
-                                key={idx}
-                                className={`relative rounded-xl overflow-hidden border border-border/50 bg-muted aspect-[4/3] ${entry.images.length === 3 && idx === 0 ? 'col-span-2 aspect-[2/1]' : ''
-                                    }`}
-                                onClick={() => onViewImage && onViewImage(img)}
-                            >
-                                <Image
-                                    src={getOptimizedUrl(img, { width: 600 })}
-                                    alt={`Attachment ${idx + 1}`}
-                                    fill
-                                    className="object-cover hover:scale-105 transition-transform duration-500 cursor-pointer"
-                                    placeholder={getBlurUrl(img) ? 'blur' : 'empty'}
-                                    blurDataURL={getBlurUrl(img)}
-                                />
-                            </div>
-                        ))}
+                        {entry.images.map((img, idx) => {
+                            const blurUrl = getBlurUrl(img);
+                            return (
+                                <div
+                                    key={idx}
+                                    className={`relative rounded-xl overflow-hidden border border-border/50 bg-muted aspect-[4/3] ${entry.images.length === 3 && idx === 0 ? 'col-span-2 aspect-[2/1]' : ''
+                                        }`}
+                                    onClick={() => onViewImage && onViewImage(img)}
+                                >
+                                    <Image
+                                        src={getOptimizedUrl(img, { width: 600 })}
+                                        alt={`Attachment ${idx + 1}`}
+                                        fill
+                                        className="object-cover hover:scale-105 transition-transform duration-500 cursor-pointer"
+                                        placeholder={blurUrl ? 'blur' : 'empty'}
+                                        blurDataURL={blurUrl}
+                                    />
+                                </div>
+                            );
+                        })}
                     </div>
                 )}
 
@@ -495,7 +498,14 @@ export default function JournalPage() {
 
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
+    const hasMoreRef = useRef(true);
     const [loadingMore, setLoadingMore] = useState(false);
+
+    // Helper to keep ref in sync with state
+    const updateHasMore = (value) => {
+        setHasMore(value);
+        hasMoreRef.current = value;
+    };
 
     const fetchSettings = useCallback(async () => {
         try {
@@ -518,7 +528,7 @@ export default function JournalPage() {
     }, []);
 
     const fetchEntries = useCallback(async (pageNum, overwrite = false) => {
-        if (!hasMore && !overwrite) return;
+        if (!hasMoreRef.current && !overwrite) return;
 
         try {
             if (pageNum === 1) setLoading(true);
@@ -529,7 +539,7 @@ export default function JournalPage() {
             const data = await resEntries.json();
 
             setEntries(prev => overwrite ? data.data : [...prev, ...data.data]);
-            setHasMore(data.page < data.totalPages);
+            updateHasMore(data.page < data.totalPages);
             setPage(data.page);
         } catch (error) {
             console.error('Error fetching entries:', error);
@@ -537,7 +547,7 @@ export default function JournalPage() {
             setLoading(false);
             setLoadingMore(false);
         }
-    }, [hasMore]);
+    }, []);
 
     useEffect(() => {
         fetchSettings();
@@ -574,7 +584,7 @@ export default function JournalPage() {
         setIsDeleteModalOpen(true);
     };
 
-    confirmDelete = async () => {
+    const confirmDelete = async () => {
         if (!deleteId) return;
         try {
             await api.delete(`/journals/${deleteId}`);
@@ -595,16 +605,22 @@ export default function JournalPage() {
             // For reaction, we could just re-fetch page 1 or do an optimistic update,
             // but since a re-fetch can reset infinite scroll if not careful, we should 
             // optimistically update the state instead.
-            setEntries(prev => prev.map(e => {
-                if (e.id === id) {
-                    const existing = e.reactions?.findIndex(r => r.uid === user?.uid);
-                    let newReactions = [...(e.reactions || [])];
-                    if (existing >= 0) newReactions.splice(existing, 1);
-                    else newReactions.push({ uid: user?.uid, type });
-                    return { ...e, reactions: newReactions };
-                }
-                return e;
-            }));
+            const updateReactionsRecursive = (items) => {
+                return items.map(e => {
+                    if (e.id === id) {
+                        const existing = e.reactions?.findIndex(r => r.uid === user?.uid);
+                        let newReactions = [...(e.reactions || [])];
+                        if (existing >= 0) newReactions.splice(existing, 1);
+                        else newReactions.push({ uid: user?.uid, type });
+                        return { ...e, reactions: newReactions };
+                    }
+                    if (e.replies && e.replies.length > 0) {
+                        return { ...e, replies: updateReactionsRecursive(e.replies) };
+                    }
+                    return e;
+                });
+            };
+            setEntries(prev => updateReactionsRecursive(prev));
         } catch (error) {
             console.error(error);
             toast.error("Failed to react");

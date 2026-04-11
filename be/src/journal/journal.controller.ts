@@ -31,8 +31,8 @@ export class JournalController {
   @Get()
   findAll(@Query('page') page?: string, @Query('limit') limit?: string) {
     return this.journalService.findAll(
-      page ? parseInt(page) : 1,
-      limit ? parseInt(limit) : 20,
+      page ? (parseInt(page, 10) || 1) : 1,
+      limit ? (parseInt(limit, 10) || 20) : 20,
     );
   }
 
