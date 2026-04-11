@@ -21,20 +21,32 @@ export class JournalService {
     return this.formatEntry(journal);
   }
 
-  async findAll() {
-    const entries = await this.prisma.journal.findMany({
-      where: { parentId: null },
-      orderBy: { createdAt: 'desc' },
-      include: {
-        reactions: true,
-        replies: {
-          orderBy: { createdAt: 'asc' },
-          include: { reactions: true },
-        },
-      },
-    });
+  async findAll(page: number = 1, limit: number = 20) {
+    const skip = (page - 1) * limit;
 
-    return entries.map((entry) => this.formatEntry(entry));
+    const [entries, total] = await Promise.all([
+      this.prisma.journal.findMany({
+        where: { parentId: null },
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit,
+        include: {
+          reactions: true,
+          replies: {
+            orderBy: { createdAt: 'asc' },
+            include: { reactions: true },
+          },
+        },
+      }),
+      this.prisma.journal.count({ where: { parentId: null } }),
+    ]);
+
+    return {
+      data: entries.map((entry) => this.formatEntry(entry)),
+      total,
+      page,
+      totalPages: Math.ceil(total / limit),
+    };
   }
 
   async findOne(id: string) {

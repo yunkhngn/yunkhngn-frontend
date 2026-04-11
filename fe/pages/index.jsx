@@ -24,6 +24,7 @@ import Layout from '@/components/template/Default/Layout';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/Tooltip';
 import JsonLd from '@/components/seo/JsonLd';
 import Terminal from '@/components/home/Terminal';
+import { getOptimizedUrl, getBlurUrl } from '@/lib/cloudinary';
 
 export default function Home({
   recentBlogs = [],
@@ -400,11 +401,13 @@ export default function Home({
           {galleryPhotos.map((photo) => (
             <div key={photo.id} className="break-inside-avoid relative group rounded-xl overflow-hidden cursor-pointer">
               <Image
-                src={photo.imageUrl}
+                src={getOptimizedUrl(photo.imageUrl, { width: 500, quality: 80 })}
                 alt={photo.caption || 'Gallery Photo'}
                 width={500}
                 height={500}
                 className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105"
+                placeholder={getBlurUrl(photo.imageUrl) ? 'blur' : 'empty'}
+                blurDataURL={getBlurUrl(photo.imageUrl)}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end">
                 {photo.caption && (
@@ -421,7 +424,7 @@ export default function Home({
   );
 }
 
-export async function getServerSideProps(context) {
+export async function getStaticProps(context) {
   try {
     const [blogsRes, projectsRes, galleryRes, settingsRes, reposRes] = await Promise.all([
       fetch(`${process.env.NEXT_PUBLIC_API_URL}/blogs`),
@@ -430,14 +433,6 @@ export async function getServerSideProps(context) {
       fetch(`${process.env.NEXT_PUBLIC_API_URL}/settings`),
       fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/github/repos`)
     ]);
-
-    // Cache the response for 60 seconds, revalidate in background after 300 seconds
-    if (context && context.res) {
-      context.res.setHeader(
-        'Cache-Control',
-        'public, s-maxage=60, stale-while-revalidate=300'
-      );
-    }
 
     let recentBlogs = [];
     if (blogsRes.ok) {
@@ -502,7 +497,8 @@ export async function getServerSideProps(context) {
         galleryPhotos,
         settings,
         featuredRepos
-      }
+      },
+      revalidate: 120
     };
   } catch (error) {
     console.error('Error fetching homepage data:', error);
@@ -513,7 +509,8 @@ export async function getServerSideProps(context) {
         galleryPhotos: [],
         settings: {},
         featuredRepos: []
-      }
+      },
+      revalidate: 120
     };
   }
 }

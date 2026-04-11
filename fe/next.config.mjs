@@ -10,15 +10,6 @@ const nextConfig = {
   reactStrictMode: false,
   images: {
     unoptimized: false,
-    domains: [
-      'res.cloudinary.com', 
-      'github.com', 
-      'avatars.githubusercontent.com', 
-      'lh3.googleusercontent.com',
-      'cataas.com',
-      'placekitten.com',
-      'cdn.buymeacoffee.com'
-    ],
     remotePatterns: [
       {
         protocol: 'https',
