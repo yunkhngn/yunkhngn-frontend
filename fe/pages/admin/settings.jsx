@@ -118,7 +118,12 @@ export default function Settings() {
 
     const fetchSettings = async () => {
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/settings`);
+            const token = await user?.getIdToken();
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/settings/admin`, {
+                headers: {
+                    ...(token ? { Authorization: `Bearer ${token}` } : {})
+                }
+            });
             if (res.ok) {
                 const data = await res.json();
                 setSettings(data);
@@ -131,8 +136,10 @@ export default function Settings() {
     };
 
     useEffect(() => {
-        fetchSettings();
-    }, []);
+        if (user) {
+            fetchSettings();
+        }
+    }, [user]);
 
     const handleSave = async (e) => {
         e.preventDefault();

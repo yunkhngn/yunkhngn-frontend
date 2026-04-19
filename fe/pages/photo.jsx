@@ -13,11 +13,11 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL;
 const PHOTOS_PER_PAGE = 12;
 
 const REACTIONS = [
-    { id: 'like', icon: ThumbsUp, label: 'Like', color: 'text-blue-500' },
-    { id: 'heart', icon: Heart, label: 'Heart', color: 'text-red-500' },
-    { id: 'cat', icon: Cat, label: 'Cat', color: 'text-purple-500' },
-    { id: 'fire', icon: Flame, label: 'Fire', color: 'text-orange-500' },
-    { id: 'laugh', icon: Laugh, label: 'Laugh', color: 'text-yellow-500' },
+    { id: 'like', icon: ThumbsUp, label: 'Like', color: 'text-blue-500', activeBg: 'bg-blue-500/20' },
+    { id: 'heart', icon: Heart, label: 'Love', color: 'text-red-500', activeBg: 'bg-red-500/20' },
+    { id: 'cat', icon: Cat, label: 'Cute', color: 'text-purple-500', activeBg: 'bg-purple-500/20' },
+    { id: 'fire', icon: Flame, label: 'Hot', color: 'text-orange-500', activeBg: 'bg-orange-500/20' },
+    { id: 'laugh', icon: Laugh, label: 'Haha', color: 'text-yellow-500', activeBg: 'bg-yellow-500/20' },
 ];
 
 const LAYOUTS = [
@@ -520,9 +520,9 @@ export default function Photo() {
                     {viewingPhoto && (
                         <div className="relative w-fit h-fit mx-auto pointer-events-auto">
                             {/* Top Controls */}
-                            <div className="absolute top-2 right-2 md:top-4 md:right-4 z-50 flex items-center gap-2 md:gap-3">
-                                {/* Reactions */}
-                                <div className="flex items-center gap-1 md:gap-1.5 bg-black/60 backdrop-blur-md rounded-full px-2 py-1 md:px-2.5 md:py-1.5 shadow-xl border border-white/10">
+                            <div className="absolute top-4 right-4 z-50 flex items-center gap-3">
+                                {/* Reactions Pill */}
+                                <div className="flex items-center gap-0.5 bg-black/40 backdrop-blur-xl rounded-full p-1 border border-white/10 shadow-2xl">
                                     {REACTIONS.map((reaction) => {
                                         const Icon = reaction.icon;
                                         const isSelected = selectedReaction === reaction.id;
@@ -532,22 +532,37 @@ export default function Photo() {
                                                 key={reaction.id}
                                                 onClick={(e) => { e.stopPropagation(); handleReactionClick(reaction.id); }}
                                                 disabled={loadingReaction}
-                                                className={`flex items-center gap-1 px-1.5 py-1 md:px-2 md:py-1 rounded-full transition-all duration-200 hover:scale-110 ${isSelected ? 'bg-white/20 scale-105' : 'hover:bg-white/10'} ${loadingReaction ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                                className={`relative flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all duration-300 group ${isSelected ? `${reaction.activeBg} scale-105` : 'hover:bg-white/10'} ${loadingReaction ? 'opacity-50 cursor-not-allowed' : ''}`}
                                                 title={reaction.label}
                                             >
-                                                <Icon className={`h-3.5 w-3.5 md:h-4 md:w-4 ${isSelected ? reaction.color : 'text-white'} transition-colors duration-200`} fill={isSelected ? 'currentColor' : 'none'} strokeWidth={2} />
+                                                <Icon
+                                                    className={`h-4 w-4 transition-all duration-300 ${isSelected ? reaction.color : 'text-white/80 group-hover:text-white'}`}
+                                                    fill={isSelected ? 'currentColor' : 'none'}
+                                                    strokeWidth={2.5}
+                                                />
                                                 {count > 0 && (
-                                                    <span className={`text-[10px] md:text-xs font-medium ${isSelected ? reaction.color : 'text-white'}`}>{count}</span>
+                                                    <span className={`text-xs font-bold ${isSelected ? reaction.color : 'text-white/80 group-hover:text-white'}`}>
+                                                        {count}
+                                                    </span>
+                                                )}
+                                                {/* Tooltip-like label on hover if not selected */}
+                                                {!isSelected && (
+                                                    <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 px-2 py-1 bg-black/80 text-[10px] text-white rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                                                        {reaction.label}
+                                                    </span>
                                                 )}
                                             </button>
                                         );
                                     })}
                                 </div>
 
-                                {/* Close */}
-                                <Button variant="secondary" size="icon" className="rounded-full opacity-80 hover:opacity-100 bg-black/50 hover:bg-black/70 text-white border-none h-8 w-8 md:h-9 md:w-9" onClick={closePhoto}>
-                                    <X className="h-4 w-4" />
-                                </Button>
+                                {/* Close Button */}
+                                <button
+                                    onClick={closePhoto}
+                                    className="p-2.5 rounded-full bg-black/40 backdrop-blur-xl text-white/80 hover:text-white border border-white/10 hover:bg-black/60 transition-all shadow-2xl"
+                                >
+                                    <X className="h-5 w-5" />
+                                </button>
                             </div>
 
                             {/* Bottom Controls */}
