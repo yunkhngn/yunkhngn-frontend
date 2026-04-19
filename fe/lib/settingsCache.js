@@ -5,6 +5,16 @@ function isBrowser() {
   return typeof window !== 'undefined' && !!window.localStorage;
 }
 
+function removeCachedSettingsSafely() {
+  if (!isBrowser()) return;
+
+  try {
+    window.localStorage.removeItem(SETTINGS_CACHE_KEY);
+  } catch {
+    // Ignore storage/security errors during cleanup.
+  }
+}
+
 export function readCachedSettings() {
   if (!isBrowser()) return null;
 
@@ -20,7 +30,7 @@ export function readCachedSettings() {
       Object.prototype.hasOwnProperty.call(parsed, 'createdAt');
 
     if (!hasEnvelope) {
-      window.localStorage.removeItem(SETTINGS_CACHE_KEY);
+      removeCachedSettingsSafely();
       return null;
     }
 
@@ -28,13 +38,13 @@ export function readCachedSettings() {
       typeof parsed.createdAt !== 'number' ||
       Date.now() - parsed.createdAt > SETTINGS_CACHE_TTL_MS
     ) {
-      window.localStorage.removeItem(SETTINGS_CACHE_KEY);
+      removeCachedSettingsSafely();
       return null;
     }
 
     return parsed.data && typeof parsed.data === 'object' ? parsed.data : null;
   } catch {
-    window.localStorage.removeItem(SETTINGS_CACHE_KEY);
+    removeCachedSettingsSafely();
     return null;
   }
 }
