@@ -16,6 +16,7 @@ const SYSTEM_SETTINGS = [
   'footer_description',
   'about_content',
   'comment_forbidden_keywords',
+  'chat_forbidden_words',
   'education',
   'experience',
   'skills',
@@ -44,12 +45,52 @@ const SYSTEM_SETTINGS = [
   'lastfm_username',
 ];
 
+const PUBLIC_SETTINGS = [
+  'bio',
+  'quote',
+  'facebook',
+  'github',
+  'instagram',
+  'linkedin',
+  'tiktok',
+  'email',
+  'homepage_description',
+  'footer_description',
+  'about_content',
+  'education',
+  'experience',
+  'skills',
+  'cv_url',
+  'cloudinary_cloud_name',
+  'avatar',
+  'about_image_story',
+  'about_image_journey',
+  'about_image_skills',
+  'about_image_contact',
+  'lastfm_username',
+  'github_username',
+  'github_repo_name',
+  'comment_forbidden_keywords',
+  'chat_forbidden_words',
+  'ai_persona',
+];
+
+const SENSITIVE_KEYS = [
+  'gemini_api_key',
+  'cloudinary_api_secret',
+  'resend_api_key',
+  'cloudflare_api_token',
+  'github_api_key',
+  'lastfm_api_key',
+  'chat_api_key',
+];
+
 @Injectable()
 export class SettingsService implements OnModuleInit {
   constructor(
     private prisma: PrismaService,
     private encryptionService: EncryptionService,
-  ) {}
+  ) { }
 
   async onModuleInit() {
     try {
@@ -69,22 +110,28 @@ export class SettingsService implements OnModuleInit {
   }
 
   async getSettings() {
+    return this.getPublicSettings();
+  }
+
+  async getPublicSettings() {
+    const settings = await this.prisma.settings.findMany({
+      where: {
+        settingTitle: { in: PUBLIC_SETTINGS },
+      },
+      orderBy: { id: 'asc' },
+    });
+
+    return settings;
+  }
+
+  async getAdminSettings() {
     const settings = await this.prisma.settings.findMany({
       orderBy: { id: 'asc' },
     });
 
     return settings.map((s) => {
-      // Mask sensitive keys
-      if (
-        (s.settingTitle === 'gemini_api_key' ||
-          s.settingTitle === 'cloudinary_api_secret' ||
-          s.settingTitle === 'resend_api_key' ||
-          s.settingTitle === 'cloudflare_api_token' ||
-          s.settingTitle === 'github_api_key' ||
-          s.settingTitle === 'lastfm_api_key' ||
-          s.settingTitle === 'chat_api_key') &&
-        s.content
-      ) {
+      // Mask sensitive keys for admin UI
+      if (SENSITIVE_KEYS.includes(s.settingTitle) && s.content) {
         return { ...s, content: '********' };
       }
       return s;

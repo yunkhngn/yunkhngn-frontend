@@ -13,11 +13,17 @@ import { FirebaseAuthGuard } from '../auth/firebase-auth.guard';
 
 @Controller('settings')
 export class SettingsController {
-  constructor(private readonly settingsService: SettingsService) {}
+  constructor(private readonly settingsService: SettingsService) { }
 
   @Get()
   getSettings() {
     return this.settingsService.getSettings();
+  }
+
+  @Get('admin')
+  @UseGuards(FirebaseAuthGuard)
+  getAdminSettings() {
+    return this.settingsService.getAdminSettings();
   }
 
   @Patch()

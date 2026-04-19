@@ -1,4 +1,5 @@
-export const SETTINGS_CACHE_KEY = 'site-settings-cache-v1';
+export const SETTINGS_CACHE_KEY = 'site-settings-cache-v2';
+const OLD_SETTINGS_CACHE_KEY = 'site-settings-cache-v1';
 const SETTINGS_CACHE_TTL_MS = 1000 * 60 * 60 * 24; // 24 hours
 
 function isBrowser() {
@@ -23,6 +24,13 @@ function removeCachedSettingsSafely() {
 
 export function readCachedSettings() {
   if (!isBrowser()) return null;
+
+  // Cleanup old v1 cache if it exists
+  try {
+    if (window.localStorage.getItem(OLD_SETTINGS_CACHE_KEY)) {
+      window.localStorage.removeItem(OLD_SETTINGS_CACHE_KEY);
+    }
+  } catch (e) {}
 
   try {
     const raw = window.localStorage.getItem(SETTINGS_CACHE_KEY);
