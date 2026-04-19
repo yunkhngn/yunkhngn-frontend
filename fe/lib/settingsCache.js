@@ -2,7 +2,13 @@ export const SETTINGS_CACHE_KEY = 'site-settings-cache-v1';
 const SETTINGS_CACHE_TTL_MS = 1000 * 60 * 60 * 24; // 24 hours
 
 function isBrowser() {
-  return typeof window !== 'undefined' && !!window.localStorage;
+  if (typeof window === 'undefined') return false;
+
+  try {
+    return !!window.localStorage;
+  } catch {
+    return false;
+  }
 }
 
 function removeCachedSettingsSafely() {
