@@ -172,12 +172,17 @@ export default function Photo() {
     useEffect(() => {
         if (slideshow && viewingIndex !== null) {
             slideshowTimerRef.current = setInterval(() => {
-                if (viewingIndex >= photos.length - 1) {
-                    setSlideshow(false);
-                    return;
-                }
-                setLightboxImageLoading(true);
-                setViewingIndex(viewingIndex + 1);
+                setViewingIndex((currentIndex) => {
+                    if (currentIndex === null) {
+                        return currentIndex;
+                    }
+                    if (currentIndex >= photos.length - 1) {
+                        setSlideshow(false);
+                        return currentIndex;
+                    }
+                    setLightboxImageLoading(true);
+                    return currentIndex + 1;
+                });
             }, 4000);
         }
         return () => clearInterval(slideshowTimerRef.current);
