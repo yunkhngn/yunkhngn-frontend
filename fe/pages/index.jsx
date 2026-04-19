@@ -35,11 +35,16 @@ export default function Home({
   galleryPhotos = [],
   settings: initialSettings = {}
 }) {
-  const [cachedSettings] = useState(() => readCachedSettings() || {});
+  const [cachedSettings, setCachedSettings] = useState({});
   const settings =
     initialSettings && Object.keys(initialSettings).length > 0
       ? initialSettings
       : cachedSettings || {};
+
+  useEffect(() => {
+    const storedSettings = readCachedSettings() || {};
+    setCachedSettings(storedSettings);
+  }, []);
 
   useEffect(() => {
     if (initialSettings && Object.keys(initialSettings).length > 0) {
