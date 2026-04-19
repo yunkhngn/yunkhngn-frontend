@@ -578,9 +578,9 @@ export default function Photo() {
                             )}
 
                             {/* Photo */}
-                            <div className="relative">
+                            <div className="relative w-[80vw] max-w-[1200px] h-[60vh] max-h-[80vh] flex items-center justify-center">
                                 {lightboxImageLoading && (
-                                    <Skeleton className="w-[80vw] max-w-[1200px] h-[60vh] max-h-[80vh] rounded-2xl" />
+                                    <Skeleton className="absolute inset-0 rounded-2xl z-10" />
                                 )}
                                 <Image
                                     src={getOptimizedUrl(viewingPhoto.imageUrl, { width: 1920 })}
@@ -588,7 +588,7 @@ export default function Photo() {
                                     width={0}
                                     height={0}
                                     sizes="100vw"
-                                    className={`max-w-full max-h-[80vh] w-auto h-auto object-contain rounded-2xl shadow-2xl transition-opacity duration-300 ${lightboxImageLoading ? 'opacity-0' : 'opacity-100'}`}
+                                    className={`max-w-full max-h-full w-auto h-auto object-contain rounded-2xl shadow-2xl transition-opacity duration-300 ${lightboxImageLoading ? 'opacity-0' : 'opacity-100'}`}
                                     placeholder={getBlurUrl(viewingPhoto.imageUrl) ? 'blur' : 'empty'}
                                     blurDataURL={getBlurUrl(viewingPhoto.imageUrl)}
                                     onLoad={() => setLightboxImageLoading(false)}
