@@ -6,6 +6,8 @@ import { SettingsService } from '../settings/settings.service';
 
 describe('AiService.generateProjectInfo', () => {
   let service: AiService;
+  const originalFetch = global.fetch;
+  let getModelSpy: jest.SpyInstance;
 
   const mockConfigService = {
     get: jest.fn((key: string) => {
@@ -47,7 +49,9 @@ describe('AiService.generateProjectInfo', () => {
     }).compile();
 
     service = module.get<AiService>(AiService);
-    jest.spyOn(service as any, 'getModel').mockResolvedValue(mockModel);
+    getModelSpy = jest
+      .spyOn(service as any, 'getModel')
+      .mockResolvedValue(mockModel);
     global.fetch = jest.fn().mockResolvedValue({
       ok: true,
       text: () => '# README',
@@ -55,6 +59,8 @@ describe('AiService.generateProjectInfo', () => {
   });
 
   afterEach(() => {
+    getModelSpy?.mockRestore();
+    global.fetch = originalFetch;
     jest.clearAllMocks();
   });
 
