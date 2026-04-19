@@ -12,6 +12,7 @@ import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion"
 import Layout from '@/components/template/Default/Layout';
 import Metadata from '@/components/template/Metadata';
 import { Button } from "@/components/ui/Button";
+import { readCachedSettings, writeCachedSettings } from '@/lib/settingsCache';
 
 const placeholder = "/image/placeholder.jpg";
 
@@ -30,6 +31,48 @@ export default function About() {
     const scrollRef = useRef(null);
 
     useEffect(() => {
+        const applySettings = (settingsObj) => {
+            setSettings(settingsObj || {});
+
+            if (settingsObj?.experience) {
+                try {
+                    setParsedExperience(JSON.parse(settingsObj.experience));
+                } catch (e) {
+                    console.error("Error parsing experience JSON setting", e);
+                    setParsedExperience([]);
+                }
+            } else {
+                setParsedExperience([]);
+            }
+
+            if (settingsObj?.education) {
+                try {
+                    setParsedEducation(JSON.parse(settingsObj.education));
+                } catch (e) {
+                    console.error("Error parsing education JSON setting", e);
+                    setParsedEducation([]);
+                }
+            } else {
+                setParsedEducation([]);
+            }
+
+            if (settingsObj?.skills) {
+                try {
+                    setParsedSkills(JSON.parse(settingsObj.skills));
+                } catch (e) {
+                    console.error("Error parsing skills JSON setting", e);
+                    setParsedSkills([]);
+                }
+            } else {
+                setParsedSkills([]);
+            }
+        };
+
+        const cachedSettings = readCachedSettings();
+        if (cachedSettings) {
+            applySettings(cachedSettings);
+        }
+
         const fetchSettings = async () => {
             try {
                 const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/settings`);
@@ -39,15 +82,8 @@ export default function About() {
                         acc[curr.settingTitle] = curr.content;
                         return acc;
                     }, {});
-                    setSettings(settingsObj);
-
-                    try {
-                        if (settingsObj.experience) setParsedExperience(JSON.parse(settingsObj.experience));
-                        if (settingsObj.education) setParsedEducation(JSON.parse(settingsObj.education));
-                        if (settingsObj.skills) setParsedSkills(JSON.parse(settingsObj.skills));
-                    } catch (e) {
-                        console.error("Error parsing JSON settings", e);
-                    }
+                    applySettings(settingsObj);
+                    writeCachedSettings(settingsObj);
                 }
             } catch (error) {
                 console.error("Failed to fetch settings", error);

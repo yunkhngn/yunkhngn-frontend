@@ -310,7 +310,11 @@ A: Không hẳn. Tớ chỉ build đều, sai đều, sửa đều. Kỹ năng �
         .slice(0, 5)
         .map((b: any) => {
           // Truncate to ~200 words
-          const content = b.contentJSON ? b.contentJSON.substring(0, 1200) : (b.content ? b.content.substring(0, 1200) : '');
+          const content = b.contentJSON
+            ? b.contentJSON.substring(0, 1200)
+            : b.content
+              ? b.content.substring(0, 1200)
+              : '';
           const truncated = content.split(' ').slice(0, 200).join(' ');
           return `- Title: ${b.title}
         Link: /blog/${b.slug}
@@ -323,7 +327,11 @@ A: Không hẳn. Tớ chỉ build đều, sai đều, sửa đều. Kỹ năng �
         .slice(0, 5)
         .map((p: any) => {
           // Truncate to ~200 words
-          const content = p.contentJSON ? p.contentJSON.substring(0, 1200) : (p.content ? p.content.substring(0, 1200) : '');
+          const content = p.contentJSON
+            ? p.contentJSON.substring(0, 1200)
+            : p.content
+              ? p.content.substring(0, 1200)
+              : '';
           const truncated = content.split(' ').slice(0, 200).join(' ');
           return `- Title: ${p.title}
         Link: /projects/${p.id}

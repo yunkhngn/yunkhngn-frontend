@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/Button';
 import {
@@ -25,14 +25,28 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import JsonLd from '@/components/seo/JsonLd';
 import Terminal from '@/components/home/Terminal';
 import { getOptimizedUrl, getBlurUrl } from '@/lib/cloudinary';
+import { readCachedSettings, writeCachedSettings } from '@/lib/settingsCache';
+import { sanitizeRichTextToPlainText } from '@/lib/sanitizeRichText';
 
 export default function Home({
   recentBlogs = [],
   featuredRepos = [],
   featuredProjects = [],
   galleryPhotos = [],
-  settings = {}
+  settings: initialSettings = {}
 }) {
+  const cachedSettings = useMemo(() => readCachedSettings() || {}, []);
+  const settings =
+    initialSettings && Object.keys(initialSettings).length > 0
+      ? initialSettings
+      : cachedSettings || {};
+
+  useEffect(() => {
+    if (initialSettings && Object.keys(initialSettings).length > 0) {
+      writeCachedSettings(initialSettings);
+    }
+  }, [initialSettings]);
+
   const calculateReadTime = (contentJSON) => {
     const text = extractTextFromTipTap(contentJSON);
     const words = text.trim().split(/\s+/).length;
@@ -181,7 +195,9 @@ export default function Home({
               <div className="mt-8 text-base leading-relaxed text-gray-400 font-light max-w-md">
                 {
                   settings.homepage_description ? (
-                    <div dangerouslySetInnerHTML={{ __html: settings.homepage_description }} className="whitespace-pre-wrap" />
+                    <p className="whitespace-pre-wrap">
+                      {sanitizeRichTextToPlainText(settings.homepage_description)}
+                    </p>
                   ) : (
                     <p>
                       Hi, I&apos;m <strong className="text-gray-200 font-medium">Khoa</strong>. I build things for the web and sometimes I break them too. Welcome to my personal terminal.

@@ -55,17 +55,43 @@ export class AiService {
     }
   }
 
+  private extractGitHubRepo(repoUrl: string): { owner: string; repo: string } {
+    const normalized = repoUrl
+      .trim()
+      .replace(/^git@github\.com:/i, 'https://github.com/');
+    const withProtocol = /^https?:\/\//i.test(normalized)
+      ? normalized
+      : `https://${normalized}`;
+
+    let url: URL;
+    try {
+      url = new URL(withProtocol);
+    } catch {
+      throw new Error('Invalid GitHub URL');
+    }
+
+    const hostname = url.hostname.toLowerCase();
+    const allowedGitHubHosts = new Set(['github.com', 'www.github.com']);
+    if (!allowedGitHubHosts.has(hostname)) {
+      throw new Error('Invalid GitHub URL');
+    }
+
+    const [owner, rawRepo] = url.pathname.split('/').filter(Boolean);
+    const repo = rawRepo?.replace(/\.git$/i, '');
+
+    if (!owner || !repo) {
+      throw new Error('Invalid GitHub URL');
+    }
+
+    return { owner, repo };
+  }
+
   async generateProjectInfo(
     repoUrl: string,
     language: string = 'vi',
   ): Promise<ProjectInfo> {
     try {
-      // Extract owner and repo
-      const match = repoUrl.match(/github\.com\/([^/]+)\/([^/]+)/);
-      if (!match) {
-        throw new Error('Invalid GitHub URL');
-      }
-      const [, owner, repo] = match;
+      const { owner, repo } = this.extractGitHubRepo(repoUrl);
 
       // Fetch README
       const readmeRes = await fetch(

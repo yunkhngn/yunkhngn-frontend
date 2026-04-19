@@ -44,6 +44,7 @@ export default function Photo() {
     const [loadingReaction, setLoadingReaction] = useState(false);
     const [slideshow, setSlideshow] = useState(false);
     const [showExif, setShowExif] = useState(false);
+    const [lightboxImageLoading, setLightboxImageLoading] = useState(false);
     const { user, signInAnonymously } = useAuth();
     const observerRef = useRef(null);
     const slideshowTimerRef = useRef(null);
@@ -120,34 +121,40 @@ export default function Photo() {
 
     // View photo
     const openPhoto = (index) => {
+        setLightboxImageLoading(true);
         setViewingIndex(index);
         // Track view
         fetch(`${API_URL}/gallery/views/${photos[index].id}`, { method: 'POST' }).catch(() => { });
     };
 
     const closePhoto = useCallback(() => {
+        setLightboxImageLoading(false);
         setViewingIndex(null);
         setShowExif(false);
         setSlideshow(false);
     }, []);
 
     const goToPrev = useCallback(() => {
-        setViewingIndex(currentIndex => {
-            if (currentIndex > 0) {
-                fetch(`${API_URL}/gallery/views/${photos[currentIndex - 1].id}`, { method: 'POST' }).catch(() => { });
-                return currentIndex - 1;
-            }
-            return currentIndex;
-        });
-    }, [photos]);
+        if (viewingIndex === null || viewingIndex <= 0) {
+            return;
+        }
+
+        const nextIndex = viewingIndex - 1;
+        setLightboxImageLoading(true);
+        setViewingIndex(nextIndex);
+        fetch(`${API_URL}/gallery/views/${photos[nextIndex].id}`, { method: 'POST' }).catch(() => { });
+    }, [photos, viewingIndex]);
 
     const goToNext = useCallback(() => {
-        setViewingIndex(currentIndex => {
-            if (currentIndex < photos.length - 1) {
-                fetch(`${API_URL}/gallery/views/${photos[currentIndex + 1].id}`, { method: 'POST' }).catch(() => { });
-                return currentIndex + 1;
+        setViewingIndex((currentIndex) => {
+            if (currentIndex === null || currentIndex >= photos.length - 1) {
+                return currentIndex;
             }
-            return currentIndex;
+
+            const nextIndex = currentIndex + 1;
+            setLightboxImageLoading(true);
+            fetch(`${API_URL}/gallery/views/${photos[nextIndex].id}`, { method: 'POST' }).catch(() => { });
+            return nextIndex;
         });
     }, [photos]);
 
@@ -167,12 +174,16 @@ export default function Photo() {
     useEffect(() => {
         if (slideshow && viewingIndex !== null) {
             slideshowTimerRef.current = setInterval(() => {
-                setViewingIndex(prev => {
-                    if (prev >= photos.length - 1) {
-                        setSlideshow(false);
-                        return prev;
+                setViewingIndex((currentIndex) => {
+                    if (currentIndex === null) {
+                        return currentIndex;
                     }
-                    return prev + 1;
+                    if (currentIndex >= photos.length - 1) {
+                        setSlideshow(false);
+                        return currentIndex;
+                    }
+                    setLightboxImageLoading(true);
+                    return currentIndex + 1;
                 });
             }, 4000);
         }
@@ -574,16 +585,23 @@ export default function Photo() {
                             )}
 
                             {/* Photo */}
-                            <Image
-                                src={getOptimizedUrl(viewingPhoto.imageUrl, { width: 1920 })}
-                                alt={viewingPhoto.caption || 'Photo'}
-                                width={0}
-                                height={0}
-                                sizes="100vw"
-                                className="max-w-full max-h-[80vh] w-auto h-auto object-contain rounded-2xl shadow-2xl"
-                                placeholder={getBlurUrl(viewingPhoto.imageUrl) ? 'blur' : 'empty'}
-                                blurDataURL={getBlurUrl(viewingPhoto.imageUrl)}
-                            />
+                            <div className="relative w-[80vw] max-w-[1200px] h-[60vh] max-h-[80vh] flex items-center justify-center">
+                                {lightboxImageLoading && (
+                                    <Skeleton className="absolute inset-0 rounded-2xl z-10" />
+                                )}
+                                <Image
+                                    src={getOptimizedUrl(viewingPhoto.imageUrl, { width: 1920 })}
+                                    alt={viewingPhoto.caption || 'Photo'}
+                                    width={0}
+                                    height={0}
+                                    sizes="100vw"
+                                    className={`max-w-full max-h-full w-auto h-auto object-contain rounded-2xl shadow-2xl transition-opacity duration-300 ${lightboxImageLoading ? 'opacity-0' : 'opacity-100'}`}
+                                    placeholder={getBlurUrl(viewingPhoto.imageUrl) ? 'blur' : 'empty'}
+                                    blurDataURL={getBlurUrl(viewingPhoto.imageUrl)}
+                                    onLoad={() => setLightboxImageLoading(false)}
+                                    onError={() => setLightboxImageLoading(false)}
+                                />
+                            </div>
 
                             {/* Caption Overlay */}
                             {viewingPhoto.caption && (

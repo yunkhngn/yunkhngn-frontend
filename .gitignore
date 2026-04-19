@@ -5,3 +5,5 @@ backups
 .agent/*
 GEMINI.md
 README.AGENT.md
+be/reports/*.xml
+fe/reports/*.xml
