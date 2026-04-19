@@ -135,26 +135,26 @@ export default function Photo() {
     }, []);
 
     const goToPrev = useCallback(() => {
-        setViewingIndex(currentIndex => {
-            if (currentIndex > 0) {
-                setLightboxImageLoading(true);
-                fetch(`${API_URL}/gallery/views/${photos[currentIndex - 1].id}`, { method: 'POST' }).catch(() => { });
-                return currentIndex - 1;
-            }
-            return currentIndex;
-        });
-    }, [photos]);
+        if (viewingIndex === null || viewingIndex <= 0) {
+            return;
+        }
+
+        const nextIndex = viewingIndex - 1;
+        setLightboxImageLoading(true);
+        setViewingIndex(nextIndex);
+        fetch(`${API_URL}/gallery/views/${photos[nextIndex].id}`, { method: 'POST' }).catch(() => { });
+    }, [photos, viewingIndex]);
 
     const goToNext = useCallback(() => {
-        setViewingIndex(currentIndex => {
-            if (currentIndex < photos.length - 1) {
-                setLightboxImageLoading(true);
-                fetch(`${API_URL}/gallery/views/${photos[currentIndex + 1].id}`, { method: 'POST' }).catch(() => { });
-                return currentIndex + 1;
-            }
-            return currentIndex;
-        });
-    }, [photos]);
+        if (viewingIndex === null || viewingIndex >= photos.length - 1) {
+            return;
+        }
+
+        const nextIndex = viewingIndex + 1;
+        setLightboxImageLoading(true);
+        setViewingIndex(nextIndex);
+        fetch(`${API_URL}/gallery/views/${photos[nextIndex].id}`, { method: 'POST' }).catch(() => { });
+    }, [photos, viewingIndex]);
 
     // Keyboard navigation
     useEffect(() => {
