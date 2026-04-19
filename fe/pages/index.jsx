@@ -26,6 +26,7 @@ import JsonLd from '@/components/seo/JsonLd';
 import Terminal from '@/components/home/Terminal';
 import { getOptimizedUrl, getBlurUrl } from '@/lib/cloudinary';
 import { readCachedSettings, writeCachedSettings } from '@/lib/settingsCache';
+import DOMPurify from 'isomorphic-dompurify';
 
 export default function Home({
   recentBlogs = [],
