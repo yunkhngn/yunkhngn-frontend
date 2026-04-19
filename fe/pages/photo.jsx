@@ -7,6 +7,7 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import Layout from '@/components/template/Default/Layout';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { getOptimizedUrl, getBlurUrl } from '@/lib/cloudinary';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 const PHOTOS_PER_PAGE = 12;
@@ -303,12 +304,6 @@ export default function Photo() {
         try { return JSON.parse(viewingPhoto.exifData); } catch { return null; }
     })() : null;
 
-    // Generate blur placeholder URL from Cloudinary
-    const getBlurUrl = (url) => {
-        if (!url || !url.includes('cloudinary.com')) return undefined;
-        return url.replace('/upload/', '/upload/w_20,q_auto:low,f_auto,e_blur:1000/');
-    };
-
     return (
         <div className="w-full max-w-7xl mx-auto p-4 sm:p-8">
             {/* Header */}
@@ -420,7 +415,7 @@ export default function Photo() {
 
                         {/* Masonry */}
                         {layout === 'masonry' && (
-                            <MasonryGrid photos={photos} openPhoto={openPhoto} lastPhotoRef={lastPhotoRef} getBlurUrl={getBlurUrl} />
+                            <MasonryGrid photos={photos} openPhoto={openPhoto} lastPhotoRef={lastPhotoRef} />
                         )}
 
                         {/* Grid */}
@@ -434,12 +429,13 @@ export default function Photo() {
                                         onClick={() => openPhoto(i)}
                                     >
                                         <Image
-                                            src={photo.imageUrl}
+                                            src={getOptimizedUrl(photo.imageUrl, { width: 600 })}
                                             alt={photo.caption || 'Gallery Photo'}
                                             fill
                                             sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
                                             className="object-cover transition-transform duration-500 group-hover:scale-105"
-                                            unoptimized
+                                            placeholder={getBlurUrl(photo.imageUrl) ? 'blur' : 'empty'}
+                                            blurDataURL={getBlurUrl(photo.imageUrl)}
                                         />
                                         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
                                     </div>
@@ -459,13 +455,14 @@ export default function Photo() {
                                     >
                                         <div className="relative">
                                             <Image
-                                                src={photo.imageUrl}
+                                                src={getOptimizedUrl(photo.imageUrl, { width: 800 })}
                                                 alt={photo.caption || 'Gallery Photo'}
                                                 width={0}
                                                 height={0}
                                                 sizes="(max-width: 768px) 100vw, 768px"
                                                 className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-[1.02]"
-                                                unoptimized
+                                                placeholder={getBlurUrl(photo.imageUrl) ? 'blur' : 'empty'}
+                                                blurDataURL={getBlurUrl(photo.imageUrl)}
                                             />
                                         </div>
                                         {photo.caption && (
@@ -578,13 +575,14 @@ export default function Photo() {
 
                             {/* Photo */}
                             <Image
-                                src={viewingPhoto.imageUrl}
+                                src={getOptimizedUrl(viewingPhoto.imageUrl, { width: 1920 })}
                                 alt={viewingPhoto.caption || 'Photo'}
                                 width={0}
                                 height={0}
                                 sizes="100vw"
                                 className="max-w-full max-h-[80vh] w-auto h-auto object-contain rounded-2xl shadow-2xl"
-                                unoptimized
+                                placeholder={getBlurUrl(viewingPhoto.imageUrl) ? 'blur' : 'empty'}
+                                blurDataURL={getBlurUrl(viewingPhoto.imageUrl)}
                             />
 
                             {/* Caption Overlay */}
@@ -634,7 +632,7 @@ export default function Photo() {
 }
 
 
-function MasonryGrid({ photos, openPhoto, lastPhotoRef, getBlurUrl }) {
+function MasonryGrid({ photos, openPhoto, lastPhotoRef }) {
     const [columns, setColumns] = useState(3);
 
     useEffect(() => {
@@ -673,7 +671,7 @@ function MasonryGrid({ photos, openPhoto, lastPhotoRef, getBlurUrl }) {
                                 }}
                             >
                                 <Image
-                                    src={photo.imageUrl}
+                                    src={getOptimizedUrl(photo.imageUrl, { width: columns === 3 ? 600 : 800 })}
                                     alt={photo.caption || 'Gallery Photo'}
                                     width={photo.width || 800}
                                     height={photo.height || 600}
@@ -681,7 +679,6 @@ function MasonryGrid({ photos, openPhoto, lastPhotoRef, getBlurUrl }) {
                                     className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105"
                                     placeholder={getBlurUrl(photo.imageUrl) ? 'blur' : 'empty'}
                                     blurDataURL={getBlurUrl(photo.imageUrl)}
-                                    unoptimized
                                 />
                                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
                                 {photo.caption && (

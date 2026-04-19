@@ -45,6 +45,22 @@ export class BlogService {
   async findAll() {
     return this.prisma.blog.findMany({
       orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        thumbnail: true,
+        tags: true,
+        status: true,
+        seoTitle: true,
+        seoDescription: true,
+        seoImage: true,
+        imageSettings: true,
+        views: true,
+        createdAt: true,
+        updatedAt: true,
+        // specifically omitting contentJSON
+      },
     });
   }
 
