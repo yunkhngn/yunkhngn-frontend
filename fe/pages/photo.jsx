@@ -614,7 +614,6 @@ export default function Photo() {
                                     blurDataURL={getBlurUrl(viewingPhoto.imageUrl)}
                                     onLoad={() => setLightboxImageLoading(false)}
                                     onError={() => setLightboxImageLoading(false)}
-                                    priority
                                 />
                             </div>
 
