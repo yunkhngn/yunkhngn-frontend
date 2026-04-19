@@ -34,17 +34,11 @@ export default function Home({
   galleryPhotos = [],
   settings: initialSettings = {}
 }) {
-  const [cachedSettings, setCachedSettings] = useState({});
+  const [cachedSettings] = useState(() => readCachedSettings() || {});
   const settings =
     initialSettings && Object.keys(initialSettings).length > 0
       ? initialSettings
       : cachedSettings || {};
-
-  useEffect(() => {
-    if (!initialSettings || Object.keys(initialSettings).length === 0) {
-      setCachedSettings(readCachedSettings() || {});
-    }
-  }, [initialSettings]);
 
   useEffect(() => {
     if (initialSettings && Object.keys(initialSettings).length > 0) {
@@ -202,6 +196,7 @@ export default function Home({
                   settings.homepage_description ? (
                     <div
                       className="whitespace-pre-wrap"
+                      // nosemgrep: typescript.react.security.audit.react-dangerouslysetinnerhtml.react-dangerouslysetinnerhtml
                       dangerouslySetInnerHTML={{
                         __html: DOMPurify.sanitize(settings.homepage_description)
                       }}
