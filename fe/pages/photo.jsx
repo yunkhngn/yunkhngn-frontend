@@ -468,8 +468,8 @@ export default function Photo() {
                                             <Image
                                                 src={getOptimizedUrl(photo.imageUrl, { width: 800 })}
                                                 alt={photo.caption || 'Gallery Photo'}
-                                                width={0}
-                                                height={0}
+                                                width={photo.width || 800}
+                                                height={photo.height || 600}
                                                 sizes="(max-width: 768px) 100vw, 768px"
                                                 className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-[1.02]"
                                                 placeholder={getBlurUrl(photo.imageUrl) ? 'blur' : 'empty'}
@@ -513,7 +513,7 @@ export default function Photo() {
             <Dialog open={viewingIndex !== null} onOpenChange={(open) => !open && closePhoto()}>
                 <DialogContent
                     showCloseButton={false}
-                    className="max-w-[95vw] md:max-w-5xl p-0 overflow-hidden border-none bg-transparent shadow-none sm:bg-transparent rounded"
+                    className="max-w-[98vw] md:max-w-7xl p-0 overflow-hidden border-none bg-transparent shadow-none sm:bg-transparent rounded"
                     onTouchStart={handleTouchStart}
                     onTouchEnd={handleTouchEnd}
                 >
@@ -600,21 +600,21 @@ export default function Photo() {
                             )}
 
                             {/* Photo */}
-                            <div className="relative w-[80vw] max-w-[1200px] h-[60vh] max-h-[80vh] flex items-center justify-center">
+                            <div className="relative w-[90vw] max-w-7xl h-[85vh] flex items-center justify-center">
                                 {lightboxImageLoading && (
                                     <Skeleton className="absolute inset-0 rounded-2xl z-10" />
                                 )}
                                 <Image
                                     src={getOptimizedUrl(viewingPhoto.imageUrl, { width: 1920 })}
                                     alt={viewingPhoto.caption || 'Photo'}
-                                    width={0}
-                                    height={0}
-                                    sizes="100vw"
-                                    className={`max-w-full max-h-full w-auto h-auto object-contain rounded-2xl shadow-2xl transition-opacity duration-300 ${lightboxImageLoading ? 'opacity-0' : 'opacity-100'}`}
+                                    fill
+                                    sizes="(max-width: 1280px) 100vw, 1280px"
+                                    className={`object-contain rounded-2xl shadow-2xl transition-opacity duration-300 ${lightboxImageLoading ? 'opacity-0' : 'opacity-100'}`}
                                     placeholder={getBlurUrl(viewingPhoto.imageUrl) ? 'blur' : 'empty'}
                                     blurDataURL={getBlurUrl(viewingPhoto.imageUrl)}
                                     onLoad={() => setLightboxImageLoading(false)}
                                     onError={() => setLightboxImageLoading(false)}
+                                    priority
                                 />
                             </div>
 
