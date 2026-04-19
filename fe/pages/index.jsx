@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/Button';
 import {
@@ -26,6 +26,7 @@ import JsonLd from '@/components/seo/JsonLd';
 import Terminal from '@/components/home/Terminal';
 import { getOptimizedUrl, getBlurUrl } from '@/lib/cloudinary';
 import { readCachedSettings, writeCachedSettings } from '@/lib/settingsCache';
+import { sanitizeRichTextToPlainText } from '@/lib/sanitizeRichText';
 
 export default function Home({
   recentBlogs = [],
@@ -34,16 +35,11 @@ export default function Home({
   galleryPhotos = [],
   settings: initialSettings = {}
 }) {
-  const [cachedSettings, setCachedSettings] = useState({});
+  const cachedSettings = useMemo(() => readCachedSettings() || {}, []);
   const settings =
     initialSettings && Object.keys(initialSettings).length > 0
       ? initialSettings
       : cachedSettings || {};
-
-  useEffect(() => {
-    const storedSettings = readCachedSettings() || {};
-    setCachedSettings(storedSettings);
-  }, []);
 
   useEffect(() => {
     if (initialSettings && Object.keys(initialSettings).length > 0) {
@@ -199,13 +195,9 @@ export default function Home({
               <div className="mt-8 text-base leading-relaxed text-gray-400 font-light max-w-md">
                 {
                   settings.homepage_description ? (
-                    <div
-                      className="whitespace-pre-wrap"
-                      // nosemgrep: typescript.react.security.audit.react-dangerouslysetinnerhtml.react-dangerouslysetinnerhtml
-                      dangerouslySetInnerHTML={{
-                        __html: DOMPurify.sanitize(settings.homepage_description)
-                      }}
-                    />
+                    <p className="whitespace-pre-wrap">
+                      {sanitizeRichTextToPlainText(settings.homepage_description)}
+                    </p>
                   ) : (
                     <p>
                       Hi, I&apos;m <strong className="text-gray-200 font-medium">Khoa</strong>. I build things for the web and sometimes I break them too. Welcome to my personal terminal.
