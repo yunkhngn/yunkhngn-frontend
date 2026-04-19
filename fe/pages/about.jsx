@@ -33,12 +33,38 @@ export default function About() {
     useEffect(() => {
         const applySettings = (settingsObj) => {
             setSettings(settingsObj || {});
-            try {
-                setParsedExperience(settingsObj?.experience ? JSON.parse(settingsObj.experience) : []);
-                setParsedEducation(settingsObj?.education ? JSON.parse(settingsObj.education) : []);
-                setParsedSkills(settingsObj?.skills ? JSON.parse(settingsObj.skills) : []);
-            } catch (e) {
-                console.error("Error parsing JSON settings", e);
+
+            if (settingsObj?.experience) {
+                try {
+                    setParsedExperience(JSON.parse(settingsObj.experience));
+                } catch (e) {
+                    console.error("Error parsing experience JSON setting", e);
+                    setParsedExperience([]);
+                }
+            } else {
+                setParsedExperience([]);
+            }
+
+            if (settingsObj?.education) {
+                try {
+                    setParsedEducation(JSON.parse(settingsObj.education));
+                } catch (e) {
+                    console.error("Error parsing education JSON setting", e);
+                    setParsedEducation([]);
+                }
+            } else {
+                setParsedEducation([]);
+            }
+
+            if (settingsObj?.skills) {
+                try {
+                    setParsedSkills(JSON.parse(settingsObj.skills));
+                } catch (e) {
+                    console.error("Error parsing skills JSON setting", e);
+                    setParsedSkills([]);
+                }
+            } else {
+                setParsedSkills([]);
             }
         };
 
