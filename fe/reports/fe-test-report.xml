@@ -1,3 +1,3 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated JUnit test reports should not be committed with run-specific timestamps or durations. -->
-<testsuites name="jest tests" tests="0" failures="0" errors="0" time="0"/>
+<!-- Placeholder file only. Generated Jest JUnit reports should be produced in CI and uploaded as artifacts, not committed to source control. -->
+<report-placeholder>Generate test reports at build time instead of storing them in version control.</report-placeholder>
