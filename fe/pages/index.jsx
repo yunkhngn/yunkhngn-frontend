@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/Button';
 import {
@@ -34,16 +34,14 @@ export default function Home({
   galleryPhotos = [],
   settings: initialSettings = {}
 }) {
-  const [settings, setSettings] = useState(initialSettings);
+  const cachedSettings = useMemo(() => readCachedSettings(), []);
+  const settings =
+    initialSettings && Object.keys(initialSettings).length > 0
+      ? initialSettings
+      : cachedSettings || {};
 
   useEffect(() => {
-    const cachedSettings = readCachedSettings();
-    if (cachedSettings && Object.keys(initialSettings || {}).length === 0) {
-      setSettings(cachedSettings);
-    }
-
     if (initialSettings && Object.keys(initialSettings).length > 0) {
-      setSettings(initialSettings);
       writeCachedSettings(initialSettings);
     }
   }, [initialSettings]);

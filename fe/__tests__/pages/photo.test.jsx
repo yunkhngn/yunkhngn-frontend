@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element, jsx-a11y/alt-text */
 import React from 'react'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import Photo from '@/pages/photo'
@@ -104,5 +105,26 @@ describe('Photo page lightbox loading', () => {
         fireEvent.click(screen.getAllByAltText('Live show')[0])
 
         expect(container.querySelector('[data-slot="skeleton"]')).toBeInTheDocument()
+    })
+
+    it('keeps lightbox image visible after load event', async () => {
+        render(<Photo />)
+
+        await waitFor(() => {
+            expect(screen.getAllByAltText('Live show').length).toBeGreaterThan(0)
+        })
+
+        fireEvent.click(screen.getAllByAltText('Live show')[0])
+
+        await waitFor(() => {
+            expect(screen.getAllByAltText('Live show').length).toBeGreaterThan(1)
+        })
+
+        const modalImage = screen.getAllByAltText('Live show')[1]
+        fireEvent.load(modalImage)
+
+        await waitFor(() => {
+            expect(modalImage).toHaveClass('opacity-100')
+        })
     })
 })

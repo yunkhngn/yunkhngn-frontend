@@ -1,9 +1,205 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="jest tests" tests="2" failures="0" errors="0" time="2.058">
-  <testsuite name="AiService.generateProjectInfo" errors="0" failures="0" skipped="0" timestamp="2026-04-19T15:17:09" time="1.912" tests="2">
-    <testcase classname="AiService.generateProjectInfo uses normalized repo name for .git clone URL" name="AiService.generateProjectInfo uses normalized repo name for .git clone URL" time="0.007">
+<testsuites name="jest tests" tests="80" failures="0" errors="0" time="5.396">
+  <testsuite name="GalleryService" errors="0" failures="0" skipped="0" timestamp="2026-04-19T15:41:15" time="4.442" tests="8">
+    <testcase classname="GalleryService should be defined" name="GalleryService should be defined" time="0.019">
     </testcase>
-    <testcase classname="AiService.generateProjectInfo ignores query string in GitHub repo URL" name="AiService.generateProjectInfo ignores query string in GitHub repo URL" time="0.002">
+    <testcase classname="GalleryService findAll should return paginated photos with default params" name="GalleryService findAll should return paginated photos with default params" time="0.003">
+    </testcase>
+    <testcase classname="GalleryService findAll should filter by albumId and tag" name="GalleryService findAll should filter by albumId and tag" time="0.002">
+    </testcase>
+    <testcase classname="GalleryService incrementViews should fire and forget" name="GalleryService incrementViews should fire and forget" time="0.006">
+    </testcase>
+    <testcase classname="GalleryService reorder should update sort orders in transaction" name="GalleryService reorder should update sort orders in transaction" time="0.002">
+    </testcase>
+    <testcase classname="GalleryService bulkUpdate should update multiple photos" name="GalleryService bulkUpdate should update multiple photos" time="0.001">
+    </testcase>
+    <testcase classname="GalleryService getAllTags should extract and deduplicate tags" name="GalleryService getAllTags should extract and deduplicate tags" time="0.001">
+    </testcase>
+    <testcase classname="GalleryService getUploadSignature should return signature" name="GalleryService getUploadSignature should return signature" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="CloudflareService" errors="0" failures="0" skipped="0" timestamp="2026-04-19T15:41:15" time="4.43" tests="5">
+    <testcase classname="CloudflareService should be defined" name="CloudflareService should be defined" time="0.009">
+    </testcase>
+    <testcase classname="CloudflareService getAnalytics should return analytics data when API call is successful" name="CloudflareService getAnalytics should return analytics data when API call is successful" time="0.033">
+    </testcase>
+    <testcase classname="CloudflareService getAnalytics should throw error when API call fails" name="CloudflareService getAnalytics should throw error when API call fails" time="0.011">
+    </testcase>
+    <testcase classname="CloudflareService getAnalytics should throw error when GraphQL returns errors" name="CloudflareService getAnalytics should throw error when GraphQL returns errors" time="0.014">
+    </testcase>
+    <testcase classname="CloudflareService getAnalytics should return null if credentials are missing" name="CloudflareService getAnalytics should return null if credentials are missing" time="0.002">
+    </testcase>
+  </testsuite>
+  <testsuite name="BlogService" errors="0" failures="0" skipped="0" timestamp="2026-04-19T15:41:15" time="4.458" tests="4">
+    <testcase classname="BlogService should be defined" name="BlogService should be defined" time="0.007">
+    </testcase>
+    <testcase classname="BlogService create should create a blog" name="BlogService create should create a blog" time="0.008">
+    </testcase>
+    <testcase classname="BlogService findAll should return an array of blogs" name="BlogService findAll should return an array of blogs" time="0.001">
+    </testcase>
+    <testcase classname="BlogService findOne should return a single blog" name="BlogService findOne should return a single blog" time="0.002">
+    </testcase>
+  </testsuite>
+  <testsuite name="GithubService" errors="0" failures="0" skipped="0" timestamp="2026-04-19T15:41:15" time="4.547" tests="8">
+    <testcase classname="GithubService should be defined" name="GithubService should be defined" time="0.008">
+    </testcase>
+    <testcase classname="GithubService getPublicRepos should return repositories on success" name="GithubService getPublicRepos should return repositories on success" time="0.017">
+    </testcase>
+    <testcase classname="GithubService getPublicRepos should return empty array if octokit is not initialized" name="GithubService getPublicRepos should return empty array if octokit is not initialized" time="0.001">
+    </testcase>
+    <testcase classname="GithubService getPublicRepos should return empty array and log error on failure" name="GithubService getPublicRepos should return empty array and log error on failure" time="0.002">
+    </testcase>
+    <testcase classname="GithubService getWorkflowRuns should return mapped workflow runs on success" name="GithubService getWorkflowRuns should return mapped workflow runs on success" time="0.003">
+    </testcase>
+    <testcase classname="GithubService getWorkflowRuns should return empty array if octokit is not initialized" name="GithubService getWorkflowRuns should return empty array if octokit is not initialized" time="0.001">
+    </testcase>
+    <testcase classname="GithubService getWorkflowRuns should return empty array and log warning on 404" name="GithubService getWorkflowRuns should return empty array and log warning on 404" time="0.001">
+    </testcase>
+    <testcase classname="GithubService getWorkflowRuns should return empty array and log error on other errors" name="GithubService getWorkflowRuns should return empty array and log error on other errors" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="ShortlinkService" errors="0" failures="0" skipped="0" timestamp="2026-04-19T15:41:15" time="4.602" tests="11">
+    <testcase classname="ShortlinkService should be defined" name="ShortlinkService should be defined" time="0.034">
+    </testcase>
+    <testcase classname="ShortlinkService create should create a shortlink with a provided code" name="ShortlinkService create should create a shortlink with a provided code" time="0.009">
+    </testcase>
+    <testcase classname="ShortlinkService create should throw ConflictException if code already exists" name="ShortlinkService create should throw ConflictException if code already exists" time="0.028">
+    </testcase>
+    <testcase classname="ShortlinkService create should auto-generate a code if not provided" name="ShortlinkService create should auto-generate a code if not provided" time="0.002">
+    </testcase>
+    <testcase classname="ShortlinkService findAll should return all shortlinks" name="ShortlinkService findAll should return all shortlinks" time="0.018">
+    </testcase>
+    <testcase classname="ShortlinkService resolve should resolve a valid shortlink and return targetUrl" name="ShortlinkService resolve should resolve a valid shortlink and return targetUrl" time="0.001">
+    </testcase>
+    <testcase classname="ShortlinkService resolve should throw NotFoundException for non-existent code" name="ShortlinkService resolve should throw NotFoundException for non-existent code" time="0.001">
+    </testcase>
+    <testcase classname="ShortlinkService resolve should throw NotFoundException for inactive link" name="ShortlinkService resolve should throw NotFoundException for inactive link" time="0.001">
+    </testcase>
+    <testcase classname="ShortlinkService resolve should throw NotFoundException for expired link" name="ShortlinkService resolve should throw NotFoundException for expired link" time="0.002">
+    </testcase>
+    <testcase classname="ShortlinkService remove should delete a shortlink" name="ShortlinkService remove should delete a shortlink" time="0.014">
+    </testcase>
+    <testcase classname="ShortlinkService remove should throw NotFoundException if not found" name="ShortlinkService remove should throw NotFoundException if not found" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="NewsletterController" errors="0" failures="0" skipped="0" timestamp="2026-04-19T15:41:20" time="0.156" tests="1">
+    <testcase classname="NewsletterController should be defined" name="NewsletterController should be defined" time="0.005">
+    </testcase>
+  </testsuite>
+  <testsuite name="MediaController" errors="0" failures="0" skipped="0" timestamp="2026-04-19T15:41:20" time="0.17" tests="5">
+    <testcase classname="MediaController should be defined" name="MediaController should be defined" time="0.005">
+    </testcase>
+    <testcase classname="MediaController getImages should call cloudinaryService.getImages" name="MediaController getImages should call cloudinaryService.getImages" time="0.002">
+    </testcase>
+    <testcase classname="MediaController deleteImage should call cloudinaryService.deleteImage" name="MediaController deleteImage should call cloudinaryService.deleteImage" time="0.001">
+    </testcase>
+    <testcase classname="MediaController deleteImage should throw error if publicId is missing" name="MediaController deleteImage should throw error if publicId is missing" time="0.002">
+    </testcase>
+    <testcase classname="MediaController getSignature should call cloudinaryService.generateUploadSignature" name="MediaController getSignature should call cloudinaryService.generateUploadSignature" time="0.01">
+    </testcase>
+  </testsuite>
+  <testsuite name="ContactService" errors="0" failures="0" skipped="0" timestamp="2026-04-19T15:41:15" time="4.637" tests="5">
+    <testcase classname="ContactService should be defined" name="ContactService should be defined" time="0.048">
+    </testcase>
+    <testcase classname="ContactService createContact should create a contact and send notification" name="ContactService createContact should create a contact and send notification" time="0.003">
+    </testcase>
+    <testcase classname="ContactService respondToContact should send email and update contact status" name="ContactService respondToContact should send email and update contact status" time="0.021">
+    </testcase>
+    <testcase classname="ContactService generateAiResponse should call AI service with correct prompt" name="ContactService generateAiResponse should call AI service with correct prompt" time="0.002">
+    </testcase>
+    <testcase classname="ContactService sendCustomEmail should send custom email with salutation" name="ContactService sendCustomEmail should send custom email with salutation" time="0.004">
+    </testcase>
+  </testsuite>
+  <testsuite name="CommentsService" errors="0" failures="0" skipped="0" timestamp="2026-04-19T15:41:15" time="4.706" tests="8">
+    <testcase classname="CommentsService should be defined" name="CommentsService should be defined" time="0.027">
+    </testcase>
+    <testcase classname="CommentsService create should create a comment" name="CommentsService create should create a comment" time="0.018">
+    </testcase>
+    <testcase classname="CommentsService create should sanitize XSS" name="CommentsService create should sanitize XSS" time="0.004">
+    </testcase>
+    <testcase classname="CommentsService create should reject empty content after sanitization" name="CommentsService create should reject empty content after sanitization" time="0.021">
+    </testcase>
+    <testcase classname="CommentsService create should reject repeated punctuation" name="CommentsService create should reject repeated punctuation" time="0.015">
+    </testcase>
+    <testcase classname="CommentsService create should accept allowed repeated punctuation" name="CommentsService create should accept allowed repeated punctuation" time="0.016">
+    </testcase>
+    <testcase classname="CommentsService create should reject excessive repeated characters" name="CommentsService create should reject excessive repeated characters" time="0.001">
+    </testcase>
+    <testcase classname="CommentsService create should reject forbidden keywords" name="CommentsService create should reject forbidden keywords" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="PhotoReactionsService" errors="0" failures="0" skipped="0" timestamp="2026-04-19T15:41:20" time="0.219" tests="4">
+    <testcase classname="PhotoReactionsService should be defined" name="PhotoReactionsService should be defined" time="0.005">
+    </testcase>
+    <testcase classname="PhotoReactionsService addOrUpdateReaction should upsert reaction and trigger notification" name="PhotoReactionsService addOrUpdateReaction should upsert reaction and trigger notification" time="0.033">
+    </testcase>
+    <testcase classname="PhotoReactionsService removeReaction should delete reaction" name="PhotoReactionsService removeReaction should delete reaction" time="0.003">
+    </testcase>
+    <testcase classname="PhotoReactionsService getPhotoReactions should return reactions for a photo" name="PhotoReactionsService getPhotoReactions should return reactions for a photo" time="0.002">
+    </testcase>
+  </testsuite>
+  <testsuite name="PrismaService" errors="0" failures="0" skipped="0" timestamp="2026-04-19T15:41:20" time="0.096" tests="1">
+    <testcase classname="PrismaService should be defined" name="PrismaService should be defined" time="0.034">
+    </testcase>
+  </testsuite>
+  <testsuite name="CloudinaryService" errors="0" failures="0" skipped="0" timestamp="2026-04-19T15:41:20" time="0.187" tests="1">
+    <testcase classname="CloudinaryService should be defined" name="CloudinaryService should be defined" time="0.008">
+    </testcase>
+  </testsuite>
+  <testsuite name="ProjectService" errors="0" failures="0" skipped="0" timestamp="2026-04-19T15:41:20" time="0.083" tests="2">
+    <testcase classname="ProjectService should be defined" name="ProjectService should be defined" time="0.005">
+    </testcase>
+    <testcase classname="ProjectService create should create a project" name="ProjectService create should create a project" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="SystemService" errors="0" failures="0" skipped="0" timestamp="2026-04-19T15:41:20" time="0.084" tests="1">
+    <testcase classname="SystemService should be defined" name="SystemService should be defined" time="0.002">
+    </testcase>
+  </testsuite>
+  <testsuite name="NotificationsService" errors="0" failures="0" skipped="0" timestamp="2026-04-19T15:41:20" time="0.142" tests="3">
+    <testcase classname="NotificationsService should be defined" name="NotificationsService should be defined" time="0.002">
+    </testcase>
+    <testcase classname="NotificationsService create should create a notification and emit event" name="NotificationsService create should create a notification and emit event" time="0.001">
+    </testcase>
+    <testcase classname="NotificationsService findAll should return paginated notifications" name="NotificationsService findAll should return paginated notifications" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="AppController" errors="0" failures="0" skipped="0" timestamp="2026-04-19T15:41:20" time="0.092" tests="1">
+    <testcase classname="AppController root should return &quot;Hello World!&quot;" name="AppController root should return &quot;Hello World!&quot;" time="0.006">
+    </testcase>
+  </testsuite>
+  <testsuite name="NewsletterService" errors="0" failures="0" skipped="0" timestamp="2026-04-19T15:41:20" time="0.124" tests="1">
+    <testcase classname="NewsletterService should be defined" name="NewsletterService should be defined" time="0.013">
+    </testcase>
+  </testsuite>
+  <testsuite name="ApiKeyGuard" errors="0" failures="0" skipped="0" timestamp="2026-04-19T15:41:20" time="0.126" tests="5">
+    <testcase classname="ApiKeyGuard should be defined" name="ApiKeyGuard should be defined" time="0.002">
+    </testcase>
+    <testcase classname="ApiKeyGuard should throw UnauthorizedException if API key is missing" name="ApiKeyGuard should throw UnauthorizedException if API key is missing" time="0.009">
+    </testcase>
+    <testcase classname="ApiKeyGuard should throw UnauthorizedException if API key is not configured on server" name="ApiKeyGuard should throw UnauthorizedException if API key is not configured on server" time="0.005">
+    </testcase>
+    <testcase classname="ApiKeyGuard should throw UnauthorizedException if API key is invalid" name="ApiKeyGuard should throw UnauthorizedException if API key is invalid" time="0.002">
+    </testcase>
+    <testcase classname="ApiKeyGuard should return true if API key is valid" name="ApiKeyGuard should return true if API key is valid" time="0.016">
+    </testcase>
+  </testsuite>
+  <testsuite name="SystemController" errors="0" failures="0" skipped="0" timestamp="2026-04-19T15:41:20" time="0.107" tests="1">
+    <testcase classname="SystemController should be defined" name="SystemController should be defined" time="0.002">
+    </testcase>
+  </testsuite>
+  <testsuite name="SettingsService" errors="0" failures="0" skipped="0" timestamp="2026-04-19T15:41:20" time="0.104" tests="3">
+    <testcase classname="SettingsService should be defined" name="SettingsService should be defined" time="0.002">
+    </testcase>
+    <testcase classname="SettingsService getSettings should return all settings" name="SettingsService getSettings should return all settings" time="0.001">
+    </testcase>
+    <testcase classname="SettingsService onModuleInit should initialize default settings" name="SettingsService onModuleInit should initialize default settings" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="AiService.generateProjectInfo" errors="0" failures="0" skipped="0" timestamp="2026-04-19T15:41:20" time="0.154" tests="2">
+    <testcase classname="AiService.generateProjectInfo uses normalized repo name for .git clone URL" name="AiService.generateProjectInfo uses normalized repo name for .git clone URL" time="0.002">
+    </testcase>
+    <testcase classname="AiService.generateProjectInfo ignores query string in GitHub repo URL" name="AiService.generateProjectInfo ignores query string in GitHub repo URL" time="0.006">
     </testcase>
   </testsuite>
 </testsuites>

@@ -50,8 +50,8 @@ describe('AiService.generateProjectInfo', () => {
     jest.spyOn(service as any, 'getModel').mockResolvedValue(mockModel);
     global.fetch = jest.fn().mockResolvedValue({
       ok: true,
-      text: async () => '# README',
-    } as Response);
+      text: () => '# README',
+    } as unknown as Response);
   });
 
   afterEach(() => {

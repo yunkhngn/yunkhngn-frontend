@@ -56,10 +56,9 @@ export class AiService {
   }
 
   private extractGitHubRepo(repoUrl: string): { owner: string; repo: string } {
-    const normalized = repoUrl.trim().replace(
-      /^git@github\.com:/i,
-      'https://github.com/',
-    );
+    const normalized = repoUrl
+      .trim()
+      .replace(/^git@github\.com:/i, 'https://github.com/');
     const withProtocol = /^https?:\/\//i.test(normalized)
       ? normalized
       : `https://${normalized}`;

@@ -121,12 +121,14 @@ export default function Photo() {
 
     // View photo
     const openPhoto = (index) => {
+        setLightboxImageLoading(true);
         setViewingIndex(index);
         // Track view
         fetch(`${API_URL}/gallery/views/${photos[index].id}`, { method: 'POST' }).catch(() => { });
     };
 
     const closePhoto = useCallback(() => {
+        setLightboxImageLoading(false);
         setViewingIndex(null);
         setShowExif(false);
         setSlideshow(false);
@@ -135,6 +137,7 @@ export default function Photo() {
     const goToPrev = useCallback(() => {
         setViewingIndex(currentIndex => {
             if (currentIndex > 0) {
+                setLightboxImageLoading(true);
                 fetch(`${API_URL}/gallery/views/${photos[currentIndex - 1].id}`, { method: 'POST' }).catch(() => { });
                 return currentIndex - 1;
             }
@@ -145,6 +148,7 @@ export default function Photo() {
     const goToNext = useCallback(() => {
         setViewingIndex(currentIndex => {
             if (currentIndex < photos.length - 1) {
+                setLightboxImageLoading(true);
                 fetch(`${API_URL}/gallery/views/${photos[currentIndex + 1].id}`, { method: 'POST' }).catch(() => { });
                 return currentIndex + 1;
             }
@@ -173,6 +177,7 @@ export default function Photo() {
                         setSlideshow(false);
                         return prev;
                     }
+                    setLightboxImageLoading(true);
                     return prev + 1;
                 });
             }, 4000);
@@ -201,10 +206,6 @@ export default function Photo() {
             setReactionCounts({ like: 0, heart: 0, cat: 0, fire: 0, laugh: 0 });
         }
     }, [viewingPhoto]);
-
-    useEffect(() => {
-        setLightboxImageLoading(viewingIndex !== null);
-    }, [viewingIndex]);
 
     const fetchReactions = async (photoId) => {
         try {

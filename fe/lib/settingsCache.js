@@ -20,7 +20,8 @@ export function readCachedSettings() {
       Object.prototype.hasOwnProperty.call(parsed, 'createdAt');
 
     if (!hasEnvelope) {
-      return parsed;
+      window.localStorage.removeItem(SETTINGS_CACHE_KEY);
+      return null;
     }
 
     if (

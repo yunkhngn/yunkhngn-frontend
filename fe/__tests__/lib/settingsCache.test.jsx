@@ -38,4 +38,13 @@ describe('settings cache', () => {
 
         expect(readCachedSettings()).toBeNull()
     })
+
+    it('returns null for legacy cache shape without metadata', () => {
+        window.localStorage.setItem(
+            SETTINGS_CACHE_KEY,
+            JSON.stringify({ bio: 'legacy-value' }),
+        )
+
+        expect(readCachedSettings()).toBeNull()
+    })
 })
