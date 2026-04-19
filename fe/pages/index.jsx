@@ -26,6 +26,7 @@ import JsonLd from '@/components/seo/JsonLd';
 import Terminal from '@/components/home/Terminal';
 import { getOptimizedUrl, getBlurUrl } from '@/lib/cloudinary';
 import { readCachedSettings, writeCachedSettings } from '@/lib/settingsCache';
+import DOMPurify from 'isomorphic-dompurify';
 
 export default function Home({
   recentBlogs = [],
@@ -200,7 +201,12 @@ export default function Home({
               <div className="mt-8 text-base leading-relaxed text-gray-400 font-light max-w-md">
                 {
                   settings.homepage_description ? (
-                    <p className="whitespace-pre-wrap">{settings.homepage_description}</p>
+                    <div
+                      className="whitespace-pre-wrap"
+                      dangerouslySetInnerHTML={{
+                        __html: DOMPurify.sanitize(settings.homepage_description)
+                      }}
+                    />
                   ) : (
                     <p>
                       Hi, I&apos;m <strong className="text-gray-200 font-medium">Khoa</strong>. I build things for the web and sometimes I break them too. Welcome to my personal terminal.
