@@ -30,7 +30,7 @@ describe('AiService.generateProjectInfo', () => {
             content: '<p>Generated content</p>',
             techStack: ['Next.js'],
             tags: ['Web'],
-            demoLink: null,
+            demoLink: '',
           }),
       },
     }),
