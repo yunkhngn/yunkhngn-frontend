@@ -44,6 +44,7 @@ export default function Photo() {
     const [loadingReaction, setLoadingReaction] = useState(false);
     const [slideshow, setSlideshow] = useState(false);
     const [showExif, setShowExif] = useState(false);
+    const [lightboxImageLoading, setLightboxImageLoading] = useState(false);
     const { user, signInAnonymously } = useAuth();
     const observerRef = useRef(null);
     const slideshowTimerRef = useRef(null);
@@ -200,6 +201,10 @@ export default function Photo() {
             setReactionCounts({ like: 0, heart: 0, cat: 0, fire: 0, laugh: 0 });
         }
     }, [viewingPhoto]);
+
+    useEffect(() => {
+        setLightboxImageLoading(viewingIndex !== null);
+    }, [viewingIndex]);
 
     const fetchReactions = async (photoId) => {
         try {
@@ -574,16 +579,23 @@ export default function Photo() {
                             )}
 
                             {/* Photo */}
-                            <Image
-                                src={getOptimizedUrl(viewingPhoto.imageUrl, { width: 1920 })}
-                                alt={viewingPhoto.caption || 'Photo'}
-                                width={0}
-                                height={0}
-                                sizes="100vw"
-                                className="max-w-full max-h-[80vh] w-auto h-auto object-contain rounded-2xl shadow-2xl"
-                                placeholder={getBlurUrl(viewingPhoto.imageUrl) ? 'blur' : 'empty'}
-                                blurDataURL={getBlurUrl(viewingPhoto.imageUrl)}
-                            />
+                            <div className="relative">
+                                {lightboxImageLoading && (
+                                    <Skeleton className="w-[80vw] max-w-[1200px] h-[60vh] max-h-[80vh] rounded-2xl" />
+                                )}
+                                <Image
+                                    src={getOptimizedUrl(viewingPhoto.imageUrl, { width: 1920 })}
+                                    alt={viewingPhoto.caption || 'Photo'}
+                                    width={0}
+                                    height={0}
+                                    sizes="100vw"
+                                    className={`max-w-full max-h-[80vh] w-auto h-auto object-contain rounded-2xl shadow-2xl transition-opacity duration-300 ${lightboxImageLoading ? 'opacity-0' : 'opacity-100'}`}
+                                    placeholder={getBlurUrl(viewingPhoto.imageUrl) ? 'blur' : 'empty'}
+                                    blurDataURL={getBlurUrl(viewingPhoto.imageUrl)}
+                                    onLoad={() => setLightboxImageLoading(false)}
+                                    onError={() => setLightboxImageLoading(false)}
+                                />
+                            </div>
 
                             {/* Caption Overlay */}
                             {viewingPhoto.caption && (

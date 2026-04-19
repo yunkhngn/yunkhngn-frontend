@@ -25,14 +25,29 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import JsonLd from '@/components/seo/JsonLd';
 import Terminal from '@/components/home/Terminal';
 import { getOptimizedUrl, getBlurUrl } from '@/lib/cloudinary';
+import { readCachedSettings, writeCachedSettings } from '@/lib/settingsCache';
 
 export default function Home({
   recentBlogs = [],
   featuredRepos = [],
   featuredProjects = [],
   galleryPhotos = [],
-  settings = {}
+  settings: initialSettings = {}
 }) {
+  const [settings, setSettings] = useState(initialSettings);
+
+  useEffect(() => {
+    const cachedSettings = readCachedSettings();
+    if (cachedSettings && Object.keys(initialSettings || {}).length === 0) {
+      setSettings(cachedSettings);
+    }
+
+    if (initialSettings && Object.keys(initialSettings).length > 0) {
+      setSettings(initialSettings);
+      writeCachedSettings(initialSettings);
+    }
+  }, [initialSettings]);
+
   const calculateReadTime = (contentJSON) => {
     const text = extractTextFromTipTap(contentJSON);
     const words = text.trim().split(/\s+/).length;
