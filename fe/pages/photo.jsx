@@ -618,7 +618,7 @@ export default function Photo() {
                                     src={getOptimizedUrl(viewingPhoto.imageUrl, { width: 1920 })}
                                     alt={viewingPhoto.caption || 'Photo'}
                                     fill
-                                    sizes="(max-width: 1280px) 100vw, 1280px"
+                                    sizes="(max-width: 1422px) 90vw, 1280px"
                                     className={`object-contain rounded-2xl shadow-2xl transition-opacity duration-300 ${lightboxImageLoading ? 'opacity-0' : 'opacity-100'}`}
                                     placeholder={getBlurUrl(viewingPhoto.imageUrl) ? 'blur' : 'empty'}
                                     blurDataURL={getBlurUrl(viewingPhoto.imageUrl)}
