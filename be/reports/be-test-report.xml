@@ -1,46 +1,46 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="jest tests" tests="80" failures="0" errors="0" time="5.396">
-  <testsuite name="GalleryService" errors="0" failures="0" skipped="0" timestamp="2026-04-19T15:41:15" time="4.442" tests="8">
-    <testcase classname="GalleryService should be defined" name="GalleryService should be defined" time="0.019">
+<testsuites name="jest tests" tests="80" failures="0" errors="0" time="0">
+  <testsuite name="GalleryService" errors="0" failures="0" skipped="0" timestamp="1970-01-01T00:00:00" time="0" tests="8">
+    <testcase classname="GalleryService should be defined" name="GalleryService should be defined" time="0">
     </testcase>
-    <testcase classname="GalleryService findAll should return paginated photos with default params" name="GalleryService findAll should return paginated photos with default params" time="0.003">
+    <testcase classname="GalleryService findAll should return paginated photos with default params" name="GalleryService findAll should return paginated photos with default params" time="0">
     </testcase>
-    <testcase classname="GalleryService findAll should filter by albumId and tag" name="GalleryService findAll should filter by albumId and tag" time="0.002">
+    <testcase classname="GalleryService findAll should filter by albumId and tag" name="GalleryService findAll should filter by albumId and tag" time="0">
     </testcase>
-    <testcase classname="GalleryService incrementViews should fire and forget" name="GalleryService incrementViews should fire and forget" time="0.006">
+    <testcase classname="GalleryService incrementViews should fire and forget" name="GalleryService incrementViews should fire and forget" time="0">
     </testcase>
-    <testcase classname="GalleryService reorder should update sort orders in transaction" name="GalleryService reorder should update sort orders in transaction" time="0.002">
+    <testcase classname="GalleryService reorder should update sort orders in transaction" name="GalleryService reorder should update sort orders in transaction" time="0">
     </testcase>
-    <testcase classname="GalleryService bulkUpdate should update multiple photos" name="GalleryService bulkUpdate should update multiple photos" time="0.001">
+    <testcase classname="GalleryService bulkUpdate should update multiple photos" name="GalleryService bulkUpdate should update multiple photos" time="0">
     </testcase>
-    <testcase classname="GalleryService getAllTags should extract and deduplicate tags" name="GalleryService getAllTags should extract and deduplicate tags" time="0.001">
+    <testcase classname="GalleryService getAllTags should extract and deduplicate tags" name="GalleryService getAllTags should extract and deduplicate tags" time="0">
     </testcase>
-    <testcase classname="GalleryService getUploadSignature should return signature" name="GalleryService getUploadSignature should return signature" time="0.001">
-    </testcase>
-  </testsuite>
-  <testsuite name="CloudflareService" errors="0" failures="0" skipped="0" timestamp="2026-04-19T15:41:15" time="4.43" tests="5">
-    <testcase classname="CloudflareService should be defined" name="CloudflareService should be defined" time="0.009">
-    </testcase>
-    <testcase classname="CloudflareService getAnalytics should return analytics data when API call is successful" name="CloudflareService getAnalytics should return analytics data when API call is successful" time="0.033">
-    </testcase>
-    <testcase classname="CloudflareService getAnalytics should throw error when API call fails" name="CloudflareService getAnalytics should throw error when API call fails" time="0.011">
-    </testcase>
-    <testcase classname="CloudflareService getAnalytics should throw error when GraphQL returns errors" name="CloudflareService getAnalytics should throw error when GraphQL returns errors" time="0.014">
-    </testcase>
-    <testcase classname="CloudflareService getAnalytics should return null if credentials are missing" name="CloudflareService getAnalytics should return null if credentials are missing" time="0.002">
+    <testcase classname="GalleryService getUploadSignature should return signature" name="GalleryService getUploadSignature should return signature" time="0">
     </testcase>
   </testsuite>
-  <testsuite name="BlogService" errors="0" failures="0" skipped="0" timestamp="2026-04-19T15:41:15" time="4.458" tests="4">
-    <testcase classname="BlogService should be defined" name="BlogService should be defined" time="0.007">
+  <testsuite name="CloudflareService" errors="0" failures="0" skipped="0" timestamp="1970-01-01T00:00:00" time="0" tests="5">
+    <testcase classname="CloudflareService should be defined" name="CloudflareService should be defined" time="0">
     </testcase>
-    <testcase classname="BlogService create should create a blog" name="BlogService create should create a blog" time="0.008">
+    <testcase classname="CloudflareService getAnalytics should return analytics data when API call is successful" name="CloudflareService getAnalytics should return analytics data when API call is successful" time="0">
     </testcase>
-    <testcase classname="BlogService findAll should return an array of blogs" name="BlogService findAll should return an array of blogs" time="0.001">
+    <testcase classname="CloudflareService getAnalytics should throw error when API call fails" name="CloudflareService getAnalytics should throw error when API call fails" time="0">
     </testcase>
-    <testcase classname="BlogService findOne should return a single blog" name="BlogService findOne should return a single blog" time="0.002">
+    <testcase classname="CloudflareService getAnalytics should throw error when GraphQL returns errors" name="CloudflareService getAnalytics should throw error when GraphQL returns errors" time="0">
+    </testcase>
+    <testcase classname="CloudflareService getAnalytics should return null if credentials are missing" name="CloudflareService getAnalytics should return null if credentials are missing" time="0">
     </testcase>
   </testsuite>
-  <testsuite name="GithubService" errors="0" failures="0" skipped="0" timestamp="2026-04-19T15:41:15" time="4.547" tests="8">
+  <testsuite name="BlogService" errors="0" failures="0" skipped="0" timestamp="1970-01-01T00:00:00" time="0" tests="4">
+    <testcase classname="BlogService should be defined" name="BlogService should be defined" time="0">
+    </testcase>
+    <testcase classname="BlogService create should create a blog" name="BlogService create should create a blog" time="0">
+    </testcase>
+    <testcase classname="BlogService findAll should return an array of blogs" name="BlogService findAll should return an array of blogs" time="0">
+    </testcase>
+    <testcase classname="BlogService findOne should return a single blog" name="BlogService findOne should return a single blog" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="GithubService" errors="0" failures="0" skipped="0" timestamp="1970-01-01T00:00:00" time="0" tests="8">
     <testcase classname="GithubService should be defined" name="GithubService should be defined" time="0.008">
     </testcase>
     <testcase classname="GithubService getPublicRepos should return repositories on success" name="GithubService getPublicRepos should return repositories on success" time="0.017">
