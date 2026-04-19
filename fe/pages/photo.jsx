@@ -146,15 +146,17 @@ export default function Photo() {
     }, [photos, viewingIndex]);
 
     const goToNext = useCallback(() => {
-        if (viewingIndex === null || viewingIndex >= photos.length - 1) {
-            return;
-        }
+        setViewingIndex((currentIndex) => {
+            if (currentIndex === null || currentIndex >= photos.length - 1) {
+                return currentIndex;
+            }
 
-        const nextIndex = viewingIndex + 1;
-        setLightboxImageLoading(true);
-        setViewingIndex(nextIndex);
-        fetch(`${API_URL}/gallery/views/${photos[nextIndex].id}`, { method: 'POST' }).catch(() => { });
-    }, [photos, viewingIndex]);
+            const nextIndex = currentIndex + 1;
+            setLightboxImageLoading(true);
+            fetch(`${API_URL}/gallery/views/${photos[nextIndex].id}`, { method: 'POST' }).catch(() => { });
+            return nextIndex;
+        });
+    }, [photos]);
 
     // Keyboard navigation
     useEffect(() => {
