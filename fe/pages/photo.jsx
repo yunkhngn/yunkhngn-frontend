@@ -457,7 +457,16 @@ export default function Photo() {
                         {/* List */}
                         {layout === 'list' && (
                             <div className="space-y-6 max-w-3xl mx-auto">
-                                {photos.map((photo, i) => (
+                                {photos.map((photo, i) => {
+                                    const hasValidDimensions =
+                                        typeof photo.width === 'number' &&
+                                        photo.width > 0 &&
+                                        typeof photo.height === 'number' &&
+                                        photo.height > 0;
+                                    const imageWidth = hasValidDimensions ? photo.width : 800;
+                                    const imageHeight = hasValidDimensions ? photo.height : 600;
+
+                                    return (
                                     <div
                                         key={photo.id}
                                         ref={i === photos.length - 1 ? lastPhotoRef : null}
@@ -468,8 +477,8 @@ export default function Photo() {
                                             <Image
                                                 src={getOptimizedUrl(photo.imageUrl, { width: 800 })}
                                                 alt={photo.caption || 'Gallery Photo'}
-                                                width={photo.width || 800}
-                                                height={photo.height || 600}
+                                                width={imageWidth}
+                                                height={imageHeight}
                                                 sizes="(max-width: 768px) 100vw, 768px"
                                                 className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-[1.02]"
                                                 placeholder={getBlurUrl(photo.imageUrl) ? 'blur' : 'empty'}
@@ -489,7 +498,8 @@ export default function Photo() {
                                             </div>
                                         )}
                                     </div>
-                                ))}
+                                    );
+                                })}
                             </div>
                         )}
 
