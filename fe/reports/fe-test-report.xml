@@ -1,29 +1,3 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="jest tests" tests="10" failures="0" errors="0" time="0.705">
-  <testsuite name="Photo page lightbox loading" errors="0" failures="0" skipped="0" timestamp="2026-04-19T15:42:07" time="0.241" tests="2">
-    <testcase classname="Photo page lightbox loading shows a skeleton while the lightbox image is loading" name="Photo page lightbox loading shows a skeleton while the lightbox image is loading" time="0.042">
-    </testcase>
-    <testcase classname="Photo page lightbox loading keeps lightbox image visible after load event" name="Photo page lightbox loading keeps lightbox image visible after load event" time="0.02">
-    </testcase>
-  </testsuite>
-  <testsuite name="Badge" errors="0" failures="0" skipped="0" timestamp="2026-04-19T15:42:08" time="0.044" tests="3">
-    <testcase classname="Badge renders the badge with text" name="Badge renders the badge with text" time="0.004">
-    </testcase>
-    <testcase classname="Badge applies default variant class" name="Badge applies default variant class" time="0.001">
-    </testcase>
-    <testcase classname="Badge applies secondary variant class" name="Badge applies secondary variant class" time="0.001">
-    </testcase>
-  </testsuite>
-  <testsuite name="settings cache" errors="0" failures="0" skipped="0" timestamp="2026-04-19T15:42:08" time="0.024" tests="5">
-    <testcase classname="settings cache returns null when no cache exists" name="settings cache returns null when no cache exists" time="0.001">
-    </testcase>
-    <testcase classname="settings cache writes and reads settings from localStorage" name="settings cache writes and reads settings from localStorage" time="0.001">
-    </testcase>
-    <testcase classname="settings cache returns null when cache JSON is invalid" name="settings cache returns null when cache JSON is invalid" time="0">
-    </testcase>
-    <testcase classname="settings cache returns null when cache is expired" name="settings cache returns null when cache is expired" time="0">
-    </testcase>
-    <testcase classname="settings cache returns null for legacy cache shape without metadata" name="settings cache returns null for legacy cache shape without metadata" time="0.001">
-    </testcase>
-  </testsuite>
-</testsuites>
+<!-- Generated JUnit test reports should not be committed with run-specific timestamps or durations. -->
+<testsuites name="jest tests" tests="0" failures="0" errors="0" time="0"/>
