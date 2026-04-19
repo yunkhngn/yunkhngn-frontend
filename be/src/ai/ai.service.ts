@@ -70,7 +70,9 @@ export class AiService {
       throw new Error('Invalid GitHub URL');
     }
 
-    if (!url.hostname.toLowerCase().endsWith('github.com')) {
+    const hostname = url.hostname.toLowerCase();
+    const allowedGitHubHosts = new Set(['github.com', 'www.github.com']);
+    if (!allowedGitHubHosts.has(hostname)) {
       throw new Error('Invalid GitHub URL');
     }
 
