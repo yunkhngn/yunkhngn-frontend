@@ -45,7 +45,8 @@ if [ $MDF_RESULT -eq 0 ]; then
     
     # Cleanup old backups
     echo "Cleaning up backups older than $RETENTION_DAYS days..."
-    find "$BACKUP_DIR" -name "${DB_NAME}_*.mdf" -o -name "${DB_NAME}_*.ldf" -type f -mtime +$RETENTION_DAYS -delete 2>/dev/null
+    DELETED_COUNT=$(find "$BACKUP_DIR" -type f \( -name "${DB_NAME}_*.mdf" -o -name "${DB_NAME}_*.ldf" \) -mtime +$RETENTION_DAYS -exec rm -f {} \; -print 2>/dev/null | wc -l)
+    echo "✓ Removed $DELETED_COUNT old backup files."
     
     # Show current backups
     echo ""
