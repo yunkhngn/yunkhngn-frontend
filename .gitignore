@@ -7,3 +7,5 @@ GEMINI.md
 README.AGENT.md
 be/reports/*.xml
 fe/reports/*.xml
+.env
+.env.local
