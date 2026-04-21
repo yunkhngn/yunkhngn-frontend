@@ -66,7 +66,7 @@ export default function AdminJournal() {
     const fetchEntries = useCallback(async () => {
         try {
             const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/journals`);
-            setEntries(res.data);
+            setEntries(res.data.data || []);
         } catch (error) {
             console.error(error);
             toast.error('Failed to fetch journal entries');
