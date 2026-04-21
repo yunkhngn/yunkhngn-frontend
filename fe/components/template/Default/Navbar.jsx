@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { Skeleton } from "@/components/ui/Skeleton";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -30,7 +31,7 @@ const NAV_ITEMS = [
 
 export default function Navbar() {
     const { theme, setTheme } = useTheme();
-    const { user, signOut } = useAuth();
+    const { user, loading, signOut } = useAuth();
     const router = useRouter();
     const [mounted, setMounted] = useState(false);
     const [text, setText] = useState('');
@@ -125,11 +126,17 @@ export default function Navbar() {
                         <Search size={20} />
                     </button>
 
-                    {user && user.role === 'ADMIN' && (
+                    {loading && (
+                        <div className="hidden sm:flex items-center">
+                            <Skeleton className="h-10 w-10 rounded-full" />
+                        </div>
+                    )}
+
+                    {!loading && user && user.role === 'ADMIN' && (
                         <NotificationDropdown />
                     )}
 
-                    {user && (
+                    {!loading && user && (
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <Button variant="ghost" className="hidden md:flex relative h-10 w-10 rounded-full">
@@ -187,7 +194,7 @@ export default function Navbar() {
                         </DropdownMenu>
                     )}
 
-                    {!user && (
+                    {!loading && !user && (
                         <Button asChild variant="ghost" className="hidden sm:flex">
                             <Link href="/login">Log In</Link>
                         </Button>
@@ -243,7 +250,16 @@ export default function Navbar() {
                         </Link>
                     ))}
                     <hr className="border-border" />
-                    {!user && (
+                    {loading && (
+                        <div className="flex items-center gap-2 py-2">
+                            <Skeleton className="h-8 w-8 rounded-full" />
+                            <div className="flex flex-col gap-1">
+                                <Skeleton className="h-4 w-24" />
+                                <Skeleton className="h-3 w-32" />
+                            </div>
+                        </div>
+                    )}
+                    {!loading && !user && (
                         <Link
                             href="/login"
                             className="text-sm font-medium hover:text-primary transition-colors py-2"
@@ -264,7 +280,7 @@ export default function Navbar() {
                         </button>
                     </div>
 
-                    {user && (
+                    {!loading && user && (
                         <>
                             <hr className="border-border" />
                             <div className="flex flex-col gap-2">
