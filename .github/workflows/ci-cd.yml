@@ -184,13 +184,20 @@ jobs:
 
       - name: Health Check (Production)
         run: |
+          HEALTH_URL="https://yunkhngn.dev/api/health"
+          echo "Health check URL: ${HEALTH_URL}"
           echo "Waiting for services to start..."
+          sleep 15
           for i in {1..6}; do
-            if curl -k -sf https://${{ secrets.PRODUCTION_HOST }}/api/health; then
+            echo "--- Attempt $i ---"
+            HTTP_CODE=$(curl -k -s -o /tmp/health_body.txt -w "%{http_code}" "${HEALTH_URL}" 2>&1) || true
+            echo "HTTP Status: ${HTTP_CODE}"
+            echo "Response body: $(cat /tmp/health_body.txt 2>/dev/null)"
+            if [ "${HTTP_CODE}" = "200" ]; then
               echo "Health check passed!"
               exit 0
             fi
-            echo "Attempt $i failed. Waiting for 10 seconds before retrying..."
+            echo "Waiting 10 seconds before retrying..."
             sleep 10
           done
           echo "Health check failed after 6 attempts."
