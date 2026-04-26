@@ -17,7 +17,7 @@ import { RolesGuard } from '../auth/roles.guard';
 
 @Controller('gallery')
 export class GalleryController {
-  constructor(private readonly galleryService: GalleryService) {}
+  constructor(private readonly galleryService: GalleryService) { }
 
   @Post()
   @UseGuards(FirebaseAuthGuard, RolesGuard)
@@ -49,8 +49,8 @@ export class GalleryController {
   @Get('signature')
   @UseGuards(FirebaseAuthGuard, RolesGuard)
   @Roles('ADMIN')
-  getSignature(@Query('folder') folder?: string) {
-    return this.galleryService.getUploadSignature(folder);
+  getSignature(@Query() query: Record<string, string>) {
+    return this.galleryService.getUploadSignature(query);
   }
 
   @Get(':id')

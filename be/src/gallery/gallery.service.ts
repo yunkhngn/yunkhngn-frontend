@@ -8,7 +8,7 @@ export class GalleryService {
   constructor(
     private prisma: PrismaService,
     private cloudinaryService: CloudinaryService,
-  ) {}
+  ) { }
 
   async create(createGalleryDto: CreateGalleryDto) {
     return this.prisma.gallery.create({
@@ -82,7 +82,7 @@ export class GalleryService {
   incrementViews(id: string) {
     this.prisma.gallery
       .update({ where: { id }, data: { views: { increment: 1 } } })
-      .catch(() => {});
+      .catch(() => { });
     return { success: true };
   }
 
@@ -156,9 +156,11 @@ export class GalleryService {
     return [...tagSet].sort();
   }
 
-  getUploadSignature(folder?: string) {
+  getUploadSignature(query?: Record<string, string>) {
+    const { folder, ...rest } = query || {};
     return this.cloudinaryService.generateUploadSignature({
       folder: folder || 'blog-portfolio/gallery',
+      ...rest,
     });
   }
 }
