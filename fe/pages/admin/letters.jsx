@@ -411,18 +411,18 @@ export default function AdminLetters() {
   const statusBadge = (status) => {
     if (status === 'processing')
       return (
-        <span className="text-xs px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300 inline-flex items-center gap-1">
+        <span className="text-[10px] px-2 py-0.5 rounded-md bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 font-bold uppercase tracking-wider inline-flex items-center gap-1.5">
           <Loader2 className="h-3 w-3 animate-spin" /> Processing
         </span>
       );
     if (status === 'ready')
       return (
-        <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
+        <span className="text-[10px] px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 font-bold uppercase tracking-wider">
           Ready
         </span>
       );
     return (
-      <span className="text-xs px-2 py-0.5 rounded-full bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400">
+      <span className="text-[10px] px-2 py-0.5 rounded-md bg-rose-500/10 text-rose-500 border border-rose-500/20 font-bold uppercase tracking-wider">
         Failed
       </span>
     );
@@ -435,233 +435,251 @@ export default function AdminLetters() {
       </Head>
 
       <div className="container mx-auto p-6 max-w-6xl">
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-bold flex items-center gap-2">
-              <Mail className="h-8 w-8" />
-              Letters
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-10 gap-4">
+          <div className="space-y-2">
+            <h1 className="text-4xl font-extrabold tracking-tight flex items-center gap-3">
+              <div className="p-3 bg-primary/10 rounded-xl border border-primary/20">
+                <Mail className="h-8 w-8 text-primary" />
+              </div>
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70">Letters</span>
             </h1>
-            <p className="text-muted-foreground mt-1">
-              Handwritten letters with share links
+            <p className="text-muted-foreground font-medium text-lg ml-1">
+              Manage your handwritten epistles
             </p>
           </div>
-          <Button onClick={openCreate} className="gap-2">
-            <Plus className="h-4 w-4" />
+          <Button onClick={openCreate} className="px-6 py-6 h-auto rounded-2xl shadow-xl hover:shadow-primary/20 transition-all font-bold gap-2">
+            <Plus className="h-5 w-5" />
             New letter
           </Button>
         </div>
 
         {selected.size > 0 && (
-          <div className="flex items-center gap-3 mb-4 p-3 bg-primary/5 border border-primary/20 rounded-lg animate-in slide-in-from-top-2">
-            <span className="text-sm font-medium">{selected.size} selected</span>
+          <div className="flex items-center gap-4 mb-6 p-4 bg-background/60 backdrop-blur-xl border border-border/50 rounded-2xl shadow-lg ring-1 ring-white/5 animate-in slide-in-from-top-4">
+            <span className="text-sm font-bold bg-primary/10 text-primary px-3 py-1 rounded-full">{selected.size} selected</span>
             <div className="flex-1" />
             <Button
               variant="outline"
               size="sm"
               onClick={() => bulkSetStatus(true)}
               disabled={bulkLoading}
-              className="gap-1.5"
+              className="gap-1.5 rounded-xl font-semibold border-border/50 hover:bg-emerald-500/10 hover:text-emerald-500 hover:border-emerald-500/30"
             >
-              <ToggleRight className="h-3.5 w-3.5 text-green-500" /> Activate
+              <ToggleRight className="h-4 w-4" /> Activate
             </Button>
             <Button
               variant="outline"
               size="sm"
               onClick={() => bulkSetStatus(false)}
               disabled={bulkLoading}
-              className="gap-1.5"
+              className="gap-1.5 rounded-xl font-semibold border-border/50 hover:bg-zinc-500/10 hover:text-zinc-400 hover:border-zinc-500/30"
             >
-              <ToggleLeft className="h-3.5 w-3.5" /> Deactivate
+              <ToggleLeft className="h-4 w-4" /> Deactivate
             </Button>
+            <div className="w-px h-6 bg-border/50 mx-1" />
             <Button
               variant="outline"
               size="sm"
               onClick={bulkDelete}
               disabled={bulkLoading}
-              className="gap-1.5 text-red-500 hover:text-red-600 border-red-200 hover:border-red-300 hover:bg-red-50 dark:border-red-800 dark:hover:border-red-700 dark:hover:bg-red-950"
+              className="gap-1.5 rounded-xl font-semibold text-rose-500 border-rose-500/20 hover:bg-rose-500/10 hover:border-rose-500/30 hover:text-rose-400"
             >
               {bulkLoading ? (
-                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
-                <Trash2 className="h-3.5 w-3.5" />
+                <Trash2 className="h-4 w-4" />
               )}{' '}
               Delete
             </Button>
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8"
+              className="h-9 w-9 rounded-full ml-1"
               onClick={clearSelection}
             >
-              <XCircle className="h-4 w-4" />
+              <XCircle className="h-5 w-5" />
             </Button>
           </div>
         )}
 
         {loading ? (
           <div className="flex justify-center items-center h-64">
-            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
           </div>
         ) : letters.length === 0 ? (
-          <Card>
-            <CardContent className="flex flex-col items-center justify-center py-16">
-              <Mail className="h-12 w-12 text-muted-foreground mb-4" />
-              <p className="text-muted-foreground text-lg">No letters yet</p>
-              <Button onClick={openCreate} variant="outline" className="mt-4 gap-2">
-                <Plus className="h-4 w-4" />
-                Create a letter
-              </Button>
-            </CardContent>
-          </Card>
+          <div className="border border-dashed border-border/50 rounded-3xl p-16 flex flex-col items-center justify-center text-center bg-card/10 backdrop-blur-sm">
+            <div className="p-6 bg-muted/30 rounded-full mb-6 ring-1 ring-border/50">
+              <Mail className="h-12 w-12 text-muted-foreground/50" />
+            </div>
+            <h3 className="text-xl font-bold mb-2">No letters yet</h3>
+            <p className="text-muted-foreground mb-8 max-w-sm">
+              Create your first handwritten letter to share with someone special.
+            </p>
+            <Button onClick={openCreate} className="px-8 py-6 h-auto rounded-xl font-bold gap-2">
+              <Plus className="h-5 w-5" />
+              Create a letter
+            </Button>
+          </div>
         ) : (
-          <div className="space-y-3">
-            <div className="flex items-center gap-2 px-2">
+          <div className="bg-card/30 backdrop-blur-xl border border-border/50 rounded-3xl shadow-2xl overflow-hidden ring-1 ring-white/5">
+            <div className="hidden md:flex items-center gap-6 px-6 py-4 bg-muted/20 border-b border-border/50 text-xs font-bold text-muted-foreground uppercase tracking-widest">
               <button
                 type="button"
                 onClick={toggleSelectAll}
-                className="text-muted-foreground hover:text-foreground transition-colors"
+                className="hover:text-foreground transition-colors shrink-0 flex items-center justify-center w-5"
               >
                 {selected.size === letters.length ? (
-                  <CheckSquare className="h-4 w-4 text-primary" />
+                  <CheckSquare className="h-5 w-5 text-primary" />
                 ) : (
-                  <Square className="h-4 w-4" />
+                  <Square className="h-5 w-5" />
                 )}
               </button>
-              <span className="text-xs text-muted-foreground">
-                {selected.size === letters.length ? 'Deselect all' : 'Select all'}
-              </span>
+              <div className="w-16 shrink-0 text-center">Cover</div>
+              <div className="flex-1">Details</div>
+              <div className="w-24 shrink-0 text-center">Stats</div>
+              <div className="w-40 shrink-0 text-right">Actions</div>
             </div>
 
-            {letters.map((letter) => (
-              <Card
-                key={letter.id}
-                className={`transition-all ${!letter.isActive ? 'opacity-50' : ''} ${selected.has(letter.id) ? 'ring-1 ring-primary/50 bg-primary/[0.02]' : ''}`}
-              >
-                <CardContent className="p-4">
-                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div className="flex items-start gap-3 flex-1 min-w-0">
-                      <button
-                        type="button"
-                        onClick={() => toggleSelect(letter.id)}
-                        className="mt-1 text-muted-foreground hover:text-foreground transition-colors shrink-0"
-                      >
-                        {selected.has(letter.id) ? (
-                          <CheckSquare className="h-4 w-4 text-primary" />
-                        ) : (
-                          <Square className="h-4 w-4" />
-                        )}
-                      </button>
-
-                      <div className="relative w-16 h-16 rounded-md overflow-hidden bg-muted shrink-0">
-                        {letter.pages?.[0]?.imageUrl ? (
-                          <Image
-                            src={letter.pages[0].imageUrl}
-                            alt=""
-                            fill
-                            className="object-cover"
-                            unoptimized
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center">
-                            <ImageIcon className="h-6 w-6 text-muted-foreground" />
-                          </div>
-                        )}
-                        <span className="absolute bottom-0 right-0 text-[10px] px-1 bg-black/60 text-white rounded-tl">
-                          {letter.pages?.length || 0}p
-                        </span>
-                      </div>
-
-                      <div className="flex-1 min-w-0">
-                        <div className="flex flex-wrap items-center gap-2 mb-1">
-                          {letter.title && (
-                            <span className="font-semibold text-sm truncate max-w-[200px]">
-                              {letter.title}
-                            </span>
-                          )}
-                          {letter.hasPassword && (
-                            <Lock
-                              className="h-3.5 w-3.5 text-amber-600"
-                              title="Password protected"
-                            />
-                          )}
-                          <span
-                            className={`text-xs px-2 py-0.5 rounded-full ${letter.isActive ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'}`}
-                          >
-                            {letter.isActive ? 'Active' : 'Inactive'}
-                          </span>
-                          {statusBadge(letter.status)}
-                        </div>
-
-                        <div className="flex items-center gap-2 mb-1">
-                          <code className="text-primary font-mono text-sm font-bold truncate">
-                            {PUBLIC_LETTER_PREFIX}
-                            {letter.code}
-                          </code>
-                          <button
-                            type="button"
-                            onClick={() => copyPublicUrl(letter.code)}
-                            className="text-muted-foreground hover:text-foreground transition-colors shrink-0"
-                            title="Copy URL"
-                          >
-                            <Copy className="h-3.5 w-3.5" />
-                          </button>
-                        </div>
-
-                        <div className="text-xs text-muted-foreground">
-                          {letter.views ?? 0} views ·{' '}
-                          {format(new Date(letter.createdAt), 'MMM d, yyyy')}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2 shrink-0 flex-wrap">
-                      {letter.status === 'failed' && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="gap-1"
-                          onClick={() => handleRetry(letter)}
-                        >
-                          <RefreshCw className="h-3.5 w-3.5" />
-                          Retry
-                        </Button>
+            <div className="divide-y divide-border/30">
+              {letters.map((letter) => (
+                <div
+                  key={letter.id}
+                  className={`group flex flex-col md:flex-row md:items-center gap-4 md:gap-6 px-4 md:px-6 py-5 transition-all hover:bg-white/[0.03] ${!letter.isActive ? 'opacity-60 grayscale-[0.3]' : ''} ${selected.has(letter.id) ? 'bg-primary/[0.03] shadow-[inset_2px_0_0_0_hsl(var(--primary))]' : ''}`}
+                >
+                  <div className="flex items-center gap-4 md:gap-6 w-full md:w-auto shrink-0 border-b md:border-0 border-border/30 pb-4 md:pb-0">
+                    <button
+                      type="button"
+                      onClick={() => toggleSelect(letter.id)}
+                      className="text-muted-foreground hover:text-foreground transition-colors shrink-0 flex items-center justify-center w-5"
+                    >
+                      {selected.has(letter.id) ? (
+                        <CheckSquare className="h-5 w-5 text-primary" />
+                      ) : (
+                        <Square className="h-5 w-5" />
                       )}
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8"
-                        onClick={() => handleToggle(letter)}
-                        title={letter.isActive ? 'Deactivate' : 'Activate'}
-                      >
-                        {letter.isActive ? (
-                          <ToggleRight className="h-4 w-4 text-green-500" />
-                        ) : (
-                          <ToggleLeft className="h-4 w-4" />
-                        )}
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8"
-                        onClick={() => openEdit(letter)}
-                        title="Edit"
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 text-red-500 hover:text-red-600"
-                        onClick={() => handleDelete(letter.id)}
-                        title="Delete"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                    </button>
+
+                    <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-background border border-border/50 shrink-0 shadow-inner group-hover:border-primary/30 group-hover:shadow-primary/10 transition-all duration-300">
+                      {letter.pages?.[0]?.imageUrl ? (
+                        <Image
+                          src={letter.pages[0].imageUrl}
+                          alt=""
+                          fill
+                          className="object-cover transition-transform duration-500 group-hover:scale-110"
+                          unoptimized
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <ImageIcon className="h-6 w-6 text-muted-foreground/30" />
+                        </div>
+                      )}
+                      <div className="absolute inset-x-0 bottom-0 top-1/2 bg-gradient-to-t from-black/80 to-transparent pointer-events-none" />
+                      <span className="absolute bottom-1 right-1.5 text-[10px] font-bold text-white drop-shadow-md">
+                        {letter.pages?.length || 0}p
+                      </span>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
-            ))}
+
+                  <div className="flex-1 min-w-0 flex flex-col gap-2">
+                    <div className="flex flex-wrap items-center gap-2.5">
+                      {letter.title ? (
+                        <span className="font-bold text-base truncate max-w-[200px] text-foreground transition-colors group-hover:text-primary">
+                          {letter.title}
+                        </span>
+                      ) : (
+                        <span className="font-bold text-base text-muted-foreground italic">
+                          Untitled
+                        </span>
+                      )}
+                      {letter.hasPassword && (
+                        <div className="p-1 rounded-full bg-amber-500/10 border border-amber-500/20" title="Password protected">
+                          <Lock className="h-3 w-3 text-amber-500" />
+                        </div>
+                      )}
+                      <span className={`text-[10px] px-2 py-0.5 rounded-md font-bold uppercase tracking-wider border ${letter.isActive ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' : 'bg-zinc-500/10 text-zinc-400 border-zinc-500/20'}`}>
+                        {letter.isActive ? 'Active' : 'Archived'}
+                      </span>
+                      {statusBadge(letter.status)}
+                    </div>
+
+                    <div className="flex items-center gap-2 max-w-full overflow-hidden">
+                      <div className="flex items-center bg-background border border-border/50 rounded-lg overflow-hidden truncate">
+                        <span className="px-2.5 py-1 text-xs text-muted-foreground bg-muted/50 border-r border-border/50 shrink-0 hidden sm:block">
+                          URL
+                        </span>
+                        <code className="px-2.5 py-1 text-xs text-primary/90 font-mono truncate">
+                          {PUBLIC_LETTER_PREFIX}{letter.code}
+                        </code>
+                        <button
+                          type="button"
+                          onClick={() => copyPublicUrl(letter.code)}
+                          className="px-2.5 py-1 text-muted-foreground hover:bg-primary/10 hover:text-primary transition-colors shrink-0 border-l border-border/50"
+                          title="Copy URL"
+                        >
+                          <Copy className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="text-[11px] text-muted-foreground/70 font-medium">
+                      Created on {format(new Date(letter.createdAt), 'MMM d, yyyy')}
+                    </div>
+                  </div>
+
+                  <div className="flex flex-row md:flex-col items-center md:justify-center justify-between gap-1 w-full md:w-24 shrink-0 bg-muted/10 md:bg-transparent rounded-xl md:rounded-none p-3 md:p-0">
+                    <div className="text-xs font-bold text-muted-foreground uppercase tracking-widest md:hidden">Views</div>
+                    <div className="flex flex-col items-center">
+                      <span className="font-extrabold text-xl font-mono text-foreground">{letter.views ?? 0}</span>
+                      <span className="text-[9px] text-muted-foreground uppercase tracking-widest font-bold hidden md:block">Views</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 w-full md:w-40 shrink-0 md:justify-end md:opacity-0 group-hover:opacity-100 transition-opacity justify-end">
+                    {letter.status === 'failed' && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="gap-1.5 h-9 rounded-xl font-semibold"
+                        onClick={() => handleRetry(letter)}
+                      >
+                        <RefreshCw className="h-3.5 w-3.5" />
+                        Retry
+                      </Button>
+                    )}
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="h-9 w-9 bg-background/50 backdrop-blur-sm rounded-xl border-border/50 hover:border-primary/30 hover:bg-primary/5 hover:text-primary"
+                      onClick={() => handleToggle(letter)}
+                      title={letter.isActive ? 'Archive' : 'Activate'}
+                    >
+                      {letter.isActive ? (
+                        <ToggleRight className="h-4 w-4 text-emerald-500" />
+                      ) : (
+                        <ToggleLeft className="h-4 w-4" />
+                      )}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="h-9 w-9 bg-background/50 backdrop-blur-sm rounded-xl border-border/50 hover:border-blue-500/30 hover:bg-blue-500/10 hover:text-blue-500"
+                      onClick={() => openEdit(letter)}
+                      title="Edit"
+                    >
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="h-9 w-9 bg-background/50 backdrop-blur-sm rounded-xl border-border/50 text-rose-500 hover:border-rose-500/30 hover:bg-rose-500/10 hover:text-rose-400"
+                      onClick={() => handleDelete(letter.id)}
+                      title="Delete"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </div>

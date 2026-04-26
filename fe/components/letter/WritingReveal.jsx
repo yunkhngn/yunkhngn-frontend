@@ -39,7 +39,7 @@ function RevealCanvas({ imageUrl, revealMapUrl, duration = 8000 }) {
       const width = canvas.width;
       const height = canvas.height;
       const dilatedMap = new Uint8Array(width * height);
-      const DILATE_RADIUS = 3;
+      const DILATE_RADIUS = 2;
 
       for (let y = 0; y < height; y++) {
         for (let x = 0; x < width; x++) {
@@ -74,8 +74,8 @@ function RevealCanvas({ imageUrl, revealMapUrl, duration = 8000 }) {
             // It's a stroke pattern. We need to find a nearby background pixel to fill it in
             let bgI = i;
             let found = false;
-            // Search radially outwards (up to 20 pixels, strokes are generally thin)
-            for (let d = 1; d <= 20; d++) {
+            // Search radially outwards (up to 30 pixels, covers thicker strokes near edges)
+            for (let d = 1; d <= 30; d++) {
               if (x + d < width && dilatedMap[y * width + (x + d)] === 0) { bgI = (y * width + (x + d)) * 4; found = true; break; }
               if (x - d >= 0 && dilatedMap[y * width + (x - d)] === 0) { bgI = (y * width + (x - d)) * 4; found = true; break; }
               if (y + d < height && dilatedMap[(y + d) * width + x] === 0) { bgI = ((y + d) * width + x) * 4; found = true; break; }
@@ -154,17 +154,17 @@ function RevealCanvas({ imageUrl, revealMapUrl, duration = 8000 }) {
       }
 
       // ── Step 4: Pre-compute a synthetic timing map ──
-      // Each band gets an equal slice of the timeline (1–255)
-      // Within each band, time flows left-to-right
+      // Reveal LINE BY LINE: 80% of time for line transitions, 20% for within-line sweep
       const syntheticTimeMap = new Float32Array(width * height);
       const numBands = lineBands.length;
       const TIME_MIN = 1; // Never use 0 for strokes (0 = background)
       const TIME_MAX = 255;
+      const X_WEIGHT = 0.20; // Only 20% of band duration for left-to-right
       const bandDuration = (TIME_MAX - TIME_MIN) / numBands;
 
       for (let b = 0; b < numBands; b++) {
         const band = lineBands[b];
-        const tStart = TIME_MIN + b * bandDuration;
+        const tLineBase = TIME_MIN + b * bandDuration;
         const xRange = Math.max(band.maxX - band.minX, 1);
 
         for (let y = band.startY; y <= band.endY; y++) {
@@ -173,7 +173,8 @@ function RevealCanvas({ imageUrl, revealMapUrl, duration = 8000 }) {
             if (dilatedMap[i] <= INK_THRESHOLD) continue;
             // X progress within this band (0 to 1)
             const xProgress = Math.max(0, Math.min(1, (x - band.minX) / xRange));
-            syntheticTimeMap[i] = tStart + xProgress * bandDuration;
+            // Most timing from line index, small addition from x position
+            syntheticTimeMap[i] = tLineBase + xProgress * bandDuration * X_WEIGHT;
           }
         }
       }
