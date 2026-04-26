@@ -41,7 +41,7 @@ export default function LetterView({ letter, code }) {
         <PasswordGate code={code} onVerified={handlePasswordVerified} />
       )}
       {phase === 'envelope' && (
-        <EnvelopeAnimation onComplete={handleEnvelopeComplete} />
+        <EnvelopeAnimation onComplete={handleEnvelopeComplete} coverImage={pages[0]?.imageUrl} />
       )}
       {phase === 'reading' && <WritingReveal pages={pages} />}
     </>
