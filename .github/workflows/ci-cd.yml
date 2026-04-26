@@ -31,8 +31,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'yarn'
-          cache-dependency-path: '**/yarn.lock'
+
+      # package.json declares yarn@4 via packageManager — Corepack must be on before yarn runs
+      - name: Enable Corepack
+        run: corepack enable
 
       - name: Install Dependencies
         run: |
