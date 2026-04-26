@@ -8,10 +8,11 @@ WORKDIR /app
 # Disable telemetry during build
 ENV NEXT_TELEMETRY_DISABLED 1
 
-COPY package.json yarn.lock ./
+COPY package.json yarn.lock .yarnrc.yml ./
 
-# Install dependencies with cache
-RUN --mount=type=cache,target=/root/.yarn YARN_CACHE_FOLDER=/root/.yarn yarn install --frozen-lockfile
+# Install dependencies with cache (Yarn 4 via packageManager + Corepack)
+RUN corepack enable
+RUN --mount=type=cache,target=/root/.yarn YARN_CACHE_FOLDER=/root/.yarn yarn install --immutable
 
 COPY . .
 

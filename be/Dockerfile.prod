@@ -5,11 +5,12 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-COPY package.json yarn.lock ./
+COPY package.json yarn.lock .yarnrc.yml ./
 COPY prisma ./prisma/
 
-# Install dependencies with cache
-RUN --mount=type=cache,target=/root/.yarn YARN_CACHE_FOLDER=/root/.yarn yarn install --frozen-lockfile
+# Install dependencies with cache (Yarn 4 via packageManager + Corepack)
+RUN corepack enable
+RUN --mount=type=cache,target=/root/.yarn YARN_CACHE_FOLDER=/root/.yarn yarn install --immutable
 
 # Generate Prisma Client
 RUN npx prisma generate
