@@ -92,14 +92,12 @@ def validate_scan(img: np.ndarray) -> dict:
     h, w = img.shape[:2]
     issues = []
 
-    if h < 500 or w < 300:
-        issues.append("Image resolution too low (min 300x500)")
-    if w > h:
-        issues.append("Image appears to be landscape; expected portrait")
+    if h < 300 or w < 200:
+        issues.append("Image resolution too low (min 200x300)")
 
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     contrast = gray.std()
-    if contrast < 30:
+    if contrast < 15:
         issues.append(f"Low contrast ({contrast:.0f}); text may be hard to detect")
 
     return {"valid": len(issues) == 0, "issues": issues, "width": w, "height": h}

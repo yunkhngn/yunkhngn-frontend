@@ -11,6 +11,16 @@ from services.image_processor import (
 from services.cloudinary_client import upload_reveal_map
 
 load_dotenv()
+import logging
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger("letter-ai")
+
+load_dotenv()
 app = FastAPI(title="Letter AI Processor")
 
 
@@ -32,6 +42,7 @@ class ValidateRequest(BaseModel):
 @app.post("/process")
 async def process_letter(req: ProcessRequest):
     """Process letter pages in background, callback when done."""
+    logger.info(f"Received processing request for letter {req.letterId} with {len(req.pages)} pages")
     asyncio.create_task(_process_and_callback(req))
     return {"status": "processing", "letterId": req.letterId}
 
@@ -39,34 +50,49 @@ async def process_letter(req: ProcessRequest):
 async def _process_and_callback(req: ProcessRequest):
     results = []
     success = True
+    error_msg = None
+    
     try:
         for page in req.pages:
+            logger.info(f"Processing page {page.id} for letter {req.letterId}")
             img = download_image(page.imageUrl)
             validation = validate_scan(img)
+            
             if not validation["valid"]:
+                logger.warning(f"Validation failed for page {page.id}: {validation['issues']}")
                 success = False
+                error_msg = f"Validation failed: {', '.join(validation['issues'])}"
                 break
+                
             reveal_map_bytes = generate_reveal_map(img)
+            logger.info(f"Generated reveal map for page {page.id}, uploading...")
+            
             reveal_map_url = upload_reveal_map(
                 reveal_map_bytes, f"{req.letterId}-{page.id}"
             )
             results.append({"id": page.id, "revealMapUrl": reveal_map_url})
+            logger.info(f"Uploaded reveal map for page {page.id}: {reveal_map_url}")
+            
     except Exception as e:
-        print(f"Processing failed for letter {req.letterId}: {e}")
+        logger.error(f"Processing failed for letter {req.letterId}: {str(e)}", exc_info=True)
         success = False
+        error_msg = str(e)
 
     try:
         async with httpx.AsyncClient(timeout=30) as client:
-            await client.post(
-                req.callbackUrl,
-                json={
-                    "letterId": req.letterId,
-                    "pages": results,
-                    "success": success,
-                },
-            )
+            logger.info(f"Sending callback to {req.callbackUrl} (success={success})")
+            payload = {
+                "letterId": req.letterId,
+                "pages": results,
+                "success": success,
+            }
+            if error_msg:
+                payload["error"] = error_msg
+                
+            resp = await client.post(req.callbackUrl, json=payload)
+            logger.info(f"Callback response: {resp.status_code}")
     except Exception as e:
-        print(f"Callback failed: {e}")
+        logger.error(f"Callback failed for letter {req.letterId}: {str(e)}")
 
 
 @app.post("/validate")
