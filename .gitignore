@@ -13,3 +13,6 @@ fe/reports/*.xml
 .env.local
 
 .worktrees/
+
+# Yarn 4 local cache (lockfile + .yarnrc.yml are committed)
+**/.yarn/install-state.gz
