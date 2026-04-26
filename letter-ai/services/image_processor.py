@@ -35,12 +35,13 @@ def generate_reveal_map(img: np.ndarray) -> bytes:
     enhanced = clahe.apply(gray)
 
     # Primary: Adaptive threshold (works best for varying ink darkness on white paper)
+    # Lowered C from 10 to 5 to preserve thin and faint strokes (accents)
     adaptive_binary = cv2.adaptiveThreshold(
         enhanced, 255,
         cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
         cv2.THRESH_BINARY_INV,
         blockSize=31,
-        C=10,
+        C=5,
     )
 
     # Secondary: Otsu on enhanced (catches bold strokes reliably)
@@ -50,26 +51,20 @@ def generate_reveal_map(img: np.ndarray) -> bytes:
     binary = cv2.bitwise_or(adaptive_binary, otsu_binary)
 
     # Morphological cleanup
-    # Gentle open to remove isolated noise pixels
-    open_kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (2, 2))
-    binary = cv2.morphologyEx(binary, cv2.MORPH_OPEN, open_kernel, iterations=1)
+    # We removed MORPH_OPEN because it severely erodes thin lines and accent marks.
+    
     # Close small gaps within strokes
     close_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
-    binary = cv2.morphologyEx(binary, cv2.MORPH_CLOSE, close_kernel, iterations=2)
+    binary = cv2.morphologyEx(binary, cv2.MORPH_CLOSE, close_kernel, iterations=1)
 
     # Smart connected component filtering:
-    # Remove tiny components (noise) but keep elongated thin strokes
+    # Remove tiny components (noise) but keep small dots (e.g., dot on 'i', accent marks)
     num_labels, labels, stats, _ = cv2.connectedComponentsWithStats(binary)
-    min_area = max(20, int(h * w * 0.00003))
+    min_area = max(5, int(h * w * 0.000005)) # Greatly reduced to keep accents
     for i in range(1, num_labels):
         area = stats[i, cv2.CC_STAT_AREA]
-        comp_w = stats[i, cv2.CC_STAT_WIDTH]
-        comp_h = stats[i, cv2.CC_STAT_HEIGHT]
-        # Keep if area is large enough, OR if it's elongated (stroke-like)
         if area < min_area:
-            aspect = max(comp_w, comp_h) / max(min(comp_w, comp_h), 1)
-            if aspect < 2.0:  # Square-ish small blob = noise
-                binary[labels == i] = 0
+            binary[labels == i] = 0
 
     # ── Step 2: Detect text line bands via horizontal projection ──
     row_ink = np.sum(binary > 0, axis=1)  # Number of ink pixels per row

@@ -41,20 +41,54 @@ function RevealCanvas({ imageUrl, revealMapUrl, duration = 8000 }) {
       const dilatedMap = new Uint8Array(width * height);
       const DILATE_RADIUS = 2;
 
+      const rawTimings = new Uint8Array(width * height);
+      for (let i = 0; i < width * height; i++) {
+        rawTimings[i] = mapData.data[i * 4];
+      }
+
+      // Calculate average luma of the paper (where there is no ink according to the map)
+      let sumLuma = 0;
+      let countBg = 0;
+      for (let i = 0; i < width * height; i++) {
+        if (rawTimings[i] === 0) {
+          const r = letterData.data[i * 4];
+          const g = letterData.data[i * 4 + 1];
+          const b = letterData.data[i * 4 + 2];
+          const luma = 0.299 * r + 0.587 * g + 0.114 * b;
+          sumLuma += luma;
+          countBg++;
+        }
+      }
+      const avgLuma = countBg > 0 ? sumLuma / countBg : 255;
+      const DARK_THRESHOLD = Math.min(avgLuma * 0.85, 200); // 15% darker than average is considered ghost ink
+
       for (let y = 0; y < height; y++) {
         for (let x = 0; x < width; x++) {
-          let maxVal = 0;
+          let hasInk = false;
           for (let dy = -DILATE_RADIUS; dy <= DILATE_RADIUS; dy++) {
             for (let dx = -DILATE_RADIUS; dx <= DILATE_RADIUS; dx++) {
               const ny = y + dy;
               const nx = x + dx;
               if (ny >= 0 && ny < height && nx >= 0 && nx < width) {
-                const val = mapData.data[(ny * width + nx) * 4];
-                if (val > maxVal) maxVal = val;
+                const idx = ny * width + nx;
+                if (rawTimings[idx] > 0) {
+                  hasInk = true;
+                  break;
+                }
+                const r = letterData.data[idx * 4];
+                const g = letterData.data[idx * 4 + 1];
+                const b = letterData.data[idx * 4 + 2];
+                const luma = 0.299 * r + 0.587 * g + 0.114 * b;
+                // If it's oddly dark compared to the paper, force it into the ink mask so it gets erased by inpaint
+                if (luma < DARK_THRESHOLD) {
+                  hasInk = true;
+                  break;
+                }
               }
             }
+            if (hasInk) break;
           }
-          dilatedMap[y * width + x] = maxVal;
+          dilatedMap[y * width + x] = hasInk ? 1 : 0;
         }
       }
 
@@ -63,9 +97,9 @@ function RevealCanvas({ imageUrl, revealMapUrl, duration = 8000 }) {
       for (let y = 0; y < height; y++) {
         for (let x = 0; x < width; x++) {
           const i = (y * width + x) * 4;
-          const mapVal = dilatedMap[y * width + x];
+          const maskVal = dilatedMap[y * width + x];
           // If it's a background pixel (0), just copy it exactly
-          if (mapVal === 0) {
+          if (maskVal === 0) {
             bgData.data[i] = letterData.data[i];
             bgData.data[i + 1] = letterData.data[i + 1];
             bgData.data[i + 2] = letterData.data[i + 2];
@@ -96,99 +130,6 @@ function RevealCanvas({ imageUrl, revealMapUrl, duration = 8000 }) {
         }
       }
 
-      // ── Step 3: Detect text line bands from the ink mask ──
-      const INK_THRESHOLD = 10;
-      const rowInkCount = new Uint16Array(height);
-      for (let y = 0; y < height; y++) {
-        let count = 0;
-        for (let x = 0; x < width; x++) {
-          if (dilatedMap[y * width + x] > INK_THRESHOLD) count++;
-        }
-        rowInkCount[y] = count;
-      }
-
-      // Group consecutive rows with ink into line bands
-      const lineBands = [];
-      const MIN_INK_PER_ROW = 3;
-      const GAP_TOLERANCE = Math.max(8, Math.round(height * 0.015));
-      let bandStart = -1;
-      let gapCount = 0;
-
-      for (let y = 0; y < height; y++) {
-        if (rowInkCount[y] >= MIN_INK_PER_ROW) {
-          if (bandStart === -1) bandStart = y;
-          gapCount = 0;
-        } else {
-          if (bandStart !== -1) {
-            gapCount++;
-            if (gapCount > GAP_TOLERANCE) {
-              lineBands.push({ startY: bandStart, endY: y - gapCount });
-              bandStart = -1;
-              gapCount = 0;
-            }
-          }
-        }
-      }
-      if (bandStart !== -1) {
-        lineBands.push({ startY: bandStart, endY: height - 1 - gapCount });
-      }
-
-      // Fallback: if no bands detected, treat the whole image as one band
-      if (lineBands.length === 0) {
-        lineBands.push({ startY: 0, endY: height - 1 });
-      }
-
-      // For each band, find the min/max X of ink for better left-to-right sweep
-      for (const band of lineBands) {
-        let minX = width, maxX = 0;
-        for (let y = band.startY; y <= band.endY; y++) {
-          for (let x = 0; x < width; x++) {
-            if (dilatedMap[y * width + x] > INK_THRESHOLD) {
-              if (x < minX) minX = x;
-              if (x > maxX) maxX = x;
-            }
-          }
-        }
-        band.minX = minX;
-        band.maxX = maxX;
-      }
-
-      // ── Step 4: Pre-compute a synthetic timing map ──
-      // Reveal LINE BY LINE: 80% of time for line transitions, 20% for within-line sweep
-      const syntheticTimeMap = new Float32Array(width * height);
-      const numBands = lineBands.length;
-      const TIME_MIN = 1; // Never use 0 for strokes (0 = background)
-      const TIME_MAX = 255;
-      const X_WEIGHT = 0.20; // Only 20% of band duration for left-to-right
-      const bandDuration = (TIME_MAX - TIME_MIN) / numBands;
-
-      for (let b = 0; b < numBands; b++) {
-        const band = lineBands[b];
-        const tLineBase = TIME_MIN + b * bandDuration;
-        const xRange = Math.max(band.maxX - band.minX, 1);
-
-        for (let y = band.startY; y <= band.endY; y++) {
-          for (let x = 0; x < width; x++) {
-            const i = y * width + x;
-            if (dilatedMap[i] <= INK_THRESHOLD) continue;
-            // X progress within this band (0 to 1)
-            const xProgress = Math.max(0, Math.min(1, (x - band.minX) / xRange));
-            // Most timing from line index, small addition from x position
-            syntheticTimeMap[i] = tLineBase + xProgress * bandDuration * X_WEIGHT;
-          }
-        }
-      }
-
-      // Handle any stray ink pixels not in any band (assign based on Y position)
-      for (let y = 0; y < height; y++) {
-        for (let x = 0; x < width; x++) {
-          const i = y * width + x;
-          if (dilatedMap[i] > INK_THRESHOLD && syntheticTimeMap[i] === 0) {
-            syntheticTimeMap[i] = TIME_MIN + (y / height) * (TIME_MAX - TIME_MIN);
-          }
-        }
-      }
-
       // ── Step 5: Animation loop ──
       setLoaded(true);
       const startTime = performance.now();
@@ -198,6 +139,7 @@ function RevealCanvas({ imageUrl, revealMapUrl, duration = 8000 }) {
       const letter32 = new Uint32Array(letterData.data.buffer);
       const bg32 = new Uint32Array(bgData.data.buffer);
       const totalPixels = out32.length;
+      const TIME_MAX = 255;
 
       const animate = (now) => {
         const elapsed = now - startTime;
@@ -205,9 +147,10 @@ function RevealCanvas({ imageUrl, revealMapUrl, duration = 8000 }) {
         const threshold = progress * TIME_MAX;
 
         for (let i = 0; i < totalPixels; i++) {
-          if (dilatedMap[i] <= INK_THRESHOLD) {
-            out32[i] = bg32[i]; // Background
-          } else if (syntheticTimeMap[i] <= threshold) {
+          const t = rawTimings[i];
+          if (t === 0) {
+            out32[i] = bg32[i]; // Paper background
+          } else if (t <= threshold) {
             out32[i] = letter32[i]; // Revealed ink
           } else {
             out32[i] = bg32[i]; // Hidden ink (show inpainted bg)
@@ -257,7 +200,7 @@ function RevealCanvas({ imageUrl, revealMapUrl, duration = 8000 }) {
   );
 }
 
-export default function WritingReveal({ pages }) {
+export default function WritingReveal({ pages, enableAnimation = true }) {
   const [currentPage, setCurrentPage] = useState(0);
 
   return (
@@ -285,7 +228,7 @@ export default function WritingReveal({ pages }) {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        {pages[currentPage].revealMapUrl ? (
+        {pages[currentPage].revealMapUrl && enableAnimation ? (
           <RevealCanvas
             imageUrl={pages[currentPage].imageUrl}
             revealMapUrl={pages[currentPage].revealMapUrl}

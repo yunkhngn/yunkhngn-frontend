@@ -57,6 +57,7 @@ export default function AdminLetters() {
     password: '',
     removePassword: false,
     isActive: true,
+    enableAnimation: true,
     pages: [emptyPage()],
   });
 
@@ -97,6 +98,7 @@ export default function AdminLetters() {
       password: '',
       removePassword: false,
       isActive: true,
+      enableAnimation: true,
       pages: [emptyPage()],
     });
     setEditing(null);
@@ -115,6 +117,7 @@ export default function AdminLetters() {
       password: '',
       removePassword: false,
       isActive: letter.isActive,
+      enableAnimation: letter.enableAnimation ?? true,
       pages:
         letter.pages?.length > 0
           ? letter.pages.map((p) => ({
@@ -214,6 +217,7 @@ export default function AdminLetters() {
       const body = {
         title: form.title || undefined,
         isActive: form.isActive,
+        enableAnimation: form.enableAnimation,
       };
 
       if (!editing || pagesChanged) body.pages = pagesPayload;
@@ -773,6 +777,17 @@ export default function AdminLetters() {
                 }
               />
               Active
+            </label>
+
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={form.enableAnimation}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, enableAnimation: e.target.checked }))
+                }
+              />
+              Enable writing animation (reveals strokes instead of static image)
             </label>
 
             <div>

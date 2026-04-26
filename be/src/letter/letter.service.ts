@@ -17,7 +17,7 @@ type LetterWithPages = Prisma.LetterGetPayload<{
 
 @Injectable()
 export class LetterService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   private stripSensitive(letter: LetterWithPages) {
     const { password, ...rest } = letter;
@@ -64,8 +64,9 @@ export class LetterService {
         code,
         title: dto.title,
         password: hashedPassword,
-        status: 'processing',
+        status: dto.enableAnimation === false ? 'ready' : 'processing',
         isActive: dto.isActive ?? true,
+        enableAnimation: dto.enableAnimation ?? true,
         pages: {
           create: dto.pages.map((p, i) => ({
             imageUrl: p.imageUrl,
@@ -78,9 +79,11 @@ export class LetterService {
       include: { pages: { orderBy: { sortOrder: 'asc' } } },
     });
 
-    this.triggerProcessing(letter.id, letter.pages).catch((err) =>
-      console.error('Letter processing trigger failed:', err),
-    );
+    if (letter.enableAnimation) {
+      this.triggerProcessing(letter.id, letter.pages).catch((err) =>
+        console.error('Letter processing trigger failed:', err),
+      );
+    }
 
     return this.stripSensitive(letter);
   }
@@ -157,12 +160,13 @@ export class LetterService {
         where: { id: letter.id },
         data: { views: { increment: 1 } },
       })
-      .catch(() => {});
+      .catch(() => { });
 
     return {
       id: letter.id,
       title: letter.title,
       hasPassword: !!letter.password,
+      enableAnimation: letter.enableAnimation,
       pages: letter.password ? [] : letter.pages,
       createdAt: letter.createdAt,
     };
@@ -208,9 +212,13 @@ export class LetterService {
       data.password = await bcrypt.hash(dto.password, 10);
     }
 
+    if (dto.enableAnimation !== undefined) data.enableAnimation = dto.enableAnimation;
+    const isAnimEnabled = dto.enableAnimation ?? existing.enableAnimation;
+
     let shouldReprocess = false;
+
+    // If pages change, process if animation is enabled
     if (dto.pages) {
-      shouldReprocess = true;
       await this.prisma.letterPage.deleteMany({ where: { letterId: id } });
       data.pages = {
         create: dto.pages.map((p, i) => ({
@@ -220,7 +228,18 @@ export class LetterService {
           sortOrder: p.sortOrder ?? i,
         })),
       };
+      if (isAnimEnabled) {
+        shouldReprocess = true;
+        data.status = 'processing';
+      } else {
+        data.status = 'ready';
+      }
+    } else if (dto.enableAnimation === true && !existing.enableAnimation) {
+      // If no new pages were uploaded but animation was just enabled, we need to process existing pages
+      shouldReprocess = true;
       data.status = 'processing';
+    } else if (dto.enableAnimation === false) {
+      data.status = 'ready';
     }
 
     const letter = await this.prisma.letter.update({

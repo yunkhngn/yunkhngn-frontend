@@ -51,6 +51,10 @@ export class CreateLetterDto {
   @IsBoolean()
   isActive?: boolean;
 
+  @IsOptional()
+  @IsBoolean()
+  enableAnimation?: boolean;
+
   @IsArray()
   @ArrayMinSize(1)
   @ArrayMaxSize(3)
