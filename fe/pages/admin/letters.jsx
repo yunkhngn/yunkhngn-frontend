@@ -118,11 +118,11 @@ export default function AdminLetters() {
       pages:
         letter.pages?.length > 0
           ? letter.pages.map((p) => ({
-              imageUrl: p.imageUrl,
-              width: p.width,
-              height: p.height,
-              localKey: p.id || Math.random().toString(36).slice(2),
-            }))
+            imageUrl: p.imageUrl,
+            width: p.width,
+            height: p.height,
+            localKey: p.id || Math.random().toString(36).slice(2),
+          }))
           : [emptyPage()],
     });
     setDialogOpen(true);
@@ -675,17 +675,20 @@ export default function AdminLetters() {
           }
         }}
       >
-        <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>{editing ? 'Edit letter' : 'New letter'}</DialogTitle>
-            <DialogDescription>
+        <DialogContent className="sm:max-w-md max-h-[90vh] flex flex-col p-0 overflow-hidden border-amber-900/20">
+          <DialogHeader className="p-6 pb-2">
+            <DialogTitle className="text-xl font-bold flex items-center gap-2">
+              {editing ? <Edit className="h-5 w-5 text-primary" /> : <Plus className="h-5 w-5 text-primary" />}
+              {editing ? 'Edit letter' : 'New letter'}
+            </DialogTitle>
+            <DialogDescription className="text-xs">
               {editing
                 ? 'Update details or replace page images to reprocess.'
                 : 'Add 1–3 scanned pages. Leave code empty to auto-generate.'}
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4 py-2">
+          <div className="flex-1 overflow-y-auto px-6 py-2 space-y-5 custom-scrollbar">
             <div>
               <label className="block text-sm font-medium mb-1">Code</label>
               <input
@@ -763,66 +766,81 @@ export default function AdminLetters() {
                   </Button>
                 )}
               </div>
-              <div className="space-y-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {form.pages.map((page, index) => (
                   <div
                     key={page.localKey || index}
-                    className="border border-border rounded-lg p-3 space-y-2"
+                    className="border border-border/50 rounded-lg p-3 bg-muted/30 relative group"
                   >
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-muted-foreground">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                         Page {index + 1}
                       </span>
                       {form.pages.length > 1 && (
                         <button
                           type="button"
-                          className="text-xs text-red-500"
+                          className="p-1 rounded-full hover:bg-red-500/10 text-muted-foreground hover:text-red-500 transition-colors"
                           onClick={() => removePageSlot(index)}
                         >
-                          Remove
+                          <XCircle className="h-3.5 w-3.5" />
                         </button>
                       )}
                     </div>
-                    <input
-                      ref={(el) => {
-                        fileRefs.current[index] = el;
-                      }}
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={(e) => {
-                        const f = e.target.files?.[0];
-                        if (f) uploadImageAt(index, f);
-                        e.target.value = '';
-                      }}
-                    />
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      size="sm"
-                      className="w-full gap-2"
-                      disabled={uploadingIdx === index}
-                      onClick={() => fileRefs.current[index]?.click()}
-                    >
-                      {uploadingIdx === index ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <ImageIcon className="h-4 w-4" />
-                      )}
-                      {page.imageUrl ? 'Replace image' : 'Upload scan'}
-                    </Button>
-                    {page.imageUrl && (
-                      <p className="text-xs text-muted-foreground truncate">
-                        {page.imageUrl}
-                      </p>
-                    )}
+
+                    <div className="flex gap-3 items-center">
+                      <div className="relative w-14 h-14 rounded border border-border bg-background shrink-0 overflow-hidden">
+                        {page.imageUrl ? (
+                          <Image src={page.imageUrl} alt="" fill className="object-cover" unoptimized />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <ImageIcon className="h-5 w-5 text-muted-foreground/30" />
+                          </div>
+                        )}
+                        {uploadingIdx === index && (
+                          <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                            <Loader2 className="h-4 w-4 animate-spin text-white" />
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        <input
+                          ref={(el) => {
+                            fileRefs.current[index] = el;
+                          }}
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const f = e.target.files?.[0];
+                            if (f) uploadImageAt(index, f);
+                            e.target.value = '';
+                          }}
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="w-full h-8 text-[11px] gap-1.5"
+                          disabled={uploadingIdx === index}
+                          onClick={() => fileRefs.current[index]?.click()}
+                        >
+                          {page.imageUrl ? 'Replace' : 'Upload'}
+                        </Button>
+                        {page.imageUrl && (
+                          <p className="text-[10px] text-muted-foreground mt-1 truncate">
+                            {page.imageUrl.split('/').pop()}
+                          </p>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 ))}
               </div>
             </div>
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="p-6 pt-2 border-t mt-4">
             <Button
               variant="outline"
               onClick={() => {
