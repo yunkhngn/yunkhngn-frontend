@@ -134,7 +134,7 @@ export default function AdminLetters() {
     try {
       const token = await user.getIdToken();
       const folder = encodeURIComponent('blog-portfolio/letters');
-      const sigRes = await fetch(`${API_URL}/gallery/signature?folder=${folder}&quality=auto:best&format=png`, {
+      const sigRes = await fetch(`${API_URL}/gallery/signature?folder=${folder}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!sigRes.ok) throw new Error('Signature failed');
@@ -146,8 +146,6 @@ export default function AdminLetters() {
       formData.append('timestamp', timestamp);
       formData.append('signature', signature);
       formData.append('folder', 'blog-portfolio/letters');
-      formData.append('quality', 'auto:best');
-      formData.append('format', 'png');
 
       const uploadRes = await fetch(
         `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
