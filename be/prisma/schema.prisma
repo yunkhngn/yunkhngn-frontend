@@ -268,10 +268,11 @@ model Letter {
   code      String       @unique
   title     String?
   password  String? // bcrypt hash, null = public
-  status    String       @default("processing") // processing, ready, failed
-  isActive  Boolean      @default(true)
-  views     Int          @default(0)
-  createdAt DateTime     @default(now())
+  status          String       @default("processing") // processing, ready, failed
+  isActive        Boolean      @default(true)
+  enableAnimation Boolean      @default(true) // Whether to display handwriting animation
+  views           Int          @default(0)
+  createdAt       DateTime     @default(now())
   updatedAt DateTime     @updatedAt
   pages     LetterPage[]
 
