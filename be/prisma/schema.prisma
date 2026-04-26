@@ -263,6 +263,40 @@ model Journal {
   @@map("journals")
 }
 
+model Letter {
+  id        String       @id @default(uuid())
+  code      String       @unique
+  title     String?
+  password  String? // bcrypt hash, null = public
+  status    String       @default("processing") // processing, ready, failed
+  isActive  Boolean      @default(true)
+  views     Int          @default(0)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  pages     LetterPage[]
+
+  @@index([code])
+  @@index([isActive])
+  @@index([status])
+  @@map("letters")
+}
+
+model LetterPage {
+  id           String   @id @default(uuid())
+  letterId     String
+  imageUrl     String   @db.NVarChar(2048)
+  revealMapUrl String?  @db.NVarChar(2048) // grayscale timing map from OpenCV
+  width        Int?
+  height       Int?
+  sortOrder    Int      @default(0)
+  createdAt    DateTime @default(now())
+
+  letter Letter @relation(fields: [letterId], references: [id], onDelete: Cascade)
+
+  @@index([letterId])
+  @@map("letter_pages")
+}
+
 model JournalReaction {
   id        String   @id @default(uuid())
   journalId String

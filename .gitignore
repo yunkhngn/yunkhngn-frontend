@@ -11,3 +11,5 @@ fe/reports/*.xml
 /reports
 .env
 .env.local
+
+.worktrees/
