@@ -27,6 +27,7 @@ const ADMIN_NAV_ITEMS = [
             { label: "Journal", href: "/admin/journal", icon: BookOpen },
             { label: "Photo", href: "/admin/photo", icon: Image },
             { label: "Media", href: "/admin/media", icon: LayoutGrid },
+            { label: "Letters", href: "/admin/letters", icon: Mail },
         ]
     },
     {
@@ -35,7 +36,6 @@ const ADMIN_NAV_ITEMS = [
         children: [
             { label: "Chatbot", href: "/admin/chat", icon: Bot },
             { label: "Shortlinks", href: "/admin/shortlinks", icon: Link2 },
-            { label: "Letters", href: "/admin/letters", icon: Mail },
             { label: "Comments", href: "/admin/comments", icon: MessageSquare },
             { label: "Contact", href: "/admin/contact", icon: Mail },
         ]
