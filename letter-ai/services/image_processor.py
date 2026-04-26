@@ -129,21 +129,29 @@ def generate_reveal_map(img: np.ndarray) -> bytes:
         })
 
     # ── Step 4: Paint the reveal timing map ──
+    # Key change: reveal LINE BY LINE (top to bottom).
+    # 80% of the timeline is for line transitions, 20% for within-line sweep.
     num_bands = len(band_info)
     reveal_map = np.zeros((h, w), dtype=np.uint8)
     TIME_MIN = 1
     TIME_MAX = 255
-    band_duration = (TIME_MAX - TIME_MIN) / num_bands
+    total_range = TIME_MAX - TIME_MIN
+    LINE_WEIGHT = 0.80  # 80% of time for line transitions
+    X_WEIGHT = 0.20     # 20% for left-to-right within a line
+
+    band_duration = total_range / num_bands
 
     for b_idx, band in enumerate(band_info):
-        t_start = TIME_MIN + b_idx * band_duration
+        # Base time for this line (line transition portion)
+        t_line_base = TIME_MIN + b_idx * band_duration
         x_range = max(band["max_x"] - band["min_x"], 1)
 
         for y in range(band["start_y"], band["end_y"] + 1):
             for x in range(w):
                 if binary[y, x] > 0:
                     x_progress = max(0.0, min(1.0, (x - band["min_x"]) / x_range))
-                    timing = int(t_start + x_progress * band_duration)
+                    # Most of timing comes from which line, small addition from x
+                    timing = int(t_line_base + x_progress * band_duration * X_WEIGHT)
                     timing = max(TIME_MIN, min(TIME_MAX, timing))
                     reveal_map[y, x] = timing
 
@@ -154,8 +162,9 @@ def generate_reveal_map(img: np.ndarray) -> bytes:
                 reveal_map[y, x] = max(TIME_MIN, int((y / h) * TIME_MAX))
 
     # Dilate the map to ensure full ink coverage at edges
-    dilate_kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (7, 7))
-    reveal_map = cv2.dilate(reveal_map, dilate_kernel, iterations=2)
+    # Use smaller kernel to avoid erasing characters near edges
+    dilate_kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
+    reveal_map = cv2.dilate(reveal_map, dilate_kernel, iterations=1)
 
     _, buf = cv2.imencode(".png", reveal_map)
     return buf.tobytes()
