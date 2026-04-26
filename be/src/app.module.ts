@@ -33,6 +33,7 @@ import { ShortlinkModule } from './shortlink/shortlink.module';
 import { AlbumModule } from './album/album.module';
 import { JournalModule } from './journal/journal.module';
 import { LastFmModule } from './lastfm/lastfm.module';
+import { LetterModule } from './letter/letter.module';
 
 @Module({
   imports: [
@@ -79,6 +80,7 @@ import { LastFmModule } from './lastfm/lastfm.module';
     AlbumModule,
     JournalModule,
     LastFmModule,
+    LetterModule,
   ],
   controllers: [AppController, HealthController],
   providers: [

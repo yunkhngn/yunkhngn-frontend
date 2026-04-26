@@ -42,6 +42,8 @@ services:
     environment:
       - REDIS_HOST=redis
       - FRONTEND_URL=https://yunkhngn.dev
+      - LETTER_AI_URL=http://letter-ai:8000
+      - SELF_URL=http://backend:3001
     ports:
       - "3001:3001"
     networks:
@@ -50,6 +52,7 @@ services:
       - ./be/firebase-admin-sdk.json:/app/firebase-admin-sdk.json
     depends_on:
       - mssql
+      - letter-ai
     extra_hosts:
       - "host.docker.internal:host-gateway"
     security_opt:
@@ -64,6 +67,17 @@ services:
     #   args: ...
     container_name: yunkhngn-frontend
     restart: always
+    networks:
+      - app-network
+    security_opt:
+      - no-new-privileges:true
+
+  letter-ai:
+    image: ${LETTER_AI_IMAGE:-ghcr.io/yunkhngn/yunkhngn-letter-ai:latest}
+    container_name: yunkhngn-letter-ai
+    restart: always
+    env_file:
+      - ./letter-ai/.env
     networks:
       - app-network
     security_opt:

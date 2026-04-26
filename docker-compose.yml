@@ -39,6 +39,7 @@ services:
     container_name: yunkhngn_backend
     depends_on:
       - mssql
+      - letter-ai
     env_file:
       - ./be/.env
     environment:
@@ -46,6 +47,8 @@ services:
       - PORT=3001
       - REDIS_HOST=redis
       - FRONTEND_URL=http://localhost:3000
+      - LETTER_AI_URL=http://letter-ai:8000
+      - SELF_URL=http://backend:3001
     ports:
       - "3001:3001"
     networks:
@@ -77,6 +80,21 @@ services:
       - app_network
     depends_on:
       - backend
+    security_opt:
+      - no-new-privileges:true
+
+  # nosemgrep: yaml.docker-compose.security.writable-filesystem-service.writable-filesystem-service
+  letter-ai:
+    build:
+      context: ./letter-ai
+      dockerfile: Dockerfile
+    container_name: yunkhngn_letter_ai
+    env_file:
+      - ./letter-ai/.env
+    ports:
+      - "8000:8000"
+    networks:
+      - app_network
     security_opt:
       - no-new-privileges:true
 
