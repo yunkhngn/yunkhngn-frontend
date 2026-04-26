@@ -9,17 +9,19 @@ import { CreateLetterDto } from './dto/create-letter.dto';
 import { UpdateLetterDto } from './dto/update-letter.dto';
 import * as bcrypt from 'bcrypt';
 import axios from 'axios';
+import { Prisma } from '@prisma/client';
+
+type LetterWithPages = Prisma.LetterGetPayload<{
+  include: { pages: true };
+}>;
 
 @Injectable()
 export class LetterService {
   constructor(private prisma: PrismaService) {}
 
-  private stripSensitive<T extends { password?: string | null }>(letter: T) {
-    if (!letter) return letter;
+  private stripSensitive(letter: LetterWithPages) {
     const { password, ...rest } = letter;
-    return { ...rest, hasPassword: !!password } as Omit<T, 'password'> & {
-      hasPassword: boolean;
-    };
+    return { ...rest, hasPassword: !!password };
   }
 
   private generateCode(length = 8): string {
@@ -53,10 +55,9 @@ export class LetterService {
       if (existing) throw new ConflictException('This code is already in use');
     }
 
-    let hashedPassword: string | null = null;
-    if (dto.password) {
-      hashedPassword = await bcrypt.hash(dto.password, 10);
-    }
+    const hashedPassword = dto.password
+      ? await bcrypt.hash(dto.password, 10)
+      : null;
 
     const letter = await this.prisma.letter.create({
       data: {

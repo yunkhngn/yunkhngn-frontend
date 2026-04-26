@@ -34,8 +34,7 @@ export class CreateLetterDto {
   @IsString()
   @MaxLength(50)
   @Matches(/^[a-zA-Z0-9_-]+$/, {
-    message:
-      'Code can only contain letters, numbers, hyphens, and underscores',
+    message: 'Code can only contain letters, numbers, hyphens, and underscores',
   })
   code?: string;
 
