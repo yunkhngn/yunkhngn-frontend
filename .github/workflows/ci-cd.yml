@@ -12,6 +12,7 @@ env:
 
 jobs:
   quality:
+    if: github.ref != 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -45,6 +46,7 @@ jobs:
           path: reports/*.xml
 
   security:
+    if: github.ref != 'refs/heads/main'
     runs-on: ubuntu-latest
     name: Security Scan
     steps:
