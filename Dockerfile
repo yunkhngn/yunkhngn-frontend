@@ -48,10 +48,10 @@ ENV NEXT_PUBLIC_CLOUDINARY_API_KEY=${NEXT_PUBLIC_CLOUDINARY_API_KEY}
 ENV NEXT_PUBLIC_GEMINI_API_KEY=${NEXT_PUBLIC_GEMINI_API_KEY}
 ENV NEXT_PUBLIC_GA_ID=${NEXT_PUBLIC_GA_ID}
 
-RUN \
+RUN corepack enable && \
     if [ -f yarn.lock ]; then yarn build; \
     elif [ -f package-lock.json ]; then npm run build; \
-    elif [ -f pnpm-lock.yaml ]; then corepack enable && corepack pnpm run build; \
+    elif [ -f pnpm-lock.yaml ]; then pnpm run build; \
     else echo "Lockfile not found." && exit 1; \
     fi
 
