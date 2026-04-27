@@ -1,4 +1,5 @@
 import { useEffect, useMemo } from 'react';
+import { readNestJson } from '@/lib/api/readJson';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/Button';
 import {
@@ -452,7 +453,7 @@ export async function getStaticProps(context) {
 
     let recentBlogs = [];
     if (blogsRes.ok) {
-      const blogs = await blogsRes.json();
+      const blogs = await readNestJson(blogsRes);
       if (Array.isArray(blogs)) {
         recentBlogs = blogs.filter(b => b.status === 'PUBLISHED').slice(0, 3);
       }
@@ -460,7 +461,7 @@ export async function getStaticProps(context) {
 
     let featuredProjects = [];
     if (projectsRes.ok) {
-      const projects = await projectsRes.json();
+      const projects = await readNestJson(projectsRes);
       if (Array.isArray(projects)) {
         // Parse techStack if it's a string
         const parsedProjects = projects.map(p => {
@@ -480,7 +481,7 @@ export async function getStaticProps(context) {
 
     let galleryPhotos = [];
     if (galleryRes.ok) {
-      const result = await galleryRes.json();
+      const result = await readNestJson(galleryRes);
       const photos = result.data || (Array.isArray(result) ? result : []);
       if (Array.isArray(photos)) {
         galleryPhotos = photos.slice(0, 12);
@@ -489,7 +490,7 @@ export async function getStaticProps(context) {
 
     let settings = {};
     if (settingsRes.ok) {
-      const settingsData = await settingsRes.json();
+      const settingsData = await readNestJson(settingsRes);
       settings = settingsData.reduce((acc, curr) => {
         acc[curr.settingTitle] = curr.content;
         return acc;
@@ -498,7 +499,7 @@ export async function getStaticProps(context) {
 
     let featuredRepos = [];
     if (reposRes.ok) {
-      const data = await reposRes.json();
+      const data = await readNestJson(reposRes);
       if (Array.isArray(data)) {
         featuredRepos = data
           .sort((a, b) => b.stargazers_count - a.stargazers_count)

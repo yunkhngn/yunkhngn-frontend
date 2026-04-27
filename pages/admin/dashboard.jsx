@@ -1,4 +1,5 @@
 import AdminLayout from "@/components/template/Admin/Layout";
+import { readNestJson } from '@/lib/api/readJson';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/Select";
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
@@ -84,7 +85,7 @@ export default function Dashboard() {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (res.ok) {
-          setSystemStats(await res.json());
+          setSystemStats(await readNestJson(res));
         }
       } catch (error) {
         console.error("Failed to fetch system stats", error);
@@ -116,16 +117,16 @@ export default function Dashboard() {
           fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/analytics?period=${analyticsPeriod}`, { headers })
         ]);
 
-        const blogs = await blogsRes.json();
-        const projects = await projectsRes.json();
-        const galleryResult = await galleryRes.json();
+        const blogs = await readNestJson(blogsRes);
+        const projects = await readNestJson(projectsRes);
+        const galleryResult = await readNestJson(galleryRes);
         const gallery = galleryResult.data || [];
         const galleryTotal = galleryResult.total || gallery.length;
-        const commentsData = await commentsRes.json();
-        const contacts = await contactRes.json();
+        const commentsData = await readNestJson(commentsRes);
+        const contacts = await readNestJson(contactRes);
 
         if (analyticsRes.ok) {
-          const analytics = await analyticsRes.json();
+          const analytics = await readNestJson(analyticsRes);
           setAnalyticsData(analytics);
         }
 
@@ -307,7 +308,7 @@ export default function Dashboard() {
 
       if (!res.ok) throw new Error('Failed to generate summary');
 
-      const data = await res.json();
+      const data = await readNestJson(res);
       setAiSummary(data.summary);
     } catch (error) {
       console.error(error);

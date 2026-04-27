@@ -1,4 +1,5 @@
 import AdminLayout from "@/components/template/Admin/Layout";
+import { readNestJson } from '@/lib/api/readJson';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/Button';
@@ -41,7 +42,7 @@ export default function ProjectList() {
         try {
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects`);
             if (!res.ok) throw new Error('Failed to fetch projects');
-            const data = await res.json();
+            const data = await readNestJson(res);
             const parsedData = data.map(p => ({
                 ...p,
                 techStack: typeof p.techStack === 'string' ? JSON.parse(p.techStack || '[]') : p.techStack,

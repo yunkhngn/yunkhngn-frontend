@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { readNestJson } from '@/lib/api/readJson';
 import { useRouter } from 'next/router';
 import Layout from '@/components/template/Default/Layout';
 import { Input } from '@/components/ui/Input';
@@ -36,9 +37,9 @@ export default function Search() {
                 fetch(`${process.env.NEXT_PUBLIC_API_URL}/gallery`)
             ]);
 
-            const blogs = await blogsRes.json();
-            const projects = await projectsRes.json();
-            const photos = await photosRes.json();
+            const blogs = await readNestJson(blogsRes);
+            const projects = await readNestJson(projectsRes);
+            const photos = await readNestJson(photosRes);
 
             const lowerQuery = query.toLowerCase();
 

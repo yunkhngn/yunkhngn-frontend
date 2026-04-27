@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { readNestJson } from '@/lib/api/readJson';
 import Head from 'next/head';
 import EnvelopeAnimation from '@/components/letter/EnvelopeAnimation';
 import WritingReveal from '@/components/letter/WritingReveal';
@@ -10,7 +11,7 @@ export async function getServerSideProps(context) {
     const apiUrl = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL;
     const res = await fetch(`${apiUrl}/letters/resolve/${code}`);
     if (!res.ok) return { notFound: true };
-    const data = await res.json();
+    const data = await readNestJson(res);
     return { props: { letter: data, code } };
   } catch {
     return { notFound: true };

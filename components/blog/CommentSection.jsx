@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { readNestJson } from '@/lib/api/readJson';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import Comment from './Comment';
 import CommentForm from './CommentForm';
@@ -15,7 +16,7 @@ export default function CommentSection({ blogId, projectId }) {
             const queryParam = blogId ? `blogId=${blogId}` : `projectId=${projectId}`;
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/comments?${queryParam}`);
             if (res.ok) {
-                const responseData = await res.json();
+                const responseData = await readNestJson(res);
                 // Handle both paginated and non-paginated responses for backward compatibility
                 setComments(responseData.data || responseData);
             }

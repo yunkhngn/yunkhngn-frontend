@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { readNestJson } from '@/lib/api/readJson';
 import { useRouter } from 'next/router';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
@@ -31,7 +32,7 @@ export default function BlogList() {
             try {
                 const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/blogs`);
                 if (!res.ok) throw new Error('Failed to fetch blogs');
-                const data = await res.json();
+                const data = await readNestJson(res);
                 // Filter only published blogs
                 const publishedBlogs = data.filter(blog => blog.status === 'PUBLISHED');
                 setBlogs(publishedBlogs);

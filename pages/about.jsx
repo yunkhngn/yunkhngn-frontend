@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { readNestJson } from '@/lib/api/readJson';
 import { Github, Facebook, Instagram, Linkedin, Mail, ArrowRight, Briefcase, GraduationCap, MapPin, Calendar, Globe, Code } from "lucide-react";
 import {
     SiReact, SiNextdotjs, SiNodedotjs, SiTypescript, SiJavascript, SiTailwindcss,
@@ -77,7 +78,7 @@ export default function About() {
             try {
                 const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/settings`);
                 if (res.ok) {
-                    const data = await res.json();
+                    const data = await readNestJson(res);
                     const settingsObj = data.reduce((acc, curr) => {
                         acc[curr.settingTitle] = curr.content;
                         return acc;

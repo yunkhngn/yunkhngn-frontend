@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { readNestJson } from '@/lib/api/readJson';
 import Head from 'next/head';
 import AdminLayout from '@/components/template/Admin/Layout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/Card';
@@ -35,7 +36,7 @@ export default function AdminNewsletter() {
                 body: JSON.stringify({ subject, content }),
             });
 
-            const data = await res.json();
+            const data = await readNestJson(res);
 
             if (res.ok) {
                 toast.success(`Newsletter sent successfully to ${data.sent} subscribers!`);

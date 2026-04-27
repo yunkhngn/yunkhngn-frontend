@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { readNestJson } from '@/lib/api/readJson';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/Button';
 import { CheckCircle, XCircle, Loader2, RefreshCw, Server, Image, Shield, Sparkles, Mail, Activity } from 'lucide-react';
@@ -66,7 +67,7 @@ export default function ServiceStatus() {
         try {
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/health`);
             if (res.ok) {
-                const data = await res.json();
+                const data = await readNestJson(res);
                 setStatuses(prev => ({ ...prev, backend: { status: 'success', message: 'Online' } }));
 
                 // Check Gemini

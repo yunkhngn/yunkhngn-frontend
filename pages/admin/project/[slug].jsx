@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { readNestJson } from '@/lib/api/readJson';
 import { useRouter } from 'next/router';
 import { ChevronLeft, Github, ExternalLink, Star, GitFork, Scale, BookOpen, Edit, Trash2, Clock, Calendar, Tag } from 'lucide-react';
 import Image from 'next/image';
@@ -20,7 +21,7 @@ export async function getServerSideProps(context) {
         const apiUrl = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL;
         const res = await fetch(`${apiUrl}/projects/${slug}`);
         if (!res.ok) throw new Error('Failed to fetch project');
-        const data = await res.json();
+        const data = await readNestJson(res);
 
         // Parse techStack if it's a string
         const parsedProject = {

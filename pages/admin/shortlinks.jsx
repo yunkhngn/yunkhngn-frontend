@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { readNestJson } from '@/lib/api/readJson';
 import Head from 'next/head';
 import AdminLayout from '@/components/template/Admin/Layout';
 import { Card, CardContent } from '@/components/ui/Card';
@@ -36,7 +37,7 @@ export default function AdminShortlinks() {
                 headers: { Authorization: `Bearer ${token}` },
             });
             if (res.ok) {
-                const data = await res.json();
+                const data = await readNestJson(res);
                 setLinks(data);
             }
         } catch (error) {
@@ -116,7 +117,7 @@ export default function AdminShortlinks() {
                 resetForm();
                 fetchLinks();
             } else {
-                const data = await res.json();
+                const data = await readNestJson(res);
                 toast.error(data.message || 'Failed to save shortlink');
             }
         } catch (error) {
@@ -201,7 +202,7 @@ export default function AdminShortlinks() {
                 body: JSON.stringify({ ids: [...selected] }),
             });
             if (res.ok) {
-                const data = await res.json();
+                const data = await readNestJson(res);
                 toast.success(`Deleted ${data.deleted} shortlink(s)`);
                 clearSelection();
                 fetchLinks();
@@ -229,7 +230,7 @@ export default function AdminShortlinks() {
                 body: JSON.stringify({ ids: [...selected], isActive }),
             });
             if (res.ok) {
-                const data = await res.json();
+                const data = await readNestJson(res);
                 toast.success(`${isActive ? 'Activated' : 'Deactivated'} ${data.updated} shortlink(s)`);
                 clearSelection();
                 fetchLinks();

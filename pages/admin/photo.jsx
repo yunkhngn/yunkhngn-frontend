@@ -1,4 +1,5 @@
 import AdminLayout from "@/components/template/Admin/Layout";
+import { readNestJson } from '@/lib/api/readJson';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/Button';
@@ -110,7 +111,7 @@ export default function PhotoManager() {
 
             const res = await fetch(`${API_URL}/gallery?${params}`);
             if (!res.ok) throw new Error('Failed');
-            const result = await res.json();
+            const result = await readNestJson(res);
             setPhotos(result.data);
             setTotalPages(result.totalPages);
             setCurrentPage(page);
@@ -124,7 +125,7 @@ export default function PhotoManager() {
     const fetchAlbums = async () => {
         try {
             const res = await fetch(`${API_URL}/albums`);
-            if (res.ok) setAlbums(await res.json());
+            if (res.ok) setAlbums(await readNestJson(res));
         } catch (e) { console.error(e); }
     };
 
@@ -184,7 +185,7 @@ export default function PhotoManager() {
                 try {
                     const sigRes = await fetch(`${API_URL}/gallery/signature`, { headers: { Authorization: `Bearer ${token}` } });
                     if (!sigRes.ok) throw new Error('Failed to get signature');
-                    const { signature, timestamp, cloudName, apiKey } = await sigRes.json();
+                    const { signature, timestamp, cloudName, apiKey } = await readNestJson(sigRes);
 
                     const formData = new FormData();
                     formData.append('file', photo.file);

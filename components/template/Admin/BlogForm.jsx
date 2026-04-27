@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
+import { readNestJson } from '@/lib/api/readJson';
 import { useRouter } from 'next/router';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -237,7 +238,7 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
             const sigRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/gallery/signature?folder=blog-portfolio/blogs`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
-            const { signature, timestamp, cloudName, apiKey } = await sigRes.json();
+            const { signature, timestamp, cloudName, apiKey } = await readNestJson(sigRes);
 
             // Upload to Cloudinary
             const formData = new FormData();
@@ -320,7 +321,7 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
             const sigRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/gallery/signature?folder=blog-portfolio/content`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
-            const { signature, timestamp, cloudName, apiKey } = await sigRes.json();
+            const { signature, timestamp, cloudName, apiKey } = await readNestJson(sigRes);
 
             const formData = new FormData();
             formData.append('file', file);
@@ -404,7 +405,7 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
 
             if (!res.ok) throw new Error('Failed to generate content');
 
-            const data = await res.json();
+            const data = await readNestJson(res);
 
             // Extract content - ensure it's always a string (HTML)
             let newContent = '';

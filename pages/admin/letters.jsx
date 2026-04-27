@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { readNestJson } from '@/lib/api/readJson';
 import Head from 'next/head';
 import AdminLayout from '@/components/template/Admin/Layout';
 import { Card, CardContent } from '@/components/ui/Card';
@@ -69,7 +70,7 @@ export default function AdminLetters() {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {
-        setLetters(await res.json());
+        setLetters(await readNestJson(res));
       }
     } catch (e) {
       console.error(e);
@@ -141,7 +142,7 @@ export default function AdminLetters() {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!sigRes.ok) throw new Error('Signature failed');
-      const { signature, timestamp, cloudName, apiKey } = await sigRes.json();
+      const { signature, timestamp, cloudName, apiKey } = await readNestJson(sigRes);
 
       const formData = new FormData();
       formData.append('file', file);
@@ -241,7 +242,7 @@ export default function AdminLetters() {
           resetForm();
           fetchLetters();
         } else {
-          const data = await res.json().catch(() => ({}));
+          const data = await readNestJson(res).catch(() => ({}));
           toast.error(data.message || 'Update failed');
         }
       } else {
@@ -259,7 +260,7 @@ export default function AdminLetters() {
           resetForm();
           fetchLetters();
         } else {
-          const data = await res.json().catch(() => ({}));
+          const data = await readNestJson(res).catch(() => ({}));
           toast.error(data.message || 'Create failed');
         }
       }
@@ -366,7 +367,7 @@ export default function AdminLetters() {
         body: JSON.stringify({ ids: [...selected] }),
       });
       if (res.ok) {
-        const data = await res.json();
+        const data = await readNestJson(res);
         toast.success(`Deleted ${data.deleted} letter(s)`);
         clearSelection();
         fetchLetters();
@@ -392,7 +393,7 @@ export default function AdminLetters() {
         body: JSON.stringify({ ids: [...selected], isActive }),
       });
       if (res.ok) {
-        const data = await res.json();
+        const data = await readNestJson(res);
         toast.success(
           `${isActive ? 'Activated' : 'Deactivated'} ${data.updated} letter(s)`,
         );

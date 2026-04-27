@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { readNestJson } from '@/lib/api/readJson';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { Pagination } from '@/components/ui/Pagination';
@@ -27,7 +28,7 @@ export default function ProjectList() {
 
                 let parsedProjects = [];
                 if (projectsRes.ok) {
-                    const projectsData = await projectsRes.json();
+                    const projectsData = await readNestJson(projectsRes);
                     parsedProjects = projectsData.map(p => ({
                         ...p,
                         techStack: typeof p.techStack === 'string' ? JSON.parse(p.techStack || '[]') : p.techStack,
@@ -38,7 +39,7 @@ export default function ProjectList() {
 
                 let parsedRepos = [];
                 if (reposRes.ok) {
-                    const reposData = await reposRes.json();
+                    const reposData = await readNestJson(reposRes);
                     parsedRepos = reposData.map(r => ({
                         id: `repo-${r.id}`,
                         title: r.name,

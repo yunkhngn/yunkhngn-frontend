@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { readNestJson } from '@/lib/api/readJson';
 import Image from 'next/image';
 import { Dialog, DialogContent } from '@/components/ui/Dialog';
 import { X, ThumbsUp, Heart, Cat, Flame, Laugh, Download, Share2, ChevronLeft, ChevronRight, Play, Pause, Camera, Grid, LayoutGrid, List, Info } from 'lucide-react';
@@ -59,8 +60,8 @@ export default function Photo() {
                     fetch(`${API_URL}/albums`),
                     fetch(`${API_URL}/gallery/tags`),
                 ]);
-                if (albumsRes.ok) setAlbums(await albumsRes.json());
-                if (tagsRes.ok) setTags(await tagsRes.json());
+                if (albumsRes.ok) setAlbums(await readNestJson(albumsRes));
+                if (tagsRes.ok) setTags(await readNestJson(tagsRes));
             } catch (e) {
                 console.error(e);
             }
@@ -80,7 +81,7 @@ export default function Photo() {
 
             const res = await fetch(`${API_URL}/gallery?${params}`);
             if (res.ok) {
-                const result = await res.json();
+                const result = await readNestJson(res);
                 setPhotos(prev => append ? [...prev, ...result.data] : result.data);
                 setTotalPages(result.totalPages);
                 setPage(pageNum);
@@ -216,7 +217,7 @@ export default function Photo() {
         try {
             const res = await fetch(`${API_URL}/photo-reactions/${photoId}`);
             if (!res.ok) return;
-            const data = await res.json();
+            const data = await readNestJson(res);
             setReactionCounts(data.stats.counts);
             setSelectedReaction(data.userReaction);
         } catch (e) {
@@ -246,7 +247,7 @@ export default function Photo() {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 if (res.ok) {
-                    const data = await res.json();
+                    const data = await readNestJson(res);
                     setReactionCounts(data.stats.counts);
                     setSelectedReaction(null);
                 }
@@ -257,7 +258,7 @@ export default function Photo() {
                     body: JSON.stringify({ reactionType: reactionId }),
                 });
                 if (res.ok) {
-                    const data = await res.json();
+                    const data = await readNestJson(res);
                     setReactionCounts(data.stats.counts);
                     setSelectedReaction(reactionId);
                 }

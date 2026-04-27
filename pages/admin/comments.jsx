@@ -1,4 +1,5 @@
 import AdminLayout from "@/components/template/Admin/Layout";
+import { readNestJson } from '@/lib/api/readJson';
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
@@ -62,7 +63,7 @@ export default function AdminComments() {
                 headers: { Authorization: `Bearer ${token}` }
             });
             if (!res.ok) throw new Error('Failed to fetch comments');
-            const { data, meta } = await res.json();
+            const { data, meta } = await readNestJson(res);
             setComments(data);
             setPage(meta.page);
             setTotalPages(meta.lastPage);
@@ -79,7 +80,7 @@ export default function AdminComments() {
                 headers: { Authorization: `Bearer ${token}` }
             });
             if (!res.ok) throw new Error('Failed to fetch reports');
-            const { data, meta } = await res.json();
+            const { data, meta } = await readNestJson(res);
             setReports(data);
             setReportPage(meta.page);
             setReportTotalPages(meta.lastPage);

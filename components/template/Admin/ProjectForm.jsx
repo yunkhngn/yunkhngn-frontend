@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { readNestJson } from '@/lib/api/readJson';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
@@ -148,7 +149,7 @@ export default function ProjectForm({ initialData, onSubmit, isEditing = false }
 
             if (!res.ok) throw new Error('Failed to generate project info');
 
-            const data = await res.json();
+            const data = await readNestJson(res);
 
             setFormData(prev => ({
                 ...prev,
@@ -193,7 +194,7 @@ export default function ProjectForm({ initialData, onSubmit, isEditing = false }
             const sigRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/gallery/signature?folder=blog-portfolio/projects`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
-            const { signature, timestamp, cloudName, apiKey } = await sigRes.json();
+            const { signature, timestamp, cloudName, apiKey } = await readNestJson(sigRes);
 
             const formData = new FormData();
             formData.append('file', blob);
@@ -275,7 +276,7 @@ export default function ProjectForm({ initialData, onSubmit, isEditing = false }
             const sigRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/gallery/signature?folder=blog-portfolio/content`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
-            const { signature, timestamp, cloudName, apiKey } = await sigRes.json();
+            const { signature, timestamp, cloudName, apiKey } = await readNestJson(sigRes);
 
             const formData = new FormData();
             formData.append('file', file);

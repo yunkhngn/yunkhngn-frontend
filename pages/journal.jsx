@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { readNestJson } from '@/lib/api/readJson';
 import { useAuth } from '@/contexts/AuthContext';
 import Layout from '@/components/template/Default/Layout';
 import { format, formatDistanceToNow } from 'date-fns';
@@ -511,7 +512,7 @@ export default function JournalPage() {
         try {
             const resSettings = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/settings`);
             if (resSettings.ok) {
-                const settings = await resSettings.json();
+                const settings = await readNestJson(resSettings);
                 const moodSetting = settings.find(s => s.settingTitle === 'journal_moods');
                 if (moodSetting && moodSetting.content) {
                     const parsed = JSON.parse(moodSetting.content);
@@ -536,7 +537,7 @@ export default function JournalPage() {
 
             const resEntries = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/journals?page=${pageNum}&limit=10`);
             if (!resEntries.ok) throw new Error('Failed to fetch entries');
-            const data = await resEntries.json();
+            const data = await readNestJson(resEntries);
 
             setEntries(prev => overwrite ? data.data : [...prev, ...data.data]);
             updateHasMore(data.page < data.totalPages);

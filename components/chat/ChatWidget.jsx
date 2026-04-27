@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { readNestJson } from '@/lib/api/readJson';
 import Link from 'next/link';
 import Image from 'next/image';
 import { X, Send, Loader2, Maximize2, Minimize2 } from 'lucide-react';
@@ -38,7 +39,7 @@ export default function ChatWindow({ isOpen, onClose }) {
             try {
                 const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/settings`);
                 if (res.ok) {
-                    const data = await res.json();
+                    const data = await readNestJson(res);
                     const forbiddenSetting = data.find(s => s.settingTitle === 'chat_forbidden_words');
                     if (forbiddenSetting && forbiddenSetting.content) {
                         // Support comma or newline separated
@@ -110,7 +111,7 @@ export default function ChatWindow({ isOpen, onClose }) {
 
             if (!res.ok) throw new Error('Failed to fetch response');
 
-            const data = await res.json();
+            const data = await readNestJson(res);
             setMessages(prev => [...prev, { role: 'assistant', content: data.response, imageUrl: data.imageUrl || null }]);
         } catch (error) {
             console.error(error);

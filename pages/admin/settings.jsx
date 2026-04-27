@@ -1,4 +1,5 @@
 import AdminLayout from "@/components/template/Admin/Layout";
+import { readNestJson } from '@/lib/api/readJson';
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/Button';
@@ -125,7 +126,7 @@ export default function Settings() {
                 }
             });
             if (res.ok) {
-                const data = await res.json();
+                const data = await readNestJson(res);
                 setSettings(data);
             }
         } catch (error) {

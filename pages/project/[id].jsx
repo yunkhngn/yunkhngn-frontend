@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { readNestJson } from '@/lib/api/readJson';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { Metadata } from '@/components/template';
@@ -31,7 +32,7 @@ export async function getServerSideProps(context) {
         const apiUrl = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL;
         const res = await fetch(`${apiUrl}/projects/${id}`);
         if (!res.ok) throw new Error('Failed to fetch project');
-        const data = await res.json();
+        const data = await readNestJson(res);
 
         // Parse techStack if it's a string
         const parsedProject = {
@@ -88,12 +89,12 @@ export default function ProjectDetail({ projectData }) {
                 }),
             });
             if (res.ok) {
-                const data = await res.json();
+                const data = await readNestJson(res);
                 const shortUrl = `https://yunkhngn.dev/s/${data.code}`;
                 navigator.clipboard.writeText(shortUrl);
                 toast.success(`Shortlink created & copied: ${shortUrl}`);
             } else {
-                const data = await res.json();
+                const data = await readNestJson(res);
                 toast.error(data.message || 'Failed to create shortlink');
             }
         } catch (error) {

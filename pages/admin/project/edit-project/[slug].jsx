@@ -1,4 +1,5 @@
 import AdminLayout from "@/components/template/Admin/Layout";
+import { readNestJson } from '@/lib/api/readJson';
 import ProjectForm from '@/components/template/Admin/ProjectForm';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/router';
@@ -19,7 +20,7 @@ export default function EditProject() {
             try {
                 const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/${slug}`);
                 if (!res.ok) throw new Error('Failed to fetch project');
-                const data = await res.json();
+                const data = await readNestJson(res);
 
                 // Parse JSON fields
                 const parsedData = {

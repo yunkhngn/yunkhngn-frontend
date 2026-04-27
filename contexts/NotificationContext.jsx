@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useState, useRef, useCallback, useMemo } from 'react';
+import { readNestJson } from '@/lib/api/readJson';
 import io from 'socket.io-client';
 import { toast } from 'sonner';
 import { useAuth } from './AuthContext';
@@ -64,7 +65,7 @@ export function NotificationProvider({ children }) {
                 headers: { Authorization: `Bearer ${token}` },
             });
             if (res.ok) {
-                const data = await res.json();
+                const data = await readNestJson(res);
                 setNotifications(data.data);
                 setUnreadCount(data.meta.unreadCount);
             }

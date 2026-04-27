@@ -1,4 +1,5 @@
 import { Button } from '@/components/ui/Button';
+import { readNestJson } from '@/lib/api/readJson';
 import { Download, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -15,7 +16,7 @@ export default function Resume() {
             try {
                 const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/settings`);
                 if (res.ok) {
-                    const data = await res.json();
+                    const data = await readNestJson(res);
                     const cvSetting = data.find(s => s.settingTitle === 'cv_url');
                     if (cvSetting && cvSetting.content) {
                         setCvUrl(cvSetting.content);

@@ -1,3 +1,4 @@
+import { readNestJson } from '@/lib/api/readJson';
 const EXTERNAL_DATA_URL = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL;
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://yunkhngn.dev';
 
@@ -100,8 +101,8 @@ export async function getServerSideProps({ res }) {
       fetch(`${EXTERNAL_DATA_URL}/projects`)
     ]);
 
-    const blogs = await blogsRes.json();
-    const projects = await projectsRes.json();
+    const blogs = await readNestJson(blogsRes);
+    const projects = await readNestJson(projectsRes);
 
     // We generate the XML sitemap with the posts data
     const sitemap = generateSiteMap(blogs, projects);

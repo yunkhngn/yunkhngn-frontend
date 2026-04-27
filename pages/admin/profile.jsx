@@ -1,4 +1,5 @@
 import AdminLayout from "@/components/template/Admin/Layout";
+import { readNestJson } from '@/lib/api/readJson';
 import AdminManagement from "@/components/template/Admin/UserManagement";
 import ServiceStatus from "@/components/template/Admin/ServiceStatus";
 import { useState, useEffect, useRef } from 'react';
@@ -36,7 +37,7 @@ export default function Profile() {
             headers: { Authorization: `Bearer ${token}` }
           });
           if (res.ok) {
-            const data = await res.json();
+            const data = await readNestJson(res);
             setDeployments(data);
           }
         } catch (error) {
@@ -61,7 +62,7 @@ export default function Profile() {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (!sigRes.ok) throw new Error('Failed to get upload signature');
-      const { signature, timestamp, cloudName, apiKey } = await sigRes.json();
+      const { signature, timestamp, cloudName, apiKey } = await readNestJson(sigRes);
 
       // 2. Upload to Cloudinary
       const formData = new FormData();

@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { readNestJson } from '@/lib/api/readJson';
 import AdminLayout from '@/components/template/Admin/Layout';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/Button';
@@ -53,7 +54,7 @@ export default function AdminContact() {
                 headers: { Authorization: `Bearer ${token}` },
             });
             if (res.ok) {
-                const data = await res.json();
+                const data = await readNestJson(res);
                 setContacts(data);
             }
         } catch (error) {
@@ -224,7 +225,7 @@ export default function AdminContact() {
             });
 
             if (res.ok) {
-                const data = await res.json();
+                const data = await readNestJson(res);
                 setResponse(data.suggestion);
                 toast.success('AI suggestion generated!');
             } else {
@@ -279,7 +280,7 @@ export default function AdminContact() {
             });
 
             if (res.ok) {
-                const data = await res.json();
+                const data = await readNestJson(res);
                 setComposeData({ ...composeData, content: data.suggestion });
                 toast.success('AI draft generated!');
             } else {
@@ -299,7 +300,7 @@ export default function AdminContact() {
             const sigRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/gallery/signature?folder=contacts/mail-content`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
-            const { signature, timestamp, cloudName, apiKey } = await sigRes.json();
+            const { signature, timestamp, cloudName, apiKey } = await readNestJson(sigRes);
 
             const formData = new FormData();
             formData.append('file', file);

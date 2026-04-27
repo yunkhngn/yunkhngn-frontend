@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { readNestJson } from '@/lib/api/readJson';
 import { Send, Loader2, CheckCircle2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -19,7 +20,7 @@ export default function NewsletterForm() {
                 body: JSON.stringify({ email }),
             });
 
-            const data = await res.json();
+            const data = await readNestJson(res);
 
             if (res.ok) {
                 setStatus('success');

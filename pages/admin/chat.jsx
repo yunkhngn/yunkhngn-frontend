@@ -1,4 +1,5 @@
 import AdminLayout from "@/components/template/Admin/Layout";
+import { readNestJson } from '@/lib/api/readJson';
 import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from "@/components/ui/Button";
@@ -86,7 +87,7 @@ export default function AdminChat() {
 
             if (!res.ok) throw new Error('Failed to send message');
 
-            const data = await res.json();
+            const data = await readNestJson(res);
             setMessages(prev => [...prev, { role: 'model', content: data.response }]);
         } catch (error) {
             console.error(error);

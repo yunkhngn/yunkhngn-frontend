@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { readNestJson } from '@/lib/api/readJson';
 import { Github, Facebook, Instagram, Linkedin, Mail } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import NewsletterForm from '../../shared/NewsletterForm';
@@ -11,7 +12,7 @@ export default function Footer() {
             try {
                 const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/settings`);
                 if (res.ok) {
-                    const data = await res.json();
+                    const data = await readNestJson(res);
                     const settingsObj = data.reduce((acc, curr) => {
                         acc[curr.settingTitle] = curr.content;
                         return acc;

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { readNestJson } from '@/lib/api/readJson';
 import { Loader2, ExternalLink, ArrowRight, Terminal } from 'lucide-react';
 import Head from 'next/head';
 
@@ -13,7 +14,7 @@ export async function getServerSideProps(context) {
             return { notFound: true };
         }
 
-        const data = await res.json();
+        const data = await readNestJson(res);
 
         if (data?.targetUrl) {
             // Security check: Ensure URL uses http or https protocol

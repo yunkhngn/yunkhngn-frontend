@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { readNestJson } from '@/lib/api/readJson';
 import { useRouter } from 'next/router';
 import { Calendar, Clock, ChevronLeft, Tag, Facebook, Twitter, Linkedin, Link as LinkIcon, UploadCloud, Loader2, Edit, Eye, Maximize, Minimize, Link2 } from 'lucide-react';
 import Image from 'next/image';
@@ -37,7 +38,7 @@ export async function getServerSideProps(context) {
             return { notFound: true };
         }
 
-        const foundBlog = await res.json();
+        const foundBlog = await readNestJson(res);
 
         if (!foundBlog) {
             return { notFound: true };
@@ -112,12 +113,12 @@ export default function BlogDetail({ blogData }) {
                 }),
             });
             if (res.ok) {
-                const data = await res.json();
+                const data = await readNestJson(res);
                 const shortUrl = `https://yunkhngn.dev/s/${data.code}`;
                 navigator.clipboard.writeText(shortUrl);
                 toast.success(`Shortlink created & copied: ${shortUrl}`);
             } else {
-                const data = await res.json();
+                const data = await readNestJson(res);
                 toast.error(data.message || 'Failed to create shortlink');
             }
         } catch (error) {
