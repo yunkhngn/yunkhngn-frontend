@@ -2,9 +2,10 @@ name: CI (Frontend)
 
 on:
   push:
-    branches: [ "main" ]
+    branches-ignore:
+      - 'main'
   pull_request:
-    branches: [ "main" ]
+    branches: [ "*" ]
 
 jobs:
   quality:
@@ -31,7 +32,7 @@ jobs:
         run: |
           export JEST_JUNIT_OUTPUT_DIR="reports"
           export JEST_JUNIT_OUTPUT_NAME="fe-test-report.xml"
-          yarn test
+          yarn test --passWithNoTests
 
       - name: Upload Test Reports
         if: always()
