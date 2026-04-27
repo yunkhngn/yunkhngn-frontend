@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 
-function RevealCanvas({ imageUrl, revealMapUrl, duration = 8000 }) {
+function RevealCanvas({ imageUrl, revealMapUrl, duration = 15000 }) {
   const canvasRef = useRef(null);
   const [loaded, setLoaded] = useState(false);
 
