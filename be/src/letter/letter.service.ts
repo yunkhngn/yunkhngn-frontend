@@ -92,8 +92,8 @@ export class LetterService {
     letterId: string,
     pages: { id: string; imageUrl: string }[],
   ) {
-    const aiUrl = process.env.LETTER_AI_URL || 'http://letter-ai:8000';
-    const selfUrl = process.env.SELF_URL || 'http://backend:3001';
+    const aiUrl = process.env.LETTER_AI_URL || 'http://localhost:8000';
+    const selfUrl = process.env.SELF_URL || 'http://localhost:3001';
     try {
       await axios.post(`${aiUrl}/process`, {
         letterId,

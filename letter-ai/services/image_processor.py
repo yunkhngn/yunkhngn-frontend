@@ -141,20 +141,30 @@ def generate_reveal_map(img: np.ndarray) -> bytes:
         t_line_base = TIME_MIN + b_idx * band_duration
         x_range = max(band["max_x"] - band["min_x"], 1)
 
-        for y in range(band["start_y"], band["end_y"] + 1):
-            for x in range(w):
-                if binary[y, x] > 0:
-                    x_progress = max(0.0, min(1.0, (x - band["min_x"]) / x_range))
-                    # Most of timing comes from which line, small addition from x
-                    timing = int(t_line_base + x_progress * band_duration * X_WEIGHT)
-                    timing = max(TIME_MIN, min(TIME_MAX, timing))
-                    reveal_map[y, x] = timing
+        y_slice = slice(band["start_y"], band["end_y"] + 1)
+        band_binary = binary[y_slice, :]
+        
+        # Vectorized timing calculation
+        x_indices = np.arange(w)
+        x_progress = np.clip((x_indices - band["min_x"]) / x_range, 0.0, 1.0)
+        
+        timing_x = t_line_base + x_progress * band_duration * X_WEIGHT
+        timing_x = np.clip(timing_x, TIME_MIN, TIME_MAX).astype(np.uint8)
+        
+        timing_2d = np.tile(timing_x, (band_binary.shape[0], 1))
+        
+        mask = band_binary > 0
+        
+        # Get the sub-region of reveal_map and update it
+        band_reveal = reveal_map[y_slice, :]
+        band_reveal[mask] = timing_2d[mask]
 
     # Handle stray ink not in any band (assign by Y position)
-    for y in range(h):
-        for x in range(w):
-            if binary[y, x] > 0 and reveal_map[y, x] == 0:
-                reveal_map[y, x] = max(TIME_MIN, int((y / h) * TIME_MAX))
+    stray_mask = (binary > 0) & (reveal_map == 0)
+    y_indices = np.arange(h)
+    timing_y = np.clip((y_indices / h) * TIME_MAX, TIME_MIN, TIME_MAX).astype(np.uint8)
+    timing_2d_y = np.tile(timing_y[:, np.newaxis], (1, w))
+    reveal_map[stray_mask] = timing_2d_y[stray_mask]
 
     # Dilate the map to ensure full ink coverage at edges
     # Use smaller kernel to avoid erasing characters near edges
