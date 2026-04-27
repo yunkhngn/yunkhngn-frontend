@@ -151,8 +151,8 @@ def generate_reveal_map(img: np.ndarray) -> bytes:
     TIME_MIN = 1
     TIME_MAX = 255
     total_range = TIME_MAX - TIME_MIN
-    LINE_WEIGHT = 0.80  # 80% of time for line transitions
-    X_WEIGHT = 0.20     # 20% for left-to-right within a line
+    LINE_WEIGHT = 0.10  # 10% of time for line transitions
+    X_WEIGHT = 0.90     # 90% for left-to-right within a line
 
     band_duration = total_range / num_bands
 
