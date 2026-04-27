@@ -1,0 +1,87 @@
+import { ProjectService } from './project.service';
+import { CreateProjectDto } from './dto/create-project.dto';
+import { UpdateProjectDto } from './dto/update-project.dto';
+export declare class ProjectController {
+    private readonly projectService;
+    constructor(projectService: ProjectService);
+    create(createProjectDto: CreateProjectDto): Promise<{
+        id: string;
+        createdAt: Date;
+        tags: string | null;
+        title: string;
+        slug: string;
+        contentJSON: string | null;
+        seoTitle: string | null;
+        seoDescription: string | null;
+        seoImage: string | null;
+        description: string;
+        techStack: string | null;
+        repoLink: string | null;
+        demoLink: string | null;
+        cover: string | null;
+    }>;
+    findAll(): Promise<{
+        id: string;
+        createdAt: Date;
+        tags: string | null;
+        title: string;
+        slug: string;
+        contentJSON: string | null;
+        seoTitle: string | null;
+        seoDescription: string | null;
+        seoImage: string | null;
+        description: string;
+        techStack: string | null;
+        repoLink: string | null;
+        demoLink: string | null;
+        cover: string | null;
+    }[]>;
+    findOne(id: string): Promise<{
+        id: string;
+        createdAt: Date;
+        tags: string | null;
+        title: string;
+        slug: string;
+        contentJSON: string | null;
+        seoTitle: string | null;
+        seoDescription: string | null;
+        seoImage: string | null;
+        description: string;
+        techStack: string | null;
+        repoLink: string | null;
+        demoLink: string | null;
+        cover: string | null;
+    }>;
+    update(id: string, updateProjectDto: UpdateProjectDto): Promise<{
+        id: string;
+        createdAt: Date;
+        tags: string | null;
+        title: string;
+        slug: string;
+        contentJSON: string | null;
+        seoTitle: string | null;
+        seoDescription: string | null;
+        seoImage: string | null;
+        description: string;
+        techStack: string | null;
+        repoLink: string | null;
+        demoLink: string | null;
+        cover: string | null;
+    }>;
+    remove(id: string): Promise<{
+        id: string;
+        createdAt: Date;
+        tags: string | null;
+        title: string;
+        slug: string;
+        contentJSON: string | null;
+        seoTitle: string | null;
+        seoDescription: string | null;
+        seoImage: string | null;
+        description: string;
+        techStack: string | null;
+        repoLink: string | null;
+        demoLink: string | null;
+        cover: string | null;
+    }>;
+}

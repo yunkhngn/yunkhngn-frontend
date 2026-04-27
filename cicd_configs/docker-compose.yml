@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  watchtower:
+    image: containrrr/watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      # Chỗ này mount folder chứa token đăng nhập ghcr.io trên VPS
+      # Bạn cần chạy: docker login ghcr.io -u <user> -p <token> trên VPS trước
+      - /root/.docker/config.json:/config.json
+    command: --interval 60 --cleanup
+    restart: unless-stopped
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    restart: always
+
+  backend:
+    # Thay <github-username> bằng username github thật của bạn
+    image: ghcr.io/<github-username>/yunkhngn-be:latest
+    ports:
+      - "3000:3000"
+    environment:
+      # Bạn tự thay JWT_SECRET, DATABASE_URL theo dự án cũ nhé
+      - DATABASE_URL=sqlserver://...
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - FRONTEND_URL=https://yunkhngn.dev
+      # Các config Cloudinary...
+    depends_on:
+      - redis
+    restart: always
+
+  ai-service:
+    image: ghcr.io/<github-username>/yunkhngn-ai:latest
+    ports:
+      - "8000:8000"
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      # Cloudinary...
+    depends_on:
+      - redis
+    restart: always
