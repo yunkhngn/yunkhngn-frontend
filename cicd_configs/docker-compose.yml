@@ -5,42 +5,92 @@ services:
     image: containrrr/watchtower
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      # Chỗ này mount folder chứa token đăng nhập ghcr.io trên VPS
-      # Bạn cần chạy: docker login ghcr.io -u <user> -p <token> trên VPS trước
       - /root/.docker/config.json:/config.json
     command: --interval 60 --cleanup
     restart: unless-stopped
 
   redis:
     image: redis:alpine
-    ports:
-      - "6379:6379"
+    container_name: yunkhngn-redis
     restart: always
+    volumes:
+      - redis_data:/data
+    networks:
+      - app-network
+
+  mssql:
+    image: mcr.microsoft.com/azure-sql-edge:latest
+    container_name: yunkhngn-mssql
+    restart: always
+    # Bạn sẽ đem các biến môi trường mssql này từ bên cũ sang
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=Khoadeptrai1204! 
+    volumes:
+      - mssql_data:/var/opt/mssql
+      - ./backups:/var/opt/mssql/backups
+    networks:
+      - app-network
+    ports:
+      - "1433:1433"
 
   backend:
-    # Thay <github-username> bằng username github thật của bạn
+    # Nhớ sửa lại yunkhngn thành github.actor/username thật của bạn
     image: ghcr.io/<github-username>/yunkhngn-be:latest
-    ports:
-      - "3000:3000"
+    container_name: yunkhngn-backend
+    restart: always
+    # File .env của Backend. Lúc setup trên VPS bạn tạo/copy file .env-be vào thư mục infra
+    env_file:
+      - ./env-be
     environment:
-      # Bạn tự thay JWT_SECRET, DATABASE_URL theo dự án cũ nhé
-      - DATABASE_URL=sqlserver://...
       - REDIS_HOST=redis
-      - REDIS_PORT=6379
       - FRONTEND_URL=https://yunkhngn.dev
-      # Các config Cloudinary...
-    depends_on:
-      - redis
-    restart: always
-
-  ai-service:
-    image: ghcr.io/<github-username>/yunkhngn-ai:latest
+      - LETTER_AI_URL=http://letter-ai:8000
+      - SELF_URL=http://backend:3001
     ports:
-      - "8000:8000"
-    environment:
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-      # Cloudinary...
+      - "3001:3001"
+    networks:
+      - app-network
+    volumes:
+      # Copy file firebase từ repo dev lên infra folder trên VPS nhé
+      - ./firebase-admin-sdk.json:/app/firebase-admin-sdk.json
     depends_on:
-      - redis
+      - mssql
+      - letter-ai
+
+  letter-ai:
+    # Nhớ sửa lại yunkhngn thành github.actor/username thật của bạn
+    image: ghcr.io/<github-username>/yunkhngn-ai:latest
+    container_name: yunkhngn-letter-ai
     restart: always
+    # File .env của AI. Lúc setup VPS bạn tạo file .env-ai vào thư mục infra
+    env_file:
+      - ./env-ai
+    networks:
+      - app-network
+
+  caddy:
+    image: caddy:2-alpine
+    container_name: yunkhngn-caddy
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - app-network
+    depends_on:
+      - backend
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  redis_data:
+  mssql_data:
+  caddy_data:
+  caddy_config:
