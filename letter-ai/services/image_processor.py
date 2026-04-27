@@ -61,16 +61,20 @@ def generate_reveal_map(img: np.ndarray) -> bytes:
     # Remove tiny components (noise) but keep small dots (e.g., dot on 'i', accent marks)
     num_labels, labels, stats, _ = cv2.connectedComponentsWithStats(binary)
     min_area = max(5, int(h * w * 0.000005)) # Greatly reduced to keep accents
-    for i in range(1, num_labels):
-        area = stats[i, cv2.CC_STAT_AREA]
-        if area < min_area:
-            binary[labels == i] = 0
+    
+    # Vectorized noise removal
+    keep = stats[:, cv2.CC_STAT_AREA] >= min_area
+    keep[0] = False # Ensure background (label 0) is excluded from the "keep as ink" mask
+    
+    # Create mask of labels to KEEP, then update binary
+    # Any pixel whose label has area >= min_area stays 255, else 0
+    binary = np.where(keep[labels], 255, 0).astype(np.uint8)
 
     # ── Step 2: Detect text line bands via horizontal projection ──
     row_ink = np.sum(binary > 0, axis=1)  # Number of ink pixels per row
 
     # Smooth the projection to avoid false line breaks within a character
-    smooth_window = max(3, h // 100)
+    smooth_window = max(3, h // 200) # Giảm mượt dọc để tránh dính dòng
     if smooth_window % 2 == 0:
         smooth_window += 1
     row_ink_smooth = cv2.GaussianBlur(
@@ -79,11 +83,11 @@ def generate_reveal_map(img: np.ndarray) -> bytes:
     ).flatten()
 
     # Find line bands: consecutive rows where ink density > threshold
-    ink_threshold = max(2, np.max(row_ink_smooth) * 0.02)
+    ink_threshold = max(2, np.max(row_ink_smooth) * 0.10) # Tăng threshold lên 10% để tách các nét dính
     in_band = False
     band_start = 0
-    line_bands = []
-    gap_tolerance = max(5, int(h * 0.015))
+    raw_line_bands = []
+    gap_tolerance = max(5, int(h * 0.005)) # Giảm khoảng hở tối đa
     gap_count = 0
 
     for y in range(h):
@@ -96,15 +100,31 @@ def generate_reveal_map(img: np.ndarray) -> bytes:
             if in_band:
                 gap_count += 1
                 if gap_count > gap_tolerance:
-                    line_bands.append((band_start, y - gap_count))
+                    raw_line_bands.append((band_start, y - gap_count))
                     in_band = False
                     gap_count = 0
     if in_band:
-        line_bands.append((band_start, h - 1))
+        raw_line_bands.append((band_start, h - 1))
 
     # Fallback if no bands detected
-    if not line_bands:
-        line_bands = [(0, h - 1)]
+    if not raw_line_bands:
+        raw_line_bands = [(0, h - 1)]
+
+    # Robust fallback: Nếu có block văn bản bị dính liền chiếm quá lớn (>8% chiều cao ảnh), 
+    # Bắt buộc chia nhỏ nó thành các dòng giả để đảm bảo luôn reveal theo dòng chứ không bị cả mảng
+    line_bands = []
+    max_band_h = max(20, int(h * 0.08))
+    for start_y, end_y in raw_line_bands:
+        band_h = end_y - start_y
+        if band_h > max_band_h:
+            num_splits = int(np.ceil(band_h / max_band_h))
+            split_h = band_h // num_splits
+            for s in range(num_splits):
+                s_start = start_y + s * split_h
+                s_end = start_y + (s + 1) * split_h - 1 if s < num_splits - 1 else end_y
+                line_bands.append((s_start, s_end))
+        else:
+            line_bands.append((start_y, end_y))
 
     # ── Step 3: Compute per-band ink X extents ──
     band_info = []
