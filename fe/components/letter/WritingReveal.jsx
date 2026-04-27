@@ -188,12 +188,19 @@ function RevealCanvas({ imageUrl, revealMapUrl, duration = 8000 }) {
     >
       <canvas
         ref={canvasRef}
-        className="w-full h-auto block"
-        style={{ opacity: loaded ? 1 : 0 }}
+        className={`w-full h-auto block transition-opacity duration-1000 ${loaded ? 'opacity-100' : 'opacity-0 absolute inset-0'}`}
       />
       {!loaded && (
-        <div className="aspect-[3/4] flex items-center justify-center">
-          <div className="w-6 h-6 border-2 border-amber-600/40 border-t-amber-600 rounded-full animate-spin" />
+        <div className="w-full aspect-[3/4] flex flex-col items-center justify-center opacity-100 transition-opacity duration-1000">
+          <div className="relative flex items-center justify-center w-16 h-16 mb-6">
+            <div className="absolute inset-0 border border-amber-900/10 rounded-full" />
+            <div className="absolute inset-0 border border-transparent border-t-amber-900/40 rounded-full animate-spin" style={{ animationDuration: '3s' }} />
+            <div className="absolute inset-2 border border-transparent border-b-amber-900/30 rounded-full animate-spin" style={{ animationDuration: '2s', animationDirection: 'reverse' }} />
+            <div className="w-1.5 h-1.5 bg-amber-900/40 rounded-full animate-pulse" />
+          </div>
+          <p className="font-serif text-amber-900/40 text-[10px] tracking-[0.3em] uppercase animate-pulse">
+            Đang chuẩn bị nét chữ...
+          </p>
         </div>
       )}
     </div>
