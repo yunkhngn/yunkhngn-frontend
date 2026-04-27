@@ -44,5 +44,5 @@ def test_on_local_file(image_path):
 
 if __name__ == "__main__":
     # Đường dẫn file của bạn
-    sample_path = "/Volumes/Data/Code/web/yunkhngn-website/sample.jpg"
+    sample_path = sys.argv[1] if len(sys.argv) > 1 else "/Volumes/Data/Code/web/yunkhngn-website/sample.jpg"
     test_on_local_file(sample_path)
