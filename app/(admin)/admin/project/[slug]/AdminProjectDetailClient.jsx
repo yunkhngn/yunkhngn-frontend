@@ -110,6 +110,7 @@ export default function AdminProjectDetail({ projectData }) {
                             src={project.cover}
                             alt={project.title}
                             fill
+                            sizes="100vw"
                             className="object-cover"
                             priority
                             quality={100}

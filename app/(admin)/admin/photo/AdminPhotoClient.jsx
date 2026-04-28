@@ -452,7 +452,7 @@ export default function PhotoManager() {
                                         {stagedPhotos.map((photo) => (
                                             <div key={photo.id} className="flex gap-3 items-start bg-muted/30 p-2 rounded-lg border">
                                                 <div className="relative w-16 h-16 rounded-md overflow-hidden flex-shrink-0 bg-muted">
-                                                    <Image src={photo.preview} alt="Preview" fill className="object-cover" />
+                                                    <Image src={photo.preview} alt="Preview" fill sizes="64px" className="object-cover" />
                                                     {photo.exifData && (
                                                         <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-[8px] text-center py-0.5">EXIF ✓</div>
                                                     )}

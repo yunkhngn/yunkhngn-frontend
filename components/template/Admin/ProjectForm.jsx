@@ -514,7 +514,7 @@ export default function ProjectForm({ initialData, onSubmit, isEditing = false }
                             >
                                 {formData.cover ? (
                                     <>
-                                        <Image src={formData.cover} alt="Cover" fill className="object-cover" />
+                                        <Image src={formData.cover} alt="Cover" fill sizes="(max-width: 768px) 100vw, 28rem" className="object-cover" />
                                         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white font-medium">
                                             Change Cover
                                         </div>

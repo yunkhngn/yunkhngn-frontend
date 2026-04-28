@@ -205,14 +205,16 @@ export default function Navbar() {
                         href="https://www.buymeacoffee.com/yunkhngn"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="hidden sm:flex hover:scale-105 transition-transform"
+                        className="hidden sm:inline-flex h-9 items-center hover:scale-105 transition-transform"
                     >
                         <Image
                             src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png"
                             alt="Buy Me A Coffee"
                             width={130}
                             height={36}
-                            className="h-9 w-auto"
+                            className="h-full w-auto max-h-9"
+                            style={{ width: 'auto', height: '100%' }}
+                            priority
                             unoptimized
                         />
                     </a>

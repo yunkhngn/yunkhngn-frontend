@@ -35,7 +35,7 @@ export default function MusicPlayer({ track, loading }) {
             <div className="relative w-10 h-10 shrink-0 z-10">
                 {art ? (
                     <div className={`relative w-full h-full rounded-lg overflow-hidden border border-border/50 ${isNowPlaying ? 'animate-spin-slow' : ''}`}>
-                        <Image src={art} alt={name} fill className="object-cover" />
+                        <Image src={art} alt={name} fill sizes="40px" className="object-cover" />
                     </div>
                 ) : (
                     <div className="w-full h-full rounded-lg bg-muted flex items-center justify-center border border-border/50">

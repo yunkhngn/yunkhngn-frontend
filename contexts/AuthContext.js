@@ -33,6 +33,10 @@ export const AuthProvider = ({ children }) => {
     const hasLoggedOut = useRef(false);
 
     useEffect(() => {
+        if (!auth) {
+            setLoading(false);
+            return undefined;
+        }
         const unsubscribe = onAuthStateChanged(auth, async (user) => {
             if (isLoggingIn.current) return;
 
@@ -78,6 +82,9 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     const signInAnon = async () => {
+        if (!auth) {
+            throw new Error('Firebase is not configured');
+        }
         try {
             const result = await signInAnonymously(auth);
             hasLoggedOut.current = false;
@@ -89,10 +96,16 @@ export const AuthProvider = ({ children }) => {
     };
 
     const login = (email, password) => {
+        if (!auth) {
+            return Promise.reject(new Error('Firebase is not configured'));
+        }
         return signInWithEmailAndPassword(auth, email, password);
     };
 
     const loginWithGoogle = async () => {
+        if (!auth) {
+            throw new Error('Firebase is not configured');
+        }
         isLoggingIn.current = true;
         const provider = new GoogleAuthProvider();
         try {
@@ -125,7 +138,7 @@ export const AuthProvider = ({ children }) => {
             return result;
         } catch (error) {
             console.error("Login validation failed:", error);
-            if (auth.currentUser) await firebaseSignOut(auth);
+            if (auth?.currentUser) await firebaseSignOut(auth);
             throw error;
         } finally {
             isLoggingIn.current = false;
@@ -133,6 +146,9 @@ export const AuthProvider = ({ children }) => {
     };
 
     const loginWithGithub = async () => {
+        if (!auth) {
+            throw new Error('Firebase is not configured');
+        }
         isLoggingIn.current = true;
         const provider = new GithubAuthProvider();
         try {
@@ -165,7 +181,7 @@ export const AuthProvider = ({ children }) => {
             return result;
         } catch (error) {
             console.error("Login validation failed:", error);
-            if (auth.currentUser) await firebaseSignOut(auth);
+            if (auth?.currentUser) await firebaseSignOut(auth);
             throw error;
         } finally {
             isLoggingIn.current = false;
@@ -173,16 +189,23 @@ export const AuthProvider = ({ children }) => {
     };
 
     const loginWithFacebook = () => {
+        if (!auth) {
+            return Promise.reject(new Error('Firebase is not configured'));
+        }
         const provider = new FacebookAuthProvider();
         return signInWithPopup(auth, provider);
     };
 
     const loginWithTwitter = () => {
+        if (!auth) {
+            return Promise.reject(new Error('Firebase is not configured'));
+        }
         const provider = new TwitterAuthProvider();
         return signInWithPopup(auth, provider);
     };
 
     const signOut = async () => {
+        if (!auth) return;
         try {
             hasLoggedOut.current = true;
             await firebaseSignOut(auth);

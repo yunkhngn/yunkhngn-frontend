@@ -164,6 +164,7 @@ export default function About() {
                                         src={getSectionImage()}
                                         alt="Khoa Nguyen"
                                         fill
+                                        sizes="(max-width: 1023px) 1px, 40vw"
                                         className="object-cover"
                                         priority
                                     />
@@ -184,6 +185,7 @@ export default function About() {
                                         src={settings.about_image_story || settings.avatar || placeholder}
                                         alt="Khoa Nguyen"
                                         fill
+                                        sizes="(max-width: 1023px) 95vw, 1px"
                                         className="object-cover"
                                         priority
                                     />
@@ -226,6 +228,7 @@ export default function About() {
                                         src={settings.about_image_journey || settings.avatar || placeholder}
                                         alt="Journey"
                                         fill
+                                        sizes="(max-width: 1023px) 95vw, 1px"
                                         className="object-cover"
                                     />
                                 </div>
@@ -296,6 +299,7 @@ export default function About() {
                                         src={settings.about_image_skills || settings.avatar || placeholder}
                                         alt="Skills"
                                         fill
+                                        sizes="(max-width: 1023px) 95vw, 1px"
                                         className="object-cover"
                                     />
                                 </div>
@@ -342,6 +346,7 @@ export default function About() {
                                         src={settings.about_image_contact || settings.avatar || placeholder}
                                         alt="Contact"
                                         fill
+                                        sizes="(max-width: 1023px) 95vw, 1px"
                                         className="object-cover"
                                     />
                                 </div>
