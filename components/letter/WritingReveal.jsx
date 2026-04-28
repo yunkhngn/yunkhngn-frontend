@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import Image from 'next/image';
+import { motion, AnimatePresence } from 'framer-motion';
+import NextImage from 'next/image';
+import { MousePointer2 } from 'lucide-react';
 
 function RevealCanvas({ imageUrl, revealMapUrl, duration = 15000 }) {
   const canvasRef = useRef(null);
@@ -191,19 +192,77 @@ function RevealCanvas({ imageUrl, revealMapUrl, duration = 15000 }) {
         ref={canvasRef}
         className={`w-full h-auto block transition-opacity duration-1000 ${loaded ? 'opacity-100' : 'opacity-0 absolute inset-0'}`}
       />
-      {!loaded && (
-        <div className="w-full aspect-[3/4] flex flex-col items-center justify-center opacity-100 transition-opacity duration-1000">
-          <div className="relative flex items-center justify-center w-16 h-16 mb-6">
-            <div className="absolute inset-0 border border-amber-900/10 rounded-full" />
-            <div className="absolute inset-0 border border-transparent border-t-amber-900/40 rounded-full animate-spin" style={{ animationDuration: '3s' }} />
-            <div className="absolute inset-2 border border-transparent border-b-amber-900/30 rounded-full animate-spin" style={{ animationDuration: '2s', animationDirection: 'reverse' }} />
-            <div className="w-1.5 h-1.5 bg-amber-900/40 rounded-full animate-pulse" />
-          </div>
-          <p className="font-serif text-amber-900/40 text-[10px] tracking-[0.3em] uppercase animate-pulse">
-            Đang chuẩn bị nét chữ...
-          </p>
-        </div>
-      )}
+      <AnimatePresence>
+        {!loaded && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0, transition: { duration: 0.8 } }}
+            className="absolute inset-0 z-20 w-full h-full flex flex-col items-center justify-center bg-[#fdfaf5]"
+          >
+            <div className="relative w-24 h-24 mb-10">
+              {/* Artistic concentric rings */}
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+                className="absolute inset-0 border-[0.5px] border-amber-900/10 rounded-full"
+              />
+              <motion.div
+                animate={{ rotate: -360 }}
+                transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+                className="absolute inset-2 border-[0.5px] border-amber-900/5 rounded-full border-t-amber-900/20"
+              />
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+                className="absolute inset-6 border-[0.5px] border-amber-900/5 rounded-full border-b-amber-900/20"
+              />
+
+              {/* Nib / Ink drop icon */}
+              <motion.div
+                animate={{
+                  y: [0, -4, 0],
+                  scale: [1, 1.05, 1],
+                  opacity: [0.3, 0.6, 0.3]
+                }}
+                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute inset-0 flex items-center justify-center"
+              >
+                <div className="w-1 h-1 bg-amber-900/40 rounded-full" />
+                <MousePointer2 className="w-5 h-5 text-amber-900/30 -rotate-45 translate-x-2 -translate-y-2" />
+              </motion.div>
+
+              {/* Pulsing ink glow */}
+              <motion.div
+                animate={{ scale: [1, 1.2, 1], opacity: [0, 0.1, 0] }}
+                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute inset-0 bg-amber-900/10 rounded-full blur-xl"
+              />
+            </div>
+
+            <div className="space-y-2 text-center pointer-events-none">
+              <motion.p
+                initial={{ letterSpacing: "0.2em", opacity: 0 }}
+                animate={{ letterSpacing: "0.4em", opacity: 0.4 }}
+                transition={{ duration: 2, repeat: Infinity, repeatType: "reverse" }}
+                className="font-serif text-amber-900 text-[11px] uppercase"
+              >
+                Đang chuẩn bị nét chữ
+              </motion.p>
+              <div className="flex justify-center gap-1">
+                {[0, 1, 2].map(i => (
+                  <motion.div
+                    key={i}
+                    animate={{ opacity: [0.2, 1, 0.2] }}
+                    transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.2 }}
+                    className="w-0.5 h-0.5 bg-amber-900/40 rounded-full"
+                  />
+                ))}
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -214,15 +273,15 @@ export default function WritingReveal({ pages, enableAnimation = true }) {
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-[#2a2119] via-[#140e0b] to-[#0a0705] flex flex-col items-center py-8 px-4">
       {pages.length > 1 && (
-        <div className="flex gap-2 mb-6">
+        <div className="flex gap-2 mb-6 z-10">
           {pages.map((_, i) => (
             <button
               key={i}
               type="button"
               onClick={() => setCurrentPage(i)}
               className={`w-8 h-8 rounded-full text-xs font-serif border transition-all ${i === currentPage
-                ? 'bg-amber-800/60 border-amber-600/50 text-amber-100'
-                : 'bg-transparent border-amber-900/30 text-amber-100/40 hover:border-amber-700/40'
+                ? 'bg-amber-800/60 border-amber-600/50 text-amber-100 shadow-[0_0_15px_rgba(217,119,6,0.3)]'
+                : 'bg-black/20 border-amber-900/30 text-amber-100/40 hover:border-amber-700/40 hover:bg-black/40'
                 }`}
             >
               {i + 1}
@@ -234,7 +293,7 @@ export default function WritingReveal({ pages, enableAnimation = true }) {
         key={currentPage}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
       >
         {pages[currentPage].revealMapUrl && enableAnimation ? (
           <RevealCanvas
@@ -242,13 +301,13 @@ export default function WritingReveal({ pages, enableAnimation = true }) {
             revealMapUrl={pages[currentPage].revealMapUrl}
           />
         ) : (
-          <div className="relative w-full max-w-lg bg-[#f5f0e8] rounded-sm shadow-[0_4px_40px_rgba(0,0,0,0.5),_inset_0_0_80px_rgba(139,109,71,0.08)] overflow-hidden">
-            <Image
+          <div className="relative w-full max-w-lg bg-[#fdfaf5] rounded-sm shadow-[0_10px_50px_rgba(0,0,0,0.6),_inset_0_0_80px_rgba(139,109,71,0.05)] overflow-hidden">
+            <NextImage
               src={pages[currentPage].imageUrl}
               alt={`Page ${currentPage + 1}`}
               width={1200}
               height={1600}
-              className="w-full h-auto block"
+              className="w-full h-auto block opacity-95"
               sizes="(max-width: 512px) 100vw, 512px"
               unoptimized
             />
@@ -256,7 +315,7 @@ export default function WritingReveal({ pages, enableAnimation = true }) {
         )}
       </motion.div>
       {pages.length > 1 && (
-        <p className="mt-4 text-amber-100/30 text-xs font-serif">
+        <p className="mt-6 text-amber-100/30 text-xs font-serif tracking-widest uppercase relative z-10 transition-opacity">
           Trang {currentPage + 1} / {pages.length}
         </p>
       )}
