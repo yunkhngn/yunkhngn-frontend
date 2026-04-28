@@ -15,6 +15,42 @@ export default function AdminLayoutClient({ children }) {
     }
   }, [user, loading, router]);
 
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const originalJson = Response.prototype.json;
+      Response.prototype.json = async function () {
+        const data = await originalJson.call(this);
+        if (
+          data &&
+          typeof data === 'object' &&
+          'data' in data &&
+          'statusCode' in data &&
+          'timestamp' in data
+        ) {
+          const result = data.data;
+          if (data.meta !== undefined && typeof result === 'object' && result !== null) {
+            try {
+              Object.defineProperty(result, 'meta', {
+                value: data.meta,
+                enumerable: true,
+                writable: true,
+                configurable: true
+              });
+            } catch (e) {
+              // Ignore if property cannot be defined
+            }
+          }
+          return result;
+        }
+        return data;
+      };
+
+      return () => {
+        Response.prototype.json = originalJson;
+      };
+    }
+  }, []);
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
