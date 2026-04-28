@@ -39,20 +39,24 @@ export default function EnvelopeAnimation({ onComplete, coverImage }) {
           <div className="absolute inset-0 bg-black/10" />
         </div>
 
-        {/* Letter Paper */}
-        <motion.div
-          className="absolute left-6 right-6 bg-[#fdfaf5] rounded-sm shadow-[0_0_30px_rgba(0,0,0,0.3)] z-10 overflow-hidden"
-          style={{ bottom: '2%', height: '140%' }} /* Taller paper coming out */
-          initial={{ y: 80 }}
-          animate={
-            phase === 'pulling' || phase === 'done'
-              ? { y: -220 }
-              : phase === 'opening'
-                ? { y: 20 }
-                : { y: 80 }
-          }
-          transition={{ duration: 1.4, ease: [0.22, 1, 0.36, 1] }}
+        {/* Letter Paper Wrapper with bottom clipping */}
+        <div 
+          className="absolute inset-0 z-10"
+          style={{ clipPath: 'polygon(-20% -500%, 120% -500%, 120% 100%, -20% 100%)' }}
         >
+          <motion.div
+            className="absolute left-6 right-6 bg-[#fdfaf5] rounded-sm shadow-[0_0_30px_rgba(0,0,0,0.3)] overflow-hidden"
+            style={{ bottom: '4%', height: '92%' }} 
+            initial={{ y: 0 }}
+            animate={
+              phase === 'pulling' || phase === 'done'
+                ? { y: -280 }
+                : phase === 'opening'
+                  ? { y: 15 }
+                  : { y: 0 }
+            }
+            transition={{ duration: 1.4, ease: [0.22, 1, 0.36, 1] }}
+          >
           {/* Realistic Letter Texture */}
           {coverImage ? (
             <div className="absolute inset-4 object-contain opacity-80 mix-blend-multiply">
@@ -79,6 +83,7 @@ export default function EnvelopeAnimation({ onComplete, coverImage }) {
           {/* Shadow gradient indicating depth inside envelope */}
           <div className="absolute inset-0 bg-gradient-to-t from-[#d1b894] via-transparent to-transparent opacity-80 mix-blend-multiply" />
         </motion.div>
+        </div>
 
         {/* Envelope Bottom Flap */}
         <div
