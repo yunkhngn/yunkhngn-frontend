@@ -1,3 +1,5 @@
+'use client';
+
 import { useState } from 'react';
 import { readNestJson } from '@/lib/api/readJson';
 import { Lock, ArrowRight, Loader2, Eye, EyeOff } from 'lucide-react';

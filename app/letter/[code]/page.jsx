@@ -10,7 +10,15 @@ export const metadata = {
 
 export default async function LetterPage({ params }) {
   const { code } = await params;
-  const letter = await fetchLetterResolve(code);
+
+  let letter;
+  try {
+    letter = await fetchLetterResolve(code);
+  } catch (err) {
+    console.error('LetterPage: failed to fetch letter', code, err);
+    notFound();
+  }
+
   if (!letter) notFound();
   return <LetterClient letter={letter} code={code} />;
 }

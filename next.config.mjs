@@ -77,6 +77,7 @@ const nextConfig = {
     };
     return config;
   },
+  turbopack: {},
 
 };
 
