@@ -12,7 +12,7 @@ import {
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { formatDistanceToNow } from 'date-fns';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 
 export default function NotificationDropdown() {
     const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotification();

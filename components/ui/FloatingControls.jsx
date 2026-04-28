@@ -6,24 +6,23 @@ import { useFocusMode } from '@/contexts/FocusModeContext';
 import ChatWindow from '@/components/chat/ChatWidget';
 import { AnimatePresence, motion } from 'framer-motion';
 
-import { useRouter } from 'next/router';
+import { usePathname } from 'next/navigation';
 
 export default function FloatingControls() {
     const { theme, setTheme } = useTheme();
-    const router = useRouter();
+    const pathname = usePathname();
     const [showScrollTop, setShowScrollTop] = useState(false);
     const { isFocusMode, toggleFocusMode, setIsFocusMode } = useFocusMode();
     const [isChatOpen, setIsChatOpen] = useState(false);
 
-    // Only show Focus Mode on Blog Detail and Project Detail pages
-    const shouldShowFocusToggle = router.pathname === '/blog/[slug]' || router.pathname === '/project/[id]';
+    const shouldShowFocusToggle =
+        /^\/blog\/[^/]+$/.test(pathname || '') || /^\/project\/[^/]+$/.test(pathname || '');
 
-    // Reset Focus Mode when navigating away from supported pages
     useEffect(() => {
         if (!shouldShowFocusToggle && isFocusMode) {
             setIsFocusMode(false);
         }
-    }, [router.pathname, shouldShowFocusToggle, isFocusMode, setIsFocusMode]);
+    }, [pathname, shouldShowFocusToggle, isFocusMode, setIsFocusMode]);
 
     useEffect(() => {
         const handleScroll = () => {

@@ -4,7 +4,7 @@ Frontend for **yunkhngn.dev**, built with **Next.js + React + TailwindCSS**.
 
 ## Tech stack
 
-- Next.js (Pages Router)
+- Next.js (App Router)
 - React 19
 - TailwindCSS + Radix UI + shadcn/ui-style components
 - Firebase Auth
@@ -50,10 +50,6 @@ npm run test       # Run Jest tests
 npm run test:watch # Run tests in watch mode
 ```
 
-## Docker (from repository root)
+## Docker
 
-Use the root `docker-compose.yml` to run full stack:
-
-```bash
-docker-compose up -d frontend backend mssql redis caddy
-```
+There is no `Dockerfile` in this package (frontend is deployed on Vercel). To run a full stack with containers, use the compose setup under your infra repo (e.g. `yunkhngn-infra`) and point the frontend service at this Next.js app as needed.

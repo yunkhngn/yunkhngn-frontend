@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 import { useState, useEffect } from 'react';
 
 const LINE_WIDTHS = [72, 85, 68, 90, 76];
@@ -53,10 +54,13 @@ export default function EnvelopeAnimation({ onComplete, coverImage }) {
           {/* Realistic Letter Texture */}
           {coverImage ? (
             <div className="absolute inset-0 w-full h-[200%] opacity-40">
-              <img
+              <Image
                 src={coverImage}
-                className="w-full h-auto object-cover opacity-80 mix-blend-multiply filter blur-[3px]"
                 alt=""
+                fill
+                className="object-cover opacity-80 mix-blend-multiply filter blur-[3px]"
+                sizes="(max-width: 640px) 20rem, 28rem"
+                unoptimized
               />
             </div>
           ) : (

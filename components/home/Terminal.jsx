@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { readNestJson } from '@/lib/api/readJson';
 import { Terminal as TerminalIcon, X, Maximize2, Minus } from 'lucide-react';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import { stripHtml } from '@/lib/utils';
 
 export default function Terminal({ embedded = false, className = '' }) {

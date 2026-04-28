@@ -8,6 +8,8 @@
 
 **Tech Stack:** Next.js 16 (App Router), React 19, TailwindCSS 3, Radix UI, Firebase Auth, Axios, NestJS (backend)
 
+> **Status (implemented in repo):** `pages/` removed; `app/` + route groups; `proxy.js` (CSP/security headers); `global-error.jsx`; `loading.jsx` at `(public)`, `(admin)/admin`, `blog/[slug]`, `project`, `admin/dashboard`; `server-only` on `lib/api/server.js`; `.env.example` documents Gemini **backend-only** (no `NEXT_PUBLIC_GEMINI_*`); Axios envelope unwrap + Nest `TransformInterceptor`; Dockerfile/`.dockerignore` removed; CI runs `yarn build`; dead `Layout.js` / `Metadata` / Pages layouts removed. **Still manual:** deploy Vercel preview, full click-through QA checklist, optional `yarn up` dependency sweeps.
+
 ---
 
 > [!IMPORTANT]
@@ -106,7 +108,7 @@ app/
 │   │   └── ...all admin pages
 ├── sitemap.js              # Built-in sitemap generation
 ├── robots.js               # robots.txt generation
-└── middleware.js            # CSP headers + admin auth check
+└── proxy.js                 # CSP headers + security headers (Next.js 16 proxy)
 
 lib/                         # Unchanged location
 ├── api/client.js            # Updated with response unwrapper
@@ -1340,10 +1342,8 @@ Ensure no secrets are exposed. Currently exposed (and correct):
 - `NEXT_PUBLIC_FIREBASE_*` — Firebase client config (by design, public) ✅
 - `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` — public ✅
 - `NEXT_PUBLIC_CLOUDINARY_API_KEY` — public API key (not secret) ✅
-- `NEXT_PUBLIC_GEMINI_API_KEY` — ⚠️ **This should NOT be public!**
 - `NEXT_PUBLIC_GA_ID` — public ✅
-
-Move `NEXT_PUBLIC_GEMINI_API_KEY` to server-only `GEMINI_API_KEY` if it's used in API routes. If it's only used client-side, consider proxying through the backend.
+- **Gemini:** không dùng biến `NEXT_PUBLIC_*` trên FE; chỉ `GEMINI_API_KEY` trên backend (`yunkhngn-be/.env.example`) và/hoặc cài đặt `gemini_api_key` trong Admin.
 
 - [ ] **Step 4: Commit**
 ```bash

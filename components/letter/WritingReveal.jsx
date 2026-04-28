@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 
 function RevealCanvas({ imageUrl, revealMapUrl, duration = 15000 }) {
   const canvasRef = useRef(null);
@@ -242,10 +243,14 @@ export default function WritingReveal({ pages, enableAnimation = true }) {
           />
         ) : (
           <div className="relative w-full max-w-lg bg-[#f5f0e8] rounded-sm shadow-[0_4px_40px_rgba(0,0,0,0.5),_inset_0_0_80px_rgba(139,109,71,0.08)] overflow-hidden">
-            <img
+            <Image
               src={pages[currentPage].imageUrl}
               alt={`Page ${currentPage + 1}`}
+              width={1200}
+              height={1600}
               className="w-full h-auto block"
+              sizes="(max-width: 512px) 100vw, 512px"
+              unoptimized
             />
           </div>
         )}

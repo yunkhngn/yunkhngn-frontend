@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/Dialog';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import { Search, Home, FileText, Folder, User, Settings, Image as ImageIcon, Sun, Moon, Laptop, Plus, LayoutDashboard, List } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from 'next-themes';
@@ -58,7 +58,7 @@ export function CommandMenu() {
                 { icon: <List className="mr-2 h-4 w-4" />, label: 'Manage Blogs', action: () => router.push('/admin/blog') },
                 { icon: <Plus className="mr-2 h-4 w-4" />, label: 'New Blog', action: () => router.push('/admin/blog/new') },
                 { icon: <List className="mr-2 h-4 w-4" />, label: 'Manage Projects', action: () => router.push('/admin/project') },
-                { icon: <Plus className="mr-2 h-4 w-4" />, label: 'New Project', action: () => router.push('/admin/project/new') },
+                { icon: <Plus className="mr-2 h-4 w-4" />, label: 'New Project', action: () => router.push('/admin/project/add-project') },
                 { icon: <ImageIcon className="mr-2 h-4 w-4" />, label: 'Manage Photos', action: () => router.push('/admin/photo') },
                 { icon: <Plus className="mr-2 h-4 w-4" />, label: 'New Photo', action: () => router.push('/admin/photo/new') },
                 { icon: <User className="mr-2 h-4 w-4" />, label: 'Profile', action: () => router.push('/admin/profile') },

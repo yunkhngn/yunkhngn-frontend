@@ -32,6 +32,12 @@ jobs:
       - name: Lint
         run: yarn lint
 
+      - name: Build
+        run: yarn build
+        env:
+          NEXT_PUBLIC_API_URL: https://api.example.com
+          API_URL: https://api.example.com
+
       - name: Test
         run: |
           export JEST_JUNIT_OUTPUT_DIR="reports"
