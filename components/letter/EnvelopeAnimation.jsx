@@ -23,9 +23,9 @@ export default function EnvelopeAnimation({ onComplete, coverImage }) {
   }, [onComplete]);
 
   return (
-    <div className="fixed inset-0 bg-[#0c0906] flex items-center justify-center z-50 overflow-hidden">
+    <div className="fixed inset-0 bg-[#0d0d0d] flex items-center justify-center z-50 overflow-hidden">
       <motion.div
-        className="relative w-[320px] h-[220px] sm:w-[450px] sm:h-[310px] drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)]"
+        className="relative w-[320px] h-[220px] sm:w-[450px] sm:h-[310px] drop-shadow-[0_25px_50px_rgba(0,0,0,0.6)]"
         initial={{ opacity: 0, y: 80, scale: 0.95 }}
         animate={
           phase === 'done'
@@ -35,8 +35,8 @@ export default function EnvelopeAnimation({ onComplete, coverImage }) {
         transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
       >
         {/* Envelope Inside / Back */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#b39162] to-[#8c6c41] rounded-lg shadow-inner overflow-hidden">
-          <div className="absolute inset-0 bg-black/10" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[#dcd7c9] to-[#c9c2af] rounded-lg shadow-inner overflow-hidden">
+          <div className="absolute inset-0 bg-black/5" />
         </div>
 
         {/* Letter Paper Wrapper with bottom clipping */}
@@ -87,37 +87,23 @@ export default function EnvelopeAnimation({ onComplete, coverImage }) {
 
         {/* Envelope Bottom Flap */}
         <div
-          className="absolute inset-0 bg-gradient-to-tr from-[#cca370] to-[#b1824a] rounded-b-lg z-20 overflow-hidden drop-shadow-[-5px_-5px_15px_rgba(0,0,0,0.2)]"
+          className="absolute inset-0 bg-gradient-to-tr from-[#f2ebd9] to-[#dfd5c2] rounded-b-lg z-20 overflow-hidden drop-shadow-[-5px_-5px_15px_rgba(0,0,0,0.15)] border-t border-white/20"
           style={{
             clipPath: 'polygon(0 40%, 50% 65%, 100% 40%, 100% 100%, 0 100%)',
           }}
         >
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,_var(--tw-gradient-stops))] from-white/10 to-transparent opacity-50" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,_var(--tw-gradient-stops))] from-white/20 to-transparent opacity-50" />
         </div>
 
         {/* Envelope Top Flap */}
         <motion.div
-          className="absolute top-0 left-0 right-0 h-[65%] bg-gradient-to-b from-[#d5ab79] to-[#c79b66] z-30 origin-top rounded-t-lg drop-shadow-[0_15px_15px_rgba(0,0,0,0.2)]"
+          className="absolute top-0 left-0 right-0 h-[65%] bg-gradient-to-b from-[#f9f3e6] to-[#e7dec7] z-30 origin-top rounded-t-lg drop-shadow-[0_15px_15px_rgba(0,0,0,0.15)]"
           style={{ clipPath: 'polygon(0 0, 50% 100%, 100% 0)' }}
           initial={{ rotateX: 0 }}
           animate={phase !== 'closed' ? { rotateX: 180, zIndex: 5 } : { rotateX: 0 }}
           transition={{ duration: 0.9, ease: [0.4, 0, 0.2, 1] }}
         >
           <div className="absolute inset-0 bg-gradient-to-t from-black/5 to-transparent" />
-        </motion.div>
-
-        {/* Wax Seal */}
-        <motion.div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[45%] w-14 h-14 rounded-full bg-gradient-to-br from-[#8a1c00] via-[#751600] to-[#4a0d00] shadow-[0_5px_15px_rgba(0,0,0,0.5),_inset_0_2px_4px_rgba(255,255,255,0.2),_0_0_0_1px_rgba(166,42,0,0.3)] z-40 flex items-center justify-center border border-[#962500]"
-          animate={
-            phase !== 'closed'
-              ? { opacity: 0, scale: 0.6, rotate: -45 }
-              : { opacity: 1, scale: 1, rotate: 0 }
-          }
-          transition={{ duration: 0.4, ease: 'easeIn' }}
-        >
-          <div className="absolute inset-1 rounded-full border border-[#852200] opacity-50" />
-          <span className="text-[#ffcb9e] text-sm font-serif opacity-80 drop-shadow-md">✦</span>
         </motion.div>
       </motion.div>
     </div>
