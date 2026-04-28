@@ -167,6 +167,7 @@ export default function HomeContent({
                     src={settings.avatar || 'https://github.com/yunkhngn.png'}
                     alt="Khoa Nguyễn"
                     fill
+                    sizes="(max-width: 768px) 8rem, 12rem"
                     className="object-cover"
                   />
                 </div>
@@ -270,6 +271,7 @@ export default function HomeContent({
                       src={blog.thumbnail}
                       alt={blog.title}
                       fill
+                      sizes="(max-width: 768px) 100vw, 33vw"
                       className="object-cover transition-transform duration-500 group-hover:scale-105"
                     />
                   )}
@@ -322,6 +324,7 @@ export default function HomeContent({
                   src={project.cover}
                   alt={project.title}
                   fill
+                  sizes={i === 0 ? '(max-width: 768px) 100vw, 50vw' : '(max-width: 768px) 100vw, 25vw'}
                   className="object-cover transition-transform duration-700 group-hover:scale-105"
                 />
               )}

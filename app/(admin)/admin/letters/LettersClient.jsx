@@ -565,6 +565,7 @@ export default function AdminLetters() {
                           src={letter.pages[0].imageUrl}
                           alt=""
                           fill
+                          sizes="64px"
                           className="object-cover transition-transform duration-500 group-hover:scale-110"
                           unoptimized
                         />
@@ -820,7 +821,7 @@ export default function AdminLetters() {
                     <div className="flex gap-3 items-center">
                       <div className="relative w-14 h-14 rounded border border-border bg-background shrink-0 overflow-hidden">
                         {page.imageUrl ? (
-                          <Image src={page.imageUrl} alt="" fill className="object-cover" unoptimized />
+                          <Image src={page.imageUrl} alt="" fill sizes="56px" className="object-cover" unoptimized />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center">
                             <ImageIcon className="h-5 w-5 text-muted-foreground/30" />

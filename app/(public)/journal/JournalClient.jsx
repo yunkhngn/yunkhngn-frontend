@@ -104,6 +104,7 @@ function JournalEntry({ entry, moodInfo, moods, avatarUrl, onEdit, onDelete, onR
                                 src={avatarUrl || "https://github.com/yunkhngn.png"}
                                 alt="yun.khngn"
                                 fill
+                                sizes="32px"
                                 className="object-cover"
                             />
                         </div>
@@ -167,6 +168,7 @@ function JournalEntry({ entry, moodInfo, moods, avatarUrl, onEdit, onDelete, onR
                                         src={getOptimizedUrl(img, { width: 600 })}
                                         alt={`Attachment ${idx + 1}`}
                                         fill
+                                        sizes="(max-width: 768px) 100vw, 50vw"
                                         className="object-cover hover:scale-105 transition-transform duration-500 cursor-pointer"
                                         placeholder={blurUrl ? 'blur' : 'empty'}
                                         blurDataURL={blurUrl}
@@ -377,7 +379,7 @@ function ComposeModal({ moods, onSuccess, avatarUrl, initialData, isOpen, onClos
                 <div className="flex-1 overflow-y-auto p-4 pt-2 space-y-4">
                     <div className="flex gap-3">
                         <div className="w-10 h-10 rounded-full overflow-hidden shrink-0 relative border border-border">
-                            <Image src={avatarUrl || "https://github.com/yunkhngn.png"} alt="Avatar" fill className="object-cover" />
+                            <Image src={avatarUrl || "https://github.com/yunkhngn.png"} alt="Avatar" fill sizes="40px" className="object-cover" />
                         </div>
                         <div className="flex-1 space-y-3">
                             <textarea
@@ -392,7 +394,7 @@ function ComposeModal({ moods, onSuccess, avatarUrl, initialData, isOpen, onClos
                                 <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin">
                                     {attachments.map((att, i) => (
                                         <div key={i} className="relative w-20 h-20 rounded-lg overflow-hidden shrink-0 border border-border group">
-                                            <Image src={att.url} alt="Preview" fill className="object-cover" />
+                                            <Image src={att.url} alt="Preview" fill sizes="80px" className="object-cover" />
                                             <button onClick={() => removeAttachment(i)} className="absolute top-1 right-1 p-0.5 bg-black/50 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
                                                 <X className="h-3 w-3" />
                                             </button>

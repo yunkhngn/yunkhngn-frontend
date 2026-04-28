@@ -636,7 +636,7 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
                 >
                     {formData.thumbnail ? (
                         <>
-                            <Image src={formData.thumbnail} alt="Thumbnail" fill className="object-cover" />
+                            <Image src={formData.thumbnail} alt="Thumbnail" fill sizes="100vw" className="object-cover" />
                             <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white font-medium">
                                 <ImageIcon className="mr-2 h-6 w-6" /> Change Cover Image
                             </div>
@@ -738,7 +738,7 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
                                     {/* Author */}
                                     <div className="flex items-center justify-center gap-4 pt-4">
                                         <div className="relative w-10 h-10 rounded-full overflow-hidden bg-muted">
-                                            <Image src={user?.photoURL || "https://github.com/yunkhngn.png"} alt="Author" fill className="object-cover" />
+                                            <Image src={user?.photoURL || "https://github.com/yunkhngn.png"} alt="Author" fill sizes="40px" className="object-cover" />
                                         </div>
                                         <div className="text-left">
                                             <div className="font-medium text-sm">{user?.displayName || "Khoa Nguyễn"}</div>

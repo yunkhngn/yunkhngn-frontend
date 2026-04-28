@@ -168,6 +168,7 @@ export default function BlogList() {
                                                         src={recentBlogs[0].thumbnail}
                                                         alt={recentBlogs[0].title}
                                                         fill
+                                                        sizes="(max-width: 1024px) 100vw, 50vw"
                                                         className="object-cover transition-transform duration-500 group-hover:scale-105"
                                                     />
                                                 ) : (
@@ -210,6 +211,7 @@ export default function BlogList() {
                                                             src={blog.thumbnail}
                                                             alt={blog.title}
                                                             fill
+                                                            sizes="(max-width: 768px) 100vw, 256px"
                                                             className="object-cover transition-transform duration-500 group-hover:scale-105"
                                                         />
                                                     ) : (
@@ -261,6 +263,7 @@ export default function BlogList() {
                                                             src={blog.thumbnail}
                                                             alt={blog.title}
                                                             fill
+                                                            sizes="(max-width: 768px) 100vw, 50vw"
                                                             className="object-cover transition-transform duration-500 group-hover:scale-105"
                                                         />
                                                     ) : (

@@ -672,6 +672,7 @@ export default function Dashboard() {
                         src={project.cover}
                         alt={project.title}
                         fill
+                        sizes="(max-width: 640px) 100vw, 50vw"
                         className="object-cover group-hover:scale-105 transition-transform duration-300"
                       />
                     ) : (

@@ -84,6 +84,7 @@ export default function Resume() {
                                 src={cvUrl}
                                 alt="Khoa Nguyễn CV"
                                 fill
+                                sizes="(max-width: 1152px) 100vw, 1152px"
                                 className="object-contain"
                             />
                         )}

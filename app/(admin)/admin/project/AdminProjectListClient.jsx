@@ -380,6 +380,7 @@ export default function ProjectList() {
                                                                     src={project.cover}
                                                                     alt={project.title}
                                                                     fill
+                                                                    sizes="64px"
                                                                     className="object-cover"
                                                                 />
                                                             ) : (

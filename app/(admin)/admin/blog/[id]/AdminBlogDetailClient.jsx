@@ -57,6 +57,7 @@ export default function ViewBlog() {
                             src={blog.thumbnail}
                             alt={blog.title}
                             fill
+                            sizes="100vw"
                             className="object-cover"
                             priority
                         />
@@ -106,7 +107,7 @@ export default function ViewBlog() {
 
                             <div className="flex items-center justify-center gap-4">
                                 <div className="relative w-10 h-10 rounded-full overflow-hidden bg-muted">
-                                    <Image src="https://github.com/yunkhngn.png" alt="Author" fill className="object-cover" />
+                                    <Image src="https://github.com/yunkhngn.png" alt="Author" fill sizes="40px" className="object-cover" />
                                 </div>
                                 <div className="text-left">
                                     <div className="font-medium text-sm">Khoa Nguyễn</div>
@@ -128,7 +129,7 @@ export default function ViewBlog() {
                             <div className="flex flex-col md:flex-row items-center justify-between gap-6">
                                 <div className="flex items-center gap-4">
                                     <div className="relative w-14 h-14 rounded-full overflow-hidden bg-muted border-2 border-background shadow-sm">
-                                        <Image src="https://github.com/yunkhngn.png" alt="Author" fill className="object-cover" />
+                                        <Image src="https://github.com/yunkhngn.png" alt="Author" fill sizes="56px" className="object-cover" />
                                     </div>
                                     <div>
                                         <div className="font-serif text-lg font-bold">Khoa Nguyễn</div>
