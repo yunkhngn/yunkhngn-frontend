@@ -4,7 +4,7 @@ import { Bot, Moon, Sun, Menu, X, LogOut, LayoutDashboard, User, FileText, Folde
 import { Button } from '@/components/ui/Button';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { useRouter } from 'next/router';
+import { usePathname, useRouter } from 'next/navigation';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -54,6 +54,7 @@ export default function AdminNavbar() {
     const { theme, setTheme } = useTheme();
     const { user, signOut } = useAuth();
     const router = useRouter();
+    const pathname = usePathname();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     const handleLogout = async () => {
@@ -75,7 +76,7 @@ export default function AdminNavbar() {
                     {/* Desktop Navigation */}
                     <div className="hidden md:flex items-center gap-1">
                         {ADMIN_NAV_ITEMS.map((item, index) => (
-                            <NavItem key={index} item={item} router={router} />
+                            <NavItem key={index} item={item} pathname={pathname} />
                         ))}
                     </div>
                 </div>
@@ -154,7 +155,7 @@ export default function AdminNavbar() {
                                         <div className="pl-6 space-y-1">
                                             {item.children.map((child) => {
                                                 const ChildIcon = child.icon;
-                                                const isActive = router.pathname.startsWith(child.href);
+                                                const isActive = pathname.startsWith(child.href);
                                                 return (
                                                     <Link
                                                         key={child.href}
@@ -176,7 +177,7 @@ export default function AdminNavbar() {
                             }
 
                             const Icon = item.icon;
-                            const isActive = router.pathname.startsWith(item.href);
+                            const isActive = pathname.startsWith(item.href);
                             return (
                                 <Link
                                     key={item.href}
@@ -199,12 +200,12 @@ export default function AdminNavbar() {
     );
 }
 
-function NavItem({ item, router }) {
+function NavItem({ item, pathname }) {
     const Icon = item.icon;
     const [isOpen, setIsOpen] = useState(false);
     const isActive = item.children
-        ? item.children.some(child => router.pathname.startsWith(child.href))
-        : router.pathname.startsWith(item.href);
+        ? item.children.some(child => pathname.startsWith(child.href))
+        : pathname.startsWith(item.href);
 
     if (item.children) {
 
@@ -229,7 +230,7 @@ function NavItem({ item, router }) {
                     <DropdownMenuContent align="start" className="w-48" sideOffset={0}>
                         {item.children.map((child) => {
                             const ChildIcon = child.icon;
-                            const isChildActive = router.pathname.startsWith(child.href);
+                            const isChildActive = pathname.startsWith(child.href);
                             return (
                                 <DropdownMenuItem key={child.href} asChild>
                                     <Link

@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
+import { readNestJson } from '@/lib/api/readJson';
 import { Terminal as TerminalIcon, X, Maximize2, Minus } from 'lucide-react';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import { stripHtml } from '@/lib/utils';
 
 export default function Terminal({ embedded = false, className = '' }) {
@@ -38,7 +39,7 @@ export default function Terminal({ embedded = false, className = '' }) {
                 const updates = {};
 
                 if (settingsRes.ok) {
-                    const settingsData = await settingsRes.json();
+                    const settingsData = await readNestJson(settingsRes);
                     const settings = settingsData.reduce((acc, curr) => {
                         acc[curr.settingTitle] = curr.content;
                         return acc;
@@ -69,7 +70,7 @@ export default function Terminal({ embedded = false, className = '' }) {
                 }
 
                 if (reposRes.ok) {
-                    const repos = await reposRes.json();
+                    const repos = await readNestJson(reposRes);
                     const repoNames = repos.map(repo => repo.name);
                     const repoUrls = repos.reduce((acc, repo) => ({ ...acc, [repo.name]: repo.html_url }), {});
 
@@ -207,7 +208,7 @@ export default function Terminal({ embedded = false, className = '' }) {
             });
 
             if (!res.ok) throw new Error('API Error');
-            const data = await res.json();
+            const data = await readNestJson(res);
 
             setChatContext(prev => [...prev, { role: 'user', content: msg }, { role: 'assistant', content: data.response }]);
             return data.response;

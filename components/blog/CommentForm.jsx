@@ -1,4 +1,5 @@
 import { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
+import { readNestJson } from '@/lib/api/readJson';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
@@ -88,11 +89,11 @@ const CommentForm = forwardRef(({ blogId, projectId, onCommentAdded }, ref) => {
             });
 
             if (!res.ok) {
-                const error = await res.json();
+                const error = await readNestJson(res);
                 throw new Error(error.message || 'Failed to post comment');
             }
 
-            const newComment = await res.json();
+            const newComment = await readNestJson(res);
 
             // Save displayName to localStorage for next time
             localStorage.setItem('commentDisplayName', displayName.trim());

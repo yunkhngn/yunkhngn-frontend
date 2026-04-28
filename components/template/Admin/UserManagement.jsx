@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { readNestJson } from '@/lib/api/readJson';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -27,7 +28,7 @@ export default function AdminManagement() {
                 headers: { Authorization: `Bearer ${token}` }
             });
             if (!res.ok) throw new Error('Failed to fetch users');
-            const data = await res.json();
+            const data = await readNestJson(res);
             // Filter only admins
             setUsers(data.filter(u => u.role === 'ADMIN'));
         } catch (err) {
@@ -68,7 +69,7 @@ export default function AdminManagement() {
             });
 
             if (!res.ok) {
-                const errData = await res.json();
+                const errData = await readNestJson(res);
                 throw new Error(errData.message || 'Operation failed');
             }
 

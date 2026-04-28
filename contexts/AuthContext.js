@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState, useRef } from 'react';
+import { readNestJson } from '@/lib/api/readJson';
 import { 
     onAuthStateChanged, 
     signInAnonymously, 
@@ -48,7 +49,7 @@ export const AuthProvider = ({ children }) => {
                             }
                         });
                         if (res.ok) {
-                            const profile = await res.json();
+                            const profile = await readNestJson(res);
                             // Merge profile data
                             user.avatarUrl = profile.avatarUrl;
                             if (profile.name) {
@@ -109,7 +110,7 @@ export const AuthProvider = ({ children }) => {
                 throw new Error('Unauthorized: Account deleted');
             }
 
-            const profile = await res.json();
+            const profile = await readNestJson(res);
             if (profile.role !== 'ADMIN') {
                 await firebaseSignOut(auth);
                 toast.error('Unauthorized: Access restricted to Admins.');
@@ -149,7 +150,7 @@ export const AuthProvider = ({ children }) => {
                 throw new Error('Unauthorized: Account deleted');
             }
 
-            const profile = await res.json();
+            const profile = await readNestJson(res);
             if (profile.role !== 'ADMIN') {
                 await firebaseSignOut(auth);
                 toast.error('Unauthorized: Access restricted to Admins.');

@@ -7,18 +7,13 @@ const __dirname = path.dirname(__filename);
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   /* config options here */
-  reactStrictMode: false,
+  reactStrictMode: true,
   images: {
     unoptimized: false,
     remotePatterns: [
       {
         protocol: 'https',
         hostname: 'res.cloudinary.com',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'github.com',
         pathname: '/**',
       },
       {
@@ -72,28 +67,6 @@ const nextConfig = {
       {
         source: '/lastfm/widget',
         destination: `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/lastfm/widget`,
-      },
-    ];
-  },
-  async headers() {
-    return [
-      {
-        source: '/(.*)',
-        headers: [
-          {
-            key: 'Content-Security-Policy',
-            value: `
-              default-src 'self';
-              script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://apis.google.com https://cdn.jsdelivr.net;
-              style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net;
-              img-src 'self' blob: data: https://res.cloudinary.com https://github.com https://avatars.githubusercontent.com https://lh3.googleusercontent.com https://cataas.com https://placekitten.com https://cdn.buymeacoffee.com https://lastfm.freetls.fastly.net;
-              font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net;
-              connect-src 'self' https://www.google-analytics.com https://api.cloudinary.com https://api.github.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.googleapis.com https://yunkhngn.dev https://api.yunkhngn.dev wss://api.yunkhngn.dev ${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'};
-              frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com https://*.firebaseapp.com https://*.spotify.com https://*.music.apple.com https://soundcloud.com https://w.soundcloud.com https://bandcamp.com;
-              worker-src 'self' blob:;
-            `.replace(/\s{2,}/g, ' ').trim(),
-          },
-        ],
       },
     ];
   },

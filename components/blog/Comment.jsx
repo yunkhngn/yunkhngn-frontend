@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { readNestJson } from '@/lib/api/readJson';
 import { Button } from '@/components/ui/Button';
 import { ThumbsUp, ThumbsDown, Reply } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
@@ -38,7 +39,7 @@ export default function Comment({ comment, onUpdate, onDelete, onReply, onMentio
 
             if (!res.ok) throw new Error('Failed to vote');
 
-            const updatedComment = await res.json();
+            const updatedComment = await readNestJson(res);
             onUpdate(updatedComment);
 
             // Toggle vote state
@@ -73,7 +74,7 @@ export default function Comment({ comment, onUpdate, onDelete, onReply, onMentio
             });
 
             if (!res.ok) {
-                const error = await res.json();
+                const error = await readNestJson(res);
                 throw new Error(error.message || 'Failed to report');
             }
 

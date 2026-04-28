@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { readNestJson } from '@/lib/api/readJson';
 import { Lock, ArrowRight, Loader2, Eye, EyeOff } from 'lucide-react';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -21,7 +22,7 @@ export default function PasswordGate({ code, onVerified }) {
         body: JSON.stringify({ password }),
       });
       if (res.ok) {
-        onVerified(await res.json());
+        onVerified(await readNestJson(res));
       } else {
         setError('Mật khẩu không đúng');
       }
