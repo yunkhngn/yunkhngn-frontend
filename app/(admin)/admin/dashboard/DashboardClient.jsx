@@ -80,6 +80,7 @@ export default function Dashboard() {
 
     const fetchSystemStats = async () => {
       if (!user) return;
+      if (typeof document !== 'undefined' && document.visibilityState !== 'visible') return;
       try {
         const token = await user.getIdToken();
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/system/stats`, {
@@ -94,9 +95,23 @@ export default function Dashboard() {
     };
 
     fetchSystemStats(); // Initial fetch
-    intervalId = setInterval(fetchSystemStats, 2000); // Poll every 2 seconds
+    intervalId = setInterval(fetchSystemStats, 5000); // Poll every 5 seconds
 
-    return () => clearInterval(intervalId);
+    const handleVisibilityChange = () => {
+      if (typeof document !== 'undefined' && document.visibilityState === 'visible') {
+        fetchSystemStats();
+      }
+    };
+    if (typeof document !== 'undefined') {
+      document.addEventListener('visibilitychange', handleVisibilityChange);
+    }
+
+    return () => {
+      clearInterval(intervalId);
+      if (typeof document !== 'undefined') {
+        document.removeEventListener('visibilitychange', handleVisibilityChange);
+      }
+    };
   }, [user]);
 
   useEffect(() => {
@@ -108,109 +123,88 @@ export default function Dashboard() {
 
 
 
-        // ... inside useEffect
-        const [blogsRes, projectsRes, galleryRes, commentsRes, contactRes, analyticsRes] = await Promise.all([
-          fetch(`${process.env.NEXT_PUBLIC_API_URL}/blogs`, { headers }),
-          fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects`),
-          fetch(`${process.env.NEXT_PUBLIC_API_URL}/gallery`),
-          fetch(`${process.env.NEXT_PUBLIC_API_URL}/comments?limit=1`, { headers }),
-          fetch(`${process.env.NEXT_PUBLIC_API_URL}/contact`, { headers }),
+        // Fetch consolidated dashboard stats
+        const [dashboardRes, analyticsRes] = await Promise.all([
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/system/dashboard-stats`, { headers }),
           fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/analytics?period=${analyticsPeriod}`, { headers })
         ]);
 
-        const blogs = await readNestJson(blogsRes);
-        const projects = await readNestJson(projectsRes);
-        const galleryResult = await readNestJson(galleryRes);
-        const gallery = galleryResult.data || [];
-        const galleryTotal = galleryResult.total || gallery.length;
-        const commentsData = await readNestJson(commentsRes);
-        const contacts = await readNestJson(contactRes);
+        if (dashboardRes.ok) {
+          const data = await readNestJson(dashboardRes);
+          setStats(data.stats);
+          setRecentBlogs(data.recentBlogs || []);
+          setRecentProjects(data.recentProjects || []);
+          setRecentPhotos(data.recentPhotos || []);
+          setRecentContacts(data.recentContacts || []);
+          
+          const blogs = data.recentBlogs || [];
+          const projects = data.recentProjects || [];
+          const gallery = data.recentPhotos || [];
+          const contacts = data.recentContacts || [];
+          
+          // Create activity feed
+          const allActivities = [
+            ...blogs.map(b => ({
+              id: `blog-${b.id}`,
+              type: 'blog',
+              action: b.status === 'PUBLISHED' ? 'published' : 'drafted',
+              title: b.title,
+              timestamp: new Date(b.createdAt),
+              status: b.status
+            })),
+            ...projects.map(p => ({
+              id: `project-${p.id}`,
+              type: 'project',
+              action: 'added',
+              title: p.title,
+              timestamp: new Date(p.createdAt),
+            })),
+            ...gallery.map(g => ({
+              id: `photo-${g.id}`,
+              type: 'photo',
+              action: 'uploaded',
+              title: g.caption || 'Photo',
+              timestamp: new Date(g.createdAt),
+            })),
+            ...contacts.map(c => ({
+              id: `contact-${c.id}`,
+              type: 'mail',
+              action: 'received',
+              title: `From: ${c.name} - ${c.subject}`,
+              timestamp: new Date(c.createdAt),
+            }))
+          ].sort((a, b) => b.timestamp - a.timestamp).slice(0, 8);
+
+          setActivities(allActivities);
+
+          // Build activityData for the Activity Timeline chart (last 7 days)
+          const last7Days = Array.from({ length: 7 }, (_, i) => {
+            const d = new Date();
+            d.setDate(d.getDate() - (6 - i));
+            return d.toISOString().split('T')[0];
+          });
+          const allItems = [
+            ...blogs.map(b => b.createdAt),
+            ...projects.map(p => p.createdAt),
+            ...gallery.map(g => g.createdAt),
+            ...contacts.map(c => c.createdAt),
+          ];
+          const countsByDate = {};
+          last7Days.forEach(d => { countsByDate[d] = 0; });
+          allItems.forEach(ts => {
+            const date = new Date(ts).toISOString().split('T')[0];
+            if (countsByDate[date] !== undefined) countsByDate[date]++;
+          });
+          setActivityData(last7Days.map(d => ({
+            date: new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+            total: countsByDate[d],
+          })));
+        }
 
         if (analyticsRes.ok) {
           const analytics = await readNestJson(analyticsRes);
           setAnalyticsData(analytics);
         }
-
-
-
-        const publishedBlogs = blogs.filter(b => b.status === 'PUBLISHED');
-        const draftBlogs = blogs.filter(b => b.status === 'DRAFT');
-        const respondedContacts = contacts.filter(c => c.status === 'responded' || c.adminResponse);
-
-        setStats({
-          blogs: blogs.length,
-          blogsDraft: draftBlogs.length,
-          blogsPublished: publishedBlogs.length,
-          projects: projects.length,
-          gallery: galleryTotal,
-          comments: commentsData.meta?.total || 0,
-          mailTotal: contacts.length + respondedContacts.length,
-          mailReceived: contacts.length,
-          mailSent: respondedContacts.length
-        });
-
-        setRecentBlogs(blogs.slice(0, 5));
-        setRecentProjects(projects.slice(0, 4));
-        setRecentPhotos(gallery.slice(0, 6));
-        setRecentContacts(contacts.slice(0, 5));
-
-        // Create activity feed
-        const allActivities = [
-          ...blogs.slice(0, 3).map(b => ({
-            id: `blog-${b.id}`,
-            type: 'blog',
-            action: b.status === 'PUBLISHED' ? 'published' : 'drafted',
-            title: b.title,
-            timestamp: new Date(b.updatedAt || b.createdAt),
-            status: b.status
-          })),
-          ...projects.slice(0, 2).map(p => ({
-            id: `project-${p.id}`,
-            type: 'project',
-            action: 'added',
-            title: p.title,
-            timestamp: new Date(p.createdAt),
-          })),
-          ...gallery.slice(0, 2).map(g => ({
-            id: `photo-${g.id}`,
-            type: 'photo',
-            action: 'uploaded',
-            title: g.caption || 'Photo',
-            timestamp: new Date(g.createdAt),
-          })),
-          ...contacts.slice(0, 3).map(c => ({
-            id: `contact-${c.id}`,
-            type: 'mail',
-            action: 'received',
-            title: `From: ${c.name} - ${c.subject}`,
-            timestamp: new Date(c.createdAt),
-          }))
-        ].sort((a, b) => b.timestamp - a.timestamp).slice(0, 8);
-
-        setActivities(allActivities);
-
-        // Build activityData for the Activity Timeline chart (last 7 days)
-        const last7Days = Array.from({ length: 7 }, (_, i) => {
-          const d = new Date();
-          d.setDate(d.getDate() - (6 - i));
-          return d.toISOString().split('T')[0];
-        });
-        const allItems = [
-          ...blogs.map(b => b.createdAt),
-          ...projects.map(p => p.createdAt),
-          ...gallery.map(g => g.createdAt),
-          ...contacts.map(c => c.createdAt),
-        ];
-        const countsByDate = {};
-        last7Days.forEach(d => { countsByDate[d] = 0; });
-        allItems.forEach(ts => {
-          const date = new Date(ts).toISOString().split('T')[0];
-          if (countsByDate[date] !== undefined) countsByDate[date]++;
-        });
-        setActivityData(last7Days.map(d => ({
-          date: new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-          total: countsByDate[d],
-        })));
       } catch (error) {
         console.error("Failed to fetch dashboard data", error);
       } finally {
