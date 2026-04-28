@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { readNestJson } from '@/lib/api/readJson';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/Tabs';
@@ -30,8 +31,8 @@ export default function MonitorClient() {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {
-        const data = await res.json();
-        setContainers(data);
+        const data = await readNestJson(res);
+        setContainers(Array.isArray(data) ? data : []);
       }
     } catch (err) {
       console.error('Failed to load containers', err);
