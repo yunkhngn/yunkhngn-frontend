@@ -90,26 +90,28 @@ export default function DashboardCharts({ stats, theme, analyticsData, analytics
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <ResponsiveContainer width="100%" height={250}>
-                            <PieChart>
-                                <Pie
-                                    data={contentData}
-                                    cx="50%"
-                                    cy="50%"
-                                    labelLine={false}
-                                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                                    outerRadius={80}
-                                    fill="#8884d8"
-                                    dataKey="value"
-                                >
-                                    {contentData.map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={entry.color} />
-                                    ))}
-                                </Pie>
-                                <Tooltip />
-                                <Legend />
-                            </PieChart>
-                        </ResponsiveContainer>
+                        <div className="h-[250px] w-full">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <PieChart>
+                                    <Pie
+                                        data={contentData}
+                                        cx="50%"
+                                        cy="50%"
+                                        labelLine={false}
+                                        label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                                        outerRadius={80}
+                                        fill="#8884d8"
+                                        dataKey="value"
+                                    >
+                                        {contentData.map((entry, index) => (
+                                            <Cell key={`cell-${index}`} fill={entry.color} />
+                                        ))}
+                                    </Pie>
+                                    <Tooltip />
+                                    <Legend />
+                                </PieChart>
+                            </ResponsiveContainer>
+                        </div>
                     </CardContent>
                 </Card>
 
@@ -122,26 +124,28 @@ export default function DashboardCharts({ stats, theme, analyticsData, analytics
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <ResponsiveContainer width="100%" height={250}>
-                            <PieChart>
-                                <Pie
-                                    data={blogStatusData}
-                                    cx="50%"
-                                    cy="50%"
-                                    labelLine={false}
-                                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                                    outerRadius={80}
-                                    fill="#8884d8"
-                                    dataKey="value"
-                                >
-                                    {blogStatusData.map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={entry.color} />
-                                    ))}
-                                </Pie>
-                                <Tooltip />
-                                <Legend />
-                            </PieChart>
-                        </ResponsiveContainer>
+                        <div className="h-[250px] w-full">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <PieChart>
+                                    <Pie
+                                        data={blogStatusData}
+                                        cx="50%"
+                                        cy="50%"
+                                        labelLine={false}
+                                        label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                                        outerRadius={80}
+                                        fill="#8884d8"
+                                        dataKey="value"
+                                    >
+                                        {blogStatusData.map((entry, index) => (
+                                            <Cell key={`cell-${index}`} fill={entry.color} />
+                                        ))}
+                                    </Pie>
+                                    <Tooltip />
+                                    <Legend />
+                                </PieChart>
+                            </ResponsiveContainer>
+                        </div>
                     </CardContent>
                 </Card>
             </div>
@@ -155,41 +159,43 @@ export default function DashboardCharts({ stats, theme, analyticsData, analytics
                     </CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <ResponsiveContainer width="100%" height={300}>
-                        <AreaChart data={activityData}>
-                            <defs>
-                                <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor={isDark ? "#f5f5f5" : "#171717"} stopOpacity={0.8} />
-                                    <stop offset="95%" stopColor={isDark ? "#f5f5f5" : "#171717"} stopOpacity={0} />
-                                </linearGradient>
-                            </defs>
-                            <CartesianGrid strokeDasharray="3 3" stroke={isDark ? "#404040" : "#e5e5e5"} />
-                            <XAxis
-                                dataKey="date"
-                                stroke={isDark ? "#a3a3a3" : "#737373"}
-                                style={{ fontSize: '12px' }}
-                            />
-                            <YAxis
-                                stroke={isDark ? "#a3a3a3" : "#737373"}
-                                style={{ fontSize: '12px' }}
-                            />
-                            <Tooltip
-                                contentStyle={{
-                                    backgroundColor: isDark ? '#171717' : '#ffffff',
-                                    border: `1px solid ${isDark ? '#404040' : '#e5e5e5'}`,
-                                    borderRadius: '8px'
-                                }}
-                            />
-                            <Area
-                                type="monotone"
-                                dataKey="total"
-                                stroke={isDark ? "#f5f5f5" : "#171717"}
-                                fillOpacity={1}
-                                fill="url(#colorTotal)"
-                                strokeWidth={2}
-                            />
-                        </AreaChart>
-                    </ResponsiveContainer>
+                    <div className="h-[300px] w-full">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <AreaChart data={activityData}>
+                                <defs>
+                                    <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="5%" stopColor={isDark ? "#f5f5f5" : "#171717"} stopOpacity={0.8} />
+                                        <stop offset="95%" stopColor={isDark ? "#f5f5f5" : "#171717"} stopOpacity={0} />
+                                    </linearGradient>
+                                </defs>
+                                <CartesianGrid strokeDasharray="3 3" stroke={isDark ? "#404040" : "#e5e5e5"} />
+                                <XAxis
+                                    dataKey="date"
+                                    stroke={isDark ? "#a3a3a3" : "#737373"}
+                                    style={{ fontSize: '12px' }}
+                                />
+                                <YAxis
+                                    stroke={isDark ? "#a3a3a3" : "#737373"}
+                                    style={{ fontSize: '12px' }}
+                                />
+                                <Tooltip
+                                    contentStyle={{
+                                        backgroundColor: isDark ? '#171717' : '#ffffff',
+                                        border: `1px solid ${isDark ? '#404040' : '#e5e5e5'}`,
+                                        borderRadius: '8px'
+                                    }}
+                                />
+                                <Area
+                                    type="monotone"
+                                    dataKey="total"
+                                    stroke={isDark ? "#f5f5f5" : "#171717"}
+                                    fillOpacity={1}
+                                    fill="url(#colorTotal)"
+                                    strokeWidth={2}
+                                />
+                            </AreaChart>
+                        </ResponsiveContainer>
+                    </div>
                 </CardContent>
             </Card>
         </div>

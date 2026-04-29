@@ -10,7 +10,7 @@ import { format, formatDistanceToNow } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import { Badge } from '@/components/ui/Badge';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
-import axios from 'axios';
+import api from '@/lib/api/client';
 import {
     Dialog,
     DialogContent,
@@ -44,7 +44,7 @@ export default function AdminJournal() {
 
     const fetchMoods = useCallback(async () => {
         try {
-            const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/settings`);
+            const res = await api.get('/settings/admin');
             const moodSetting = res.data.find(s => s.settingTitle === 'journal_moods');
             if (moodSetting && moodSetting.content) {
                 try {
@@ -66,7 +66,7 @@ export default function AdminJournal() {
 
     const fetchEntries = useCallback(async () => {
         try {
-            const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/journals`);
+            const res = await api.get('/journals');
             setEntries(res.data.data || []);
         } catch (error) {
             console.error(error);
@@ -90,12 +90,9 @@ export default function AdminJournal() {
 
     const saveMoods = async (newMoods) => {
         try {
-            const token = await user.getIdToken();
-            await axios.patch(`${process.env.NEXT_PUBLIC_API_URL}/settings`, {
+            await api.patch('/settings', {
                 settingTitle: 'journal_moods',
                 content: JSON.stringify(newMoods)
-            }, {
-                headers: { Authorization: `Bearer ${token}` }
             });
             setMoods(newMoods);
             toast.success('Moods updated successfully');
@@ -111,12 +108,7 @@ export default function AdminJournal() {
 
         setIsSubmitting(true);
         try {
-            const token = await user.getIdToken();
-            const res = await axios.post(
-                `${process.env.NEXT_PUBLIC_API_URL}/journals`,
-                { content: content.trim(), mood, tags },
-                { headers: { Authorization: `Bearer ${token}` } }
-            );
+            const res = await api.post('/journals', { content: content.trim(), mood, tags });
             setEntries([res.data, ...entries]);
             setContent('');
             setTags([]);
@@ -140,10 +132,7 @@ export default function AdminJournal() {
     const confirmDelete = async () => {
         if (!deleteId) return;
         try {
-            const token = await user.getIdToken();
-            await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/journals/${deleteId}`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            await api.delete(`/journals/${deleteId}`);
             setEntries(entries.filter(e => e.id !== deleteId));
             toast.success('Entry deleted');
         } catch (error) {
@@ -310,9 +299,10 @@ export default function AdminJournal() {
                         {filteredEntries.map(entry => {
                             const moodInfo = moods.find(m => m.key === entry.mood) || moods[0];
                             const MoodIcon = ICON_MAP[moodInfo?.icon] || Smile;
-                            const createdAt = new Date(entry.createdAt);
-                            const timeAgo = formatDistanceToNow(createdAt, { addSuffix: true, locale: vi });
-                            const fullDate = format(createdAt, "d MMM yyyy 'lúc' HH:mm", { locale: vi });
+                            const createdAt = entry.createdAt ? new Date(entry.createdAt) : null;
+                            const isDateValid = createdAt && !isNaN(createdAt.getTime());
+                            const timeAgo = isDateValid ? formatDistanceToNow(createdAt, { addSuffix: true, locale: vi }) : 'N/A';
+                            const fullDate = isDateValid ? format(createdAt, "d MMM yyyy 'lúc' HH:mm", { locale: vi }) : 'N/A';
 
                             return (
                                 <div

@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { readNestJson } from '@/lib/api/readJson';
 import { useAuth } from '@/contexts/AuthContext';
-import { format, formatDistanceToNow } from 'date-fns';
+import { format, formatDistanceToNow, isValid } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import { Smile, Image as ImageIcon, X, Loader2, Plus, Sparkles } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
@@ -118,7 +118,7 @@ function JournalEntry({ entry, moodInfo, moods, avatarUrl, onEdit, onDelete, onR
                                 )}
                             </div>
                             <time className="text-[10px] text-muted-foreground/80 block">
-                                {format(new Date(entry.createdAt), "HH:mm • d MMM, yyyy")}
+                                {entry.createdAt && isValid(new Date(entry.createdAt)) ? format(new Date(entry.createdAt), "HH:mm • d MMM, yyyy") : 'No Date'}
                             </time>
                         </div>
                     </div>
@@ -637,7 +637,7 @@ export default function JournalPage() {
 
     // Group entries by date for Timeline view
     const groupedEntries = filteredEntries.reduce((groups, entry) => {
-        const date = format(new Date(entry.createdAt), 'yyyy-MM-dd');
+        const date = entry.createdAt && isValid(new Date(entry.createdAt)) ? format(new Date(entry.createdAt), 'yyyy-MM-dd') : 'unknown';
         if (!groups[date]) groups[date] = [];
         groups[date].push(entry);
         return groups;
@@ -732,7 +732,7 @@ export default function JournalPage() {
                                     <div className="w-2.5 h-2.5 rounded-full bg-primary ring-4 ring-background"></div>
                                 </div>
                                 <h3 className="text-lg font-bold font-serif">
-                                    {format(new Date(date), "EEEE, d MMMM yyyy", { locale: vi })}
+                                    {date !== 'unknown' && isValid(new Date(date)) ? format(new Date(date), "EEEE, d MMMM yyyy", { locale: vi }) : 'Unknown Date'}
                                 </h3>
                             </div>
 

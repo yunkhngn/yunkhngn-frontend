@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogD
 import { Link2, Plus, Copy, Trash2, Edit, ExternalLink, Loader2, BarChart3, ToggleLeft, ToggleRight, CheckSquare, Square, XCircle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
-import { format } from 'date-fns';
+import { format, isValid } from 'date-fns';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -356,7 +356,7 @@ export default function AdminShortlinks() {
                                             </div>
 
                                             <span className="text-xs text-muted-foreground">
-                                                {format(new Date(link.createdAt), 'MMM d, yyyy')}
+                                                {link.createdAt && isValid(new Date(link.createdAt)) ? format(new Date(link.createdAt), 'MMM d, yyyy') : 'No Date'}
                                             </span>
 
                                             <div className="flex items-center gap-1 ml-2">

@@ -34,7 +34,7 @@ import {
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/Dialog";
 import Link from "next/link";
-import { format, formatDistanceToNow } from "date-fns";
+import { format, formatDistanceToNow, isValid } from "date-fns";
 import { Badge } from "@/components/ui/Badge";
 import { useRouter } from 'next/navigation'
 import Image from "next/image";
@@ -567,7 +567,7 @@ export default function Dashboard() {
                     <div className="flex-1 min-w-0">
                       <p className="font-medium line-clamp-1 group-hover:text-primary transition-colors">{blog.title}</p>
                       <p className="text-xs text-muted-foreground">
-                        {format(new Date(blog.createdAt), 'MMM d, yyyy')}
+                        {blog.createdAt && isValid(new Date(blog.createdAt)) ? format(new Date(blog.createdAt), 'MMM d, yyyy') : 'No Date'}
                       </p>
                     </div>
                     <div className="flex items-center gap-2">

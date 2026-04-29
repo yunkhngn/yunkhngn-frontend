@@ -13,7 +13,7 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/Table";
-import { formatDistanceToNow } from 'date-fns';
+import { formatDistanceToNow, isValid } from 'date-fns';
 import { useRouter } from 'next/navigation'
 import { useNotification } from '@/contexts/NotificationContext';
 
@@ -139,7 +139,7 @@ export default function Notifications() {
                                         </TableCell>
                                         <TableCell>{notification.message}</TableCell>
                                         <TableCell className="text-muted-foreground text-sm">
-                                            {formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true })}
+                                            {notification.createdAt && isValid(new Date(notification.createdAt)) ? formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true }) : 'N/A'}
                                         </TableCell>
                                         <TableCell onClick={(e) => e.stopPropagation()}>
                                             <Button

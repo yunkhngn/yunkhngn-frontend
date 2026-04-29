@@ -408,19 +408,25 @@ export default function TipTapEditor({ content, onChange, onImageUpload, format 
         if (editor && content) {
             if (format === 'html') {
                 if (editor.getHTML() !== content) {
-                    editor.commands.setContent(content);
+                    requestAnimationFrame(() => {
+                        editor.commands.setContent(content);
+                    });
                 }
             } else {
                 const currentJSON = JSON.stringify(editor.getJSON());
                 if (content !== currentJSON && content !== '') {
                     const parsed = parseContent(content, format);
                     try {
-                        editor.commands.setContent(parsed);
+                        requestAnimationFrame(() => {
+                            editor.commands.setContent(parsed);
+                        });
                     } catch (e) {
                         // If setContent fails (e.g. invalid TipTap JSON), try as HTML string
                         console.warn('setContent failed with parsed content, trying as HTML:', e.message);
                         if (typeof content === 'string') {
-                            editor.commands.setContent(content, true);
+                            requestAnimationFrame(() => {
+                                editor.commands.setContent(content, true);
+                            });
                         }
                     }
                 }

@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/Button';
 import { Edit, ArrowLeft, Calendar, Tag } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { format } from 'date-fns';
+import { format, isValid } from 'date-fns';
 import { Badge } from '@/components/ui/Badge';
 import dynamic from 'next/dynamic';
 const TipTapViewer = dynamic(() => import('@/components/ui/TipTapViewer'), { ssr: false });
@@ -28,7 +28,8 @@ export default function ViewBlog() {
             const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/blogs/${id}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
-            setBlog(res.data);
+            console.log('DEBUG: Blog detail response data:', res.data);
+            setBlog(res.data.data);
         } catch (error) {
             console.error(error);
             toast.error('Failed to fetch blog details');
@@ -87,7 +88,7 @@ export default function ViewBlog() {
                                     {blog.status}
                                 </Badge>
                                 <div className="text-sm text-muted-foreground uppercase tracking-widest">
-                                    {format(new Date(blog.createdAt), 'MMMM d, yyyy')}
+                                    {blog.createdAt && isValid(new Date(blog.createdAt)) ? format(new Date(blog.createdAt), 'MMMM d, yyyy') : 'No Date'}
                                 </div>
                             </div>
 

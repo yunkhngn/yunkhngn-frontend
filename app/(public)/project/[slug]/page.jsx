@@ -5,8 +5,8 @@ import ProjectDetailClient from './ProjectDetailClient';
 export const revalidate = 60;
 
 export async function generateMetadata({ params }) {
-  const { id } = await params;
-  const project = await fetchProjectDetailData(id);
+  const { slug } = await params;
+  const project = await fetchProjectDetailData(slug);
   if (!project) {
     return { title: 'Not found' };
   }
@@ -23,8 +23,8 @@ export async function generateMetadata({ params }) {
 }
 
 export default async function ProjectDetailPage({ params }) {
-  const { id } = await params;
-  const projectData = await fetchProjectDetailData(id);
+  const { slug } = await params;
+  const projectData = await fetchProjectDetailData(slug);
   if (!projectData) notFound();
   return <ProjectDetailClient projectData={projectData} />;
 }

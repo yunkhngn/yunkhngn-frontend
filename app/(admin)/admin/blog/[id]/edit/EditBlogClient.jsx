@@ -21,7 +21,7 @@ export default function EditBlog() {
             const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/blogs/${id}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
-            setBlog(res.data);
+            setBlog(res.data.data);
         } catch (error) {
             console.error(error);
             toast.error('Failed to fetch blog details');

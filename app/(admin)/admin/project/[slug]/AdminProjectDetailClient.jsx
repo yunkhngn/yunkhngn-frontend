@@ -12,7 +12,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { format } from 'date-fns';
+import { format, isValid } from 'date-fns';
 import { useParams } from 'next/navigation';
 
 export default function AdminProjectDetail({ projectData }) {
@@ -207,7 +207,7 @@ export default function AdminProjectDetail({ projectData }) {
                                     <Calendar className="mr-2 h-4 w-4" /> Created
                                 </span>
                                 <span className="font-medium text-sm">
-                                    {format(new Date(project.createdAt), 'MMM d, yyyy')}
+                                    {project.createdAt && isValid(new Date(project.createdAt)) ? format(new Date(project.createdAt), 'MMM d, yyyy') : 'No Date'}
                                 </span>
                             </div>
 

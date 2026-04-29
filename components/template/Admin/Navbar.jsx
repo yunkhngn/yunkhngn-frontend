@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { useTheme } from 'next-themes';
-import { Bot, Moon, Sun, Menu, X, LogOut, LayoutDashboard, User, FileText, Folder, Image, Settings, MessageSquare, Mail, LayoutGrid, Link2, BookOpen, Terminal } from 'lucide-react';
+import { Bell, Bot, Moon, Sun, Menu, X, LogOut, LayoutDashboard, User, FileText, Folder, Image, Settings, MessageSquare, Mail, LayoutGrid, Link2, BookOpen, Terminal } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
@@ -34,10 +34,10 @@ const ADMIN_NAV_ITEMS = [
         label: "Engagement",
         icon: MessageSquare,
         children: [
-            { label: "Chatbot", href: "/admin/chat", icon: Bot },
             { label: "Shortlinks", href: "/admin/shortlinks", icon: Link2 },
             { label: "Comments", href: "/admin/comments", icon: MessageSquare },
             { label: "Contact", href: "/admin/contact", icon: Mail },
+            { label: "Notifications", href: "/admin/notifications", icon: Bell },
         ]
     },
     {
