@@ -25,6 +25,7 @@ import Terminal from '@/components/home/Terminal';
 import { getOptimizedUrl, getBlurUrl } from '@/lib/cloudinary';
 import { readCachedSettings, writeCachedSettings } from '@/lib/settingsCache';
 import { sanitizeRichTextToPlainText } from '@/lib/sanitizeRichText';
+import LiveActivityInline from '@/components/live/LiveActivityInline';
 
 export default function HomeContent({
   recentBlogs = [],
@@ -191,6 +192,7 @@ export default function HomeContent({
                     <span className="text-blue-400">location:</span>
                     <span className="text-gray-300">Hanoi, Vietnam</span>
                   </div>
+                  <LiveActivityInline />
                 </div>
               </div>
 

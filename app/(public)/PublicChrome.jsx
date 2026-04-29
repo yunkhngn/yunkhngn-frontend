@@ -5,7 +5,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import DefaultNavbar from '@/components/template/Default/Navbar';
 import DefaultFooter from '@/components/template/Default/Footer';
 import InteractiveBackground from '@/components/ui/InteractiveBackground';
-import LiveActivityContainer from '@/components/live/LiveActivityContainer';
+import FloatingCmdK from '@/components/ui/FloatingCmdK';
 import FloatingControls from '@/components/ui/FloatingControls';
 import { CommandMenu } from '@/components/ui/CommandMenu';
 import CookieConsent from '@/components/ui/CookieConsent';
@@ -41,8 +41,8 @@ export default function PublicChrome({ children }) {
           </AnimatePresence>
         </main>
         {!isFocusMode && <DefaultFooter />}
-        {!isFocusMode && <LiveActivityContainer />}
       </div>
+      <FloatingCmdK />
       <FloatingControls />
       <CommandMenu />
       <CookieConsent />

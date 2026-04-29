@@ -4,7 +4,7 @@ import MusicPlayer from './MusicPlayer';
 import api from '@/lib/api/client';
 import { AnimatePresence, motion } from 'framer-motion';
 
-export default function LiveActivityContainer() {
+export default function LiveActivityContainer({ isStatic = false }) {
     const [codingData, setCodingData] = useState(null);
     const [musicData, setMusicData] = useState(null);
     const [loadingCoding, setLoadingCoding] = useState(true);
@@ -60,6 +60,15 @@ export default function LiveActivityContainer() {
 
     // Don't render anything if both fail or empty
     if (!loadingCoding && !codingData && !loadingMusic && !musicData) return null;
+
+    if (isStatic) {
+        return (
+            <div className="flex flex-col gap-3 w-full">
+                <CodingActivity activity={codingData} loading={loadingCoding} />
+                <MusicPlayer track={musicData} loading={loadingMusic} />
+            </div>
+        );
+    }
 
     return (
         <div className="fixed bottom-8 left-6 z-50 flex flex-col-reverse items-start gap-4">
