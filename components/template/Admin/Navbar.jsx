@@ -38,6 +38,7 @@ const ADMIN_NAV_ITEMS = [
             { label: "Comments", href: "/admin/comments", icon: MessageSquare },
             { label: "Contact", href: "/admin/contact", icon: Mail },
             { label: "Notifications", href: "/admin/notifications", icon: Bell },
+            { label: "Chat Logs", href: "/admin/chat", icon: Bot },
         ]
     },
     {
