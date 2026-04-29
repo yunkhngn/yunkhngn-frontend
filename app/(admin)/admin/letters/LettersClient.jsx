@@ -30,7 +30,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
-import { format } from 'date-fns';
+import { format, isValid } from 'date-fns';
 import Image from 'next/image';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -623,7 +623,7 @@ export default function AdminLetters() {
                     </div>
 
                     <div className="text-[11px] text-muted-foreground/70 font-medium">
-                      Created on {format(new Date(letter.createdAt), 'MMM d, yyyy')}
+                      Created on {letter.createdAt && isValid(new Date(letter.createdAt)) ? format(new Date(letter.createdAt), 'MMM d, yyyy') : 'No Date'}
                     </div>
                   </div>
 

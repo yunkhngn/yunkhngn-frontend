@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/DropdownMenu';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
-import { formatDistanceToNow } from 'date-fns';
+import { formatDistanceToNow, isValid } from 'date-fns';
 import { useRouter } from 'next/navigation';
 
 export default function NotificationDropdown() {
@@ -78,7 +78,7 @@ export default function NotificationDropdown() {
                                     )}
                                 </div>
                                 <span className="text-xs text-muted-foreground">
-                                    {formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true })}
+                                    {notification.createdAt && isValid(new Date(notification.createdAt)) ? formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true }) : 'N/A'}
                                 </span>
                             </DropdownMenuItem>
                         ))

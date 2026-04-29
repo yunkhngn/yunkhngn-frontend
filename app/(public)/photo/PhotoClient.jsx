@@ -367,12 +367,12 @@ export default function Photo() {
                 {/* Tags + Layout toggle */}
                 <div className="flex items-center justify-between gap-4">
                     {tags.length > 0 && (
-                        <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-hide flex-1">
+                        <div className="flex flex-wrap items-center gap-1.5 flex-1">
                             {tags.map((tag) => (
                                 <button
                                     key={tag}
                                     onClick={() => handleTagChange(tag)}
-                                    className={`shrink-0 px-3 py-1 rounded-full text-xs font-medium transition-all border ${selectedTag === tag
+                                    className={`px-3 py-1 rounded-full text-xs font-medium transition-all border ${selectedTag === tag
                                         ? 'border-foreground bg-foreground text-background'
                                         : 'border-border text-muted-foreground hover:border-foreground/30'
                                         }`}

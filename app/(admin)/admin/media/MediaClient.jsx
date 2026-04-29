@@ -31,11 +31,11 @@ export default function MediaManager() {
             });
 
             if (cursor) {
-                setImages(prev => [...prev, ...res.data.resources]);
+                setImages(prev => [...prev, ...res.data.data.resources]);
             } else {
-                setImages(res.data.resources);
+                setImages(res.data.data.resources);
             }
-            setNextCursor(res.data.next_cursor);
+            setNextCursor(res.data.data.next_cursor);
         } catch (error) {
             console.error(error);
             toast.error('Failed to fetch images');
@@ -67,7 +67,7 @@ export default function MediaManager() {
             const signRes = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/media/signature`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
-            const { signature, timestamp, cloudName, apiKey } = signRes.data;
+            const { signature, timestamp, cloudName, apiKey } = signRes.data.data;
 
             // 2. Upload to Cloudinary
             const formData = new FormData();

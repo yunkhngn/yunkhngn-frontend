@@ -9,7 +9,7 @@ import axios from 'axios';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import Image from 'next/image';
-import { format } from 'date-fns';
+import { format, isValid } from 'date-fns';
 import { Badge } from '@/components/ui/Badge';
 import { useRouter } from 'next/navigation'
 import { extractTextFromTipTap } from '@/lib/utils';
@@ -47,7 +47,7 @@ export default function BlogList() {
     const fetchBlogs = async () => {
         try {
             const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/blogs`);
-            setBlogs(res.data);
+            setBlogs(res.data.data);
         } catch (error) {
             console.error(error);
             toast.error('Failed to fetch blogs');
@@ -309,7 +309,7 @@ export default function BlogList() {
                                             <div className="flex items-center gap-4 text-xs text-muted-foreground">
                                                 <div className="flex items-center">
                                                     <Calendar className="mr-1 h-3 w-3" />
-                                                    {format(new Date(blog.createdAt), 'MMM d, yyyy')}
+                                                    {blog.createdAt && isValid(new Date(blog.createdAt)) ? format(new Date(blog.createdAt), 'MMM d, yyyy') : 'No Date'}
                                                 </div>
                                                 <div className="flex items-center">
                                                     <MessageSquare className="mr-1 h-3 w-3" />
@@ -410,7 +410,7 @@ export default function BlogList() {
                                                     </Badge>
                                                 </td>
                                                 <td className="px-4 py-3 text-muted-foreground whitespace-nowrap">
-                                                    {format(new Date(blog.createdAt), 'MMM d, yyyy')}
+                                                    {blog.createdAt && isValid(new Date(blog.createdAt)) ? format(new Date(blog.createdAt), 'MMM d, yyyy') : 'No Date'}
                                                 </td>
                                                 <td className="px-4 py-3 text-right">
                                                     <div className="flex items-center justify-end gap-1">

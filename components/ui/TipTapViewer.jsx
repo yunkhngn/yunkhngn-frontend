@@ -106,9 +106,13 @@ export default function TipTapViewer({ content }) {
                 // If it's a JSON string, we should parse it if useEditor doesn't handle stringified JSON automatically (it usually handles object or HTML string).
                 try {
                     const json = JSON.parse(content);
-                    editor.commands.setContent(json);
+                    requestAnimationFrame(() => {
+                        editor.commands.setContent(json);
+                    });
                 } catch (e) {
-                    editor.commands.setContent(content);
+                    requestAnimationFrame(() => {
+                        editor.commands.setContent(content);
+                    });
                 }
             }
         }
