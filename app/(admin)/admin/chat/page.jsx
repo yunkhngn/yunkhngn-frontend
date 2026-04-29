@@ -1,9 +1,9 @@
-import ChatClient from './ChatClient';
+import ChatLogsClient from './ChatLogsClient';
 
 export const metadata = {
-  title: 'AI Chatbot',
+  title: 'Chat Logs',
 };
 
-export default function AdminChatPage() {
-  return <ChatClient />;
+export default function AdminChatLogsPage() {
+  return <ChatLogsClient />;
 }
