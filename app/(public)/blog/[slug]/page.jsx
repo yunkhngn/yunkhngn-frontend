@@ -14,6 +14,7 @@ export async function generateMetadata({ params }) {
   return {
     title: blog.title,
     description: desc,
+    alternates: { canonical: `https://yunkhngn.dev/blog/${slug}` },
     openGraph: {
       title: blog.title,
       description: desc,

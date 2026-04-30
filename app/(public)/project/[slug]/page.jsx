@@ -14,6 +14,7 @@ export async function generateMetadata({ params }) {
   return {
     title: project.seoTitle || project.title,
     description: desc,
+    alternates: { canonical: `https://yunkhngn.dev/project/${slug}` },
     openGraph: {
       title: project.seoTitle || project.title,
       description: desc,
