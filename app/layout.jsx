@@ -4,6 +4,7 @@ import {
   JetBrains_Mono,
   Be_Vietnam_Pro,
 } from 'next/font/google';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 import Providers from '@/components/providers/Providers';
 
 const playfair = Playfair_Display({
@@ -83,6 +84,7 @@ export default function RootLayout({ children }) {
         className={`${playfair.variable} ${jetbrainsMono.variable} ${beVietnamPro.variable} font-sans antialiased`}
       >
         <Providers>{children}</Providers>
+        <SpeedInsights />
       </body>
     </html>
   );
