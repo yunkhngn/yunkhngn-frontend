@@ -47,6 +47,7 @@ import {
 } from 'lucide-react';
 import Editor from '@monaco-editor/react';
 import { toast } from 'sonner';
+import { ConfirmModal } from '@/components/ui/ConfirmModal';
 
 // --- Default Persona fallback ---
 const DEFAULT_PERSONA = {
@@ -69,12 +70,38 @@ export default function AIManagementClient() {
     const [activeTab, setActiveTab] = useState('knowledge');
     const [ragStats, setRagStats] = useState({ count: 0 });
     const [isReindexing, setIsReindexing] = useState(false);
+    
+    // Global Confirm Modal state
+    const [confirmConfig, setConfirmConfig] = useState({
+        isOpen: false,
+        title: "",
+        description: "",
+        onConfirm: () => {},
+        variant: "destructive"
+    });
+
+    const closeConfirm = () => setConfirmConfig(prev => ({ ...prev, isOpen: false }));
+
+    const triggerConfirm = (config) => {
+        setConfirmConfig({
+            ...config,
+            isOpen: true
+        });
+    };
 
     // Fetch RAG stats
     const fetchRagStats = async () => {
         try {
-            const data = await readNestJson('/ai/rag/stats', user);
-            if (data) setRagStats(data);
+            const token = await user?.getIdToken();
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ai/rag/stats`, {
+                headers: {
+                    ...(token ? { Authorization: `Bearer ${token}` } : {})
+                }
+            });
+            if (res.ok) {
+                const data = await readNestJson(res);
+                if (data) setRagStats(data);
+            }
         } catch (error) {
             console.error('Failed to fetch RAG stats:', error);
         }
@@ -87,26 +114,33 @@ export default function AIManagementClient() {
     }, [user]);
 
     const handleReindexAll = async () => {
-        if (!confirm('This will re-sync all knowledge entries and blogs to the vector database. Continue?')) return;
-        setIsReindexing(true);
-        try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/knowledge/sync-all`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${user.accessToken}`
+        triggerConfirm({
+            title: "Reindex All Knowledge",
+            description: "This will re-sync all knowledge entries and blogs to the vector database. Continue?",
+            variant: "default",
+            onConfirm: async () => {
+                closeConfirm();
+                setIsReindexing(true);
+                try {
+                    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/knowledge/sync-all`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${user.accessToken}`
+                        }
+                    });
+                    if (res.ok) {
+                        toast.success('Reindexing started successfully');
+                        setTimeout(fetchRagStats, 3000);
+                    } else {
+                        toast.error('Failed to start reindexing');
+                    }
+                } catch (error) {
+                    toast.error('Error starting reindexing');
+                } finally {
+                    setIsReindexing(false);
                 }
-            });
-            if (res.ok) {
-                toast.success('Reindexing started successfully');
-                setTimeout(fetchRagStats, 3000);
-            } else {
-                toast.error('Failed to start reindexing');
             }
-        } catch (error) {
-            toast.error('Error starting reindexing');
-        } finally {
-            setIsReindexing(false);
-        }
+        });
     };
 
     return (
@@ -124,17 +158,15 @@ export default function AIManagementClient() {
                 </div>
 
                 <div className="flex items-center gap-3">
-                    <Card className="px-4 py-2 flex items-center gap-3 bg-primary/5 border-primary/20">
-                        <div className="flex flex-col items-end">
-                            <span className="text-[10px] uppercase font-bold text-muted-foreground leading-none">Vector DB</span>
-                            <span className="text-sm font-mono font-bold text-primary">{ragStats.count} Docs</span>
-                        </div>
-                        <Database className="h-5 w-5 text-primary opacity-50" />
+                    <Card className="px-3 py-2 flex items-center gap-2 bg-primary/5 border-primary/20 whitespace-nowrap">
+                        <Database className="h-4 w-4 text-primary opacity-70" />
+                        <span className="text-[10px] uppercase font-bold text-muted-foreground">Vector DB:</span>
+                        <span className="text-sm font-mono font-bold text-primary">{ragStats.count} Docs</span>
                     </Card>
 
-                    <Button 
-                        variant="outline" 
-                        size="sm" 
+                    <Button
+                        variant="outline"
+                        size="sm"
                         onClick={handleReindexAll}
                         disabled={isReindexing}
                         className="gap-2"
@@ -162,23 +194,32 @@ export default function AIManagementClient() {
                 </TabsList>
 
                 <TabsContent value="knowledge" className="space-y-4">
-                    <KnowledgeTab user={user} />
+                    <KnowledgeTab user={user} triggerConfirm={triggerConfirm} closeConfirm={closeConfirm} />
                 </TabsContent>
 
                 <TabsContent value="persona">
-                    <PersonaTab user={user} />
+                    <PersonaTab user={user} triggerConfirm={triggerConfirm} closeConfirm={closeConfirm} />
                 </TabsContent>
 
                 <TabsContent value="api-keys">
-                    <ApiKeysTab user={user} />
+                    <ApiKeysTab user={user} triggerConfirm={triggerConfirm} closeConfirm={closeConfirm} />
                 </TabsContent>
             </Tabs>
+
+            <ConfirmModal
+                isOpen={confirmConfig.isOpen}
+                title={confirmConfig.title}
+                description={confirmConfig.description}
+                onConfirm={confirmConfig.onConfirm}
+                onClose={closeConfirm}
+                variant={confirmConfig.variant}
+            />
         </div>
     );
 }
 
 // --- Knowledge Base Tab ---
-function KnowledgeTab({ user }) {
+function KnowledgeTab({ user, triggerConfirm, closeConfirm }) {
     const [entries, setEntries] = useState([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
@@ -197,8 +238,16 @@ function KnowledgeTab({ user }) {
     const fetchEntries = async () => {
         setLoading(true);
         try {
-            const data = await readNestJson('/knowledge', user);
-            if (data) setEntries(data);
+            const token = await user?.getIdToken();
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/knowledge`, {
+                headers: {
+                    ...(token ? { Authorization: `Bearer ${token}` } : {})
+                }
+            });
+            if (res.ok) {
+                const data = await readNestJson(res);
+                if (data) setEntries(data);
+            }
         } catch (error) {
             toast.error('Failed to load knowledge entries');
         } finally {
@@ -217,8 +266,8 @@ function KnowledgeTab({ user }) {
 
     const filteredEntries = useMemo(() => {
         return entries.filter(e => {
-            const matchesSearch = e.title.toLowerCase().includes(search.toLowerCase()) || 
-                                 e.content.toLowerCase().includes(search.toLowerCase());
+            const matchesSearch = e.title.toLowerCase().includes(search.toLowerCase()) ||
+                e.content.toLowerCase().includes(search.toLowerCase());
             const matchesCategory = selectedCategory === 'All' || e.category === selectedCategory;
             return matchesSearch && matchesCategory;
         });
@@ -244,10 +293,10 @@ function KnowledgeTab({ user }) {
 
         setSaving(true);
         try {
-            const url = editingEntry 
+            const url = editingEntry
                 ? `${process.env.NEXT_PUBLIC_API_URL}/knowledge/${editingEntry.id}`
                 : `${process.env.NEXT_PUBLIC_API_URL}/knowledge`;
-            
+
             const res = await fetch(url, {
                 method: editingEntry ? 'PATCH' : 'POST',
                 headers: {
@@ -272,25 +321,31 @@ function KnowledgeTab({ user }) {
     };
 
     const handleDelete = async (id) => {
-        if (!confirm('Are you sure you want to delete this knowledge entry? It will be removed from the vector database as well.')) return;
-        
-        try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/knowledge/${id}`, {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${user.accessToken}`
-                }
-            });
+        triggerConfirm({
+            title: "Delete Knowledge Entry",
+            description: "Are you sure you want to delete this knowledge entry? It will be removed from the vector database as well.",
+            variant: "destructive",
+            onConfirm: async () => {
+                closeConfirm();
+                try {
+                    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/knowledge/${id}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Authorization': `Bearer ${user.accessToken}`
+                        }
+                    });
 
-            if (res.ok) {
-                toast.success('Entry deleted');
-                fetchEntries();
-            } else {
-                toast.error('Failed to delete entry');
+                    if (res.ok) {
+                        toast.success('Entry deleted');
+                        fetchEntries();
+                    } else {
+                        toast.error('Failed to delete entry');
+                    }
+                } catch (error) {
+                    toast.error('Error deleting entry');
+                }
             }
-        } catch (error) {
-            toast.error('Error deleting entry');
-        }
+        });
     };
 
     return (
@@ -322,8 +377,8 @@ function KnowledgeTab({ user }) {
                 <div className="p-4 border-b border-border/50 flex flex-col md:flex-row justify-between gap-4 bg-muted/20">
                     <div className="relative flex-1">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input 
-                            placeholder="Search knowledge..." 
+                        <Input
+                            placeholder="Search knowledge..."
                             className="pl-9 bg-background/50"
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
@@ -411,26 +466,26 @@ function KnowledgeTab({ user }) {
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <label className="text-sm font-medium">Category</label>
-                                <Input 
-                                    value={formData.category} 
-                                    onChange={(e) => setFormData({...formData, category: e.target.value})}
+                                <Input
+                                    value={formData.category}
+                                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                                     placeholder="e.g. skills, projects, personality"
                                 />
                             </div>
                             <div className="space-y-2">
                                 <label className="text-sm font-medium">Title</label>
-                                <Input 
-                                    value={formData.title} 
-                                    onChange={(e) => setFormData({...formData, title: e.target.value})}
+                                <Input
+                                    value={formData.title}
+                                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                                     placeholder="Enter a descriptive title"
                                 />
                             </div>
                         </div>
                         <div className="space-y-2">
                             <label className="text-sm font-medium">Content</label>
-                            <Textarea 
-                                value={formData.content} 
-                                onChange={(e) => setFormData({...formData, content: e.target.value})}
+                            <Textarea
+                                value={formData.content}
+                                onChange={(e) => setFormData({ ...formData, content: e.target.value })}
                                 placeholder="Describe the fact or knowledge piece..."
                                 className="min-h-[200px]"
                             />
@@ -451,7 +506,7 @@ function KnowledgeTab({ user }) {
 }
 
 // --- Persona Tab ---
-function PersonaTab({ user }) {
+function PersonaTab({ user, triggerConfirm, closeConfirm }) {
     const [personaSetting, setPersonaSetting] = useState(null);
     const [editorValue, setEditorValue] = useState('');
     const [loading, setLoading] = useState(true);
@@ -460,14 +515,22 @@ function PersonaTab({ user }) {
     const fetchPersona = async () => {
         setLoading(true);
         try {
-            const data = await readNestJson('/settings/admin', user);
-            if (data) {
-                const persona = data.find(s => s.settingTitle === 'ai_persona');
-                if (persona) {
-                    setPersonaSetting(persona);
-                    setEditorValue(persona.content);
-                } else {
-                    setEditorValue(JSON.stringify(DEFAULT_PERSONA, null, 4));
+            const token = await user?.getIdToken();
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/settings/admin`, {
+                headers: {
+                    ...(token ? { Authorization: `Bearer ${token}` } : {})
+                }
+            });
+            if (res.ok) {
+                const data = await readNestJson(res);
+                if (data) {
+                    const persona = data.find(s => s.settingTitle === 'ai_persona');
+                    if (persona) {
+                        setPersonaSetting(persona);
+                        setEditorValue(persona.content);
+                    } else {
+                        setEditorValue(JSON.stringify(DEFAULT_PERSONA, null, 4));
+                    }
                 }
             }
         } catch (error) {
@@ -517,8 +580,15 @@ function PersonaTab({ user }) {
     };
 
     const handleReset = () => {
-        if (!confirm('Are you sure you want to reset to the default persona? All current changes in the editor will be lost.')) return;
-        setEditorValue(JSON.stringify(DEFAULT_PERSONA, null, 4));
+        triggerConfirm({
+            title: "Reset Persona",
+            description: "Are you sure you want to reset to the default persona? All current changes in the editor will be lost.",
+            variant: "destructive",
+            onConfirm: () => {
+                setEditorValue(JSON.stringify(DEFAULT_PERSONA, null, 4));
+                closeConfirm();
+            }
+        });
     };
 
     if (loading) return <div className="h-96 flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary opacity-50" /></div>;
@@ -560,7 +630,7 @@ function PersonaTab({ user }) {
                     }}
                 />
             </div>
-            
+
             <div className="p-4 bg-muted/30 rounded-md border border-border/50">
                 <p className="text-xs text-muted-foreground flex items-center gap-2">
                     <Brain className="h-3 w-3" />
@@ -572,7 +642,7 @@ function PersonaTab({ user }) {
 }
 
 // --- API Keys Tab (Ported from SettingsClient) ---
-function ApiKeysTab({ user }) {
+function ApiKeysTab({ user, triggerConfirm, closeConfirm }) {
     const [apiKeys, setApiKeys] = useState({ count: 0, keys: [] });
     const [newApiKey, setNewApiKey] = useState('');
     const [loading, setLoading] = useState(true);
@@ -581,8 +651,16 @@ function ApiKeysTab({ user }) {
     const fetchApiKeys = async () => {
         setLoading(true);
         try {
-            const data = await readNestJson('/settings/api-keys', user);
-            if (data) setApiKeys(data);
+            const token = await user?.getIdToken();
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/settings/api-keys`, {
+                headers: {
+                    ...(token ? { Authorization: `Bearer ${token}` } : {})
+                }
+            });
+            if (res.ok) {
+                const data = await readNestJson(res);
+                if (data) setApiKeys(data);
+            }
         } catch (error) {
             console.error('Failed to fetch api keys:', error);
         } finally {
@@ -622,27 +700,34 @@ function ApiKeysTab({ user }) {
     };
 
     const handleRemoveApiKey = async (index) => {
-        if (!confirm('Remove this API key from the pool?')) return;
-        setApiKeyLoading(true);
-        try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/settings/api-keys/${index}`, {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${user.accessToken}`
-                }
-            });
+        triggerConfirm({
+            title: "Remove API Key",
+            description: "Remove this API key from the pool?",
+            variant: "destructive",
+            onConfirm: async () => {
+                closeConfirm();
+                setApiKeyLoading(true);
+                try {
+                    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/settings/api-keys/${index}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Authorization': `Bearer ${user.accessToken}`
+                        }
+                    });
 
-            if (res.ok) {
-                toast.success('API key removed from pool');
-                fetchApiKeys();
-            } else {
-                toast.error('Failed to remove API key');
+                    if (res.ok) {
+                        toast.success('API key removed from pool');
+                        fetchApiKeys();
+                    } else {
+                        toast.error('Failed to remove API key');
+                    }
+                } catch (error) {
+                    toast.error('Error removing API key');
+                } finally {
+                    setApiKeyLoading(false);
+                }
             }
-        } catch (error) {
-            toast.error('Error removing API key');
-        } finally {
-            setApiKeyLoading(false);
-        }
+        });
     };
 
     if (loading) return <div className="h-96 flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary opacity-50" /></div>;

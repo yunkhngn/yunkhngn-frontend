@@ -26,6 +26,7 @@ const NAV_ITEMS = [
     { label: "Journal", href: "/journal" },
     { label: "Photo", href: "/photo" },
     { label: "About Me", href: "/about" },
+    { label: "Chat with me", href: "/khoa-ai" },
     { label: "Contact", href: "/contact" },
 ];
 
