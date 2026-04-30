@@ -1,7 +1,6 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
-import { AnimatePresence, motion } from 'framer-motion';
 import DefaultNavbar from '@/components/template/Default/Navbar';
 import DefaultFooter from '@/components/template/Default/Footer';
 import InteractiveBackground from '@/components/ui/InteractiveBackground';
@@ -27,20 +26,7 @@ export default function PublicChrome({ children }) {
           </div>
         )}
         {!isFocusMode && <DefaultNavbar />}
-        <main className="flex-1 relative z-10 flex flex-col">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={pathname}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.3 }}
-              className="flex-1 flex flex-col"
-            >
-              {children}
-            </motion.div>
-          </AnimatePresence>
-        </main>
+        <main className="flex-1 relative z-10 flex flex-col">{children}</main>
         {!isFocusMode && pathname !== '/khoa-ai' && <DefaultFooter />}
       </div>
       <FloatingCmdK />
