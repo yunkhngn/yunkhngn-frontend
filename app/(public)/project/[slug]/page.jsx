@@ -1,6 +1,8 @@
 import { notFound } from 'next/navigation';
 import { fetchProjectDetailData } from '@/lib/fetchProjectDetailData';
 import ProjectDetailClient from './ProjectDetailClient';
+import JsonLd from '@/lib/seo/JsonLd';
+import { projectJsonLd, breadcrumbJsonLd } from '@/lib/seo/jsonLd';
 
 export const revalidate = 60;
 
@@ -27,5 +29,25 @@ export default async function ProjectDetailPage({ params }) {
   const { slug } = await params;
   const projectData = await fetchProjectDetailData(slug);
   if (!projectData) notFound();
-  return <ProjectDetailClient projectData={projectData} />;
+
+  const jsonLd = [
+    projectJsonLd({
+      title: projectData.title,
+      description: projectData.seoDescription || projectData.description || '',
+      slug,
+      image: projectData.cover,
+    }),
+    breadcrumbJsonLd([
+      { name: 'Home', url: 'https://yunkhngn.dev' },
+      { name: 'Projects', url: 'https://yunkhngn.dev/project' },
+      { name: projectData.title, url: `https://yunkhngn.dev/project/${slug}` },
+    ]),
+  ];
+
+  return (
+    <>
+      <JsonLd data={jsonLd} />
+      <ProjectDetailClient projectData={projectData} />
+    </>
+  );
 }

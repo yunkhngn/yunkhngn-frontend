@@ -1,6 +1,8 @@
 import { notFound } from 'next/navigation';
 import { fetchBlogDetailData } from '@/lib/fetchBlogDetailData';
 import BlogDetailClient from './BlogDetailClient';
+import JsonLd from '@/lib/seo/JsonLd';
+import { articleJsonLd, breadcrumbJsonLd } from '@/lib/seo/jsonLd';
 
 export const revalidate = 60;
 
@@ -28,5 +30,27 @@ export default async function BlogPostPage({ params }) {
   const { slug } = await params;
   const blogData = await fetchBlogDetailData(slug);
   if (!blogData) notFound();
-  return <BlogDetailClient blogData={blogData} />;
+
+  const jsonLd = [
+    articleJsonLd({
+      title: blogData.title,
+      description: blogData.seoDescription || blogData.description || '',
+      slug,
+      datePublished: blogData.createdAt,
+      dateModified: blogData.updatedAt,
+      image: blogData.thumbnail,
+    }),
+    breadcrumbJsonLd([
+      { name: 'Home', url: 'https://yunkhngn.dev' },
+      { name: 'Blog', url: 'https://yunkhngn.dev/blog' },
+      { name: blogData.title, url: `https://yunkhngn.dev/blog/${slug}` },
+    ]),
+  ];
+
+  return (
+    <>
+      <JsonLd data={jsonLd} />
+      <BlogDetailClient blogData={blogData} />
+    </>
+  );
 }
