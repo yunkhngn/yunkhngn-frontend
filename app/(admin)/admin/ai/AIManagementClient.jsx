@@ -43,7 +43,8 @@ import {
     XCircle,
     Loader2,
     Save,
-    RotateCcw
+    RotateCcw,
+    Code2
 } from 'lucide-react';
 import Editor from '@monaco-editor/react';
 import { toast } from 'sonner';
@@ -235,6 +236,8 @@ function KnowledgeTab({ user, triggerConfirm, closeConfirm }) {
         content: ''
     });
 
+    const [isJsonMode, setIsJsonMode] = useState(false);
+
     const fetchEntries = async () => {
         setLoading(true);
         try {
@@ -276,13 +279,29 @@ function KnowledgeTab({ user, triggerConfirm, closeConfirm }) {
     const handleOpenAdd = () => {
         setEditingEntry(null);
         setFormData({ title: '', category: selectedCategory === 'All' ? 'general' : selectedCategory, content: '' });
+        setIsJsonMode(false);
         setDialogOpen(true);
     };
 
     const handleOpenEdit = (entry) => {
         setEditingEntry(entry);
         setFormData({ title: entry.title, category: entry.category, content: entry.content });
+        setIsJsonMode(false);
         setDialogOpen(true);
+    };
+
+    const toggleJsonMode = () => {
+        if (!isJsonMode) {
+            // Switching from Text to JSON
+            try {
+                const parsed = JSON.parse(formData.content);
+                const formatted = JSON.stringify(parsed, null, 4);
+                setFormData(prev => ({ ...prev, content: formatted }));
+            } catch (e) {
+                // Not valid JSON, just switch without formatting
+            }
+        }
+        setIsJsonMode(!isJsonMode);
     };
 
     const handleSave = async () => {
@@ -482,13 +501,46 @@ function KnowledgeTab({ user, triggerConfirm, closeConfirm }) {
                             </div>
                         </div>
                         <div className="space-y-2">
-                            <label className="text-sm font-medium">Content</label>
-                            <Textarea
-                                value={formData.content}
-                                onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                                placeholder="Describe the fact or knowledge piece..."
-                                className="min-h-[200px]"
-                            />
+                            <div className="flex items-center justify-between">
+                                <label className="text-sm font-medium">Content</label>
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={toggleJsonMode}
+                                    className={`h-7 px-2 gap-1.5 text-xs ${isJsonMode ? 'bg-primary/10 text-primary' : 'text-muted-foreground'}`}
+                                >
+                                    <Code2 className="h-3.5 w-3.5" />
+                                    {isJsonMode ? 'Format JSON' : 'Edit as JSON'}
+                                </Button>
+                            </div>
+                            {isJsonMode ? (
+                                <div className="rounded-md overflow-hidden border border-border shadow-inner bg-black/20">
+                                    <Editor
+                                        height="300px"
+                                        defaultLanguage="json"
+                                        value={formData.content}
+                                        onChange={(val) => setFormData({ ...formData, content: val })}
+                                        theme="vs-dark"
+                                        options={{
+                                            minimap: { enabled: false },
+                                            fontSize: 13,
+                                            fontFamily: 'JetBrains Mono, Menlo, monospace',
+                                            padding: { top: 10 },
+                                            formatOnPaste: true,
+                                            formatOnType: true,
+                                            scrollBeyondLastLine: false,
+                                            lineNumbers: 'on',
+                                        }}
+                                    />
+                                </div>
+                            ) : (
+                                <Textarea
+                                    value={formData.content}
+                                    onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+                                    placeholder="Describe the fact or knowledge piece..."
+                                    className="min-h-[200px]"
+                                />
+                            )}
                             <p className="text-xs text-muted-foreground">This content will be indexed in the vector database for RAG.</p>
                         </div>
                     </div>

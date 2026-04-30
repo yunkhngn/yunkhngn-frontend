@@ -12,6 +12,7 @@ import {
   Instagram,
   ArrowRight,
   LayoutGrid,
+  Coffee,
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -219,31 +220,26 @@ export default function HomeContent({
 
       <section className="w-full">
         <a
-          href="https://www.digitalocean.com/?refcode=623e10fe3eb7&utm_campaign=Referral_Invite&utm_medium=Referral_Program&utm_source=badge"
+          href="https://www.buymeacoffee.com/yunkhngn"
           target="_blank"
           rel="noopener noreferrer"
           className="block w-full"
         >
-          <div className="transition-all duration-300 w-full rounded-2xl border border-[#0080ff]/30 bg-gradient-to-r from-[#0061eb]/10 via-[#0080ff]/5 to-[#0061eb]/10 hover:from-[#0061eb]/20 hover:via-[#0080ff]/10 hover:to-[#0061eb]/20 transition-all duration-300 px-6 py-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="transition-all duration-300 w-full rounded-2xl border border-[#ffdd00]/40 bg-gradient-to-r from-[#ffdd00]/15 via-[#ffdd00]/10 to-[#ffdd00]/15 hover:from-[#ffdd00]/25 hover:via-[#ffdd00]/15 hover:to-[#ffdd00]/25 px-6 py-5 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-4">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" className="h-10 w-10 flex-shrink-0">
-                <circle cx="100" cy="100" r="100" fill="#0080ff" />
-                <path
-                  d="M100 139.8v-28.5c19.5 0 34.7-19.4 27.1-40.1-3.1-8.7-10.2-15.7-19-18.9-20.7-7.5-40.1 7.6-40.1 27.1H39.4C39.4 49.7 68.7 19 101 19c34.4 0 62.2 27.8 62.2 62.2 0 32.4-24.4 59.1-55.9 62.1l-7.3-.5zM71.5 160.5H100v-28.5H71.5v28.5zM47.5 160.5h24v-24h-24v24zM47.5 136.5H71.5v-24H47.5v24z"
-                  fill="white"
-                />
-              </svg>
+              <div className="h-10 w-10 flex-shrink-0 rounded-full bg-[#ffdd00] text-black flex items-center justify-center">
+                <Coffee className="h-5 w-5" />
+              </div>
               <div>
                 <p className="font-semibold text-base text-foreground">Ủng hộ nuôi website</p>
                 <p className="text-sm text-muted-foreground">
-                  Nếu bạn là Dev, hãy đăng ký DigitalOcean qua link này, bạn nhận $200 credit - mình cũng được hỗ
-                  trợ chi phí duy trì server
+                  Nếu thấy nội dung hữu ích, mời mình một ly cà phê để tiếp thêm động lực duy trì website nha.
                 </p>
               </div>
             </div>
             <div className="flex-shrink-0">
-              <span className="inline-flex items-center gap-2 rounded-full bg-[#0080ff] hover:bg-[#0061eb] text-white text-sm font-medium px-5 py-2.5 transition-colors">
-                Đăng ký ngay
+              <span className="inline-flex items-center gap-2 rounded-full bg-[#ffdd00] hover:bg-[#facc15] text-black text-sm font-medium px-5 py-2.5 transition-colors">
+                Buy me a coffee
                 <ArrowRight className="h-4 w-4" />
               </span>
             </div>
