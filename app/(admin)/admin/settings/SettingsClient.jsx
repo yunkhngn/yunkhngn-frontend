@@ -6,7 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
-import { Loader2, Edit, X, UploadCloud, ChevronDown, ChevronRight } from 'lucide-react';
+import { Loader2, Edit, X, UploadCloud, ChevronDown, ChevronRight, Plus, Trash2, Key } from 'lucide-react';
 import Editor from '@monaco-editor/react';
 import axios from 'axios';
 import { toast } from 'sonner';
@@ -71,7 +71,7 @@ const SETTINGS_GROUPS = [
     },
     {
         title: "AI / System",
-        keys: ['gemini_api_key', 'ai_persona', 'chat_api_key', 'chat_forbidden_words']
+        keys: ['gemini_api_key', 'gemini_api_keys', 'ai_persona', 'chat_api_key', 'chat_forbidden_words']
     },
     {
         title: "Music / Last.fm",
@@ -96,6 +96,10 @@ export default function Settings() {
     const [uploading, setUploading] = useState(false);
     const [openSections, setOpenSections] = useState(SETTINGS_GROUPS.map(g => g.title)); // Default all open
     const [isLoaded, setIsLoaded] = useState(false);
+    // API Key Pool state
+    const [apiKeys, setApiKeys] = useState({ keys: [], count: 0 });
+    const [newApiKey, setNewApiKey] = useState('');
+    const [apiKeyLoading, setApiKeyLoading] = useState(false);
     const fileInputRef = useRef(null);
 
     // Load state from local storage on mount
@@ -137,11 +141,83 @@ export default function Settings() {
         }
     }, [user]);
 
+    const fetchApiKeys = useCallback(async () => {
+        try {
+            const token = await user?.getIdToken();
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/settings/api-keys`, {
+                headers: {
+                    ...(token ? { Authorization: `Bearer ${token}` } : {})
+                }
+            });
+            if (res.ok) {
+                const data = await readNestJson(res);
+                setApiKeys(data);
+            }
+        } catch (error) {
+            console.error('Failed to fetch API keys', error);
+        }
+    }, [user]);
+
+    const handleAddApiKey = async () => {
+        if (!user || !newApiKey.trim()) return;
+        setApiKeyLoading(true);
+        try {
+            const token = await user.getIdToken();
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/settings/api-keys/add`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify({ key: newApiKey.trim() })
+            });
+            if (res.ok) {
+                setNewApiKey('');
+                await fetchApiKeys();
+                toast.success('API key added to pool');
+            } else {
+                const data = await res.json().catch(() => ({}));
+                toast.error(data.message || 'Failed to add API key');
+            }
+        } catch (error) {
+            console.error(error);
+            toast.error('Error adding API key');
+        } finally {
+            setApiKeyLoading(false);
+        }
+    };
+
+    const handleRemoveApiKey = async (index) => {
+        if (!user) return;
+        setApiKeyLoading(true);
+        try {
+            const token = await user.getIdToken();
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/settings/api-keys/${index}`, {
+                method: 'DELETE',
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            if (res.ok) {
+                await fetchApiKeys();
+                toast.success('API key removed');
+            } else {
+                toast.error('Failed to remove API key');
+            }
+        } catch (error) {
+            console.error(error);
+            toast.error('Error removing API key');
+        } finally {
+            setApiKeyLoading(false);
+        }
+    };
+
     useEffect(() => {
         if (user) {
             fetchSettings();
+            fetchApiKeys();
         }
-    }, [user, fetchSettings]);
+    }, [user, fetchSettings, fetchApiKeys]);
 
     const handleSave = async (e) => {
         e.preventDefault();
@@ -465,24 +541,87 @@ export default function Settings() {
                                             </TableHeader>
                                             <TableBody>
                                                 {groupSettings.map((setting) => (
-                                                    <TableRow key={setting.id}>
-                                                        <TableCell className="font-medium align-top py-4 break-all">
-                                                            {formatSettingTitle(setting.settingTitle)}
-                                                            <div className="text-xs text-muted-foreground font-mono mt-1">{setting.settingTitle}</div>
-                                                        </TableCell>
-                                                        <TableCell className="align-top py-4">
-                                                            <div className="max-w-[120px] md:max-w-md line-clamp-3 whitespace-pre-wrap text-sm text-muted-foreground break-all">
-                                                                {setting.content}
-                                                            </div>
-                                                        </TableCell>
-                                                        <TableCell className="align-top py-4">
-                                                            <div className="flex items-center gap-1 md:gap-2">
-                                                                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(setting)}>
-                                                                    <Edit className="h-4 w-4" />
-                                                                </Button>
-                                                            </div>
-                                                        </TableCell>
-                                                    </TableRow>
+                                                    setting.settingTitle === 'gemini_api_keys' ? (
+                                                        <TableRow key={setting.id}>
+                                                            <TableCell className="font-medium align-top py-4 break-all">
+                                                                <div className="flex items-center gap-2">
+                                                                    <Key className="h-4 w-4 text-primary" />
+                                                                    Gemini API Keys
+                                                                </div>
+                                                                <div className="text-xs text-muted-foreground font-mono mt-1">gemini_api_keys</div>
+                                                            </TableCell>
+                                                            <TableCell className="align-top py-4" colSpan={2}>
+                                                                <div className="space-y-3">
+                                                                    {/* Add new key */}
+                                                                    <div className="flex gap-2">
+                                                                        <Input
+                                                                            type="password"
+                                                                            value={newApiKey}
+                                                                            onChange={(e) => setNewApiKey(e.target.value)}
+                                                                            placeholder="Paste Gemini API key here..."
+                                                                            className="font-mono text-sm flex-1"
+                                                                            onKeyDown={(e) => e.key === 'Enter' && handleAddApiKey()}
+                                                                        />
+                                                                        <Button
+                                                                            type="button"
+                                                                            size="sm"
+                                                                            onClick={handleAddApiKey}
+                                                                            disabled={apiKeyLoading || !newApiKey.trim()}
+                                                                            className="shrink-0"
+                                                                        >
+                                                                            {apiKeyLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
+                                                                            Add
+                                                                        </Button>
+                                                                    </div>
+
+                                                                    {/* Key list */}
+                                                                    {apiKeys.count > 0 ? (
+                                                                        <div className="space-y-1">
+                                                                            <p className="text-xs text-muted-foreground">{apiKeys.count} key(s) in pool — random rotation active</p>
+                                                                            {apiKeys.keys.map((k) => (
+                                                                                <div key={k.index} className="flex items-center gap-2 bg-muted/50 rounded px-3 py-2">
+                                                                                    <span className="font-mono text-sm text-muted-foreground flex-1">
+                                                                                        {k.masked}
+                                                                                    </span>
+                                                                                    <Button
+                                                                                        type="button"
+                                                                                        variant="ghost"
+                                                                                        size="icon"
+                                                                                        className="h-7 w-7 text-destructive hover:text-destructive hover:bg-destructive/10"
+                                                                                        onClick={() => handleRemoveApiKey(k.index)}
+                                                                                        disabled={apiKeyLoading}
+                                                                                    >
+                                                                                        <Trash2 className="h-3.5 w-3.5" />
+                                                                                    </Button>
+                                                                                </div>
+                                                                            ))}
+                                                                        </div>
+                                                                    ) : (
+                                                                        <p className="text-xs text-muted-foreground">No keys in pool. Falling back to single gemini_api_key setting.</p>
+                                                                    )}
+                                                                </div>
+                                                            </TableCell>
+                                                        </TableRow>
+                                                    ) : (
+                                                        <TableRow key={setting.id}>
+                                                            <TableCell className="font-medium align-top py-4 break-all">
+                                                                {formatSettingTitle(setting.settingTitle)}
+                                                                <div className="text-xs text-muted-foreground font-mono mt-1">{setting.settingTitle}</div>
+                                                            </TableCell>
+                                                            <TableCell className="align-top py-4">
+                                                                <div className="max-w-[120px] md:max-w-md line-clamp-3 whitespace-pre-wrap text-sm text-muted-foreground break-all">
+                                                                    {setting.content}
+                                                                </div>
+                                                            </TableCell>
+                                                            <TableCell className="align-top py-4">
+                                                                <div className="flex items-center gap-1 md:gap-2">
+                                                                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(setting)}>
+                                                                        <Edit className="h-4 w-4" />
+                                                                    </Button>
+                                                                </div>
+                                                            </TableCell>
+                                                        </TableRow>
+                                                    )
                                                 ))}
                                             </TableBody>
                                         </Table>
