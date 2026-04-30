@@ -13,6 +13,10 @@ export async function generateMetadata({ params }) {
     return { title: 'Not found' };
   }
   const desc = blog.seoDescription || blog.description || '';
+  const ogImage = blog.thumbnail
+    ? blog.thumbnail
+    : `https://yunkhngn.dev/api/og?title=${encodeURIComponent(blog.title)}&type=blog&description=${encodeURIComponent(desc.slice(0, 100))}`;
+
   return {
     title: blog.title,
     description: desc,
@@ -21,7 +25,14 @@ export async function generateMetadata({ params }) {
       title: blog.title,
       description: desc,
       type: 'article',
-      images: blog.thumbnail ? [blog.thumbnail] : undefined,
+      url: `https://yunkhngn.dev/blog/${slug}`,
+      images: [{ url: ogImage, width: 1200, height: 630 }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: blog.title,
+      description: desc,
+      images: [ogImage],
     },
   };
 }

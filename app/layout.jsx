@@ -53,7 +53,7 @@ export const metadata = {
     siteName: 'Khoa Nguyen',
     images: [
       {
-        url: '/image/thumbnail.jpg',
+        url: 'https://yunkhngn.dev/api/og?title=Khoa%20Nguy%E1%BB%85n&type=page&description=Software%20Engineer%20%E2%80%A2%20Designer%20%E2%80%A2%20Guitarist',
         width: 1200,
         height: 630,
         alt: 'Khoa Nguyễn',

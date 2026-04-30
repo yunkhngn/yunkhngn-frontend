@@ -13,14 +13,26 @@ export async function generateMetadata({ params }) {
     return { title: 'Not found' };
   }
   const desc = project.seoDescription || project.description || '';
+  const title = project.seoTitle || project.title;
+  const ogImage = project.cover
+    ? project.cover
+    : `https://yunkhngn.dev/api/og?title=${encodeURIComponent(title)}&type=project&description=${encodeURIComponent(desc.slice(0, 100))}`;
+
   return {
-    title: project.seoTitle || project.title,
+    title,
     description: desc,
     alternates: { canonical: `https://yunkhngn.dev/project/${slug}` },
     openGraph: {
-      title: project.seoTitle || project.title,
+      title,
       description: desc,
-      images: project.cover ? [project.cover] : undefined,
+      url: `https://yunkhngn.dev/project/${slug}`,
+      images: [{ url: ogImage, width: 1200, height: 630 }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description: desc,
+      images: [ogImage],
     },
   };
 }
