@@ -30,11 +30,11 @@ import {
   SiCaddy,
   SiCloudflare,
   SiVercel,
-  SiPostgresql,
   SiRedis,
   SiGithubactions,
   SiFramer
 } from 'react-icons/si';
+import { DiMsqlServer } from "react-icons/di";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -85,7 +85,7 @@ export default function Showcase() {
       color: 'text-emerald-500',
       description: 'Robust storage and vector search for AI context.',
       tools: [
-        { name: 'PostgreSQL', icon: SiPostgresql },
+        { name: 'Mssql', icon: DiMsqlServer },
         { name: 'Redis', icon: SiRedis },
         { name: 'ChromaDB', icon: Database },
         { name: 'Cloudinary', icon: Cloud },
