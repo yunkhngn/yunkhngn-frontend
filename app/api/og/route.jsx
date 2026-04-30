@@ -1,6 +1,7 @@
 import { ImageResponse } from 'next/og';
 
-export const runtime = 'edge';
+// Removed edge runtime to avoid 1MB bundle size limit
+// export const runtime = 'edge';
 
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
