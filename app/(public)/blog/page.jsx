@@ -3,7 +3,13 @@ import BlogListClient from './BlogListClient';
 
 export const metadata = {
   title: 'Blog',
-  description: 'Blog posts',
+  description: 'Thoughts on web development, design, and the creative process — by Khoa Nguyễn.',
+  alternates: { canonical: 'https://yunkhngn.dev/blog' },
+  openGraph: {
+    title: 'Blog — Khoa Nguyễn',
+    description: 'Thoughts on web development, design, and the creative process — by Khoa Nguyễn.',
+    url: 'https://yunkhngn.dev/blog',
+  },
 };
 
 export default function BlogListPage() {

@@ -70,10 +70,6 @@ const SETTINGS_GROUPS = [
         keys: ['github_api_key', 'github_username', 'github_repo_name']
     },
     {
-        title: "Chat",
-        keys: ['chat_api_key', 'chat_forbidden_words']
-    },
-    {
         title: "Music / Last.fm",
         keys: ['lastfm_api_key', 'lastfm_username']
     }

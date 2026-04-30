@@ -1,6 +1,8 @@
 import { notFound } from 'next/navigation';
 import { fetchBlogDetailData } from '@/lib/fetchBlogDetailData';
 import BlogDetailClient from './BlogDetailClient';
+import JsonLd from '@/lib/seo/JsonLd';
+import { articleJsonLd, breadcrumbJsonLd } from '@/lib/seo/jsonLd';
 
 export const revalidate = 60;
 
@@ -11,14 +13,26 @@ export async function generateMetadata({ params }) {
     return { title: 'Not found' };
   }
   const desc = blog.seoDescription || blog.description || '';
+  const ogImage = blog.thumbnail
+    ? blog.thumbnail
+    : `https://yunkhngn.dev/api/og?title=${encodeURIComponent(blog.title)}&type=blog&description=${encodeURIComponent(desc.slice(0, 100))}`;
+
   return {
     title: blog.title,
     description: desc,
+    alternates: { canonical: `https://yunkhngn.dev/blog/${slug}` },
     openGraph: {
       title: blog.title,
       description: desc,
       type: 'article',
-      images: blog.thumbnail ? [blog.thumbnail] : undefined,
+      url: `https://yunkhngn.dev/blog/${slug}`,
+      images: [{ url: ogImage, width: 1200, height: 630 }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: blog.title,
+      description: desc,
+      images: [ogImage],
     },
   };
 }
@@ -27,5 +41,27 @@ export default async function BlogPostPage({ params }) {
   const { slug } = await params;
   const blogData = await fetchBlogDetailData(slug);
   if (!blogData) notFound();
-  return <BlogDetailClient blogData={blogData} />;
+
+  const jsonLd = [
+    articleJsonLd({
+      title: blogData.title,
+      description: blogData.seoDescription || blogData.description || '',
+      slug,
+      datePublished: blogData.createdAt,
+      dateModified: blogData.updatedAt,
+      image: blogData.thumbnail,
+    }),
+    breadcrumbJsonLd([
+      { name: 'Home', url: 'https://yunkhngn.dev' },
+      { name: 'Blog', url: 'https://yunkhngn.dev/blog' },
+      { name: blogData.title, url: `https://yunkhngn.dev/blog/${slug}` },
+    ]),
+  ];
+
+  return (
+    <>
+      <JsonLd data={jsonLd} />
+      <BlogDetailClient blogData={blogData} />
+    </>
+  );
 }
