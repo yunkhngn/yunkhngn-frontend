@@ -8,6 +8,9 @@ import {
     SiMysql, SiPostgresql, SiMongodb, SiDocker, SiFigma, SiPython,
     SiSpringboot, SiNestjs, SiGit, SiGithub, SiAmazon, SiHtml5, SiCss3
 } from "react-icons/si";
+
+import { DiMsqlServer } from "react-icons/di";
+
 import { FaJava } from "react-icons/fa6";
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from "framer-motion";
@@ -496,8 +499,8 @@ function getSkillIcon(skillName) {
         case 'cloudinary': IconComp = ImageIcon; break;
         case 'caddy': IconComp = ShieldCheck; break;
         case 'reverseproxycaddy': IconComp = ShieldCheck; break;
-        case 'mssql': IconComp = Database; break;
-        case 'microsoftsqlserver': IconComp = Database; break;
+        case 'mssql': IconComp = DiMsqlServer; break;
+        case 'microsoftsqlserver': IconComp = DiMsqlServer; break;
         case 'adobephotoshop': IconComp = Palette; break;
         case 'adobeillustrator': IconComp = Palette; break;
         case 'adobepremierepro': IconComp = Video; break;
