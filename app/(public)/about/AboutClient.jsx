@@ -2,15 +2,11 @@
 
 import Image from "next/image";
 import { readNestJson } from '@/lib/api/readJson';
-import { Github, Linkedin, Mail, ArrowRight, Briefcase, GraduationCap, Code } from "lucide-react";
+import { Github, Linkedin, Mail, ArrowRight, Briefcase, GraduationCap, Code, Server, Database, Layers, Workflow, Send, Code2, Flame, Image as ImageIcon, ShieldCheck, Palette, Video, Box, Bot } from "lucide-react";
 import {
     SiReact, SiNextdotjs, SiNodedotjs, SiTypescript, SiJavascript, SiTailwindcss,
     SiMysql, SiPostgresql, SiMongodb, SiDocker, SiFigma, SiPython,
-    SiSpringboot, SiNestjs, SiGit, SiGithub, SiAmazonaws, SiHtml5, SiCss3,
-    SiExpress, SiPrisma, SiTypeorm, SiShadcnui, SiGithubactions, SiPostman,
-    SiVisualstudiocode, SiFirebase, SiCloudinary, SiCaddy, SiMicrosoftsqlserver,
-    SiAdobephotoshop, SiAdobeillustrator, SiAdobepremierepro, SiAdobeaftereffects,
-    SiAdobelightroom, SiBlender, SiGooglegemini
+    SiSpringboot, SiNestjs, SiGit, SiGithub, SiAmazon, SiHtml5, SiCss3
 } from "react-icons/si";
 import { FaJava } from "react-icons/fa6";
 import { useState, useEffect, useRef } from 'react';
@@ -483,32 +479,32 @@ function getSkillIcon(skillName) {
         case 'nestjs': IconComp = SiNestjs; break;
         case 'git': IconComp = SiGit; break;
         case 'github': IconComp = SiGithub; break;
-        case 'aws': IconComp = SiAmazonaws; break;
+        case 'aws': IconComp = SiAmazon; break;
         case 'html': IconComp = SiHtml5; break;
         case 'html5': IconComp = SiHtml5; break;
         case 'css': IconComp = SiCss3; break;
         case 'css3': IconComp = SiCss3; break;
-        case 'express': IconComp = SiExpress; break;
-        case 'prisma': IconComp = SiPrisma; break;
-        case 'typeorm': IconComp = SiTypeorm; break;
-        case 'shadcnui': IconComp = SiShadcnui; break;
-        case 'githubactions': IconComp = SiGithubactions; break;
-        case 'githubactionspipelines': IconComp = SiGithubactions; break;
-        case 'postman': IconComp = SiPostman; break;
-        case 'vscode': IconComp = SiVisualstudiocode; break;
-        case 'firebase': IconComp = SiFirebase; break;
-        case 'cloudinary': IconComp = SiCloudinary; break;
-        case 'caddy': IconComp = SiCaddy; break;
-        case 'reverseproxycaddy': IconComp = SiCaddy; break;
-        case 'mssql': IconComp = SiMicrosoftsqlserver; break;
-        case 'microsoftsqlserver': IconComp = SiMicrosoftsqlserver; break;
-        case 'adobephotoshop': IconComp = SiAdobephotoshop; break;
-        case 'adobeillustrator': IconComp = SiAdobeillustrator; break;
-        case 'adobepremierepro': IconComp = SiAdobepremierepro; break;
-        case 'adobeaftereffects': IconComp = SiAdobeaftereffects; break;
-        case 'adobelightroom': IconComp = SiAdobelightroom; break;
-        case 'blender': IconComp = SiBlender; break;
-        case 'geminiai': IconComp = SiGooglegemini; break;
+        case 'express': IconComp = Server; break;
+        case 'prisma': IconComp = Database; break;
+        case 'typeorm': IconComp = Database; break;
+        case 'shadcnui': IconComp = Layers; break;
+        case 'githubactions': IconComp = Workflow; break;
+        case 'githubactionspipelines': IconComp = Workflow; break;
+        case 'postman': IconComp = Send; break;
+        case 'vscode': IconComp = Code2; break;
+        case 'firebase': IconComp = Flame; break;
+        case 'cloudinary': IconComp = ImageIcon; break;
+        case 'caddy': IconComp = ShieldCheck; break;
+        case 'reverseproxycaddy': IconComp = ShieldCheck; break;
+        case 'mssql': IconComp = Database; break;
+        case 'microsoftsqlserver': IconComp = Database; break;
+        case 'adobephotoshop': IconComp = Palette; break;
+        case 'adobeillustrator': IconComp = Palette; break;
+        case 'adobepremierepro': IconComp = Video; break;
+        case 'adobeaftereffects': IconComp = Video; break;
+        case 'adobelightroom': IconComp = Palette; break;
+        case 'blender': IconComp = Box; break;
+        case 'geminiai': IconComp = Bot; break;
         default: IconComp = Code; break;
     }
 

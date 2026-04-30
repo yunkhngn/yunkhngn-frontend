@@ -1,12 +1,12 @@
 import ShowcaseClient from './ShowcaseClient';
 
 export const metadata = {
-  title: 'Showcase',
-  description: 'Creative showcase — graphic design, video edits, and visual experiments by Khoa Nguyễn.',
+  title: 'Under the Hood | Showcase',
+  description: 'Technical showcase and architecture breakdown of yunkhngn.dev — built with Next.js 15, NestJS, and Gemini AI.',
   alternates: { canonical: 'https://yunkhngn.dev/showcase' },
   openGraph: {
-    title: 'Showcase — Khoa Nguyễn',
-    description: 'Creative showcase — graphic design, video edits, and visual experiments by Khoa Nguyễn.',
+    title: 'Under the Hood — Technical Showcase',
+    description: 'A deep dive into the architecture and tech stack powering this high-performance portfolio.',
     url: 'https://yunkhngn.dev/showcase',
   },
 };
