@@ -467,24 +467,23 @@ export default function Settings() {
                                             <TableBody>
                                                 {groupSettings.map((setting) => (
                                                     <TableRow key={setting.id}>
-                                                            <TableCell className="font-medium align-top py-4 break-all">
-                                                                {formatSettingTitle(setting.settingTitle)}
-                                                                <div className="text-xs text-muted-foreground font-mono mt-1">{setting.settingTitle}</div>
-                                                            </TableCell>
-                                                            <TableCell className="align-top py-4">
-                                                                <div className="max-w-[120px] md:max-w-md line-clamp-3 whitespace-pre-wrap text-sm text-muted-foreground break-all">
-                                                                    {setting.content}
-                                                                </div>
-                                                            </TableCell>
-                                                            <TableCell className="align-top py-4">
-                                                                <div className="flex items-center gap-1 md:gap-2">
-                                                                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(setting)}>
-                                                                        <Edit className="h-4 w-4" />
-                                                                    </Button>
-                                                                </div>
-                                                            </TableCell>
-                                                        </TableRow>
-                                                    )
+                                                        <TableCell className="font-medium align-top py-4 break-all">
+                                                            {formatSettingTitle(setting.settingTitle)}
+                                                            <div className="text-xs text-muted-foreground font-mono mt-1">{setting.settingTitle}</div>
+                                                        </TableCell>
+                                                        <TableCell className="align-top py-4">
+                                                            <div className="max-w-[120px] md:max-w-md line-clamp-3 whitespace-pre-wrap text-sm text-muted-foreground break-all">
+                                                                {setting.content}
+                                                            </div>
+                                                        </TableCell>
+                                                        <TableCell className="align-top py-4">
+                                                            <div className="flex items-center gap-1 md:gap-2">
+                                                                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(setting)}>
+                                                                    <Edit className="h-4 w-4" />
+                                                                </Button>
+                                                            </div>
+                                                        </TableCell>
+                                                    </TableRow>
                                                 ))}
                                             </TableBody>
                                         </Table>
