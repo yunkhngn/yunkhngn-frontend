@@ -3,7 +3,13 @@ import SearchClient from './SearchClient';
 
 export const metadata = {
   title: 'Search',
-  description: 'Search blogs, projects, and photos',
+  description: 'Search blogs, projects, photos, and more on yunkhngn.dev.',
+  alternates: { canonical: 'https://yunkhngn.dev/search' },
+  openGraph: {
+    title: 'Search — Khoa Nguyễn',
+    description: 'Search blogs, projects, photos, and more on yunkhngn.dev.',
+    url: 'https://yunkhngn.dev/search',
+  },
 };
 
 export default function SearchPage() {

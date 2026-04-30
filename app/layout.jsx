@@ -31,6 +31,9 @@ export const metadata = {
     default: 'Khoa Nguyễn - Software Engineer',
     template: '%s - Khoa Nguyễn',
   },
+  alternates: {
+    canonical: 'https://yunkhngn.dev',
+  },
   description:
     "I'm Khoa Nguyen (yun.khngn) - a talented software engineering student, self-taught creator, graphic designer, and guitarist/musician.",
   keywords: [
@@ -50,7 +53,7 @@ export const metadata = {
     siteName: 'Khoa Nguyen',
     images: [
       {
-        url: '/image/thumbnail.jpg',
+        url: 'https://yunkhngn.dev/api/og?title=Khoa%20Nguy%E1%BB%85n&type=page&description=Software%20Engineer%20%E2%80%A2%20Designer%20%E2%80%A2%20Guitarist',
         width: 1200,
         height: 630,
         alt: 'Khoa Nguyễn',
@@ -70,6 +73,12 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="vi" suppressHydrationWarning>
+      <head>
+        <link rel="preconnect" href="https://res.cloudinary.com" />
+        <link rel="dns-prefetch" href="https://res.cloudinary.com" />
+        <link rel="preconnect" href="https://avatars.githubusercontent.com" />
+        <link rel="dns-prefetch" href="https://avatars.githubusercontent.com" />
+      </head>
       <body
         className={`${playfair.variable} ${jetbrainsMono.variable} ${beVietnamPro.variable} font-sans antialiased`}
       >
