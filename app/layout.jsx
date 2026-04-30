@@ -5,6 +5,8 @@ import {
   Be_Vietnam_Pro,
 } from 'next/font/google';
 import { SpeedInsights } from '@vercel/speed-insights/next';
+import { Analytics } from "@vercel/analytics/next"
+
 import Providers from '@/components/providers/Providers';
 
 const playfair = Playfair_Display({
@@ -85,6 +87,7 @@ export default function RootLayout({ children }) {
       >
         <Providers>{children}</Providers>
         <SpeedInsights />
+        <Analytics />
       </body>
     </html>
   );
