@@ -90,8 +90,7 @@ export default function AIManagementClient() {
         });
     };
 
-    // Fetch RAG stats
-    const fetchRagStats = async () => {
+    const fetchRagStats = useCallback(async () => {
         try {
             const token = await user?.getIdToken();
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ai/rag/stats`, {
@@ -106,13 +105,14 @@ export default function AIManagementClient() {
         } catch (error) {
             console.error('Failed to fetch RAG stats:', error);
         }
-    };
+    }, [user]);
 
     useEffect(() => {
         if (user) {
             fetchRagStats();
         }
-    }, [user]);
+    }, [user, fetchRagStats]);
+
 
     const handleReindexAll = async () => {
         triggerConfirm({
@@ -238,7 +238,7 @@ function KnowledgeTab({ user, triggerConfirm, closeConfirm }) {
 
     const [isJsonMode, setIsJsonMode] = useState(false);
 
-    const fetchEntries = async () => {
+    const fetchEntries = useCallback(async () => {
         setLoading(true);
         try {
             const token = await user?.getIdToken();
@@ -256,11 +256,12 @@ function KnowledgeTab({ user, triggerConfirm, closeConfirm }) {
         } finally {
             setLoading(false);
         }
-    };
+    }, [user]);
 
     useEffect(() => {
         fetchEntries();
-    }, []);
+    }, [fetchEntries]);
+
 
     const categories = useMemo(() => {
         const cats = new Set(entries.map(e => e.category));
@@ -564,7 +565,7 @@ function PersonaTab({ user, triggerConfirm, closeConfirm }) {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
 
-    const fetchPersona = async () => {
+    const fetchPersona = useCallback(async () => {
         setLoading(true);
         try {
             const token = await user?.getIdToken();
@@ -590,11 +591,12 @@ function PersonaTab({ user, triggerConfirm, closeConfirm }) {
         } finally {
             setLoading(false);
         }
-    };
+    }, [user]);
 
     useEffect(() => {
         fetchPersona();
-    }, []);
+    }, [fetchPersona]);
+
 
     const handleSave = async () => {
         try {
@@ -686,7 +688,7 @@ function PersonaTab({ user, triggerConfirm, closeConfirm }) {
             <div className="p-4 bg-muted/30 rounded-md border border-border/50">
                 <p className="text-xs text-muted-foreground flex items-center gap-2">
                     <Brain className="h-3 w-3" />
-                    Tip: Use the persona to define Khoa's MBTI, voice characteristics, and instructed instructions for sensitive topics.
+                    Tip: Use the persona to define Khoa&apos;s MBTI, voice characteristics, and instructed instructions for sensitive topics.
                 </p>
             </div>
         </Card>
@@ -700,7 +702,7 @@ function ApiKeysTab({ user, triggerConfirm, closeConfirm }) {
     const [loading, setLoading] = useState(true);
     const [apiKeyLoading, setApiKeyLoading] = useState(false);
 
-    const fetchApiKeys = async () => {
+    const fetchApiKeys = useCallback(async () => {
         setLoading(true);
         try {
             const token = await user?.getIdToken();
@@ -718,11 +720,12 @@ function ApiKeysTab({ user, triggerConfirm, closeConfirm }) {
         } finally {
             setLoading(false);
         }
-    };
+    }, [user]);
 
     useEffect(() => {
         fetchApiKeys();
-    }, []);
+    }, [fetchApiKeys]);
+
 
     const handleAddApiKey = async () => {
         if (!newApiKey.trim()) return;

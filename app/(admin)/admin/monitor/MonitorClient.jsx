@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+
 import { useAuth } from '@/contexts/AuthContext';
 import { readNestJson } from '@/lib/api/readJson';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
@@ -39,7 +40,7 @@ export default function MonitorClient() {
   const socketRef = useRef(null);
   const logsEndRef = useRef({});
 
-  const fetchContainers = async () => {
+  const fetchContainers = useCallback(async () => {
     if (!user) return;
     try {
       const token = await user.getIdToken();
@@ -55,13 +56,14 @@ export default function MonitorClient() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
 
   useEffect(() => {
     fetchContainers();
     const interval = setInterval(fetchContainers, 15000);
     return () => clearInterval(interval);
-  }, [user]);
+  }, [user, fetchContainers]);
+
 
   useEffect(() => {
     const startUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';

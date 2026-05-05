@@ -2,7 +2,9 @@
 
 import { readNestJson } from '@/lib/api/readJson';
 import { useState, useEffect, useCallback } from 'react';
+import Image from 'next/image';
 import { useAuth } from '@/contexts/AuthContext';
+
 import { Button } from '@/components/ui/Button';
 import { Loader2, Trash2, Search, Eye, X, Bot, User, Clock, Image as ImageIcon } from 'lucide-react';
 import {
@@ -344,15 +346,19 @@ export default function ChatLogsClient() {
                         rel="noopener noreferrer" 
                         className="block group relative rounded-xl overflow-hidden border border-border/50 bg-black/5"
                       >
-                        <img 
+                        <Image 
                           src={selectedLog.imageUrl} 
                           alt="Generated output" 
+                          width={800}
+                          height={600}
                           className="w-full h-auto max-h-80 object-contain transition-transform group-hover:scale-[1.02]" 
+                          unoptimized
                         />
                         <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                           <Button variant="secondary" size="sm" className="pointer-events-none">View Full Image</Button>
                         </div>
                       </a>
+
                     </div>
                   )}
                 </div>
