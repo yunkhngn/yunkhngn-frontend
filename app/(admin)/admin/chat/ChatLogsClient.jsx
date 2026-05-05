@@ -2,7 +2,9 @@
 
 import { readNestJson } from '@/lib/api/readJson';
 import { useState, useEffect, useCallback } from 'react';
+import Image from 'next/image';
 import { useAuth } from '@/contexts/AuthContext';
+
 import { Button } from '@/components/ui/Button';
 import { Loader2, Trash2, Search, Eye, X, Bot, User, Clock, Image as ImageIcon } from 'lucide-react';
 import {
@@ -16,6 +18,8 @@ import {
 import { formatDistanceToNow } from 'date-fns';
 import { toast } from 'sonner';
 import ReactMarkdown from 'react-markdown';
+import { ConfirmModal } from '@/components/ui/ConfirmModal';
+
 
 export default function ChatLogsClient() {
   const { user } = useAuth();
@@ -27,6 +31,9 @@ export default function ChatLogsClient() {
   const [search, setSearch] = useState('');
   const [searchInput, setSearchInput] = useState('');
   const [selectedLog, setSelectedLog] = useState(null);
+  const [deleteId, setDeleteId] = useState(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
 
   const fetchLogs = useCallback(async () => {
     if (!user) return;
@@ -68,12 +75,17 @@ export default function ChatLogsClient() {
     fetchLogs();
   }, [fetchLogs]);
 
-  const handleDelete = async (id) => {
-    if (!confirm('Are you sure you want to delete this log entry?')) return;
+  const handleDelete = (id) => {
+    setDeleteId(id);
+    setIsDeleteModalOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteId) return;
 
     try {
       const token = await user.getIdToken();
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/chat-logs/${id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/chat-logs/${deleteId}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -89,6 +101,9 @@ export default function ChatLogsClient() {
     } catch (error) {
       console.error('Delete error', error);
       toast.error('An error occurred while deleting');
+    } finally {
+      setIsDeleteModalOpen(false);
+      setDeleteId(null);
     }
   };
 
@@ -331,15 +346,19 @@ export default function ChatLogsClient() {
                         rel="noopener noreferrer" 
                         className="block group relative rounded-xl overflow-hidden border border-border/50 bg-black/5"
                       >
-                        <img 
+                        <Image 
                           src={selectedLog.imageUrl} 
                           alt="Generated output" 
+                          width={800}
+                          height={600}
                           className="w-full h-auto max-h-80 object-contain transition-transform group-hover:scale-[1.02]" 
+                          unoptimized
                         />
                         <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                           <Button variant="secondary" size="sm" className="pointer-events-none">View Full Image</Button>
                         </div>
                       </a>
+
                     </div>
                   )}
                 </div>
@@ -385,6 +404,18 @@ export default function ChatLogsClient() {
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => {
+          setIsDeleteModalOpen(false);
+          setDeleteId(null);
+        }}
+        onConfirm={confirmDelete}
+        title="Delete Chat Log"
+        description="Are you sure you want to delete this chat log entry? This action cannot be undone."
+      />
     </div>
+
   );
 }

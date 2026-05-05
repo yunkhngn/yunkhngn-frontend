@@ -9,6 +9,8 @@ import { Link2, Plus, Copy, Trash2, Edit, ExternalLink, Loader2, BarChart3, Togg
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { format, isValid } from 'date-fns';
+import { ConfirmModal } from '@/components/ui/ConfirmModal';
+
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -28,6 +30,9 @@ export default function AdminShortlinks() {
         isActive: true,
         expiresAt: '',
     });
+    const [deleteId, setDeleteId] = useState(null);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
 
     const fetchLinks = useCallback(async () => {
         if (!user) return;
@@ -128,23 +133,36 @@ export default function AdminShortlinks() {
         }
     };
 
-    const handleDelete = async (id) => {
-        if (!confirm('Are you sure you want to delete this shortlink?')) return;
-        try {
-            const token = await user.getIdToken();
-            const res = await fetch(`${API_URL}/shortlinks/${id}`, {
-                method: 'DELETE',
-                headers: { Authorization: `Bearer ${token}` },
-            });
-            if (res.ok) {
-                toast.success('Shortlink deleted');
-                fetchLinks();
-            } else {
-                toast.error('Failed to delete');
+    const handleDelete = (id) => {
+        setDeleteId(id);
+        setIsDeleteModalOpen(true);
+    };
+
+    const confirmDelete = async () => {
+        if (!deleteId && selected.size === 0) return;
+
+        if (deleteId) {
+            try {
+                const token = await user.getIdToken();
+                const res = await fetch(`${API_URL}/shortlinks/${deleteId}`, {
+                    method: 'DELETE',
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                if (res.ok) {
+                    toast.success('Shortlink deleted');
+                    fetchLinks();
+                } else {
+                    toast.error('Failed to delete');
+                }
+            } catch (error) {
+                console.error(error);
+                toast.error('Network error');
+            } finally {
+                setIsDeleteModalOpen(false);
+                setDeleteId(null);
             }
-        } catch (error) {
-            console.error(error);
-            toast.error('Network error');
+        } else {
+            await bulkDelete();
         }
     };
 
@@ -189,8 +207,9 @@ export default function AdminShortlinks() {
     const clearSelection = () => setSelected(new Set());
 
     const bulkDelete = async () => {
-        if (!confirm(`Delete ${selected.size} shortlink(s)?`)) return;
+        if (selected.size === 0) return;
         setBulkLoading(true);
+
         try {
             const token = await user.getIdToken();
             const res = await fetch(`${API_URL}/shortlinks/bulk/delete`, {
@@ -214,8 +233,15 @@ export default function AdminShortlinks() {
             toast.error('Network error');
         } finally {
             setBulkLoading(false);
+            setIsDeleteModalOpen(false);
         }
     };
+
+    const openBulkDelete = () => {
+        setDeleteId(null);
+        setIsDeleteModalOpen(true);
+    };
+
 
     const bulkSetStatus = async (isActive) => {
         setBulkLoading(true);
@@ -277,9 +303,10 @@ export default function AdminShortlinks() {
                         <Button variant="outline" size="sm" onClick={() => bulkSetStatus(false)} disabled={bulkLoading} className="gap-1.5">
                             <ToggleLeft className="h-3.5 w-3.5" /> Deactivate
                         </Button>
-                        <Button variant="outline" size="sm" onClick={bulkDelete} disabled={bulkLoading} className="gap-1.5 text-red-500 hover:text-red-600 border-red-200 hover:border-red-300 hover:bg-red-50 dark:border-red-800 dark:hover:border-red-700 dark:hover:bg-red-950">
+                        <Button variant="outline" size="sm" onClick={openBulkDelete} disabled={bulkLoading} className="gap-1.5 text-red-500 hover:text-red-600 border-red-200 hover:border-red-300 hover:bg-red-50 dark:border-red-800 dark:hover:border-red-700 dark:hover:bg-red-950">
                             {bulkLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />} Delete
                         </Button>
+
                         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={clearSelection}>
                             <XCircle className="h-4 w-4" />
                         </Button>
@@ -459,6 +486,22 @@ export default function AdminShortlinks() {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
+
+            <ConfirmModal
+                isOpen={isDeleteModalOpen}
+                onClose={() => {
+                    setIsDeleteModalOpen(false);
+                    setDeleteId(null);
+                }}
+                onConfirm={confirmDelete}
+                loading={bulkLoading}
+                title="Delete Shortlink"
+                description={deleteId
+                    ? "Are you sure you want to delete this shortlink? This action cannot be undone."
+                    : `Are you sure you want to delete ${selected.size} shortlink(s)? This action cannot be undone.`
+                }
+            />
         </>
+
     );
 }

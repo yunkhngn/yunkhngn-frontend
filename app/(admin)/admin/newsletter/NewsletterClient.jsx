@@ -7,23 +7,28 @@ import { Button } from '@/components/ui/Button';
 import { Send, Loader2, Mail } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { ConfirmModal } from '@/components/ui/ConfirmModal';
+
 
 export default function AdminNewsletter() {
     const { user } = useAuth();
     const [subject, setSubject] = useState('');
     const [content, setContent] = useState('');
     const [status, setStatus] = useState('idle');
+    const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
 
-    const handleSend = async () => {
+
+    const handleSend = () => {
         if (!subject || !content) {
             toast.error('Please fill in both subject and content');
             return;
         }
 
-        if (!confirm('Are you sure you want to send this newsletter to ALL subscribers?')) {
-            return;
-        }
+        setIsConfirmModalOpen(true);
+    };
 
+    const confirmSend = async () => {
+        setIsConfirmModalOpen(false);
         setStatus('loading');
         try {
             const token = await user.getIdToken();
@@ -108,6 +113,16 @@ export default function AdminNewsletter() {
                     </CardContent>
                 </Card>
             </div>
+
+            <ConfirmModal
+                isOpen={isConfirmModalOpen}
+                onClose={() => setIsConfirmModalOpen(false)}
+                onConfirm={confirmSend}
+                title="Send Newsletter"
+                description="Are you sure you want to send this newsletter to ALL subscribers? This action cannot be undone."
+                confirmText="Send to All"
+                variant="default"
+            />
         </>
     );
 }

@@ -86,7 +86,9 @@ export default function PhotoManager() {
     const [editForm, setEditForm] = useState({ caption: '', tags: '', albumId: '' });
     const [editDialogOpen, setEditDialogOpen] = useState(false);
     const [deleteId, setDeleteId] = useState(null);
+    const [deleteType, setDeleteType] = useState(null); // 'PHOTO', 'BULK_PHOTO', 'ALBUM'
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
 
     // Pagination
     const [currentPage, setCurrentPage] = useState(1);
@@ -235,17 +237,45 @@ export default function PhotoManager() {
     };
 
     // CRUD
-    const handleDelete = (id) => { setDeleteId(id); setIsDeleteModalOpen(true); };
+    const handleDelete = (id) => {
+        setDeleteId(id);
+        setDeleteType('PHOTO');
+        setIsDeleteModalOpen(true);
+    };
+
     const confirmDelete = async () => {
-        if (!deleteId) return;
-        try {
-            const token = await user.getIdToken();
-            const res = await fetch(`${API_URL}/gallery/${deleteId}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
-            if (!res.ok) throw new Error('Failed');
-            fetchPhotos(currentPage);
-            toast.success('Photo deleted');
-        } catch { toast.error('Failed to delete photo'); }
-        finally { setIsDeleteModalOpen(false); setDeleteId(null); }
+        const token = await user.getIdToken();
+
+        if (deleteType === 'PHOTO' && deleteId) {
+            try {
+                const res = await fetch(`${API_URL}/gallery/${deleteId}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
+                if (!res.ok) throw new Error('Failed');
+                fetchPhotos(currentPage);
+                toast.success('Photo deleted');
+            } catch { toast.error('Failed to delete photo'); }
+        } else if (deleteType === 'ALBUM' && deleteId) {
+            try {
+                await fetch(`${API_URL}/albums/${deleteId}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
+                fetchAlbums();
+                if (selectedAlbumFilter === deleteId) setSelectedAlbumFilter(null);
+                toast.success('Album deleted');
+            } catch { toast.error('Failed to delete album'); }
+        } else if (deleteType === 'BULK_PHOTO') {
+            setBulkLoading(true);
+            try {
+                for (const id of selected) {
+                    await fetch(`${API_URL}/gallery/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
+                }
+                clearSelection();
+                fetchPhotos(currentPage);
+                toast.success(`Deleted ${selected.size} photos`);
+            } catch { toast.error('Bulk delete failed'); }
+            finally { setBulkLoading(false); }
+        }
+
+        setIsDeleteModalOpen(false);
+        setDeleteId(null);
+        setDeleteType(null);
     };
 
     const openEdit = (photo) => {
@@ -298,15 +328,10 @@ export default function PhotoManager() {
         } catch { toast.error('Failed to save album'); }
     };
 
-    const handleDeleteAlbum = async (id) => {
-        if (!confirm('Delete this album? Photos will be unassigned.')) return;
-        try {
-            const token = await user.getIdToken();
-            await fetch(`${API_URL}/albums/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
-            fetchAlbums();
-            if (selectedAlbumFilter === id) setSelectedAlbumFilter(null);
-            toast.success('Album deleted');
-        } catch { toast.error('Failed to delete album'); }
+    const handleDeleteAlbum = (id) => {
+        setDeleteId(id);
+        setDeleteType('ALBUM');
+        setIsDeleteModalOpen(true);
     };
 
     // Drag-to-reorder removed
@@ -321,19 +346,9 @@ export default function PhotoManager() {
     const clearSelection = () => setSelected(new Set());
 
     // Bulk actions
-    const handleBulkDelete = async () => {
-        if (!confirm(`Delete ${selected.size} photos?`)) return;
-        setBulkLoading(true);
-        try {
-            const token = await user.getIdToken();
-            for (const id of selected) {
-                await fetch(`${API_URL}/gallery/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
-            }
-            clearSelection();
-            fetchPhotos(currentPage);
-            toast.success(`Deleted ${selected.size} photos`);
-        } catch { toast.error('Bulk delete failed'); }
-        finally { setBulkLoading(false); }
+    const handleBulkDelete = () => {
+        setDeleteType('BULK_PHOTO');
+        setIsDeleteModalOpen(true);
     };
 
     const handleBulkEdit = async () => {
@@ -657,10 +672,21 @@ export default function PhotoManager() {
 
             <ConfirmModal
                 isOpen={isDeleteModalOpen}
-                onClose={() => setIsDeleteModalOpen(false)}
+                onClose={() => {
+                    setIsDeleteModalOpen(false);
+                    setDeleteId(null);
+                    setDeleteType(null);
+                }}
                 onConfirm={confirmDelete}
-                title="Delete Photo"
-                description="Are you sure you want to delete this photo? This action cannot be undone."
+                loading={bulkLoading}
+                title={deleteType === 'ALBUM' ? "Delete Album" : "Delete Photo(s)"}
+                description={
+                    deleteType === 'ALBUM'
+                        ? "Are you sure you want to delete this album? Photos will be unassigned but not deleted."
+                        : deleteType === 'PHOTO'
+                            ? "Are you sure you want to delete this photo? This action cannot be undone."
+                            : `Are you sure you want to delete ${selected.size} photos? This action cannot be undone.`
+                }
             />
         </>
     );

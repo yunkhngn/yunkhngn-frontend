@@ -16,6 +16,8 @@ import {
 import { formatDistanceToNow, isValid } from 'date-fns';
 import { useRouter } from 'next/navigation'
 import { useNotification } from '@/contexts/NotificationContext';
+import { ConfirmModal } from '@/components/ui/ConfirmModal';
+
 
 export default function Notifications() {
     const { user } = useAuth();
@@ -24,7 +26,11 @@ export default function Notifications() {
     const [loading, setLoading] = useState(true);
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
+    const [deleteId, setDeleteId] = useState(null);
+
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const router = useRouter();
+
 
     const fetchAllNotifications = React.useCallback(async () => {
         try {
@@ -51,20 +57,29 @@ export default function Notifications() {
         }
     }, [user, fetchAllNotifications]);
 
-    const handleDelete = async (id) => {
-        if (!confirm('Are you sure you want to delete this notification?')) return;
+
+    const handleDelete = (id) => {
+        setDeleteId(id);
+        setIsDeleteModalOpen(true);
+    };
+
+    const confirmDelete = async () => {
+        if (!deleteId) return;
         try {
             const token = await user.getIdToken();
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/notifications/${id}`, {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/notifications/${deleteId}`, {
                 method: 'DELETE',
                 headers: { Authorization: `Bearer ${token}` },
             });
             if (res.ok) {
-                setNotifications(prev => prev.filter(n => n.id !== id));
+                setNotifications(prev => prev.filter(n => n.id !== deleteId));
                 fetchNotifications(); // Update context
             }
         } catch (error) {
             console.error("Failed to delete notification", error);
+        } finally {
+            setIsDeleteModalOpen(false);
+            setDeleteId(null);
         }
     };
 
@@ -183,6 +198,17 @@ export default function Notifications() {
                     </div>
                 )}
             </div>
+
+            <ConfirmModal
+                isOpen={isDeleteModalOpen}
+                onClose={() => {
+                    setIsDeleteModalOpen(false);
+                    setDeleteId(null);
+                }}
+                onConfirm={confirmDelete}
+                title="Delete Notification"
+                description="Are you sure you want to delete this notification? This action cannot be undone."
+            />
         </>
     );
 }
