@@ -16,6 +16,8 @@ import {
 import { formatDistanceToNow } from 'date-fns';
 import { toast } from 'sonner';
 import ReactMarkdown from 'react-markdown';
+import { ConfirmModal } from '@/components/ui/ConfirmModal';
+
 
 export default function ChatLogsClient() {
   const { user } = useAuth();
@@ -27,6 +29,9 @@ export default function ChatLogsClient() {
   const [search, setSearch] = useState('');
   const [searchInput, setSearchInput] = useState('');
   const [selectedLog, setSelectedLog] = useState(null);
+  const [deleteId, setDeleteId] = useState(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
 
   const fetchLogs = useCallback(async () => {
     if (!user) return;
@@ -68,12 +73,17 @@ export default function ChatLogsClient() {
     fetchLogs();
   }, [fetchLogs]);
 
-  const handleDelete = async (id) => {
-    if (!confirm('Are you sure you want to delete this log entry?')) return;
+  const handleDelete = (id) => {
+    setDeleteId(id);
+    setIsDeleteModalOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteId) return;
 
     try {
       const token = await user.getIdToken();
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/chat-logs/${id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/chat-logs/${deleteId}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -89,6 +99,9 @@ export default function ChatLogsClient() {
     } catch (error) {
       console.error('Delete error', error);
       toast.error('An error occurred while deleting');
+    } finally {
+      setIsDeleteModalOpen(false);
+      setDeleteId(null);
     }
   };
 
@@ -385,6 +398,18 @@ export default function ChatLogsClient() {
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => {
+          setIsDeleteModalOpen(false);
+          setDeleteId(null);
+        }}
+        onConfirm={confirmDelete}
+        title="Delete Chat Log"
+        description="Are you sure you want to delete this chat log entry? This action cannot be undone."
+      />
     </div>
+
   );
 }

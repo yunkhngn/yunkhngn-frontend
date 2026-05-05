@@ -32,6 +32,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { format, isValid } from 'date-fns';
 import Image from 'next/image';
+import { ConfirmModal } from '@/components/ui/ConfirmModal';
+
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 const PUBLIC_LETTER_PREFIX = 'https://yunkhngn.dev/letter/';
@@ -49,7 +51,10 @@ export default function AdminLetters() {
   const [saving, setSaving] = useState(false);
   const [selected, setSelected] = useState(new Set());
   const [bulkLoading, setBulkLoading] = useState(false);
+  const [deleteId, setDeleteId] = useState(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [uploadingIdx, setUploadingIdx] = useState(null);
+
   const fileRefs = useRef({});
 
   const [form, setForm] = useState({
@@ -272,21 +277,34 @@ export default function AdminLetters() {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!confirm('Delete this letter?')) return;
-    try {
-      const token = await user.getIdToken();
-      const res = await fetch(`${API_URL}/letters/${id}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.ok) {
-        toast.success('Letter deleted');
-        fetchLetters();
-      } else toast.error('Delete failed');
-    } catch (e) {
-      console.error(e);
-      toast.error('Network error');
+  const handleDelete = (id) => {
+    setDeleteId(id);
+    setIsDeleteModalOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteId && selected.size === 0) return;
+
+    if (deleteId) {
+      try {
+        const token = await user.getIdToken();
+        const res = await fetch(`${API_URL}/letters/${deleteId}`, {
+          method: 'DELETE',
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.ok) {
+          toast.success('Letter deleted');
+          fetchLetters();
+        } else toast.error('Delete failed');
+      } catch (e) {
+        console.error(e);
+        toast.error('Network error');
+      } finally {
+        setIsDeleteModalOpen(false);
+        setDeleteId(null);
+      }
+    } else {
+      await bulkDelete();
     }
   };
 
@@ -353,9 +371,15 @@ export default function AdminLetters() {
 
   const clearSelection = () => setSelected(new Set());
 
+  const openBulkDelete = () => {
+    setDeleteId(null);
+    setIsDeleteModalOpen(true);
+  };
+
   const bulkDelete = async () => {
-    if (!confirm(`Delete ${selected.size} letter(s)?`)) return;
+    if (selected.size === 0) return;
     setBulkLoading(true);
+
     try {
       const token = await user.getIdToken();
       const res = await fetch(`${API_URL}/letters/bulk/delete`, {
@@ -377,8 +401,10 @@ export default function AdminLetters() {
       toast.error('Network error');
     } finally {
       setBulkLoading(false);
+      setIsDeleteModalOpen(false);
     }
   };
+
 
   const bulkSetStatus = async (isActive) => {
     setBulkLoading(true);
@@ -480,10 +506,11 @@ export default function AdminLetters() {
             <Button
               variant="outline"
               size="sm"
-              onClick={bulkDelete}
+              onClick={openBulkDelete}
               disabled={bulkLoading}
               className="gap-1.5 rounded-xl font-semibold text-rose-500 border-rose-500/20 hover:bg-rose-500/10 hover:border-rose-500/30 hover:text-rose-400"
             >
+
               {bulkLoading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
@@ -896,6 +923,21 @@ export default function AdminLetters() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <ConfirmModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => {
+          setIsDeleteModalOpen(false);
+          setDeleteId(null);
+        }}
+        onConfirm={confirmDelete}
+        loading={bulkLoading}
+        title="Delete Letter(s)"
+        description={deleteId
+          ? "Are you sure you want to delete this letter? This action cannot be undone."
+          : `Are you sure you want to delete ${selected.size} letter(s)? This action cannot be undone.`
+        }
+      />
     </>
   );
 }

@@ -62,24 +62,41 @@ export default function BlogList() {
         setIsDeleteModalOpen(true);
     };
 
+    const handleBulkDelete = () => {
+        setIsDeleteModalOpen(true);
+    };
+
     const confirmDelete = async () => {
-        if (!deleteId) return;
+        if (!deleteId && selectedBlogs.length === 0) return;
+
         try {
             const token = await user.getIdToken();
-            await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/blogs/${deleteId}`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            setBlogs(blogs.filter(b => b.id !== deleteId));
-            toast.success('Blog deleted');
+            if (deleteId) {
+                // Single delete
+                await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/blogs/${deleteId}`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                setBlogs(blogs.filter(b => b.id !== deleteId));
+                toast.success('Blog deleted');
+            } else {
+                // Bulk delete
+                await Promise.all(selectedBlogs.map(id =>
+                    axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/blogs/${id}`, {
+                        headers: { Authorization: `Bearer ${token}` }
+                    })
+                ));
+                setBlogs(blogs.filter(b => !selectedBlogs.includes(b.id)));
+                setSelectedBlogs([]);
+                toast.success('Blogs deleted');
+            }
         } catch (error) {
             console.error(error);
-            toast.error('Failed to delete blog');
+            toast.error('Failed to delete blog(s)');
         } finally {
             setIsDeleteModalOpen(false);
             setDeleteId(null);
         }
     };
-
     const handlePublish = async (blog, e) => {
         e.stopPropagation();
         try {
@@ -95,8 +112,6 @@ export default function BlogList() {
         }
     };
 
-
-
     const handleSelectAll = (checked) => {
         if (checked) {
             setSelectedBlogs(paginatedBlogs.map(b => b.id));
@@ -110,26 +125,6 @@ export default function BlogList() {
             setSelectedBlogs(prev => [...prev, blogId]);
         } else {
             setSelectedBlogs(prev => prev.filter(id => id !== blogId));
-        }
-    };
-
-    const handleBulkDelete = async () => {
-        if (!confirm(`Are you sure you want to delete ${selectedBlogs.length} blogs?`)) return;
-
-        try {
-            const token = await user.getIdToken();
-            await Promise.all(selectedBlogs.map(id =>
-                axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/blogs/${id}`, {
-                    headers: { Authorization: `Bearer ${token}` }
-                })
-            ));
-
-            setBlogs(blogs.filter(b => !selectedBlogs.includes(b.id)));
-            setSelectedBlogs([]);
-            toast.success('Blogs deleted');
-        } catch (error) {
-            console.error(error);
-            toast.error('Failed to delete blogs');
         }
     };
 
@@ -455,10 +450,16 @@ export default function BlogList() {
                 )}
                 <ConfirmModal
                     isOpen={isDeleteModalOpen}
-                    onClose={() => setIsDeleteModalOpen(false)}
+                    onClose={() => {
+                        setIsDeleteModalOpen(false);
+                        setDeleteId(null);
+                    }}
                     onConfirm={confirmDelete}
                     title="Delete Blog"
-                    description="Are you sure you want to delete this blog? This action cannot be undone."
+                    description={deleteId
+                        ? "Are you sure you want to delete this blog? This action cannot be undone."
+                        : `Are you sure you want to delete ${selectedBlogs.length} blogs? This action cannot be undone.`
+                    }
                 />
             </div>
         </>

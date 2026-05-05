@@ -67,28 +67,43 @@ export default function ProjectList() {
         setIsDeleteModalOpen(true);
     };
 
+    const handleBulkDelete = () => {
+        setIsDeleteModalOpen(true);
+    };
+
     const confirmDelete = async () => {
-        if (!deleteId) return;
+        if (!deleteId && selectedProjects.length === 0) return;
+
         try {
             const token = await user.getIdToken();
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/${deleteId}`, {
-                method: 'DELETE',
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            if (!res.ok) throw new Error('Failed to delete');
-            toast.success('Project deleted');
+            if (deleteId) {
+                // Single delete
+                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/${deleteId}`, {
+                    method: 'DELETE',
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                if (!res.ok) throw new Error('Failed to delete');
+                toast.success('Project deleted');
+            } else {
+                // Bulk delete
+                await Promise.all(selectedProjects.map(id =>
+                    fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/${id}`, {
+                        method: 'DELETE',
+                        headers: { Authorization: `Bearer ${token}` }
+                    })
+                ));
+                setSelectedProjects([]);
+                toast.success('Projects deleted');
+            }
             fetchProjects();
         } catch (error) {
             console.error(error);
-            toast.error('Failed to delete project');
+            toast.error('Failed to delete project(s)');
         } finally {
             setIsDeleteModalOpen(false);
             setDeleteId(null);
         }
     };
-
-
-
     const handleSelectAll = (checked) => {
         if (checked) {
             setSelectedProjects(paginatedProjects.map(p => p.id));
@@ -102,28 +117,6 @@ export default function ProjectList() {
             setSelectedProjects(prev => [...prev, projectId]);
         } else {
             setSelectedProjects(prev => prev.filter(id => id !== projectId));
-        }
-    };
-
-    const handleBulkDelete = async () => {
-        if (!confirm(`Are you sure you want to delete ${selectedProjects.length} projects?`)) return;
-
-        try {
-            const token = await user.getIdToken();
-            await Promise.all(selectedProjects.map(id =>
-                fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/${id}`, {
-                    method: 'DELETE',
-                    headers: { Authorization: `Bearer ${token}` }
-                })
-            ));
-
-            setProjects(projects.filter(p => !selectedProjects.includes(p.id)));
-            setSelectedProjects([]);
-            toast.success('Projects deleted');
-            fetchProjects();
-        } catch (error) {
-            console.error(error);
-            toast.error('Failed to delete projects');
         }
     };
 
@@ -492,10 +485,16 @@ export default function ProjectList() {
                 )}
                 <ConfirmModal
                     isOpen={isDeleteModalOpen}
-                    onClose={() => setIsDeleteModalOpen(false)}
+                    onClose={() => {
+                        setIsDeleteModalOpen(false);
+                        setDeleteId(null);
+                    }}
                     onConfirm={confirmDelete}
                     title="Delete Project"
-                    description="Are you sure you want to delete this project? This action cannot be undone."
+                    description={deleteId
+                        ? "Are you sure you want to delete this project? This action cannot be undone."
+                        : `Are you sure you want to delete ${selectedProjects.length} projects? This action cannot be undone.`
+                    }
                 />
             </div>
         </>
