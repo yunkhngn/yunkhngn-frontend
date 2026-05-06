@@ -11,6 +11,7 @@ import CookieConsent from '@/components/ui/CookieConsent';
 import GoogleAnalytics from '@/components/seo/GoogleAnalytics';
 import { useFocusMode } from '@/contexts/FocusModeContext';
 import ErrorBoundary from '@/components/shared/ErrorBoundary';
+import { AnimatePresence, motion } from 'framer-motion';
 
 export default function PublicChrome({ children }) {
   const pathname = usePathname();
@@ -26,7 +27,24 @@ export default function PublicChrome({ children }) {
           </div>
         )}
         {!isFocusMode && <DefaultNavbar />}
-        <main className="flex-1 relative z-10 flex flex-col">{children}</main>
+        <main className="flex-1 relative z-10 flex flex-col">
+          <AnimatePresence mode="wait" initial={false}>
+            {pathname !== '/about' ? (
+              <motion.div
+                key={pathname}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.3, ease: 'easeInOut' }}
+                className="flex-1 flex flex-col"
+              >
+                {children}
+              </motion.div>
+            ) : (
+              children
+            )}
+          </AnimatePresence>
+        </main>
         {!isFocusMode && pathname !== '/khoa-ai' && <DefaultFooter />}
       </div>
       <FloatingCmdK />

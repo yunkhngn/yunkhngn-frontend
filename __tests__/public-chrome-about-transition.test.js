@@ -1,26 +1,15 @@
-const test = require('node:test');
-const assert = require('node:assert/strict');
-const fs = require('node:fs');
-const path = require('node:path');
+const fs = require('fs');
+const path = require('path');
 
-test('public chrome disables route transition animation on /about', () => {
+describe('PublicChrome Component', () => {
   const filePath = path.join(process.cwd(), 'app', '(public)', 'PublicChrome.jsx');
   const source = fs.readFileSync(filePath, 'utf8');
 
-  assert.match(
-    source,
-    /pathname\s*!==\s*['"]\/about['"]/,
-    'Expected PublicChrome to exclude /about from global page transition animation'
-  );
-});
+  test('disables route transition animation on /about', () => {
+    expect(source).toMatch(/pathname\s*!==\s*['"]\/about['"]/);
+  });
 
-test('public chrome does not run page transition on initial mount', () => {
-  const filePath = path.join(process.cwd(), 'app', '(public)', 'PublicChrome.jsx');
-  const source = fs.readFileSync(filePath, 'utf8');
-
-  assert.match(
-    source,
-    /<AnimatePresence\s+mode=["']wait["']\s+initial=\{false\}/,
-    'Expected AnimatePresence to set initial={false} to prevent first-paint flash animation'
-  );
+  test('does not run page transition on initial mount', () => {
+    expect(source).toMatch(/<AnimatePresence\s+mode=["']wait["']\s+initial=\{false\}/);
+  });
 });
