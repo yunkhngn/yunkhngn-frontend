@@ -446,38 +446,33 @@ export default function Dashboard() {
           </div>
 
           {/* Column 3: Quick Actions & Activity (Span 3) */}
-          <div className="lg:col-span-3 h-[500px] lg:h-full flex flex-col lg:min-h-0 gap-4">
-            <Card className="flex-none border-none shadow-none bg-transparent">
-              <CardHeader className="p-0 pb-3">
+          <div className="lg:col-span-3 h-[500px] lg:h-full flex flex-col lg:min-h-0">
+            <Card className="h-full flex flex-col lg:min-h-0 border-none shadow-none bg-transparent">
+              <CardHeader className="flex-none p-0 pb-3">
                 <CardTitle className="text-sm font-bold flex items-center gap-2">
-                  <Sparkles className="h-4 w-4" />
-                  Quick Actions
+                  <Clock className="h-4 w-4" />
+                  Activity & Actions
                 </CardTitle>
               </CardHeader>
-              <CardContent className="p-0 grid grid-cols-1 gap-2">
-                <div className="grid grid-cols-2 gap-2">
-                   <Button asChild variant="outline" size="sm" className="h-9 text-xs">
-                     <Link href="/admin/blog/new"><Plus className="h-3 w-3 mr-1" /> Blog</Link>
-                   </Button>
-                   <Button asChild variant="outline" size="sm" className="h-9 text-xs">
-                     <Link href="/admin/photo"><Plus className="h-3 w-3 mr-1" /> Photo</Link>
-                   </Button>
+              <CardContent className="flex-1 min-h-0 flex flex-col gap-3 p-0">
+                {/* Actions Group */}
+                <div className="grid grid-cols-2 gap-2 flex-none">
+                  <Button asChild variant="outline" size="sm" className="h-9 text-xs bg-card border-border hover:bg-muted/50 transition-colors">
+                    <Link href="/admin/blog/new"><Plus className="h-3 w-3 mr-1" /> Blog</Link>
+                  </Button>
+                  <Button asChild variant="outline" size="sm" className="h-9 text-xs bg-card border-border hover:bg-muted/50 transition-colors">
+                    <Link href="/admin/photo"><Plus className="h-3 w-3 mr-1" /> Photo</Link>
+                  </Button>
                 </div>
-              </CardContent>
-            </Card>
 
-            <Card className="flex-1 min-h-0 flex flex-col border-none shadow-none bg-transparent">
-              <CardHeader className="p-0 pb-3 flex-none">
-                <CardTitle className="flex items-center gap-2 text-sm font-bold">
-                  <Clock className="h-4 w-4" /> Activity
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="flex-1 overflow-y-auto p-4 min-h-0 custom-scrollbar bg-card border rounded-xl">
-                <div className="space-y-1">
-                  {activities.map((activity) => (
-                    <ActivityItem key={activity.id} activity={activity} />
-                  ))}
-                  {activities.length === 0 && <div className="text-center text-muted-foreground py-4 text-xs">No recent activity.</div>}
+                {/* Activity Feed Container */}
+                <div className="flex-1 overflow-y-auto p-4 min-h-0 custom-scrollbar bg-card border rounded-xl">
+                  <div className="space-y-1">
+                    {activities.map((activity) => (
+                      <ActivityItem key={activity.id} activity={activity} />
+                    ))}
+                    {activities.length === 0 && <div className="text-center text-muted-foreground py-4 text-xs">No recent activity.</div>}
+                  </div>
                 </div>
               </CardContent>
             </Card>
