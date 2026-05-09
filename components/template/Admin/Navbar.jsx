@@ -46,10 +46,10 @@ const ADMIN_NAV_ITEMS = [
         icon: Settings,
         children: [
             { label: "AI", href: "/admin/ai", icon: Brain },
-            { label: "Profile", href: "/admin/profile", icon: User },
             { label: "Monitor", href: "/admin/monitor", icon: Terminal },
             { label: "Analytics", href: "/admin/analytics", icon: BarChart3 },
             { label: "Speed Insights", href: "/admin/speed-insights", icon: Gauge },
+            { label: "Profile", href: "/admin/profile", icon: User },
             { label: "Settings", href: "/admin/settings", icon: Settings },
         ]
     }
@@ -68,8 +68,8 @@ export default function AdminNavbar() {
     };
 
     // Find the active group based on the current pathname
-    const activeGroup = ADMIN_NAV_ITEMS.find(item => 
-        (item.href && pathname.startsWith(item.href)) || 
+    const activeGroup = ADMIN_NAV_ITEMS.find(item =>
+        (item.href && pathname.startsWith(item.href)) ||
         (item.children && item.children.some(child => pathname.startsWith(child.href)))
     );
 
