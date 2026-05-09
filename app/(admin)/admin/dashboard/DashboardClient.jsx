@@ -296,7 +296,7 @@ export default function Dashboard() {
         </DialogContent>
       </Dialog>
 
-      <div className="flex flex-col lg:h-[calc(100vh-10rem)] lg:min-h-[600px] lg:overflow-hidden gap-4 lg:gap-3">
+      <div className="flex flex-col lg:h-[calc(100vh-10rem)] lg:min-h-[600px] lg:overflow-hidden gap-4">
         {/* Header */}
         <div className="flex-none flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
@@ -332,7 +332,7 @@ export default function Dashboard() {
 
 
         {/* Stats Grid */}
-        <div className="flex-none grid gap-3 grid-cols-2 lg:grid-cols-4">
+        <div className="flex-none grid gap-4 grid-cols-2 lg:grid-cols-4">
           <StatCard
             title="Blogs"
             value={stats.blogs}
@@ -454,7 +454,7 @@ export default function Dashboard() {
                   Activity & Actions
                 </CardTitle>
               </CardHeader>
-              <CardContent className="flex-1 min-h-0 flex flex-col gap-3 p-0 px-4 pb-4">
+              <CardContent className="flex-1 min-h-0 flex flex-col gap-4 p-0 px-4 pb-4">
                 {/* Actions Group */}
                 <div className="grid grid-cols-2 gap-2 flex-none">
                   <Button asChild variant="outline" size="sm" className="h-9 text-xs bg-card border-border hover:bg-muted/50 transition-colors">
