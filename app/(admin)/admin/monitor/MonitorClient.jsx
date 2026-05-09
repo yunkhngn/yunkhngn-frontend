@@ -8,10 +8,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/Tabs';
 import { Badge } from '@/components/ui/Badge';
-import { Server, Terminal, Activity, Box, Search, Filter, ArrowDownCircle, Cpu, Database, RefreshCw, Play, Pause, Trash2, Shield, Sparkles, Mail, Image as ImageIcon, CheckCircle2, XCircle } from 'lucide-react';
+import { Server, Terminal, Activity, Box, Search, Filter, ArrowDownCircle, Cpu, Database, RefreshCw, Play, Pause, Trash2 } from 'lucide-react';
 import io from 'socket.io-client';
 import { motion, AnimatePresence } from 'framer-motion';
 import { formatDistanceToNow } from 'date-fns';
+import InfrastructureStatus from '@/components/template/Admin/InfrastructureStatus';
+import SystemStatsCards from '@/components/template/Admin/SystemStatsCards';
+import ActiveInfrastructure from '@/components/template/Admin/ActiveInfrastructure';
+import { cn } from '@/lib/utils';
 
 export default function MonitorClient() {
   const { user } = useAuth();
@@ -242,185 +246,10 @@ export default function MonitorClient() {
             </TabsTrigger>
           ))}
         </TabsList>
-        <TabsContent value="overview" className="mt-4">
-          {/* System Status Cards */}
-          <div className="grid gap-3 grid-cols-1 md:grid-cols-2 lg:grid-cols-4 mb-6">
-            <Card className="bg-green-500/10 border-green-500/20">
-              <CardContent className="p-4 flex items-center gap-4">
-                <div className="p-2 rounded-full bg-green-500/20 text-green-500">
-                  <Server className="h-5 w-5" />
-                </div>
-                <div className="w-full">
-                  <p className="text-sm font-medium">CPU Load</p>
-                  <div className="flex items-center justify-between">
-                    <p className="text-2xl font-bold font-mono">
-                      {systemStats ? `${systemStats.currentLoad.currentLoad.toFixed(1)}%` : '...'}
-                    </p>
-                    {systemStats && (
-                      <div className="h-1.5 w-16 bg-green-500/20 rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-green-500 transition-all duration-500"
-                          style={{ width: `${Math.min(systemStats.currentLoad.currentLoad, 100)}%` }}
-                        />
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-blue-500/10 border-blue-500/20">
-              <CardContent className="p-4 flex items-center gap-4">
-                <div className="p-2 rounded-full bg-blue-500/20 text-blue-500">
-                  <Database className="h-5 w-5" />
-                </div>
-                <div className="w-full">
-                  <p className="text-sm font-medium">Memory (RAM)</p>
-                  {systemStats ? (
-                    <div>
-                      <div className="flex items-end gap-1">
-                        <p className="text-2xl font-bold font-mono">
-                          {((systemStats.mem.active / systemStats.mem.total) * 100).toFixed(1)}%
-                        </p>
-                        <p className="text-xs text-muted-foreground mb-1">
-                          ({(systemStats.mem.active / 1024 / 1024 / 1024).toFixed(1)}GB / {(systemStats.mem.total / 1024 / 1024 / 1024).toFixed(1)}GB)
-                        </p>
-                      </div>
-                      <div className="h-1.5 w-full bg-blue-500/20 rounded-full overflow-hidden mt-1">
-                        <div
-                          className="h-full bg-blue-500 transition-all duration-500"
-                          style={{ width: `${(systemStats.mem.active / systemStats.mem.total) * 100}%` }}
-                        />
-                      </div>
-                    </div>
-                  ) : <p className="...">Loading...</p>}
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-purple-500/10 border-purple-500/20">
-              <CardContent className="p-4 flex items-center gap-4">
-                <div className="p-2 rounded-full bg-purple-500/20 text-purple-500">
-                  <Activity className="h-5 w-5" />
-                </div>
-                <div className="w-full">
-                  <p className="text-sm font-medium">Uptime</p>
-                  <p className="text-lg font-bold font-mono truncate">
-                    {systemStats && systemStats.time && typeof systemStats.time.uptime === 'number'
-                      ? formatDistanceToNow(new Date(Date.now() - systemStats.time.uptime * 1000))
-                      : '...'}
-                  </p>
-                  <p className="text-xs text-purple-500/80">
-                    System Online
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-orange-500/10 border-orange-500/20">
-              <CardContent className="p-4 flex items-center gap-4">
-                <div className="p-2 rounded-full bg-orange-500/20 text-orange-500">
-                  <Server className="h-5 w-5" />
-                </div>
-                <div className="w-full">
-                  <p className="text-sm font-medium">Disk Usage</p>
-                  {systemStats && systemStats.fsSize && systemStats.fsSize.length > 0 ? (
-                    <div>
-                      <div className="flex items-end gap-1">
-                        <p className="text-2xl font-bold font-mono">
-                          {systemStats.fsSize[0].use.toFixed(1)}%
-                        </p>
-                        <p className="text-xs text-muted-foreground mb-1">
-                          ({(systemStats.fsSize[0].used / 1024 / 1024 / 1024).toFixed(0)}GB used)
-                        </p>
-                      </div>
-                      <div className="h-1.5 w-full bg-orange-500/20 rounded-full overflow-hidden mt-1">
-                        <div
-                          className="h-full bg-orange-500 transition-all duration-500"
-                          style={{ width: `${systemStats.fsSize[0].use}%` }}
-                        />
-                      </div>
-                    </div>
-                  ) : <p className="text-sm font-mono text-muted-foreground">Unknown</p>}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Active Containers */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <Box className="h-4 w-4 text-primary" />
-              <h2 className="text-sm font-bold tracking-tight uppercase">Active Infrastructure</h2>
-            </div>
-            <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
-              {containers.map((container) => (
-                <Card key={container.id} className="bg-card hover:border-primary/50 transition-all cursor-pointer overflow-hidden border-border" onClick={() => setActiveTab(container.id)}>
-                  <CardHeader className="p-4 flex flex-row items-center justify-between space-y-0">
-                    <CardTitle className="text-sm font-bold truncate pr-2">{container.names?.[0]?.replace(/^\//, '')}</CardTitle>
-                    <Badge variant="outline" className={`${getStatusColor(container.state)} text-[9px] px-1.5 py-0`}>{container.state.toUpperCase()}</Badge>
-                  </CardHeader>
-                  <CardContent className="p-4 pt-0 space-y-2 text-[10px]">
-                    <div className="flex justify-between text-muted-foreground"><span>Image</span><span className="truncate max-w-[120px] font-mono">{container.image.split(':')[0]}</span></div>
-                    <div className="flex justify-between text-muted-foreground"><span>Status</span><span className="text-emerald-500">{container.status}</span></div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-
-          {/* External Infrastructure */}
-          <div className="mt-8 space-y-4">
-            <div className="flex items-center gap-2">
-              <Activity className="h-4 w-4 text-primary" />
-              <h2 className="text-sm font-bold tracking-tight uppercase">External Infrastructure</h2>
-            </div>
-            <div className="grid gap-3 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-              {[
-                { id: 'backend', label: 'Backend API', icon: Server, color: 'emerald' },
-                { id: 'cloudinary', label: 'Cloudinary', icon: ImageIcon, color: 'sky' },
-                { id: 'firebase', label: 'Firebase Auth', icon: Shield, color: 'amber' },
-                { id: 'gemini', label: 'Gemini AI', icon: Sparkles, color: 'indigo' },
-                { id: 'resend', label: 'Resend Email', icon: Mail, color: 'rose' },
-                { id: 'cloudflare', label: 'Cloudflare', icon: Activity, color: 'orange' },
-              ].map((svc) => {
-                const status = serviceStatuses[svc.id];
-                const isError = status.status === 'error';
-                const isPending = status.status === 'pending';
-
-                return (
-                  <Card key={svc.id} className="bg-card border-border overflow-hidden group">
-                    <CardContent className="p-4 flex flex-col gap-3">
-                      <div className="flex items-center justify-between">
-                        <div className={cn(
-                          "p-2 rounded-xl transition-colors",
-                          isError ? "bg-rose-500/10 text-rose-500" : `bg-${svc.color}-500/10 text-${svc.color}-500`
-                        )}>
-                          <svc.icon className="h-4 w-4" />
-                        </div>
-                        {isPending ? (
-                          <RefreshCw className="h-3.5 w-3.5 animate-spin text-muted-foreground" />
-                        ) : isError ? (
-                          <XCircle className="h-3.5 w-3.5 text-rose-500" />
-                        ) : (
-                          <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
-                        )}
-                      </div>
-                      <div className="space-y-0.5">
-                        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">{svc.label}</p>
-                        <p className={cn(
-                          "text-xs font-bold truncate",
-                          isError ? "text-rose-500" : "text-foreground"
-                        )}>
-                          {status.message}
-                        </p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                );
-              })}
-            </div>
-          </div>
+        <TabsContent value="overview" className="mt-4 space-y-8">
+          <SystemStatsCards systemStats={systemStats} />
+          <InfrastructureStatus serviceStatuses={serviceStatuses} checkingServices={checkingServices} />
+          <ActiveInfrastructure containers={containers} getStatusColor={getStatusColor} setActiveTab={setActiveTab} />
         </TabsContent>
 
         {containers.map((container) => {

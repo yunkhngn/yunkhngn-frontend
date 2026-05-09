@@ -216,10 +216,6 @@ export default function Profile() {
         <div className="mt-8 bg-card text-card-foreground rounded-xl border shadow-sm p-6">
           <AdminManagement />
         </div>
-
-        <div className="mt-8 bg-card text-card-foreground rounded-xl border shadow-sm p-6">
-          <AdminManagement />
-        </div>
       </div>
     </>
   );
