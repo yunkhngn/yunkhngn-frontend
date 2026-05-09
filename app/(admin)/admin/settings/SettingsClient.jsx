@@ -16,7 +16,8 @@ import {
     Plus,
     Trash2,
     Settings2,
-    Search
+    Search,
+    ShieldCheck
 } from 'lucide-react';
 import Editor from '@monaco-editor/react';
 import axios from 'axios';
@@ -48,6 +49,7 @@ import {
 } from "@/components/ui/Collapsible";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { AdminPageHeader } from "@/components/admin/shared/AdminPageHeader";
+import { Checkbox } from "@/components/ui/Checkbox";
 
 const formatSettingTitle = (title) => {
     return title
@@ -66,7 +68,7 @@ export default function Settings() {
     const [newSetting, setNewSetting] = useState({ settingTitle: '', content: '', group: 'General' });
     const [saving, setSaving] = useState(false);
     const [uploading, setUploading] = useState(false);
-    const [openSections, setOpenSections] = useState([]);
+    const [closedSections, setClosedSections] = useState([]);
     const [isLoaded, setIsLoaded] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [deleteId, setDeleteId] = useState(null);
@@ -83,10 +85,6 @@ export default function Settings() {
             if (res.ok) {
                 const data = await readNestJson(res);
                 setGroups(data);
-                // Initialize open sections if not set
-                if (openSections.length === 0) {
-                    setOpenSections(data.map(g => g.group));
-                }
             }
         } catch (error) {
             console.error("Failed to fetch settings", error);
@@ -94,7 +92,7 @@ export default function Settings() {
         } finally {
             setLoading(false);
         }
-    }, [user, openSections.length]);
+    }, [user]);
 
     useEffect(() => {
         if (user) {
@@ -104,20 +102,20 @@ export default function Settings() {
 
     // Load/Save state from local storage
     useEffect(() => {
-        const saved = localStorage.getItem('settings_open_sections');
+        const saved = localStorage.getItem('settings_closed_sections');
         if (saved) {
             try {
-                setOpenSections(JSON.parse(saved));
+                setClosedSections(JSON.parse(saved));
             } catch (e) { }
         }
         setIsLoaded(true);
     }, []);
 
     useEffect(() => {
-        if (isLoaded && openSections.length > 0) {
-            localStorage.setItem('settings_open_sections', JSON.stringify(openSections));
+        if (isLoaded) {
+            localStorage.setItem('settings_closed_sections', JSON.stringify(closedSections));
         }
-    }, [openSections, isLoaded]);
+    }, [closedSections, isLoaded]);
 
     const handleSave = async (e) => {
         e.preventDefault();
@@ -137,13 +135,19 @@ export default function Settings() {
         setSaving(true);
         try {
             const token = await user.getIdToken();
+            const payload = {
+                settingTitle: currentSetting.settingTitle,
+                content: currentSetting.content,
+                group: currentSetting.group,
+                isSensitive: currentSetting.isSensitive ?? false,
+            };
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/settings`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${token}`
                 },
-                body: JSON.stringify(currentSetting)
+                body: JSON.stringify(payload)
             });
 
             if (res.ok) {
@@ -179,7 +183,7 @@ export default function Settings() {
             if (res.ok) {
                 await fetchSettings();
                 setIsCreateDialogOpen(false);
-                setNewSetting({ settingTitle: '', content: '', group: 'General' });
+                setNewSetting({ settingTitle: '', content: '', group: 'General', isSensitive: false });
                 toast.success('New setting created');
             } else {
                 const errorData = await res.json();
@@ -252,7 +256,7 @@ export default function Settings() {
     };
 
     const toggleSection = (title) => {
-        setOpenSections(prev =>
+        setClosedSections(prev =>
             prev.includes(title) ? prev.filter(t => t !== title) : [...prev, title]
         );
     };
@@ -301,7 +305,7 @@ export default function Settings() {
                 {filteredGroups.map(({ group, settings: groupSettings }) => (
                     <Collapsible
                         key={group}
-                        open={openSections.includes(group)}
+                        open={!closedSections.includes(group)}
                         onOpenChange={() => toggleSection(group)}
                         className="bg-card/50 backdrop-blur-sm rounded-xl border-none shadow-sm overflow-hidden"
                     >
@@ -332,8 +336,16 @@ export default function Settings() {
                                         {groupSettings.map((setting) => (
                                             <TableRow key={setting.id} className="hover:bg-primary/5 transition-colors border-border/30">
                                                 <TableCell className="font-medium align-top py-4 pl-6">
-                                                    <div className="text-sm font-bold tracking-tight">
-                                                        {formatSettingTitle(setting.settingTitle)}
+                                                    <div className="flex items-center gap-2">
+                                                        <div className="text-sm font-bold tracking-tight">
+                                                            {formatSettingTitle(setting.settingTitle)}
+                                                        </div>
+                                                        {setting.isSensitive && (
+                                                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-amber-500/10 text-amber-600 dark:text-amber-400 text-[9px] font-black uppercase tracking-widest">
+                                                                <ShieldCheck className="h-3 w-3" />
+                                                                Secret
+                                                            </span>
+                                                        )}
                                                     </div>
                                                     <div className="text-[10px] font-mono text-muted-foreground mt-1 opacity-60">
                                                         {setting.settingTitle}
@@ -431,6 +443,18 @@ export default function Settings() {
                             )}
                         </div>
 
+                        <div className="flex items-center gap-3 px-1">
+                            <Checkbox
+                                id="edit-sensitive"
+                                checked={currentSetting.isSensitive ?? false}
+                                onCheckedChange={(checked) => setCurrentSetting({ ...currentSetting, isSensitive: !!checked })}
+                            />
+                            <label htmlFor="edit-sensitive" className="text-sm font-medium leading-none cursor-pointer select-none flex items-center gap-2">
+                                <ShieldCheck className="h-4 w-4 text-amber-500" />
+                                Sensitive (encrypt &amp; mask value)
+                            </label>
+                        </div>
+
                         <div className="flex justify-end gap-3">
                             <Button variant="ghost" onClick={() => setIsDialogOpen(false)} className="font-bold">Cancel</Button>
                             <Button onClick={handleSave} disabled={saving} className="font-bold px-8">
@@ -490,6 +514,17 @@ export default function Settings() {
                                 onChange={(e) => setNewSetting({ ...newSetting, content: e.target.value })}
                                 className="min-h-[100px] bg-muted/30 border-none font-medium leading-relaxed"
                             />
+                        </div>
+                        <div className="flex items-center gap-3 px-1">
+                            <Checkbox
+                                id="create-sensitive"
+                                checked={newSetting.isSensitive ?? false}
+                                onCheckedChange={(checked) => setNewSetting({ ...newSetting, isSensitive: !!checked })}
+                            />
+                            <label htmlFor="create-sensitive" className="text-sm font-medium leading-none cursor-pointer select-none flex items-center gap-2">
+                                <ShieldCheck className="h-4 w-4 text-amber-500" />
+                                Sensitive (encrypt & mask value)
+                            </label>
                         </div>
                         <div className="flex justify-end gap-3 pt-2">
                             <Button type="button" variant="ghost" onClick={() => setIsCreateDialogOpen(false)} className="font-bold">Cancel</Button>
