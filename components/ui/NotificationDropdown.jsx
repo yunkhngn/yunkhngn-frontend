@@ -24,7 +24,13 @@ export default function NotificationDropdown() {
             markAsRead(notification.id);
         }
         if (notification.link) {
-            router.push(notification.link);
+            let cleanLink = notification.link;
+            // Prevent double hashes
+            if (cleanLink.includes('#')) {
+                const parts = cleanLink.split('#');
+                cleanLink = parts[0] + '#' + parts[parts.length - 1]; // Take base path and the LAST hash
+            }
+            router.push(cleanLink);
             setOpen(false);
         }
     };

@@ -131,7 +131,13 @@ export default function Notifications() {
             setNotifications(prev => prev.map(n => n.id === notification.id ? { ...n, read: true } : n));
         }
         if (notification.link) {
-            router.push(notification.link);
+            let cleanLink = notification.link;
+            // Prevent double hashes (e.g. /photo#photo-id1#photo-id2)
+            if (cleanLink.includes('#')) {
+                const parts = cleanLink.split('#');
+                cleanLink = parts[0] + '#' + parts[parts.length - 1]; // Take base path and the LAST hash
+            }
+            router.push(cleanLink);
         }
     };
 

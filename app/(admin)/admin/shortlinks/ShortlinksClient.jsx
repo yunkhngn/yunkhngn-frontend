@@ -378,7 +378,7 @@ export default function AdminShortlinks() {
 
                                             <div className="flex items-center gap-1 ml-2">
                                                 <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleToggle(link)} title={link.isActive ? 'Deactivate' : 'Activate'}>
-                                                    <StatusIndicator status={link.isActive ? 'active' : 'inactive'} />
+                                                    {/* Toggle action preserved, indicator removed for cleaner UI */}
                                                 </Button>
                                                 <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(link)} title="Edit">
                                                     <Edit className="h-4 w-4" />

@@ -581,7 +581,6 @@ export default function AdminLetters() {
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <StatusIndicator status={letter.isActive ? 'active' : 'inactive'} showLabel />
                         {statusBadge(letter.status)}
                       </div>
                     </td>
@@ -661,7 +660,6 @@ export default function AdminLetters() {
                 {editing ? <Edit className="h-5 w-5 text-primary" /> : <Plus className="h-5 w-5 text-primary" />}
                 {editing ? 'Edit letter' : 'New letter'}
               </DialogTitle>
-              {editing && <StatusIndicator status={form.isActive ? 'active' : 'inactive'} showLabel />}
             </div>
             <DialogDescription className="text-xs">
               {editing

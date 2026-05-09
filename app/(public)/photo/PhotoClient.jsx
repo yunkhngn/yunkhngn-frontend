@@ -99,6 +99,24 @@ export default function Photo() {
         fetchPhotos(1, false);
     }, [fetchPhotos]);
 
+    // Handle hash navigation
+    useEffect(() => {
+        if (!loading && photos.length > 0) {
+            const hash = window.location.hash;
+            if (hash && hash.startsWith('#photo-')) {
+                // Handle potential double hashes by taking the first valid ID
+                const idMatch = hash.match(/#photo-([a-zA-Z0-9-]+)/);
+                if (idMatch && idMatch[1]) {
+                    const id = idMatch[1];
+                    const index = photos.findIndex(p => p.id === id);
+                    if (index !== -1 && viewingIndex === null) {
+                        setViewingIndex(index);
+                    }
+                }
+            }
+        }
+    }, [loading, photos, viewingIndex]);
+
     // Infinite scroll observer
     const lastPhotoRef = useCallback((node) => {
         if (loadingMore) return;
@@ -437,6 +455,7 @@ export default function Photo() {
                                 {photos.map((photo, i) => (
                                     <div
                                         key={photo.id}
+                                        id={`photo-${photo.id}`}
                                         ref={i === photos.length - 1 ? lastPhotoRef : null}
                                         className="aspect-square relative group cursor-pointer rounded-xl overflow-hidden bg-muted"
                                         onClick={() => openPhoto(i)}
@@ -471,6 +490,7 @@ export default function Photo() {
                                     return (
                                     <div
                                         key={photo.id}
+                                        id={`photo-${photo.id}`}
                                         ref={i === photos.length - 1 ? lastPhotoRef : null}
                                         className="group cursor-pointer rounded-xl overflow-hidden bg-muted"
                                         onClick={() => openPhoto(i)}
@@ -706,6 +726,7 @@ function MasonryGrid({ photos, openPhoto, lastPhotoRef }) {
                         return (
                             <div
                                 key={photo.id}
+                                id={`photo-${photo.id}`}
                                 ref={isLast ? lastPhotoRef : null}
                                 className="relative group cursor-pointer rounded-xl overflow-hidden bg-muted transform translate-z-0"
                                 onClick={() => openPhoto(originalIndex)}
