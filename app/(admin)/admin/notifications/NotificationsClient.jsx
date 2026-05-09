@@ -4,7 +4,7 @@ import { readNestJson } from '@/lib/api/readJson';
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/Button';
-import { Loader2, Trash2, CheckCheck } from 'lucide-react';
+import { Loader2, Trash2, CheckCheck, MessageSquare, Mail, Heart, BellRing } from 'lucide-react';
 import {
     Table,
     TableBody,
@@ -19,6 +19,41 @@ import { useNotification } from '@/contexts/NotificationContext';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import { AdminPageHeader } from '@/components/admin/shared';
 
+
+const TYPE_CONFIG = {
+    CONTACT: {
+        icon: Mail,
+        label: 'Contact',
+        className: 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-200/50 dark:border-blue-800/50',
+    },
+    COMMENT: {
+        icon: MessageSquare,
+        label: 'Comment',
+        className: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200/50 dark:border-emerald-800/50',
+    },
+    LIKE: {
+        icon: Heart,
+        label: 'Like',
+        className: 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-200/50 dark:border-rose-800/50',
+    },
+    DEFAULT: {
+        icon: BellRing,
+        label: 'Notice',
+        className: 'bg-slate-500/10 text-slate-600 dark:text-slate-400 border-slate-200/50 dark:border-slate-800/50',
+    }
+};
+
+function NotificationTypeTag({ type }) {
+    const config = TYPE_CONFIG[type] || TYPE_CONFIG.DEFAULT;
+    const Icon = config.icon;
+
+    return (
+        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider border ${config.className}`}>
+            <Icon size={12} className="shrink-0" />
+            {config.label}
+        </span>
+    );
+}
 
 export default function Notifications() {
     const { user } = useAuth();
@@ -143,12 +178,7 @@ export default function Notifications() {
                                         onClick={() => handleRowClick(notification)}
                                     >
                                         <TableCell>
-                                            <span className={`px-2 py-1 rounded-full text-xs font-semibold ${notification.type === 'CONTACT' ? 'bg-blue-100 text-blue-800' :
-                                                notification.type === 'COMMENT' ? 'bg-green-100 text-green-800' :
-                                                    'bg-purple-100 text-purple-800'
-                                                }`}>
-                                                {notification.type}
-                                            </span>
+                                            <NotificationTypeTag type={notification.type} />
                                         </TableCell>
                                         <TableCell>{notification.message}</TableCell>
                                         <TableCell className="text-muted-foreground text-sm">
