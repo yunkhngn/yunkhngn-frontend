@@ -2,6 +2,7 @@
 
 import { readNestJson } from '@/lib/api/readJson';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/Select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/Tabs";
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from 'next-themes';
@@ -358,194 +359,131 @@ export default function Dashboard() {
           />
         </div>
 
-        <DashboardCharts
-          stats={stats}
-          theme={theme}
-          activityData={activityData}
-        />
+        {/* Main Grid - Fills remaining height */}
+        <div className="flex-1 min-h-0 grid gap-4 grid-cols-1 lg:grid-cols-12 mb-2">
+          {/* Column 1: Charts (Span 5) */}
+          <div className="lg:col-span-5 h-full">
+            <DashboardCharts
+              stats={stats}
+              theme={theme}
+              activityData={activityData}
+            />
+          </div>
 
-        <div className="grid gap-4 grid-cols-1 lg:grid-cols-7">
-          {/* Recent Blogs */}
-          <Card className="lg:col-span-4">
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="flex items-center gap-2">
-                <FileText className="h-5 w-5" />
-                Recent Blogs
-              </CardTitle>
-              <Link href="/admin/blog" className="text-sm text-primary hover:underline flex items-center">
-                View all <ArrowRight className="ml-1 h-3 w-3" />
-              </Link>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {recentBlogs.map((blog) => (
-                  <div key={blog.id} className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted/50 transition-colors group">
-                    <div className="h-12 w-12 rounded-lg bg-muted flex-shrink-0 overflow-hidden flex items-center justify-center">
-                      {blog.thumbnail ? (
-                        <Image src={blog.thumbnail} alt="" width={48} height={48} className="object-cover w-full h-full" />
-                      ) : (
-                        <FileText className="h-5 w-5 text-muted-foreground" />
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium line-clamp-1 group-hover:text-primary transition-colors">{blog.title}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {blog.createdAt && isValid(new Date(blog.createdAt)) ? format(new Date(blog.createdAt), 'MMM d, yyyy') : 'No Date'}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Badge variant={blog.status === 'PUBLISHED' ? 'default' : 'secondary'} className="text-xs">
-                        {blog.status}
-                      </Badge>
-                      <Link href={`/admin/blog/${blog.slug || blog.id}/edit`}>
-                        <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                      </Link>
-                    </div>
+          {/* Column 2: Content Hub (Span 4) */}
+          <div className="lg:col-span-4 h-full flex flex-col min-h-0">
+            <Card className="h-full flex flex-col min-h-0 border-none shadow-none bg-transparent">
+              <CardHeader className="flex-none py-2 px-0">
+                <CardTitle className="text-sm font-bold flex items-center gap-2">
+                  <FileText className="h-4 w-4" />
+                  Content Hub
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-0 flex-1 min-h-0 flex flex-col">
+                <Tabs defaultValue="blogs" className="h-full flex flex-col">
+                  <TabsList className="grid w-full grid-cols-3 mb-4 flex-none bg-muted/50">
+                    <TabsTrigger value="blogs" className="text-xs">Blogs</TabsTrigger>
+                    <TabsTrigger value="projects" className="text-xs">Projects</TabsTrigger>
+                    <TabsTrigger value="photos" className="text-xs">Photos</TabsTrigger>
+                  </TabsList>
+                  <div className="flex-1 overflow-y-auto min-h-0 space-y-2 pr-2 custom-scrollbar bg-card border rounded-xl p-4">
+                    <TabsContent value="blogs" className="mt-0 focus-visible:ring-0">
+                      <div className="space-y-3">
+                        {recentBlogs.map((blog) => (
+                          <div key={blog.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50 transition-colors group border border-transparent hover:border-border">
+                            <div className="h-10 w-10 rounded bg-muted flex-shrink-0 overflow-hidden flex items-center justify-center">
+                              {blog.thumbnail ? (
+                                <Image src={blog.thumbnail} alt="" width={40} height={40} className="object-cover w-full h-full" />
+                              ) : (
+                                <FileText className="h-4 w-4 text-muted-foreground" />
+                              )}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-xs font-medium line-clamp-1 group-hover:text-primary transition-colors">{blog.title}</p>
+                              <p className="text-[10px] text-muted-foreground">
+                                {blog.createdAt && isValid(new Date(blog.createdAt)) ? format(new Date(blog.createdAt), 'MMM d, yyyy') : 'No Date'}
+                              </p>
+                            </div>
+                            <Badge variant={blog.status === 'PUBLISHED' ? 'default' : 'secondary'} className="text-[10px] px-1 h-5">
+                              {blog.status === 'PUBLISHED' ? 'Pub' : 'Draft'}
+                            </Badge>
+                          </div>
+                        ))}
+                        {recentBlogs.length === 0 && <div className="text-center text-muted-foreground py-8 text-xs">No blogs yet.</div>}
+                      </div>
+                    </TabsContent>
+                    <TabsContent value="projects" className="mt-0 focus-visible:ring-0">
+                      <div className="grid grid-cols-2 gap-2">
+                        {recentProjects.map((project) => (
+                          <Link href={`/admin/project/${project.slug}`} key={project.id} className="group relative aspect-video rounded-lg overflow-hidden bg-muted border border-border">
+                            {project.cover ? (
+                              <Image src={project.cover} alt={project.title} fill sizes="150px" className="object-cover group-hover:scale-105 transition-transform" />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center"><Folder className="h-4 w-4 text-muted-foreground" /></div>
+                            )}
+                            <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-2 text-center text-white text-[10px] font-medium">
+                              {project.title}
+                            </div>
+                          </Link>
+                        ))}
+                      </div>
+                      {recentProjects.length === 0 && <div className="text-center text-muted-foreground py-8 text-xs">No projects yet.</div>}
+                    </TabsContent>
+                    <TabsContent value="photos" className="mt-0 focus-visible:ring-0">
+                      <div className="grid grid-cols-3 gap-2">
+                        {recentPhotos.map((photo) => (
+                          <div key={photo.id} className="aspect-square rounded-lg overflow-hidden bg-muted border border-border group">
+                            <Image src={photo.imageUrl} alt={photo.caption || 'Photo'} width={100} height={100} className="object-cover w-full h-full group-hover:scale-110 transition-transform" />
+                          </div>
+                        ))}
+                      </div>
+                      {recentPhotos.length === 0 && <div className="text-center text-muted-foreground py-8 text-xs">No photos yet.</div>}
+                    </TabsContent>
                   </div>
-                ))}
-                {recentBlogs.length === 0 && (
-                  <div className="text-center text-muted-foreground py-8">No blogs yet.</div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+                </Tabs>
+              </CardContent>
+            </Card>
+          </div>
 
-          {/* Activity Feed & Quick Actions */}
-          <div className="lg:col-span-3 space-y-4">
-            {/* Quick Actions */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Sparkles className="h-5 w-5" />
+          {/* Column 3: Quick Actions & Activity (Span 3) */}
+          <div className="lg:col-span-3 h-full flex flex-col min-h-0 gap-4">
+            <Card className="flex-none border-none shadow-none bg-transparent">
+              <CardHeader className="py-2 px-0">
+                <CardTitle className="text-sm font-bold flex items-center gap-2">
+                  <Sparkles className="h-4 w-4" />
                   Quick Actions
                 </CardTitle>
               </CardHeader>
-              <CardContent className="grid gap-2">
-                <Link href="/admin/blog/new">
-                  <Button className="w-full justify-start">
-                    <Plus className="mr-2 h-4 w-4" /> Create New Blog
-                  </Button>
-                </Link>
-                <Link href="/admin/project/add-project">
-                  <Button className="w-full justify-start" variant="outline">
-                    <Plus className="mr-2 h-4 w-4" /> Add New Project
-                  </Button>
-                </Link>
-                <Link href="/admin/photo">
-                  <Button className="w-full justify-start" variant="outline">
-                    <Plus className="mr-2 h-4 w-4" /> Upload Photo
-                  </Button>
-                </Link>
+              <CardContent className="p-0 grid grid-cols-1 gap-2">
+                <div className="grid grid-cols-2 gap-2">
+                   <Button asChild variant="outline" size="sm" className="h-9 text-xs">
+                     <Link href="/admin/blog/new"><Plus className="h-3 w-3 mr-1" /> Blog</Link>
+                   </Button>
+                   <Button asChild variant="outline" size="sm" className="h-9 text-xs">
+                     <Link href="/admin/photo"><Plus className="h-3 w-3 mr-1" /> Photo</Link>
+                   </Button>
+                </div>
               </CardContent>
             </Card>
 
-            {/* Activity Feed */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Clock className="h-5 w-5" />
-                  Recent Activity
+            <Card className="flex-1 min-h-0 flex flex-col border-none shadow-none bg-transparent">
+              <CardHeader className="py-2 px-0 flex-none">
+                <CardTitle className="flex items-center gap-2 text-sm font-bold">
+                  <Clock className="h-4 w-4" /> Activity
                 </CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="flex-1 overflow-y-auto p-4 min-h-0 custom-scrollbar bg-card border rounded-xl">
                 <div className="space-y-1">
                   {activities.map((activity) => (
                     <ActivityItem key={activity.id} activity={activity} />
                   ))}
-                  {activities.length === 0 && (
-                    <div className="text-center text-muted-foreground py-4">No recent activity.</div>
-                  )}
+                  {activities.length === 0 && <div className="text-center text-muted-foreground py-4 text-xs">No recent activity.</div>}
                 </div>
               </CardContent>
             </Card>
           </div>
         </div>
-
-        {/* Recent Projects & Gallery */}
-        <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
-          {/* Recent Projects */}
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="flex items-center gap-2">
-                <Folder className="h-5 w-5" />
-                Recent Projects
-              </CardTitle>
-              <Link href="/admin/project" className="text-sm text-primary hover:underline flex items-center">
-                View all <ArrowRight className="ml-1 h-3 w-3" />
-              </Link>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {recentProjects.map((project) => (
-                  <Link
-                    href={`/admin/project/${project.slug}`}
-                    key={project.id}
-                    className="group relative aspect-video rounded-lg overflow-hidden bg-muted hover:shadow-md transition-shadow border"
-                  >
-                    {project.cover ? (
-                      <Image
-                        src={project.cover}
-                        alt={project.title}
-                        fill
-                        sizes="(max-width: 640px) 100vw, 50vw"
-                        className="object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-muted">
-                        <Folder className="h-8 w-8 text-muted-foreground" />
-                      </div>
-                    )}
-                    <div className="absolute inset-0 bg-background/80 opacity-0 group-hover:opacity-100 transition-opacity flex items-end">
-                      <div className="p-2 w-full">
-                        <p className="text-foreground text-sm font-medium line-clamp-1">{project.title}</p>
-                      </div>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-              {recentProjects.length === 0 && (
-                <div className="text-center text-muted-foreground py-8">No projects yet.</div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Recent Photos */}
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="flex items-center gap-2">
-                <ImageIcon className="h-5 w-5" />
-                Recent Photos
-              </CardTitle>
-              <Link href="/admin/photo" className="text-sm text-primary hover:underline flex items-center">
-                View all <ArrowRight className="ml-1 h-3 w-3" />
-              </Link>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-3 gap-2">
-                {recentPhotos.map((photo) => (
-                  <div
-                    key={photo.id}
-                    className="aspect-square rounded-lg overflow-hidden bg-muted hover:shadow-md transition-shadow group cursor-pointer border"
-                  >
-                    <Image
-                      src={photo.imageUrl}
-                      alt={photo.caption || 'Photo'}
-                      width={200}
-                      height={200}
-                      className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
-                    />
-                  </div>
-                ))}
-              </div>
-              {recentPhotos.length === 0 && (
-                <div className="text-center text-muted-foreground py-8">No photos yet.</div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-      </div >
+      </div>
     </>
   );
 }
