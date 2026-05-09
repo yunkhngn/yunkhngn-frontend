@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import Image from 'next/image';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import { toast } from 'sonner';
-
+import { AdminPageHeader, BulkActionBar, AdminEmptyState } from '@/components/admin/shared';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -377,12 +377,10 @@ export default function PhotoManager() {
     return (
         <>
             <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                    <h1 className="text-2xl font-bold">Photo Gallery</h1>
-                    <Button variant="outline" size="sm" onClick={() => openAlbumDialog()} className="gap-1.5">
-                        <Plus className="h-3.5 w-3.5" /> New Album
-                    </Button>
-                </div>
+                <AdminPageHeader
+                    title="Photo Gallery"
+                    action={{ label: 'New Album', icon: <Plus className="h-3.5 w-3.5" />, onClick: () => openAlbumDialog() }}
+                />
 
                 {/* Albums Bar */}
                 {albums.length > 0 && (
@@ -405,19 +403,16 @@ export default function PhotoManager() {
 
                 {/* Bulk Action Bar */}
                 {selected.size > 0 && (
-                    <div className="flex items-center gap-3 p-3 bg-primary/5 border border-primary/20 rounded-lg animate-in slide-in-from-top-2">
-                        <span className="text-sm font-medium">{selected.size} selected</span>
-                        <div className="flex-1" />
+                    <BulkActionBar
+                        count={selected.size}
+                        onClear={clearSelection}
+                        onDelete={handleBulkDelete}
+                        loading={bulkLoading}
+                    >
                         <Button variant="outline" size="sm" onClick={() => { setBulkEditData({ albumId: '', tags: '' }); setBulkEditOpen(true); }} disabled={bulkLoading} className="gap-1.5">
                             <Pencil className="h-3.5 w-3.5" /> Edit
                         </Button>
-                        <Button variant="outline" size="sm" onClick={handleBulkDelete} disabled={bulkLoading} className="gap-1.5 text-red-500 hover:text-red-600 border-red-200 hover:border-red-300 hover:bg-red-50 dark:border-red-800 dark:hover:border-red-700 dark:hover:bg-red-950">
-                            {bulkLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />} Delete
-                        </Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={clearSelection}>
-                            <XCircle className="h-4 w-4" />
-                        </Button>
-                    </div>
+                    </BulkActionBar>
                 )}
 
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
@@ -546,7 +541,14 @@ export default function PhotoManager() {
                         )}
 
                         {loading && <div className="text-center py-12 text-muted-foreground">Loading...</div>}
-                        {!loading && photos.length === 0 && <div className="text-center py-12 text-muted-foreground">No photos yet.</div>}
+                        {!loading && photos.length === 0 && (
+                            <div className="mt-8">
+                                <AdminEmptyState
+                                    icon={<ImageIcon className="h-12 w-12" />}
+                                    message="No photos yet."
+                                />
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

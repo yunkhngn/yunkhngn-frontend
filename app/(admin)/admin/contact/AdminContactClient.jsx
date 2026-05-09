@@ -16,6 +16,7 @@ import { toast } from 'sonner';
 import { Mail, Clock, CheckCircle, Send, Sparkles, Phone, Building, Trash2, Plus, PenLine } from 'lucide-react';
 import { Checkbox } from '@/components/ui/Checkbox';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
+import { AdminPageHeader, BulkActionBar } from '@/components/admin/shared';
 
 export default function AdminContact() {
     const { user } = useAuth();
@@ -376,15 +377,11 @@ export default function AdminContact() {
     return (
         <>
             <div className="space-y-6">
-                <div className="mb-8 flex justify-between items-start">
-                    <div>
-                        <h1 className="text-3xl font-bold mb-2">Contact Messages</h1>
-                        <p className="text-muted-foreground">Manage and respond to contact form submissions</p>
-                    </div>
-                    <Button onClick={() => setComposeOpen(true)}>
-                        <Plus className="mr-2 h-4 w-4" /> Compose Mail
-                    </Button>
-                </div>
+                <AdminPageHeader
+                    title="Contact Messages"
+                    description="Manage and respond to contact form submissions"
+                    action={{ label: 'Compose Mail', icon: <Plus className="mr-2 h-4 w-4" />, onClick: () => setComposeOpen(true) }}
+                />
 
                 {/* Filter Tabs */}
                 <div className="flex flex-wrap gap-2 mb-6">
@@ -408,14 +405,10 @@ export default function AdminContact() {
                 {/* Contacts List */}
                 <div className="space-y-4">
                     {selectedContacts.length > 0 && (
-                        <div className="bg-muted/50 p-4 rounded-lg flex items-center justify-between animate-in fade-in slide-in-from-top-2">
-                            <span className="text-sm font-medium">
-                                {selectedContacts.length} selected
-                            </span>
-                            <Button size="sm" variant="destructive" onClick={handleBulkDeleteClick}>
-                                <Trash2 className="mr-2 h-4 w-4" /> Delete Selected
-                            </Button>
-                        </div>
+                        <BulkActionBar
+                            count={selectedContacts.length}
+                            onDelete={handleBulkDeleteClick}
+                        />
                     )}
 
                     <div className="flex items-center gap-2 px-4 py-2 border rounded-lg bg-muted/20 mb-2">
