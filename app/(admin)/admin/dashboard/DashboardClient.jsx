@@ -296,7 +296,7 @@ export default function Dashboard() {
         </DialogContent>
       </Dialog>
 
-      <div className="flex flex-col h-[calc(100vh-10rem)] min-h-[600px] overflow-hidden gap-3">
+      <div className="flex flex-col lg:h-[calc(100vh-10rem)] lg:min-h-[600px] lg:overflow-hidden gap-4 lg:gap-3">
         {/* Header */}
         <div className="flex-none flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
@@ -360,9 +360,9 @@ export default function Dashboard() {
         </div>
 
         {/* Main Grid - Fills remaining height */}
-        <div className="flex-1 min-h-0 grid gap-4 grid-cols-1 lg:grid-cols-12 mb-2">
+        <div className="flex-1 lg:min-h-0 grid gap-4 grid-cols-1 lg:grid-cols-12 mb-2">
           {/* Column 1: Charts (Span 5) */}
-          <div className="lg:col-span-5 h-full">
+          <div className="lg:col-span-5 h-[400px] lg:h-full">
             <DashboardCharts
               stats={stats}
               theme={theme}
@@ -371,8 +371,8 @@ export default function Dashboard() {
           </div>
 
           {/* Column 2: Content Hub (Span 4) */}
-          <div className="lg:col-span-4 h-full flex flex-col min-h-0">
-            <Card className="h-full flex flex-col min-h-0 border-none shadow-none bg-transparent">
+          <div className="lg:col-span-4 h-[500px] lg:h-full flex flex-col lg:min-h-0">
+            <Card className="h-full flex flex-col lg:min-h-0 border-none shadow-none bg-transparent">
               <CardHeader className="flex-none py-2 px-0">
                 <CardTitle className="text-sm font-bold flex items-center gap-2">
                   <FileText className="h-4 w-4" />
@@ -446,7 +446,7 @@ export default function Dashboard() {
           </div>
 
           {/* Column 3: Quick Actions & Activity (Span 3) */}
-          <div className="lg:col-span-3 h-full flex flex-col min-h-0 gap-4">
+          <div className="lg:col-span-3 h-[500px] lg:h-full flex flex-col lg:min-h-0 gap-4">
             <Card className="flex-none border-none shadow-none bg-transparent">
               <CardHeader className="py-2 px-0">
                 <CardTitle className="text-sm font-bold flex items-center gap-2">
