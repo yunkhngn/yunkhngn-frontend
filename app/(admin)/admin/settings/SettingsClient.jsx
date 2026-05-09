@@ -66,7 +66,7 @@ export default function Settings() {
     const [newSetting, setNewSetting] = useState({ settingTitle: '', content: '', group: 'General' });
     const [saving, setSaving] = useState(false);
     const [uploading, setUploading] = useState(false);
-    const [openSections, setOpenSections] = useState([]);
+    const [closedSections, setClosedSections] = useState([]);
     const [isLoaded, setIsLoaded] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [deleteId, setDeleteId] = useState(null);
@@ -83,10 +83,6 @@ export default function Settings() {
             if (res.ok) {
                 const data = await readNestJson(res);
                 setGroups(data);
-                // Initialize open sections if not set
-                if (openSections.length === 0) {
-                    setOpenSections(data.map(g => g.group));
-                }
             }
         } catch (error) {
             console.error("Failed to fetch settings", error);
@@ -94,7 +90,7 @@ export default function Settings() {
         } finally {
             setLoading(false);
         }
-    }, [user, openSections.length]);
+    }, [user]);
 
     useEffect(() => {
         if (user) {
@@ -104,20 +100,20 @@ export default function Settings() {
 
     // Load/Save state from local storage
     useEffect(() => {
-        const saved = localStorage.getItem('settings_open_sections');
+        const saved = localStorage.getItem('settings_closed_sections');
         if (saved) {
             try {
-                setOpenSections(JSON.parse(saved));
+                setClosedSections(JSON.parse(saved));
             } catch (e) { }
         }
         setIsLoaded(true);
     }, []);
 
     useEffect(() => {
-        if (isLoaded && openSections.length > 0) {
-            localStorage.setItem('settings_open_sections', JSON.stringify(openSections));
+        if (isLoaded) {
+            localStorage.setItem('settings_closed_sections', JSON.stringify(closedSections));
         }
-    }, [openSections, isLoaded]);
+    }, [closedSections, isLoaded]);
 
     const handleSave = async (e) => {
         e.preventDefault();
@@ -252,7 +248,7 @@ export default function Settings() {
     };
 
     const toggleSection = (title) => {
-        setOpenSections(prev =>
+        setClosedSections(prev =>
             prev.includes(title) ? prev.filter(t => t !== title) : [...prev, title]
         );
     };
@@ -301,7 +297,7 @@ export default function Settings() {
                 {filteredGroups.map(({ group, settings: groupSettings }) => (
                     <Collapsible
                         key={group}
-                        open={openSections.includes(group)}
+                        open={!closedSections.includes(group)}
                         onOpenChange={() => toggleSection(group)}
                         className="bg-card/50 backdrop-blur-sm rounded-xl border-none shadow-sm overflow-hidden"
                     >
