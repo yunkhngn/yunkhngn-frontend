@@ -362,7 +362,7 @@ export default function Dashboard() {
         {/* Main Grid - Fills remaining height */}
         <div className=" flex-1 lg:min-h-0 grid gap-4 grid-cols-1 lg:grid-cols-12 mb-2">
           {/* Column 1: Charts (Span 5) */}
-          <div className="lg:col-span-5 h-[400px] lg:h-full">
+          <div className="mt-3 lg:col-span-5 h-[400px] lg:h-full">
             <DashboardCharts
               stats={stats}
               theme={theme}
@@ -373,13 +373,13 @@ export default function Dashboard() {
           {/* Column 2: Content Hub (Span 4) */}
           <div className="mt-3 lg:col-span-4 h-[500px] lg:h-full flex flex-col lg:min-h-0">
             <Card className="h-full flex flex-col lg:min-h-0 border-none shadow-none bg-transparent p-0 gap-0">
-              <CardHeader className="flex-none pt-0 pb-3">
+              <CardHeader className="flex-none px-4 pt-0 pb-3">
                 <CardTitle className="text-sm font-bold flex items-center gap-2">
                   <FileText className="h-4 w-4" />
                   Content Hub
                 </CardTitle>
               </CardHeader>
-              <CardContent className="p-0 pb-4 flex-1 min-h-0 flex flex-col">
+              <CardContent className="p-0 px-4 pb-4 flex-1 min-h-0 flex flex-col">
                 <Tabs defaultValue="blogs" className="h-full flex flex-col">
                   <TabsList className="grid w-full grid-cols-3 mb-4 flex-none bg-muted/50">
                     <TabsTrigger value="blogs" className="text-xs">Blogs</TabsTrigger>
@@ -448,19 +448,19 @@ export default function Dashboard() {
           {/* Column 3: Activity & Actions (Span 3) */}
           <div className="mt-3 lg:col-span-3 h-[500px] lg:h-full flex flex-col lg:min-h-0">
             <Card className="h-full flex flex-col lg:min-h-0 border-none shadow-none bg-transparent p-0 gap-0">
-              <CardHeader className="flex-none pt-0 pb-3">
+              <CardHeader className="flex-none px-4 pt-0 pb-3">
                 <CardTitle className="text-sm font-bold flex items-center gap-2">
                   <Clock className="h-4 w-4" />
                   Activity & Actions
                 </CardTitle>
               </CardHeader>
-              <CardContent className="flex-1 min-h-0 flex flex-col gap-4 p-0 pb-4">
+              <CardContent className="flex-1 min-h-0 flex flex-col gap-4 p-0 px-4 pb-4">
                 {/* Actions Group */}
                 <div className="grid grid-cols-2 gap-2 flex-none">
-                  <Button asChild variant="outline" size="sm" className="h-9 text-xs bg-card border-border hover:bg-muted/50 transition-colors">
+                  <Button asChild variant="outline" size="sm" className="h-10 text-xs bg-card border-border hover:bg-muted/50 transition-colors">
                     <Link href="/admin/blog/new"><Plus className="h-3 w-3 mr-1" /> Blog</Link>
                   </Button>
-                  <Button asChild variant="outline" size="sm" className="h-9 text-xs bg-card border-border hover:bg-muted/50 transition-colors">
+                  <Button asChild variant="outline" size="sm" className="h-10 text-xs bg-card border-border hover:bg-muted/50 transition-colors">
                     <Link href="/admin/photo"><Plus className="h-3 w-3 mr-1" /> Photo</Link>
                   </Button>
                 </div>
