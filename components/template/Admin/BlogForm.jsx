@@ -21,6 +21,7 @@ import getCroppedImg, { getPaddedImg } from '@/lib/cropImage';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/Tabs";
 import SEOEditor from "@/components/admin/SEOEditor";
 import ImageAlignmentModal from '@/components/admin/ImageAlignmentModal';
+import { StatusIndicator } from '@/components/admin/shared';
 
 export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
     const router = useRouter();
@@ -603,6 +604,7 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
                     <h2 className="text-xl font-bold">
                         {isEditing ? 'Edit Blog' : 'New Blog'}
                     </h2>
+                    {isEditing && <StatusIndicator status={formData.status === 'PUBLISHED' ? 'published' : 'draft'} showLabel />}
                     {lastSaved && (
                         <span className="text-xs text-muted-foreground flex items-center gap-1">
                             <Save className="h-3 w-3" />

@@ -34,7 +34,7 @@ import { toast } from 'sonner';
 import { format, isValid } from 'date-fns';
 import Image from 'next/image';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
-import { AdminPageHeader, BulkActionBar, AdminEmptyState } from '@/components/admin/shared';
+import { AdminPageHeader, BulkActionBar, AdminEmptyState, StatusIndicator } from '@/components/admin/shared';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 const PUBLIC_LETTER_PREFIX = 'https://yunkhngn.dev/letter/';
@@ -581,9 +581,7 @@ export default function AdminLetters() {
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className={`text-[10px] px-2 py-0.5 rounded-md font-bold uppercase tracking-wider border ${letter.isActive ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' : 'bg-zinc-500/10 text-zinc-400 border-zinc-500/20'}`}>
-                          {letter.isActive ? 'Active' : 'Archived'}
-                        </span>
+                        <StatusIndicator status={letter.isActive ? 'active' : 'inactive'} showLabel />
                         {statusBadge(letter.status)}
                       </div>
                     </td>
@@ -658,10 +656,13 @@ export default function AdminLetters() {
       >
         <DialogContent className="sm:max-w-md max-h-[90vh] flex flex-col p-0 overflow-hidden border-amber-900/20">
           <DialogHeader className="p-6 pb-2">
-            <DialogTitle className="text-xl font-bold flex items-center gap-2">
-              {editing ? <Edit className="h-5 w-5 text-primary" /> : <Plus className="h-5 w-5 text-primary" />}
-              {editing ? 'Edit letter' : 'New letter'}
-            </DialogTitle>
+            <div className="flex items-center justify-between pr-8">
+              <DialogTitle className="text-xl font-bold flex items-center gap-2">
+                {editing ? <Edit className="h-5 w-5 text-primary" /> : <Plus className="h-5 w-5 text-primary" />}
+                {editing ? 'Edit letter' : 'New letter'}
+              </DialogTitle>
+              {editing && <StatusIndicator status={form.isActive ? 'active' : 'inactive'} showLabel />}
+            </div>
             <DialogDescription className="text-xs">
               {editing
                 ? 'Update details or replace page images to reprocess.'

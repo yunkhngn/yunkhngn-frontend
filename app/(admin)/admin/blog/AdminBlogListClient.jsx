@@ -17,7 +17,7 @@ import { Pagination } from '@/components/ui/Pagination';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/Select';
 import { Checkbox } from '@/components/ui/Checkbox';
-import { AdminPageHeader, BulkActionBar } from '@/components/admin/shared';
+import { AdminPageHeader, BulkActionBar, AdminEmptyState, StatusIndicator } from '@/components/admin/shared';
 
 export default function BlogList() {
     const [blogs, setBlogs] = useState([]);
@@ -275,9 +275,7 @@ export default function BlogList() {
                                                 </div>
                                             )}
                                             <div className="absolute top-2 right-2">
-                                                <Badge variant={blog.status === 'PUBLISHED' ? 'default' : 'secondary'}>
-                                                    {blog.status}
-                                                </Badge>
+                                                <StatusIndicator status={blog.status === 'PUBLISHED' ? 'published' : 'draft'} showLabel />
                                             </div>
                                         </div>
                                         <div className="p-4 space-y-3 flex flex-col flex-1">
@@ -389,11 +387,9 @@ export default function BlogList() {
                                                         </div>
                                                     </div>
                                                 </td>
-                                                <td className="px-4 py-3">
-                                                    <Badge variant={blog.status === 'PUBLISHED' ? 'default' : 'secondary'} className="text-xs">
-                                                        {blog.status}
-                                                    </Badge>
-                                                </td>
+                                                 <td className="px-4 py-3">
+                                                     <StatusIndicator status={blog.status === 'PUBLISHED' ? 'published' : 'draft'} showLabel />
+                                                 </td>
                                                 <td className="px-4 py-3 text-muted-foreground whitespace-nowrap">
                                                     {blog.createdAt && isValid(new Date(blog.createdAt)) ? format(new Date(blog.createdAt), 'MMM d, yyyy') : 'No Date'}
                                                 </td>
