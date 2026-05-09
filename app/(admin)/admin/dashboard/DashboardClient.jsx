@@ -296,7 +296,7 @@ export default function Dashboard() {
         </DialogContent>
       </Dialog>
 
-      <div className="flex flex-col h-[calc(100vh-16rem)] min-h-[600px] overflow-hidden gap-4">
+      <div className="flex flex-col h-[calc(100vh-15rem-1px)] min-h-[600px] overflow-hidden gap-4">
         {/* Header */}
         <div className="flex-none flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
