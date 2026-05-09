@@ -10,7 +10,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { format, isValid } from 'date-fns';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
-import { AdminPageHeader, BulkActionBar, AdminEmptyState } from '@/components/admin/shared';
+import { AdminPageHeader, BulkActionBar, AdminEmptyState, StatusIndicator } from '@/components/admin/shared';
 
 
 
@@ -378,7 +378,7 @@ export default function AdminShortlinks() {
 
                                             <div className="flex items-center gap-1 ml-2">
                                                 <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleToggle(link)} title={link.isActive ? 'Deactivate' : 'Activate'}>
-                                                    {link.isActive ? <ToggleRight className="h-4 w-4 text-green-500" /> : <ToggleLeft className="h-4 w-4" />}
+                                                    <StatusIndicator status={link.isActive ? 'active' : 'inactive'} />
                                                 </Button>
                                                 <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(link)} title="Edit">
                                                     <Edit className="h-4 w-4" />
