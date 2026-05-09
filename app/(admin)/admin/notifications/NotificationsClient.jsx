@@ -17,6 +17,7 @@ import { formatDistanceToNow, isValid } from 'date-fns';
 import { useRouter } from 'next/navigation'
 import { useNotification } from '@/contexts/NotificationContext';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
+import { AdminPageHeader } from '@/components/admin/shared';
 
 
 export default function Notifications() {
@@ -112,13 +113,10 @@ export default function Notifications() {
     return (
         <>
             <div className="space-y-6">
-                <div className="flex justify-between items-center">
-                    <h1 className="text-2xl font-bold">Notifications</h1>
-                    <Button onClick={handleMarkAllRead} variant="outline" size="sm">
-                        <CheckCheck className="mr-2 h-4 w-4" />
-                        Mark all as read
-                    </Button>
-                </div>
+                <AdminPageHeader
+                    title="Notifications"
+                    action={{ label: 'Mark all as read', icon: <CheckCheck className="mr-2 h-4 w-4" />, onClick: handleMarkAllRead }}
+                />
 
                 <div className="bg-card rounded-md border">
                     <Table>
