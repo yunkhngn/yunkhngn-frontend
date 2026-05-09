@@ -167,7 +167,7 @@ export default function Dashboard() {
     };
 
     fetchData();
-  }, [user, analyticsPeriod]);
+  }, [user]);
 
   if (loading) {
     return (
