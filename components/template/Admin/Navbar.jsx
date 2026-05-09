@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { useTheme } from 'next-themes';
-import { Bell, Bot, Moon, Sun, Menu, X, LogOut, LayoutDashboard, User, FileText, Folder, Image, Settings, MessageSquare, Mail, LayoutGrid, Link2, BookOpen, Terminal, Brain, BarChart3, Gauge } from 'lucide-react';
+import { Bell, Bot, Moon, Sun, Menu, X, LogOut, LayoutDashboard, User, FileText, Folder, Image, Settings, MessageSquare, Mail, LayoutGrid, Link2, BookOpen, Terminal, Brain } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
@@ -47,8 +47,6 @@ const ADMIN_NAV_ITEMS = [
         children: [
             { label: "AI", href: "/admin/ai", icon: Brain },
             { label: "Monitor", href: "/admin/monitor", icon: Terminal },
-            { label: "Analytics", href: "/admin/analytics", icon: BarChart3 },
-            { label: "Speed Insights", href: "/admin/speed-insights", icon: Gauge },
             { label: "Profile", href: "/admin/profile", icon: User },
             { label: "Settings", href: "/admin/settings", icon: Settings },
         ]
