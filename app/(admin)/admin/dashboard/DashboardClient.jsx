@@ -180,7 +180,7 @@ export default function Dashboard() {
   }
 
   const StatCard = ({ title, value, subtitle, icon: Icon, trend }) => (
-    <Card className="hover:shadow-md transition-shadow">
+    <Card className="hover:shadow-md transition-shadow py-0 gap-0">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 p-4 pb-2">
         <CardTitle className="text-sm font-medium">{title}</CardTitle>
         <div className="p-2 rounded-lg bg-muted">
@@ -372,7 +372,7 @@ export default function Dashboard() {
 
           {/* Column 2: Content Hub (Span 4) */}
           <div className="lg:col-span-4 h-[500px] lg:h-full flex flex-col lg:min-h-0">
-            <Card className="h-full flex flex-col lg:min-h-0 border-none shadow-none bg-transparent">
+            <Card className="h-full flex flex-col lg:min-h-0 border-none shadow-none bg-transparent p-0 gap-0">
               <CardHeader className="flex-none p-0 pb-3">
                 <CardTitle className="text-sm font-bold flex items-center gap-2">
                   <FileText className="h-4 w-4" />
@@ -445,9 +445,9 @@ export default function Dashboard() {
             </Card>
           </div>
 
-          {/* Column 3: Quick Actions & Activity (Span 3) */}
+          {/* Column 3: Activity & Actions (Span 3) */}
           <div className="lg:col-span-3 h-[500px] lg:h-full flex flex-col lg:min-h-0">
-            <Card className="h-full flex flex-col lg:min-h-0 border-none shadow-none bg-transparent">
+            <Card className="h-full flex flex-col lg:min-h-0 border-none shadow-none bg-transparent p-0 gap-0">
               <CardHeader className="flex-none p-0 pb-3">
                 <CardTitle className="text-sm font-bold flex items-center gap-2">
                   <Clock className="h-4 w-4" />

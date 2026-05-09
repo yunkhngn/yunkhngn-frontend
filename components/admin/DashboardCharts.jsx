@@ -19,7 +19,7 @@ export default function DashboardCharts({ stats, theme, activityData }) {
     ];
 
     return (
-        <Card className="h-full flex flex-col border-none shadow-none bg-transparent">
+        <Card className="h-full flex flex-col border-none shadow-none bg-transparent p-0 gap-0">
             <CardHeader className="flex-none p-0 pb-3">
                 <CardTitle className="text-sm font-bold flex items-center gap-2">
                     <TrendingUp className="h-4 w-4" />
