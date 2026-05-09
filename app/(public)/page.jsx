@@ -1,6 +1,6 @@
 import HomeContent from '@/components/home/HomeContent';
 import { fetchHomePageData } from '@/lib/fetchHomePageData';
-import JsonLd from '@/lib/seo/JsonLd';
+import JsonLd from '@/lib/seo/JsonLd.jsx';
 import { personJsonLd, webSiteJsonLd } from '@/lib/seo/jsonLd';
 
 export const revalidate = 120;
