@@ -462,7 +462,7 @@ export default function AdminLetters() {
 
   return (
     <>
-      <div className="container mx-auto p-6 max-w-6xl space-y-6">
+      <div className="mx-auto space-y-6">
         <AdminPageHeader
           title="Letters"
           description="Manage your handwritten epistles"

@@ -458,12 +458,15 @@ export default function Dashboard() {
               </CardHeader>
               <CardContent className="flex-1 min-h-0 flex flex-col gap-4 p-0 pb-4">
                 {/* Actions Group */}
-                <div className="grid grid-cols-2 gap-2 flex-none">
-                  <Button asChild variant="outline" size="sm" className="h-10 text-xs bg-card border-border hover:bg-muted/50 transition-colors">
+                <div className="grid grid-cols-3 gap-2 flex-none">
+                  <Button asChild variant="outline" size="sm" className="h-10 text-[11px] px-2 bg-card border-border hover:bg-muted/50 transition-colors">
                     <Link href="/admin/blog/new"><Plus className="h-3 w-3 mr-1" /> Blog</Link>
                   </Button>
-                  <Button asChild variant="outline" size="sm" className="h-10 text-xs bg-card border-border hover:bg-muted/50 transition-colors">
+                  <Button asChild variant="outline" size="sm" className="h-10 text-[11px] px-2 bg-card border-border hover:bg-muted/50 transition-colors">
                     <Link href="/admin/photo"><Plus className="h-3 w-3 mr-1" /> Photo</Link>
+                  </Button>
+                  <Button asChild variant="outline" size="sm" className="h-10 text-[11px] px-2 bg-card border-border hover:bg-muted/50 transition-colors">
+                    <Link href="/admin/project"><Plus className="h-3 w-3 mr-1" /> Project</Link>
                   </Button>
                 </div>
 
