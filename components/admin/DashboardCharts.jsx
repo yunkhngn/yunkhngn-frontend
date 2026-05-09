@@ -20,7 +20,7 @@ export default function DashboardCharts({ stats, theme, activityData }) {
 
     return (
         <Card className="h-full flex flex-col border-none shadow-none bg-transparent">
-            <CardHeader className="flex-none py-2 px-0">
+            <CardHeader className="flex-none p-0 pb-3">
                 <CardTitle className="text-sm font-bold flex items-center gap-2">
                     <TrendingUp className="h-4 w-4" />
                     Activity & Metrics

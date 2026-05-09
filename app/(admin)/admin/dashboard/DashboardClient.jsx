@@ -373,7 +373,7 @@ export default function Dashboard() {
           {/* Column 2: Content Hub (Span 4) */}
           <div className="lg:col-span-4 h-[500px] lg:h-full flex flex-col lg:min-h-0">
             <Card className="h-full flex flex-col lg:min-h-0 border-none shadow-none bg-transparent">
-              <CardHeader className="flex-none py-2 px-0">
+              <CardHeader className="flex-none p-0 pb-3">
                 <CardTitle className="text-sm font-bold flex items-center gap-2">
                   <FileText className="h-4 w-4" />
                   Content Hub
@@ -448,7 +448,7 @@ export default function Dashboard() {
           {/* Column 3: Quick Actions & Activity (Span 3) */}
           <div className="lg:col-span-3 h-[500px] lg:h-full flex flex-col lg:min-h-0 gap-4">
             <Card className="flex-none border-none shadow-none bg-transparent">
-              <CardHeader className="py-2 px-0">
+              <CardHeader className="p-0 pb-3">
                 <CardTitle className="text-sm font-bold flex items-center gap-2">
                   <Sparkles className="h-4 w-4" />
                   Quick Actions
@@ -467,7 +467,7 @@ export default function Dashboard() {
             </Card>
 
             <Card className="flex-1 min-h-0 flex flex-col border-none shadow-none bg-transparent">
-              <CardHeader className="py-2 px-0 flex-none">
+              <CardHeader className="p-0 pb-3 flex-none">
                 <CardTitle className="flex items-center gap-2 text-sm font-bold">
                   <Clock className="h-4 w-4" /> Activity
                 </CardTitle>
