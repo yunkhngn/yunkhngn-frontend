@@ -34,6 +34,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { MoreHorizontal, Eye, EyeOff, Trash2, CheckCircle2, XCircle, MessageSquare, Flag } from 'lucide-react';
 import Link from 'next/link';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
+import { AdminPageHeader, BulkActionBar } from '@/components/admin/shared';
 
 export default function AdminComments() {
     const { user } = useAuth();
@@ -388,47 +389,33 @@ export default function AdminComments() {
 
 
                 {selectedReports.length > 0 && (
-                    <div className="bg-muted/50 p-4 rounded-lg flex items-center justify-between animate-in fade-in slide-in-from-top-2">
-                        <span className="text-sm font-medium">
-                            {selectedReports.length} reports selected
-                        </span>
-                        <div className="flex items-center gap-2">
-                            <Button size="sm" variant="outline" onClick={handleBulkResolveReportsClick}>
-                                <CheckCircle2 className="mr-2 h-4 w-4" /> Mark Resolved
-                            </Button>
-                            <Button size="sm" variant="destructive" onClick={handleBulkRejectReportsClick}>
-                                <XCircle className="mr-2 h-4 w-4" /> Reject Selected
-                            </Button>
-                        </div>
-                    </div>
+                    <BulkActionBar
+                        count={selectedReports.length}
+                        onDelete={handleBulkRejectReportsClick}
+                    >
+                        <Button size="sm" variant="outline" onClick={handleBulkResolveReportsClick}>
+                            <CheckCircle2 className="mr-2 h-4 w-4" /> Mark Resolved
+                        </Button>
+                    </BulkActionBar>
                 )}
 
-                <div className="flex items-center justify-between">
-                    <div>
-                        <h1 className="text-3xl font-bold tracking-tight">Comments & Reports</h1>
-                        <p className="text-muted-foreground mt-1">
-                            Manage user comments and moderation reports
-                        </p>
-                    </div>
-                </div>
+                <AdminPageHeader
+                    title="Comments & Reports"
+                    description="Manage user comments and moderation reports"
+                />
 
                 {selectedComments.length > 0 && (
-                    <div className="bg-muted/50 p-4 rounded-lg flex items-center justify-between animate-in fade-in slide-in-from-top-2">
-                        <span className="text-sm font-medium">
-                            {selectedComments.length} selected
-                        </span>
-                        <div className="flex items-center gap-2">
-                            <Button size="sm" variant="outline" onClick={() => handleBulkHide(true)}>
-                                <EyeOff className="mr-2 h-4 w-4" /> Hide
-                            </Button>
-                            <Button size="sm" variant="outline" onClick={() => handleBulkHide(false)}>
-                                <Eye className="mr-2 h-4 w-4" /> Unhide
-                            </Button>
-                            <Button size="sm" variant="destructive" onClick={handleBulkDeleteClick}>
-                                <Trash2 className="mr-2 h-4 w-4" /> Delete
-                            </Button>
-                        </div>
-                    </div>
+                    <BulkActionBar
+                        count={selectedComments.length}
+                        onDelete={handleBulkDeleteClick}
+                    >
+                        <Button size="sm" variant="outline" onClick={() => handleBulkHide(true)}>
+                            <EyeOff className="mr-2 h-4 w-4" /> Hide
+                        </Button>
+                        <Button size="sm" variant="outline" onClick={() => handleBulkHide(false)}>
+                            <Eye className="mr-2 h-4 w-4" /> Unhide
+                        </Button>
+                    </BulkActionBar>
                 )}
 
                 <Tabs defaultValue="comments" className="space-y-4">

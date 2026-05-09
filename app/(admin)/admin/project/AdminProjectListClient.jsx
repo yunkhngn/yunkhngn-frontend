@@ -16,6 +16,7 @@ import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/Select';
 import { Badge } from '@/components/ui/Badge';
 import { Checkbox } from '@/components/ui/Checkbox';
+import { AdminPageHeader, BulkActionBar } from '@/components/admin/shared';
 
 export default function ProjectList() {
     const { user } = useAuth();
@@ -155,17 +156,11 @@ export default function ProjectList() {
     return (
         <>
             <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                    <div>
-                        <h1 className="text-3xl font-bold tracking-tight">Projects</h1>
-                        <p className="text-muted-foreground">Manage your projects</p>
-                    </div>
-                    <Link href="/admin/project/add-project">
-                        <Button>
-                            <Plus className="h-4 w-4 mr-2" /> New Project
-                        </Button>
-                    </Link>
-                </div>
+                <AdminPageHeader
+                    title="Projects"
+                    description="Manage your projects"
+                    action={{ label: 'New Project', href: '/admin/project/add-project', icon: <Plus className="mr-2 h-4 w-4" /> }}
+                />
 
                 <div className="flex items-center justify-between gap-4">
                     <div className="relative flex-1 max-w-sm">
@@ -212,16 +207,10 @@ export default function ProjectList() {
                 </div>
 
                 {selectedProjects.length > 0 && (
-                    <div className="bg-muted/50 p-4 rounded-lg flex items-center justify-between animate-in fade-in slide-in-from-top-2">
-                        <span className="text-sm font-medium">
-                            {selectedProjects.length} selected
-                        </span>
-                        <div className="flex items-center gap-2">
-                            <Button size="sm" variant="destructive" onClick={handleBulkDelete}>
-                                <Trash2 className="mr-2 h-4 w-4" /> Delete
-                            </Button>
-                        </div>
-                    </div>
+                    <BulkActionBar
+                        count={selectedProjects.length}
+                        onDelete={handleBulkDelete}
+                    />
                 )}
 
                 {loading ? (

@@ -5,11 +5,21 @@ import { readNestJson } from '@/lib/api/readJson';
 import { Card, CardContent } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/Dialog';
-import { Link2, Plus, Copy, Trash2, Edit, ExternalLink, Loader2, BarChart3, ToggleLeft, ToggleRight, CheckSquare, Square, XCircle } from 'lucide-react';
+import { Link2, Plus, Copy, Trash2, Edit, ExternalLink, Loader2, BarChart3, ToggleLeft, ToggleRight, CheckSquare, Square, Checkbox } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { format, isValid } from 'date-fns';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
+import { AdminPageHeader, BulkActionBar, AdminEmptyState, StatusIndicator } from '@/components/admin/shared';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/Table';
+
 
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -281,36 +291,29 @@ export default function AdminShortlinks() {
     return (
         <>
             <div className="container mx-auto p-6 max-w-6xl">
-                <div className="flex items-center justify-between mb-8">
-                    <div>
-                        <h1 className="text-3xl font-bold">Shortlinks</h1>
-                        <p className="text-muted-foreground mt-1">Manage your short URLs</p>
-                    </div>
-                    <Button onClick={openCreate} className="gap-2">
-                        <Plus className="h-4 w-4" />
-                        Create Shortlink
-                    </Button>
+                <div className="mb-8">
+                    <AdminPageHeader
+                        title="Shortlinks"
+                        description="Manage your short URLs"
+                        action={{ label: 'Create Shortlink', icon: <Plus className="h-4 w-4" />, onClick: openCreate }}
+                    />
                 </div>
 
                 {/* Bulk Action Bar */}
                 {selected.size > 0 && (
-                    <div className="flex items-center gap-3 mb-4 p-3 bg-primary/5 border border-primary/20 rounded-lg animate-in slide-in-from-top-2">
-                        <span className="text-sm font-medium">{selected.size} selected</span>
-                        <div className="flex-1" />
+                    <BulkActionBar
+                        count={selected.size}
+                        onClear={clearSelection}
+                        onDelete={openBulkDelete}
+                        loading={bulkLoading}
+                    >
                         <Button variant="outline" size="sm" onClick={() => bulkSetStatus(true)} disabled={bulkLoading} className="gap-1.5">
                             <ToggleRight className="h-3.5 w-3.5 text-green-500" /> Activate
                         </Button>
                         <Button variant="outline" size="sm" onClick={() => bulkSetStatus(false)} disabled={bulkLoading} className="gap-1.5">
                             <ToggleLeft className="h-3.5 w-3.5" /> Deactivate
                         </Button>
-                        <Button variant="outline" size="sm" onClick={openBulkDelete} disabled={bulkLoading} className="gap-1.5 text-red-500 hover:text-red-600 border-red-200 hover:border-red-300 hover:bg-red-50 dark:border-red-800 dark:hover:border-red-700 dark:hover:bg-red-950">
-                            {bulkLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />} Delete
-                        </Button>
-
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={clearSelection}>
-                            <XCircle className="h-4 w-4" />
-                        </Button>
-                    </div>
+                    </BulkActionBar>
                 )}
 
                 {loading ? (
@@ -318,95 +321,100 @@ export default function AdminShortlinks() {
                         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
                     </div>
                 ) : links.length === 0 ? (
-                    <Card>
-                        <CardContent className="flex flex-col items-center justify-center py-16">
-                            <Link2 className="h-12 w-12 text-muted-foreground mb-4" />
-                            <p className="text-muted-foreground text-lg">No shortlinks yet</p>
-                            <Button onClick={openCreate} variant="outline" className="mt-4 gap-2">
-                                <Plus className="h-4 w-4" />
-                                Create your first shortlink
-                            </Button>
-                        </CardContent>
-                    </Card>
+                    <AdminEmptyState
+                        icon={<Link2 className="h-12 w-12" />}
+                        message="No shortlinks yet"
+                        action={{ label: 'Create your first shortlink', onClick: openCreate }}
+                    />
                 ) : (
-                    <div className="space-y-3">
-                        {/* Select All */}
-                        <div className="flex items-center gap-2 px-2">
-                            <button onClick={toggleSelectAll} className="text-muted-foreground hover:text-foreground transition-colors">
-                                {selected.size === links.length ? <CheckSquare className="h-4 w-4 text-primary" /> : <Square className="h-4 w-4" />}
-                            </button>
-                            <span className="text-xs text-muted-foreground">
-                                {selected.size === links.length ? 'Deselect all' : 'Select all'}
-                            </span>
-                        </div>
-
-                        {links.map((link) => (
-                            <Card key={link.id} className={`transition-all ${!link.isActive ? 'opacity-50' : ''} ${selected.has(link.id) ? 'ring-1 ring-primary/50 bg-primary/[0.02]' : ''}`}>
-                                <CardContent className="p-4">
-                                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                                        {/* Checkbox + Link Info */}
-                                        <div className="flex items-start gap-3 flex-1 min-w-0">
-                                            <button onClick={() => toggleSelect(link.id)} className="mt-1 text-muted-foreground hover:text-foreground transition-colors shrink-0">
-                                                {selected.has(link.id) ? <CheckSquare className="h-4 w-4 text-primary" /> : <Square className="h-4 w-4" />}
+                    <div className="border border-border rounded-xl bg-card overflow-hidden shadow-sm">
+                        <div className="overflow-x-auto">
+                            <Table>
+                                <TableHeader>
+                                    <TableRow className="bg-muted/50">
+                                        <TableHead className="w-[50px] px-4">
+                                            <button onClick={toggleSelectAll} className="text-muted-foreground hover:text-foreground transition-colors flex items-center justify-center">
+                                                {selected.size === links.length ? <CheckSquare className="h-4 w-4 text-primary" /> : <Square className="h-4 w-4" />}
                                             </button>
-                                            <div className="flex-1 min-w-0">
-                                                <div className="flex items-center gap-2 mb-1">
-                                                    {link.title && (
-                                                        <span className="font-semibold text-sm">{link.title}</span>
-                                                    )}
-                                                    <span className={`text-xs px-2 py-0.5 rounded-full ${link.isActive ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'}`}>
-                                                        {link.isActive ? 'Active' : 'Inactive'}
-                                                    </span>
-                                                    {link.expiresAt && new Date(link.expiresAt) < new Date() && (
-                                                        <span className="text-xs px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400">Expired</span>
-                                                    )}
+                                        </TableHead>
+                                        <TableHead className="w-[30%]">Shortlink Details</TableHead>
+                                        <TableHead className="w-[35%]">Target URL</TableHead>
+                                        <TableHead>Stats & Time</TableHead>
+                                        <TableHead className="text-right px-6">Actions</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {links.map((link) => (
+                                        <TableRow
+                                            key={link.id}
+                                            className={`group transition-all ${!link.isActive ? 'opacity-50' : ''} ${selected.has(link.id) ? 'bg-primary/[0.02]' : 'hover:bg-muted/30'}`}
+                                            onClick={() => toggleSelect(link.id)}
+                                        >
+                                            <TableCell className="px-4" onClick={(e) => e.stopPropagation()}>
+                                                <button onClick={() => toggleSelect(link.id)} className="text-muted-foreground hover:text-foreground transition-colors flex items-center justify-center">
+                                                    {selected.has(link.id) ? <CheckSquare className="h-4 w-4 text-primary" /> : <Square className="h-4 w-4" />}
+                                                </button>
+                                            </TableCell>
+                                            <TableCell className="py-3">
+                                                <div className="flex flex-col gap-1">
+                                                    <div className="flex items-center gap-2">
+                                                        {link.title && (
+                                                            <span className="font-semibold text-sm line-clamp-1">{link.title}</span>
+                                                        )}
+                                                        <span className={`text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full ${link.isActive ? 'bg-green-500/10 text-green-600 dark:text-green-400' : 'bg-red-500/10 text-red-600 dark:text-red-400'}`}>
+                                                            {link.isActive ? 'Active' : 'Inactive'}
+                                                        </span>
+                                                        {link.expiresAt && new Date(link.expiresAt) < new Date() && (
+                                                            <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-yellow-500/10 text-yellow-600 dark:text-yellow-400">Expired</span>
+                                                        )}
+                                                    </div>
+                                                    <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                                                        <code className="text-primary font-mono text-sm font-bold">{siteUrl}{link.code}</code>
+                                                        <button onClick={() => copyShortUrl(link.code)} className="text-muted-foreground hover:text-foreground transition-colors" title="Copy short URL">
+                                                            <Copy className="h-3.5 w-3.5" />
+                                                        </button>
+                                                    </div>
                                                 </div>
-
-                                                <div className="flex items-center gap-2 mb-1">
-                                                    <code className="text-primary font-mono text-sm font-bold">{siteUrl}{link.code}</code>
-                                                    <button onClick={() => copyShortUrl(link.code)} className="text-muted-foreground hover:text-foreground transition-colors" title="Copy short URL">
-                                                        <Copy className="h-3.5 w-3.5" />
-                                                    </button>
-                                                </div>
-
-                                                <a href={link.targetUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground hover:text-foreground truncate block max-w-lg transition-colors">
+                                            </TableCell>
+                                            <TableCell className="max-w-0" onClick={(e) => e.stopPropagation()}>
+                                                <a href={link.targetUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground hover:text-foreground truncate block transition-colors max-w-xs md:max-w-sm">
                                                     {link.targetUrl}
                                                 </a>
-                                            </div>
-                                        </div>
-
-                                        {/* Stats & Actions */}
-                                        <div className="flex items-center gap-3 shrink-0">
-                                            <div className="flex items-center gap-1.5 text-muted-foreground text-sm mr-2" title="Total clicks">
-                                                <BarChart3 className="h-4 w-4" />
-                                                <span className="font-medium">{link.clicks}</span>
-                                            </div>
-
-                                            <span className="text-xs text-muted-foreground">
-                                                {link.createdAt && isValid(new Date(link.createdAt)) ? format(new Date(link.createdAt), 'MMM d, yyyy') : 'No Date'}
-                                            </span>
-
-                                            <div className="flex items-center gap-1 ml-2">
-                                                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleToggle(link)} title={link.isActive ? 'Deactivate' : 'Activate'}>
-                                                    {link.isActive ? <ToggleRight className="h-4 w-4 text-green-500" /> : <ToggleLeft className="h-4 w-4" />}
-                                                </Button>
-                                                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(link)} title="Edit">
-                                                    <Edit className="h-4 w-4" />
-                                                </Button>
-                                                <a href={link.targetUrl} target="_blank" rel="noopener noreferrer">
-                                                    <Button variant="ghost" size="icon" className="h-8 w-8" title="Open target URL">
-                                                        <ExternalLink className="h-4 w-4" />
+                                            </TableCell>
+                                            <TableCell>
+                                                <div className="flex flex-col gap-1">
+                                                    <div className="flex items-center gap-1.5 text-muted-foreground text-xs" title="Total clicks">
+                                                        <BarChart3 className="h-3.5 w-3.5" />
+                                                        <span className="font-medium">{link.clicks} clicks</span>
+                                                    </div>
+                                                    <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold">
+                                                        {link.createdAt && isValid(new Date(link.createdAt)) ? format(new Date(link.createdAt), 'MMM d, yyyy') : 'No Date'}
+                                                    </span>
+                                                </div>
+                                            </TableCell>
+                                            <TableCell className="text-right px-6">
+                                                <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity" onClick={(e) => e.stopPropagation()}>
+                                                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleToggle(link)} title={link.isActive ? 'Deactivate' : 'Activate'}>
+                                                        {link.isActive ? <ToggleRight className="h-4 w-4 text-green-500" /> : <ToggleLeft className="h-4 w-4 text-muted-foreground" />}
                                                     </Button>
-                                                </a>
-                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-red-500 hover:text-red-600" onClick={() => handleDelete(link.id)} title="Delete">
-                                                    <Trash2 className="h-4 w-4" />
-                                                </Button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        ))}
+                                                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(link)} title="Edit">
+                                                        <Edit className="h-4 w-4" />
+                                                    </Button>
+                                                    <a href={link.targetUrl} target="_blank" rel="noopener noreferrer">
+                                                        <Button variant="ghost" size="icon" className="h-8 w-8" title="Open target URL">
+                                                            <ExternalLink className="h-4 w-4" />
+                                                        </Button>
+                                                    </a>
+                                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:bg-destructive/10 hover:text-destructive" onClick={() => handleDelete(link.id)} title="Delete">
+                                                        <Trash2 className="h-4 w-4" />
+                                                    </Button>
+                                                </div>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </div>
                     </div>
                 )}
             </div>

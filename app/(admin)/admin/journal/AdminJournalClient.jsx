@@ -10,6 +10,7 @@ import { format, formatDistanceToNow } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import { Badge } from '@/components/ui/Badge';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
+import { AdminPageHeader, AdminEmptyState } from '@/components/admin/shared';
 import api from '@/lib/api/client';
 import {
     Dialog,
@@ -169,25 +170,19 @@ export default function AdminJournal() {
     return (
         <>
             <div className="space-y-6">
-                {/* Header */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div>
-                        <h1 className="text-3xl font-bold tracking-tight">Journal</h1>
-                        <p className="text-muted-foreground">Micro-blog & daily thoughts</p>
-                    </div>
-                    <div className="flex gap-2">
-                        <Button variant="outline" onClick={() => setIsMoodManagerOpen(true)}>
-                            <Settings className="mr-2 h-4 w-4" /> Manage Moods
-                        </Button>
-                        <Button onClick={() => setIsComposeOpen(!isComposeOpen)}>
-                            {isComposeOpen ? (
-                                <><X className="mr-2 h-4 w-4" /> Close</>
-                            ) : (
-                                <><Plus className="mr-2 h-4 w-4" /> New Entry</>
-                            )}
-                        </Button>
-                    </div>
-                </div>
+                <AdminPageHeader
+                    title="Journal"
+                    description="Micro-blog & daily thoughts"
+                    action={{
+                        label: isComposeOpen ? 'Close' : 'New Entry',
+                        onClick: () => setIsComposeOpen(!isComposeOpen),
+                        icon: isComposeOpen ? <X className="mr-2 h-4 w-4" /> : <Plus className="mr-2 h-4 w-4" />
+                    }}
+                >
+                    <Button variant="outline" onClick={() => setIsMoodManagerOpen(true)}>
+                        <Settings className="mr-2 h-4 w-4" /> Manage Moods
+                    </Button>
+                </AdminPageHeader>
 
                 {/* Compose */}
                 {isComposeOpen && (
@@ -295,67 +290,78 @@ export default function AdminJournal() {
                 {loading ? (
                     <div className="text-center py-10">Loading...</div>
                 ) : filteredEntries.length > 0 ? (
-                    <div className="space-y-3">
-                        {filteredEntries.map(entry => {
-                            const moodInfo = moods.find(m => m.key === entry.mood) || moods[0];
-                            const MoodIcon = ICON_MAP[moodInfo?.icon] || Smile;
-                            const createdAt = entry.createdAt ? new Date(entry.createdAt) : null;
-                            const isDateValid = createdAt && !isNaN(createdAt.getTime());
-                            const timeAgo = isDateValid ? formatDistanceToNow(createdAt, { addSuffix: true, locale: vi }) : 'N/A';
-                            const fullDate = isDateValid ? format(createdAt, "d MMM yyyy 'lúc' HH:mm", { locale: vi }) : 'N/A';
+                    <div className="border rounded-lg overflow-hidden overflow-x-auto">
+                        <table className="w-full text-sm text-left min-w-[600px]">
+                            <thead className="bg-muted/50 text-muted-foreground border-b">
+                                <tr>
+                                    <th className="px-4 py-3 font-medium">Mood & Time</th>
+                                    <th className="px-4 py-3 font-medium">Content</th>
+                                    <th className="px-4 py-3 font-medium">Tags</th>
+                                    <th className="px-4 py-3 font-medium text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y">
+                                {filteredEntries.map(entry => {
+                                    const moodInfo = moods.find(m => m.key === entry.mood) || moods[0];
+                                    const MoodIcon = ICON_MAP[moodInfo?.icon] || Smile;
+                                    const createdAt = entry.createdAt ? new Date(entry.createdAt) : null;
+                                    const isDateValid = createdAt && !isNaN(createdAt.getTime());
+                                    const timeAgo = isDateValid ? formatDistanceToNow(createdAt, { addSuffix: true, locale: vi }) : 'N/A';
+                                    const fullDate = isDateValid ? format(createdAt, "d MMM yyyy 'lúc' HH:mm", { locale: vi }) : 'N/A';
 
-                            return (
-                                <div
-                                    key={entry.id}
-                                    className="group bg-card border rounded-xl p-4 hover:shadow-sm transition-all"
-                                >
-                                    <div className="flex items-start justify-between gap-4">
-                                        <div className="flex-1 min-w-0">
-                                            {/* Mood & Time */}
-                                            <div className="flex items-center gap-2 mb-2">
-                                                <MoodIcon className={`h-4 w-4 ${moodInfo?.color || ''}`} />
-                                                <span className="text-xs font-medium text-muted-foreground">
-                                                    {moodInfo?.label || entry.mood}
-                                                </span>
-                                                <span className="text-xs text-muted-foreground/50">•</span>
-                                                <time className="text-xs text-muted-foreground" title={fullDate}>
-                                                    {timeAgo}
-                                                </time>
-                                            </div>
-
-                                            {/* Content */}
-                                            <p className="text-sm whitespace-pre-wrap leading-relaxed">{entry.content}</p>
-
-                                            {/* Tags */}
-                                            {entry.tags && entry.tags.length > 0 && (
-                                                <div className="flex flex-wrap gap-1 mt-2">
-                                                    {entry.tags.map((tag, i) => (
-                                                        <Badge key={i} variant="outline" className="text-xs rounded-full font-normal">
-                                                            #{tag}
-                                                        </Badge>
-                                                    ))}
+                                    return (
+                                        <tr key={entry.id} className="hover:bg-muted/50 transition-colors">
+                                            <td className="px-4 py-3 align-top w-[150px]">
+                                                <div className="flex flex-col gap-1">
+                                                    <div className="flex items-center gap-1.5">
+                                                        <MoodIcon className={`h-4 w-4 ${moodInfo?.color || ''}`} />
+                                                        <span className="text-sm font-medium">
+                                                            {moodInfo?.label || entry.mood}
+                                                        </span>
+                                                    </div>
+                                                    <time className="text-xs text-muted-foreground" title={fullDate}>
+                                                        {timeAgo}
+                                                    </time>
                                                 </div>
-                                            )}
-                                        </div>
-
-                                        {/* Actions */}
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            className="h-8 w-8 text-destructive hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
-                                            onClick={() => handleDelete(entry.id)}
-                                        >
-                                            <Trash2 className="h-4 w-4" />
-                                        </Button>
-                                    </div>
-                                </div>
-                            );
-                        })}
+                                            </td>
+                                            <td className="px-4 py-3 align-top">
+                                                <p className="text-sm whitespace-pre-wrap leading-relaxed max-w-2xl">{entry.content}</p>
+                                            </td>
+                                            <td className="px-4 py-3 align-top w-[200px]">
+                                                {entry.tags && entry.tags.length > 0 && (
+                                                    <div className="flex flex-wrap gap-1">
+                                                        {entry.tags.map((tag, i) => (
+                                                            <Badge key={i} variant="outline" className="text-xs font-normal">
+                                                                #{tag}
+                                                            </Badge>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                            </td>
+                                            <td className="px-4 py-3 align-top text-right">
+                                                <div className="flex items-center justify-end">
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="h-8 w-8 text-destructive hover:text-destructive"
+                                                        onClick={() => handleDelete(entry.id)}
+                                                    >
+                                                        <Trash2 className="h-4 w-4" />
+                                                    </Button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
                     </div>
                 ) : (
-                    <div className="text-center py-10 text-muted-foreground">
-                        {search ? 'No matching entries found.' : 'No entries yet. Write your first thought!'}
-                    </div>
+                    <AdminEmptyState
+                        icon={Smile}
+                        title={search ? 'No matching entries found.' : 'No entries yet'}
+                        description={search ? 'Try adjusting your search terms.' : 'Write your first thought!'}
+                    />
                 )}
 
                 <ConfirmModal

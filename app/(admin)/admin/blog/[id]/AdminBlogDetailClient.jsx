@@ -11,6 +11,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { format, isValid } from 'date-fns';
 import { Badge } from '@/components/ui/Badge';
+import { StatusIndicator } from '@/components/admin/shared';
 import dynamic from 'next/dynamic';
 const TipTapViewer = dynamic(() => import('@/components/ui/TipTapViewer'), { ssr: false });
 
@@ -84,9 +85,7 @@ export default function ViewBlog() {
                         {/* Header Section */}
                         <header className="text-center mb-16 pt-4">
                             <div className="flex items-center justify-center gap-2 mb-6">
-                                <Badge variant={blog.status === 'PUBLISHED' ? 'default' : 'secondary'}>
-                                    {blog.status}
-                                </Badge>
+                                <StatusIndicator status={blog.status === 'PUBLISHED' ? 'published' : 'draft'} showLabel />
                                 <div className="text-sm text-muted-foreground uppercase tracking-widest">
                                     {blog.createdAt && isValid(new Date(blog.createdAt)) ? format(new Date(blog.createdAt), 'MMMM d, yyyy') : 'No Date'}
                                 </div>

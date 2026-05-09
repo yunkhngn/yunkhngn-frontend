@@ -8,7 +8,7 @@ import { Send, Loader2, Mail } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
-
+import { AdminPageHeader } from '@/components/admin/shared';
 
 export default function AdminNewsletter() {
     const { user } = useAuth();
@@ -61,7 +61,11 @@ export default function AdminNewsletter() {
     return (
         <>
             <div className="container mx-auto p-6 max-w-4xl">
-                <h1 className="text-3xl font-bold mb-8">Newsletter</h1>
+                <div className="mb-8">
+                    <AdminPageHeader
+                        title="Newsletter"
+                    />
+                </div>
 
                 <Card>
                     <CardHeader>
