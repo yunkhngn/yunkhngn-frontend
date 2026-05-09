@@ -20,7 +20,7 @@ export default function DashboardCharts({ stats, theme, activityData }) {
 
     return (
         <Card className="h-full flex flex-col border-none shadow-none bg-transparent p-0 gap-0">
-            <CardHeader className="flex-none p-0 pb-3">
+            <CardHeader className="flex-none px-4 pt-0 pb-3">
                 <CardTitle className="text-sm font-bold flex items-center gap-2">
                     <TrendingUp className="h-4 w-4" />
                     Activity & Metrics
@@ -33,7 +33,7 @@ export default function DashboardCharts({ stats, theme, activityData }) {
                         <TabsTrigger value="content" className="text-xs">Content</TabsTrigger>
                         <TabsTrigger value="status" className="text-xs">Status</TabsTrigger>
                     </TabsList>
-                    
+
                     <div className="flex-1 min-h-0 mt-4 bg-card border rounded-xl p-4">
                         <TabsContent value="timeline" className="h-full mt-0 focus-visible:ring-0">
                             <ResponsiveContainer width="100%" height="100%">
@@ -77,7 +77,7 @@ export default function DashboardCharts({ stats, theme, activityData }) {
                                 </AreaChart>
                             </ResponsiveContainer>
                         </TabsContent>
-                        
+
                         <TabsContent value="content" className="h-full mt-0 focus-visible:ring-0">
                             <ResponsiveContainer width="100%" height="100%">
                                 <PieChart>
@@ -102,7 +102,7 @@ export default function DashboardCharts({ stats, theme, activityData }) {
                                 </PieChart>
                             </ResponsiveContainer>
                         </TabsContent>
-                        
+
                         <TabsContent value="status" className="h-full mt-0 focus-visible:ring-0">
                             <ResponsiveContainer width="100%" height="100%">
                                 <PieChart>
