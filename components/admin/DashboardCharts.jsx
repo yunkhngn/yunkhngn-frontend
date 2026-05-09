@@ -19,14 +19,14 @@ export default function DashboardCharts({ stats, theme, activityData }) {
     ];
 
     return (
-        <Card className="h-full flex flex-col lg:min-h-0 border-none shadow-none bg-transparent p-0 gap-0">
-            <CardHeader className="flex-none px-4 pt-0 pb-3">
+        <Card className="mt-3 h-full flex flex-col lg:min-h-0 border-none shadow-none bg-transparent p-0 gap-0">
+            <CardHeader className="flex-none pt-0 pb-3">
                 <CardTitle className="text-sm font-bold flex items-center gap-2">
                     <TrendingUp className="h-4 w-4" />
                     Activity & Metrics
                 </CardTitle>
             </CardHeader>
-            <CardContent className="flex-1 min-h-0 flex flex-col p-0 px-4 pb-4">
+            <CardContent className="flex-1 min-h-0 flex flex-col p-0 pb-4">
                 <Tabs defaultValue="timeline" className="h-full flex flex-col">
                     <TabsList className="flex-none grid w-full grid-cols-3 bg-muted/50">
                         <TabsTrigger value="timeline" className="text-xs">Timeline</TabsTrigger>
