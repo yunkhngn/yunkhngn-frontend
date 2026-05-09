@@ -17,6 +17,7 @@ import { Pagination } from '@/components/ui/Pagination';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/Select';
 import { Checkbox } from '@/components/ui/Checkbox';
+import { AdminPageHeader, BulkActionBar } from '@/components/admin/shared';
 
 export default function BlogList() {
     const [blogs, setBlogs] = useState([]);
@@ -183,17 +184,11 @@ export default function BlogList() {
     return (
         <>
             <div className="space-y-6">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div>
-                        <h1 className="text-3xl font-bold tracking-tight">Blogs</h1>
-                        <p className="text-muted-foreground">Manage your blog posts</p>
-                    </div>
-                    <Link href="/admin/blog/new">
-                        <Button className="w-full md:w-auto">
-                            <Plus className="mr-2 h-4 w-4" /> New Blog
-                        </Button>
-                    </Link>
-                </div>
+                <AdminPageHeader
+                    title="Blogs"
+                    description="Manage your blog posts"
+                    action={{ label: 'New Blog', href: '/admin/blog/new', icon: <Plus className="mr-2 h-4 w-4" /> }}
+                />
 
                 <div className="flex flex-col md:flex-row items-center justify-between gap-4">
                     <div className="relative w-full md:flex-1 md:max-w-sm">
@@ -240,22 +235,17 @@ export default function BlogList() {
                 </div>
 
                 {selectedBlogs.length > 0 && (
-                    <div className="bg-muted/50 p-4 rounded-lg flex items-center justify-between animate-in fade-in slide-in-from-top-2">
-                        <span className="text-sm font-medium">
-                            {selectedBlogs.length} selected
-                        </span>
-                        <div className="flex items-center gap-2">
-                            <Button size="sm" variant="outline" onClick={() => handleBulkPublish('DRAFT')}>
-                                <Eye className="mr-2 h-4 w-4" /> Set Draft
-                            </Button>
-                            <Button size="sm" variant="outline" onClick={() => handleBulkPublish('PUBLISHED')}>
-                                <UploadCloud className="mr-2 h-4 w-4" /> Publish
-                            </Button>
-                            <Button size="sm" variant="destructive" onClick={handleBulkDelete}>
-                                <Trash2 className="mr-2 h-4 w-4" /> Delete
-                            </Button>
-                        </div>
-                    </div>
+                    <BulkActionBar
+                        count={selectedBlogs.length}
+                        onDelete={handleBulkDelete}
+                    >
+                        <Button size="sm" variant="outline" onClick={() => handleBulkPublish('DRAFT')}>
+                            <Eye className="mr-2 h-4 w-4" /> Set Draft
+                        </Button>
+                        <Button size="sm" variant="outline" onClick={() => handleBulkPublish('PUBLISHED')}>
+                            <UploadCloud className="mr-2 h-4 w-4" /> Publish
+                        </Button>
+                    </BulkActionBar>
                 )}
 
                 {loading ? (
