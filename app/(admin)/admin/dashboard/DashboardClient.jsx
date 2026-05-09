@@ -373,13 +373,13 @@ export default function Dashboard() {
           {/* Column 2: Content Hub (Span 4) */}
           <div className="mt-3 lg:col-span-4 h-[500px] lg:h-full flex flex-col lg:min-h-0">
             <Card className="h-full flex flex-col lg:min-h-0 border-none shadow-none bg-transparent p-0 gap-0">
-              <CardHeader className="flex-none px-4 pt-0 pb-3">
+              <CardHeader className="flex-none px-0 pt-0 pb-3">
                 <CardTitle className="text-sm font-bold flex items-center gap-2">
                   <FileText className="h-4 w-4" />
                   Content Hub
                 </CardTitle>
               </CardHeader>
-              <CardContent className="p-0 px-4 pb-4 flex-1 min-h-0 flex flex-col">
+              <CardContent className="p-0 pb-4 flex-1 min-h-0 flex flex-col">
                 <Tabs defaultValue="blogs" className="h-full flex flex-col">
                   <TabsList className="grid w-full grid-cols-3 mb-4 flex-none bg-muted/50">
                     <TabsTrigger value="blogs" className="text-xs">Blogs</TabsTrigger>
@@ -404,9 +404,13 @@ export default function Dashboard() {
                                 {blog.createdAt && isValid(new Date(blog.createdAt)) ? format(new Date(blog.createdAt), 'MMM d, yyyy') : 'No Date'}
                               </p>
                             </div>
-                            <Badge variant={blog.status === 'PUBLISHED' ? 'default' : 'secondary'} className="text-[10px] px-1 h-5">
-                              {blog.status === 'PUBLISHED' ? 'Pub' : 'Draft'}
-                            </Badge>
+                            <div className="flex-none">
+                              {blog.status === 'PUBLISHED' ? (
+                                <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                              ) : (
+                                <FileEdit className="h-4 w-4 text-amber-500" />
+                              )}
+                            </div>
                           </div>
                         ))}
                         {recentBlogs.length === 0 && <div className="text-center text-muted-foreground py-8 text-xs">No blogs yet.</div>}
@@ -448,13 +452,13 @@ export default function Dashboard() {
           {/* Column 3: Activity & Actions (Span 3) */}
           <div className="mt-3 lg:col-span-3 h-[500px] lg:h-full flex flex-col lg:min-h-0">
             <Card className="h-full flex flex-col lg:min-h-0 border-none shadow-none bg-transparent p-0 gap-0">
-              <CardHeader className="flex-none px-4 pt-0 pb-3">
+              <CardHeader className="flex-none px-0 pt-0 pb-3">
                 <CardTitle className="text-sm font-bold flex items-center gap-2">
                   <Clock className="h-4 w-4" />
                   Activity & Actions
                 </CardTitle>
               </CardHeader>
-              <CardContent className="flex-1 min-h-0 flex flex-col gap-4 p-0 px-4 pb-4">
+              <CardContent className="flex-1 min-h-0 flex flex-col gap-4 p-0 pb-4">
                 {/* Actions Group */}
                 <div className="grid grid-cols-2 gap-2 flex-none">
                   <Button asChild variant="outline" size="sm" className="h-10 text-xs bg-card border-border hover:bg-muted/50 transition-colors">
