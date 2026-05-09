@@ -8,23 +8,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/Tabs';
 import { Badge } from '@/components/ui/Badge';
-import {
-  Server,
-  Terminal,
-  Activity,
-  Box,
-  Search,
-  Filter,
-  ArrowDownCircle,
-  Cpu,
-  Database,
-  RefreshCw,
-  Play,
-  Pause,
-  Trash2
-} from 'lucide-react';
+import { Server, Terminal, Activity, Box, Search, Filter, ArrowDownCircle, Cpu, Database, RefreshCw, Play, Pause, Trash2 } from 'lucide-react';
 import io from 'socket.io-client';
 import { motion, AnimatePresence } from 'framer-motion';
+import { formatDistanceToNow } from 'date-fns';
 
 export default function MonitorClient() {
   const { user } = useAuth();
@@ -36,6 +23,7 @@ export default function MonitorClient() {
   const [isPaused, setIsPaused] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterLevel, setFilterLevel] = useState('all');
+  const [systemStats, setSystemStats] = useState(null);
 
   const socketRef = useRef(null);
   const logsEndRef = useRef({});
@@ -63,6 +51,44 @@ export default function MonitorClient() {
     const interval = setInterval(fetchContainers, 15000);
     return () => clearInterval(interval);
   }, [user, fetchContainers]);
+
+  useEffect(() => {
+    let intervalId;
+    const fetchSystemStats = async () => {
+      if (!user) return;
+      if (typeof document !== 'undefined' && document.visibilityState !== 'visible') return;
+      try {
+        const token = await user.getIdToken();
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/system/stats`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (res.ok) {
+          setSystemStats(await readNestJson(res));
+        }
+      } catch (error) {
+        console.error("Failed to fetch system stats", error);
+      }
+    };
+
+    fetchSystemStats();
+    intervalId = setInterval(fetchSystemStats, 5000);
+
+    const handleVisibilityChange = () => {
+      if (typeof document !== 'undefined' && document.visibilityState === 'visible') {
+        fetchSystemStats();
+      }
+    };
+    if (typeof document !== 'undefined') {
+      document.addEventListener('visibilitychange', handleVisibilityChange);
+    }
+
+    return () => {
+      clearInterval(intervalId);
+      if (typeof document !== 'undefined') {
+        document.removeEventListener('visibilitychange', handleVisibilityChange);
+      }
+    };
+  }, [user]);
 
 
   useEffect(() => {
@@ -173,7 +199,112 @@ export default function MonitorClient() {
 
         <AnimatePresence mode="wait">
           <motion.div key={activeTab} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
-            <TabsContent value="overview" className="mt-4 grid gap-3 md:grid-cols-2 lg:grid-cols-4">
+            <TabsContent value="overview" className="mt-4">
+              {/* System Status Cards */}
+              <div className="grid gap-3 grid-cols-1 md:grid-cols-2 lg:grid-cols-4 mb-6">
+                <Card className="bg-green-500/10 border-green-500/20">
+                  <CardContent className="p-4 flex items-center gap-4">
+                    <div className="p-2 rounded-full bg-green-500/20 text-green-500">
+                      <Server className="h-5 w-5" />
+                    </div>
+                    <div className="w-full">
+                      <p className="text-sm font-medium">CPU Load</p>
+                      <div className="flex items-center justify-between">
+                        <p className="text-2xl font-bold font-mono">
+                          {systemStats ? `${systemStats.currentLoad.currentLoad.toFixed(1)}%` : '...'}
+                        </p>
+                        {systemStats && (
+                          <div className="h-1.5 w-16 bg-green-500/20 rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-green-500 transition-all duration-500"
+                              style={{ width: `${Math.min(systemStats.currentLoad.currentLoad, 100)}%` }}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-blue-500/10 border-blue-500/20">
+                  <CardContent className="p-4 flex items-center gap-4">
+                    <div className="p-2 rounded-full bg-blue-500/20 text-blue-500">
+                      <Database className="h-5 w-5" />
+                    </div>
+                    <div className="w-full">
+                      <p className="text-sm font-medium">Memory (RAM)</p>
+                      {systemStats ? (
+                        <div>
+                          <div className="flex items-end gap-1">
+                            <p className="text-2xl font-bold font-mono">
+                              {((systemStats.mem.active / systemStats.mem.total) * 100).toFixed(1)}%
+                            </p>
+                            <p className="text-xs text-muted-foreground mb-1">
+                              ({(systemStats.mem.active / 1024 / 1024 / 1024).toFixed(1)}GB / {(systemStats.mem.total / 1024 / 1024 / 1024).toFixed(1)}GB)
+                            </p>
+                          </div>
+                          <div className="h-1.5 w-full bg-blue-500/20 rounded-full overflow-hidden mt-1">
+                            <div
+                              className="h-full bg-blue-500 transition-all duration-500"
+                              style={{ width: `${(systemStats.mem.active / systemStats.mem.total) * 100}%` }}
+                            />
+                          </div>
+                        </div>
+                      ) : <p className="...">Loading...</p>}
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-purple-500/10 border-purple-500/20">
+                  <CardContent className="p-4 flex items-center gap-4">
+                    <div className="p-2 rounded-full bg-purple-500/20 text-purple-500">
+                      <Activity className="h-5 w-5" />
+                    </div>
+                    <div className="w-full">
+                      <p className="text-sm font-medium">Uptime</p>
+                      <p className="text-lg font-bold font-mono truncate">
+                        {systemStats && systemStats.time && typeof systemStats.time.uptime === 'number'
+                          ? formatDistanceToNow(new Date(Date.now() - systemStats.time.uptime * 1000))
+                          : '...'}
+                      </p>
+                      <p className="text-xs text-purple-500/80">
+                        System Online
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-orange-500/10 border-orange-500/20">
+                  <CardContent className="p-4 flex items-center gap-4">
+                    <div className="p-2 rounded-full bg-orange-500/20 text-orange-500">
+                      <Server className="h-5 w-5" />
+                    </div>
+                    <div className="w-full">
+                      <p className="text-sm font-medium">Disk Usage</p>
+                      {systemStats && systemStats.fsSize && systemStats.fsSize.length > 0 ? (
+                        <div>
+                          <div className="flex items-end gap-1">
+                            <p className="text-2xl font-bold font-mono">
+                              {systemStats.fsSize[0].use.toFixed(1)}%
+                            </p>
+                            <p className="text-xs text-muted-foreground mb-1">
+                              ({(systemStats.fsSize[0].used / 1024 / 1024 / 1024).toFixed(0)}GB used)
+                            </p>
+                          </div>
+                          <div className="h-1.5 w-full bg-orange-500/20 rounded-full overflow-hidden mt-1">
+                            <div
+                              className="h-full bg-orange-500 transition-all duration-500"
+                              style={{ width: `${systemStats.fsSize[0].use}%` }}
+                            />
+                          </div>
+                        </div>
+                      ) : <p className="text-sm font-mono text-muted-foreground">Unknown</p>}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
               {containers.map((container) => (
                 <Card key={container.id} className="bg-card hover:border-primary/50 transition-all cursor-pointer overflow-hidden border-border" onClick={() => setActiveTab(container.id)}>
                   <CardHeader className="p-4 flex flex-row items-center justify-between space-y-0">
