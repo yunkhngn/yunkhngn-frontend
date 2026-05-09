@@ -70,8 +70,6 @@ export default function Dashboard() {
   const [aiSummary, setAiSummary] = useState('');
   const [generatingAi, setGeneratingAi] = useState(false);
 
-  const [analyticsData, setAnalyticsData] = useState(null);
-  const [analyticsPeriod, setAnalyticsPeriod] = useState('24h');
   const [activityData, setActivityData] = useState([]);
 
   useEffect(() => {
@@ -84,9 +82,8 @@ export default function Dashboard() {
 
 
         // Fetch consolidated dashboard stats
-        const [dashboardRes, analyticsRes] = await Promise.all([
-          fetch(`${process.env.NEXT_PUBLIC_API_URL}/system/dashboard-stats`, { headers }),
-          fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/analytics?period=${analyticsPeriod}`, { headers })
+        const [dashboardRes] = await Promise.all([
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/system/dashboard-stats`, { headers })
         ]);
 
         if (dashboardRes.ok) {
@@ -161,10 +158,6 @@ export default function Dashboard() {
           })));
         }
 
-        if (analyticsRes.ok) {
-          const analytics = await readNestJson(analyticsRes);
-          setAnalyticsData(analytics);
-        }
       } catch (error) {
         console.error("Failed to fetch dashboard data", error);
       } finally {
@@ -302,34 +295,35 @@ export default function Dashboard() {
         </DialogContent>
       </Dialog>
 
-      <div className="space-y-8">
+      <div className="flex flex-col h-[calc(100vh-6rem)] overflow-hidden gap-4">
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex-none flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-            <p className="text-muted-foreground mt-1">
+            <p className="text-muted-foreground mt-1 text-sm">
               Welcome back, {user?.displayName || user?.email}
             </p>
           </div>
           <div className="grid grid-cols-2 md:flex gap-2 w-full md:w-auto">
             <Button
               variant="outline"
+              size="sm"
               className="col-span-2 md:col-span-1 border-yellow-500/50 hover:bg-yellow-500/10 text-yellow-600 dark:text-yellow-400"
               onClick={handleGenerateSummary}
             >
               <Sparkles className="h-4 w-4 mr-2" />
               AI Summary
             </Button>
-            <Button asChild variant="outline" className="flex-1 md:flex-none">
+            <Button asChild variant="outline" size="sm" className="flex-1 md:flex-none">
               <Link href="/admin/blog/new">
                 <Plus className="h-4 w-4 mr-2" />
-                New Blog
+                Blog
               </Link>
             </Button>
-            <Button asChild className="flex-1 md:flex-none">
+            <Button asChild size="sm" className="flex-1 md:flex-none">
               <Link href="/admin/project/add-project">
                 <Plus className="h-4 w-4 mr-2" />
-                New Project
+                Project
               </Link>
             </Button>
           </div>
@@ -337,11 +331,11 @@ export default function Dashboard() {
 
 
         {/* Stats Grid */}
-        <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
+        <div className="flex-none grid gap-3 grid-cols-2 lg:grid-cols-4 h-24">
           <StatCard
-            title="Total Blogs"
+            title="Blogs"
             value={stats.blogs}
-            subtitle={`${stats.blogsPublished} published, ${stats.blogsDraft} drafts`}
+            subtitle={`${stats.blogsPublished} pub, ${stats.blogsDraft} draft`}
             icon={FileText}
           />
           <StatCard
@@ -351,39 +345,15 @@ export default function Dashboard() {
             icon={Folder}
           />
           <StatCard
-            title="Gallery"
-            value={stats.gallery}
-            subtitle="Photos uploaded"
-            icon={ImageIcon}
-          />
-          <StatCard
-            title="Published"
-            value={stats.blogsPublished}
-            subtitle="Live articles"
-            icon={CheckCircle2}
-          />
-          <StatCard
-            title="Total Comments"
+            title="Comments"
             value={stats.comments}
-            subtitle="Across all posts"
+            subtitle="Total interactions"
             icon={MessageSquare}
           />
           <StatCard
-            title="Total Mail"
+            title="Mail"
             value={stats.mailTotal}
-            subtitle="Total interactions"
-            icon={Mail}
-          />
-          <StatCard
-            title="Received"
-            value={stats.mailReceived}
-            subtitle="Incoming messages"
-            icon={Mail}
-          />
-          <StatCard
-            title="Responded"
-            value={stats.mailSent}
-            subtitle="Replies sent"
+            subtitle={`${stats.mailReceived} received`}
             icon={Mail}
           />
         </div>
@@ -391,8 +361,6 @@ export default function Dashboard() {
         <DashboardCharts
           stats={stats}
           theme={theme}
-          analyticsData={analyticsData}
-          analyticsPeriod={analyticsPeriod}
           activityData={activityData}
         />
 
