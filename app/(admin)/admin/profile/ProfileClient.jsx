@@ -2,16 +2,13 @@
 
 import { readNestJson } from '@/lib/api/readJson';
 import AdminManagement from "@/components/template/Admin/UserManagement";
-import ServiceStatus from "@/components/template/Admin/ServiceStatus";
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/Avatar";
 import { updatePassword } from 'firebase/auth';
-import { Loader2, Upload, Save, Terminal, CheckCircle2, X } from 'lucide-react';
-import { Badge } from "@/components/ui/Badge";
-import { formatDistanceToNow } from "date-fns";
+import { Loader2, Upload, Save } from 'lucide-react';
 
 export default function Profile() {
   const { user, loading: authLoading } = useAuth();
@@ -24,28 +21,10 @@ export default function Profile() {
   const [message, setMessage] = useState({ type: '', text: '' });
   const fileInputRef = useRef(null);
 
-  const [deployments, setDeployments] = useState([]);
-
   useEffect(() => {
     if (user) {
       setName(user.displayName || '');
       setAvatarUrl(user.avatarUrl || user.photoURL || '');
-
-      const fetchDeployments = async () => {
-        try {
-          const token = await user.getIdToken();
-          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/github/deployments`, {
-            headers: { Authorization: `Bearer ${token}` }
-          });
-          if (res.ok) {
-            const data = await readNestJson(res);
-            setDeployments(data);
-          }
-        } catch (error) {
-          console.error('Failed to fetch deployments', error);
-        }
-      };
-      fetchDeployments();
     }
   }, [user]);
 
@@ -235,49 +214,7 @@ export default function Profile() {
         </div>
 
         <div className="mt-8 bg-card text-card-foreground rounded-xl border shadow-sm p-6">
-          <ServiceStatus />
-        </div>
-
-        {/* Deployment Status */}
-        <div className="mt-8 bg-card text-card-foreground rounded-xl border shadow-sm p-6">
-          <div className="flex items-center gap-2 mb-4">
-            <Terminal className="h-5 w-5" />
-            <h2 className="text-lg font-semibold">Recent Deployments (GitHub Actions)</h2>
-          </div>
-          <div className="space-y-4">
-            {deployments.map((run) => (
-              <div key={run.id} className="flex items-center justify-between p-3 border rounded-lg">
-                <div className="flex items-center gap-3">
-                  <div className={`p-2 rounded-full ${run.conclusion === 'success' ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'}`}>
-                    {run.conclusion === 'success' ? <CheckCircle2 className="h-4 w-4" /> : <X className="h-4 w-4" />}
-                  </div>
-                  <div>
-                    <p className="font-medium text-sm">{run.display_title || run.name}</p>
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <span>#{run.run_number}</span>
-                      <span>•</span>
-                      <span>{run.actor?.login}</span>
-                      <span>•</span>
-                      <span>{formatDistanceToNow(new Date(run.updated_at), { addSuffix: true })}</span>
-                    </div>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <Badge variant={run.status === 'completed' ? 'outline' : 'secondary'}>
-                    {run.status}
-                  </Badge>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {Math.floor(run.duration / 1000)}s
-                  </p>
-                </div>
-              </div>
-            ))}
-            {deployments.length === 0 && (
-              <div className="text-center text-muted-foreground py-4">
-                No recent deployments found.
-              </div>
-            )}
-          </div>
+          <AdminManagement />
         </div>
 
         <div className="mt-8 bg-card text-card-foreground rounded-xl border shadow-sm p-6">

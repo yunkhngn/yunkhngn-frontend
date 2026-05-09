@@ -146,7 +146,6 @@ export default function AdminManagement() {
                         <tr>
                             <th className="px-4 py-3 font-medium">Name</th>
                             <th className="px-4 py-3 font-medium">Email</th>
-                            <th className="px-4 py-3 font-medium">Role</th>
                             <th className="px-4 py-3 font-medium text-right">Actions</th>
                         </tr>
                     </thead>
@@ -155,11 +154,6 @@ export default function AdminManagement() {
                             <tr key={u.uid} className="hover:bg-muted/50 transition-colors">
                                 <td className="px-4 py-3 font-medium">{u.name || 'N/A'}</td>
                                 <td className="px-4 py-3 text-muted-foreground">{u.email}</td>
-                                <td className="px-4 py-3">
-                                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary">
-                                        {u.role}
-                                    </span>
-                                </td>
                                 <td className="px-4 py-3 text-right">
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>

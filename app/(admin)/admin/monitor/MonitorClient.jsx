@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/Tabs';
 import { Badge } from '@/components/ui/Badge';
-import { Server, Terminal, Activity, Box, Search, Filter, ArrowDownCircle, Cpu, Database, RefreshCw, Play, Pause, Trash2 } from 'lucide-react';
+import { Server, Terminal, Activity, Box, Search, Filter, ArrowDownCircle, Cpu, Database, RefreshCw, Play, Pause, Trash2, Shield, Sparkles, Mail, Image as ImageIcon, CheckCircle2, XCircle } from 'lucide-react';
 import io from 'socket.io-client';
 import { motion, AnimatePresence } from 'framer-motion';
 import { formatDistanceToNow } from 'date-fns';
@@ -24,6 +24,15 @@ export default function MonitorClient() {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterLevel, setFilterLevel] = useState('all');
   const [systemStats, setSystemStats] = useState(null);
+  const [serviceStatuses, setServiceStatuses] = useState({
+    backend: { status: 'pending', message: 'Checking...' },
+    cloudinary: { status: 'pending', message: 'Checking...' },
+    firebase: { status: 'pending', message: 'Checking...' },
+    gemini: { status: 'pending', message: 'Checking...' },
+    resend: { status: 'pending', message: 'Checking...' },
+    cloudflare: { status: 'pending', message: 'Checking...' },
+  });
+  const [checkingServices, setCheckingServices] = useState(false);
 
   const socketRef = useRef(null);
   const logsEndRef = useRef({});
@@ -89,6 +98,50 @@ export default function MonitorClient() {
       }
     };
   }, [user]);
+
+  const checkExternalServices = useCallback(async () => {
+    setCheckingServices(true);
+    setServiceStatuses({
+      backend: { status: 'pending', message: 'Checking...' },
+      cloudinary: { status: 'pending', message: 'Checking...' },
+      firebase: { status: 'pending', message: 'Checking...' },
+      gemini: { status: 'pending', message: 'Checking...' },
+      resend: { status: 'pending', message: 'Checking...' },
+      cloudflare: { status: 'pending', message: 'Checking...' },
+    });
+
+    // 1. Firebase check
+    setServiceStatuses(prev => ({ ...prev, firebase: { status: user ? 'success' : 'error', message: user ? 'Authenticated' : 'Not Authenticated' } }));
+
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/health`);
+      if (res.ok) {
+        const data = await readNestJson(res);
+        setServiceStatuses(prev => ({
+          ...prev,
+          backend: { status: 'success', message: 'Online' },
+          gemini: { status: data.services?.gemini ? 'success' : 'error', message: data.services?.gemini ? 'Configured' : 'Missing Key' },
+          resend: { status: data.services?.resend ? 'success' : 'error', message: data.services?.resend ? 'Configured' : 'Missing Key' },
+          cloudflare: { status: data.services?.cloudflare ? 'success' : 'error', message: data.services?.cloudflare ? 'Configured' : 'Missing Key' },
+          cloudinary: { status: data.services?.cloudinary ? 'success' : 'error', message: data.services?.cloudinary ? 'Configured' : 'Missing Key' },
+        }));
+      } else {
+        const errObj = { status: 'error', message: 'Offline' };
+        setServiceStatuses(prev => ({ ...prev, backend: errObj, gemini: errObj, resend: errObj, cloudflare: errObj, cloudinary: errObj }));
+      }
+    } catch (error) {
+      const errObj = { status: 'error', message: 'Unreachable' };
+      setServiceStatuses(prev => ({ ...prev, backend: errObj, gemini: errObj, resend: errObj, cloudflare: errObj, cloudinary: errObj }));
+    } finally {
+      setCheckingServices(false);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    checkExternalServices();
+    const interval = setInterval(checkExternalServices, 60000); // Check every minute
+    return () => clearInterval(interval);
+  }, [checkExternalServices]);
 
 
   useEffect(() => {
@@ -172,7 +225,10 @@ export default function MonitorClient() {
           <div className="flex items-center gap-2 px-4 py-2 bg-muted rounded-full border border-border text-[10px] font-mono text-muted-foreground">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" /> AGENT CONNECTED
           </div>
-          <Button onClick={fetchContainers} variant="outline" size="sm" className="rounded-full"><RefreshCw className="h-4 w-4 mr-2" /> Refresh</Button>
+          <Button onClick={() => { fetchContainers(); checkExternalServices(); }} variant="outline" size="sm" className="rounded-full" disabled={loading || checkingServices}>
+            <RefreshCw className={cn("h-4 w-4 mr-2", (loading || checkingServices) && "animate-spin")} /> 
+            Sync
+          </Button>
         </div>
       </div>
 
@@ -291,19 +347,79 @@ export default function MonitorClient() {
             </Card>
           </div>
 
-          <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
-            {containers.map((container) => (
-              <Card key={container.id} className="bg-card hover:border-primary/50 transition-all cursor-pointer overflow-hidden border-border" onClick={() => setActiveTab(container.id)}>
-                <CardHeader className="p-4 flex flex-row items-center justify-between space-y-0">
-                  <CardTitle className="text-sm font-bold truncate pr-2">{container.names?.[0]?.replace(/^\//, '')}</CardTitle>
-                  <Badge variant="outline" className={`${getStatusColor(container.state)} text-[9px] px-1.5 py-0`}>{container.state.toUpperCase()}</Badge>
-                </CardHeader>
-                <CardContent className="p-4 pt-0 space-y-2 text-[10px]">
-                  <div className="flex justify-between text-muted-foreground"><span>Image</span><span className="truncate max-w-[120px] font-mono">{container.image.split(':')[0]}</span></div>
-                  <div className="flex justify-between text-muted-foreground"><span>Status</span><span className="text-emerald-500">{container.status}</span></div>
-                </CardContent>
-              </Card>
-            ))}
+          {/* Active Containers */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <Box className="h-4 w-4 text-primary" />
+              <h2 className="text-sm font-bold tracking-tight uppercase">Active Infrastructure</h2>
+            </div>
+            <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
+              {containers.map((container) => (
+                <Card key={container.id} className="bg-card hover:border-primary/50 transition-all cursor-pointer overflow-hidden border-border" onClick={() => setActiveTab(container.id)}>
+                  <CardHeader className="p-4 flex flex-row items-center justify-between space-y-0">
+                    <CardTitle className="text-sm font-bold truncate pr-2">{container.names?.[0]?.replace(/^\//, '')}</CardTitle>
+                    <Badge variant="outline" className={`${getStatusColor(container.state)} text-[9px] px-1.5 py-0`}>{container.state.toUpperCase()}</Badge>
+                  </CardHeader>
+                  <CardContent className="p-4 pt-0 space-y-2 text-[10px]">
+                    <div className="flex justify-between text-muted-foreground"><span>Image</span><span className="truncate max-w-[120px] font-mono">{container.image.split(':')[0]}</span></div>
+                    <div className="flex justify-between text-muted-foreground"><span>Status</span><span className="text-emerald-500">{container.status}</span></div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+
+          {/* External Infrastructure */}
+          <div className="mt-8 space-y-4">
+            <div className="flex items-center gap-2">
+              <Activity className="h-4 w-4 text-primary" />
+              <h2 className="text-sm font-bold tracking-tight uppercase">External Infrastructure</h2>
+            </div>
+            <div className="grid gap-3 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+              {[
+                { id: 'backend', label: 'Backend API', icon: Server, color: 'emerald' },
+                { id: 'cloudinary', label: 'Cloudinary', icon: ImageIcon, color: 'sky' },
+                { id: 'firebase', label: 'Firebase Auth', icon: Shield, color: 'amber' },
+                { id: 'gemini', label: 'Gemini AI', icon: Sparkles, color: 'indigo' },
+                { id: 'resend', label: 'Resend Email', icon: Mail, color: 'rose' },
+                { id: 'cloudflare', label: 'Cloudflare', icon: Activity, color: 'orange' },
+              ].map((svc) => {
+                const status = serviceStatuses[svc.id];
+                const isError = status.status === 'error';
+                const isPending = status.status === 'pending';
+
+                return (
+                  <Card key={svc.id} className="bg-card border-border overflow-hidden group">
+                    <CardContent className="p-4 flex flex-col gap-3">
+                      <div className="flex items-center justify-between">
+                        <div className={cn(
+                          "p-2 rounded-xl transition-colors",
+                          isError ? "bg-rose-500/10 text-rose-500" : `bg-${svc.color}-500/10 text-${svc.color}-500`
+                        )}>
+                          <svc.icon className="h-4 w-4" />
+                        </div>
+                        {isPending ? (
+                          <RefreshCw className="h-3.5 w-3.5 animate-spin text-muted-foreground" />
+                        ) : isError ? (
+                          <XCircle className="h-3.5 w-3.5 text-rose-500" />
+                        ) : (
+                          <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
+                        )}
+                      </div>
+                      <div className="space-y-0.5">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">{svc.label}</p>
+                        <p className={cn(
+                          "text-xs font-bold truncate",
+                          isError ? "text-rose-500" : "text-foreground"
+                        )}>
+                          {status.message}
+                        </p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
           </div>
         </TabsContent>
 

@@ -17,7 +17,10 @@ import {
     Trash2,
     Settings2,
     Search,
-    ShieldCheck
+    ShieldCheck,
+    ArrowUp,
+    ArrowDown,
+    Type
 } from 'lucide-react';
 import Editor from '@monaco-editor/react';
 import axios from 'axios';
@@ -67,6 +70,8 @@ export default function Settings() {
     const [currentSetting, setCurrentSetting] = useState({ id: null, settingTitle: '', content: '', group: '' });
     const [newSetting, setNewSetting] = useState({ settingTitle: '', content: '', group: 'General' });
     const [saving, setSaving] = useState(false);
+    const [isRenameGroupDialogOpen, setIsRenameGroupDialogOpen] = useState(false);
+    const [renameGroupData, setRenameGroupData] = useState({ oldName: '', newName: '' });
     const [uploading, setUploading] = useState(false);
     const [closedSections, setClosedSections] = useState([]);
     const [isLoaded, setIsLoaded] = useState(false);
@@ -136,6 +141,7 @@ export default function Settings() {
         try {
             const token = await user.getIdToken();
             const payload = {
+                id: currentSetting.id,
                 settingTitle: currentSetting.settingTitle,
                 content: currentSetting.content,
                 group: currentSetting.group,
@@ -191,6 +197,119 @@ export default function Settings() {
             }
         } catch (error) {
             toast.error('Error creating setting');
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const handleMove = async (setting, direction) => {
+        if (!user) return;
+        
+        const groupObj = groups.find(g => g.group === (setting.group || 'Uncategorized'));
+        if (!groupObj) return;
+        
+        const index = groupObj.settings.findIndex(s => s.id === setting.id);
+        const swapIndex = direction === 'up' ? index - 1 : index + 1;
+        
+        if (swapIndex < 0 || swapIndex >= groupObj.settings.length) return;
+        
+        const swapSetting = groupObj.settings[swapIndex];
+        const newSortOrder = swapSetting.sortOrder || 0;
+        const currentSortOrder = setting.sortOrder || 0;
+        
+        // If sort orders are same, we need to adjust them
+        const adjustedSwapOrder = currentSortOrder === newSortOrder ? newSortOrder + 1 : currentSortOrder;
+
+        setSaving(true);
+        try {
+            const token = await user.getIdToken();
+            await Promise.all([
+                fetch(`${process.env.NEXT_PUBLIC_API_URL}/settings`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                    body: JSON.stringify({ id: setting.id, settingTitle: setting.settingTitle, sortOrder: newSortOrder })
+                }),
+                fetch(`${process.env.NEXT_PUBLIC_API_URL}/settings`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                    body: JSON.stringify({ id: swapSetting.id, settingTitle: swapSetting.settingTitle, sortOrder: adjustedSwapOrder })
+                })
+            ]);
+            await fetchSettings();
+            toast.success('Order updated');
+        } catch (error) {
+            toast.error('Error updating order');
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const handleRenameGroup = async () => {
+        const { oldName, newName } = renameGroupData;
+        if (!user || !newName || oldName === newName) {
+            setIsRenameGroupDialogOpen(false);
+            return;
+        }
+        
+        const groupObj = groups.find(g => g.group === oldName);
+        if (!groupObj) return;
+        
+        setSaving(true);
+        try {
+            const token = await user.getIdToken();
+            await Promise.all(groupObj.settings.map(s => 
+                fetch(`${process.env.NEXT_PUBLIC_API_URL}/settings`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                    body: JSON.stringify({ id: s.id, settingTitle: s.settingTitle, group: newName })
+                })
+            ));
+            await fetchSettings();
+            toast.success('Group renamed');
+            setIsRenameGroupDialogOpen(false);
+        } catch (error) {
+            toast.error('Error renaming group');
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const handleMoveGroup = async (groupName, direction) => {
+        if (!user) return;
+        const index = groups.findIndex(g => g.group === groupName);
+        const swapIndex = direction === 'up' ? index - 1 : index + 1;
+        if (swapIndex < 0 || swapIndex >= groups.length) return;
+
+        const targetGroup = groups[swapIndex];
+        const currentGroup = groups[index];
+
+        // Find min/max sort orders to swap
+        const currentMin = Math.min(...currentGroup.settings.map(s => s.sortOrder || 0));
+        const targetMin = Math.min(...targetGroup.settings.map(s => s.sortOrder || 0));
+        
+        // Simple swap: set all settings in current group to target's min, and vice versa
+        // This is a bit naive but works for basic sorting
+        setSaving(true);
+        try {
+            const token = await user.getIdToken();
+            const offset = 1000; // Large offset to avoid collision
+            
+            await Promise.all([
+                ...currentGroup.settings.map(s => fetch(`${process.env.NEXT_PUBLIC_API_URL}/settings`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                    body: JSON.stringify({ id: s.id, settingTitle: s.settingTitle, sortOrder: (s.sortOrder || 0) + (targetMin - currentMin) })
+                })),
+                ...targetGroup.settings.map(s => fetch(`${process.env.NEXT_PUBLIC_API_URL}/settings`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                    body: JSON.stringify({ id: s.id, settingTitle: s.settingTitle, sortOrder: (s.sortOrder || 0) + (currentMin - targetMin) })
+                }))
+            ]);
+            await fetchSettings();
+            toast.success('Group order updated');
+        } catch (error) {
+            toast.error('Error updating group order');
         } finally {
             setSaving(false);
         }
@@ -286,13 +405,13 @@ export default function Settings() {
             >
                 <div className="flex items-center gap-2">
                     <div className="relative group">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
                         <Input
                             placeholder="Search settings..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             className="pl-9 w-[200px] md:w-[300px] bg-card/50 border-none shadow-sm"
                         />
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors pointer-events-none z-10" />
                     </div>
                     <Button onClick={() => setIsCreateDialogOpen(true)} className="gap-2">
                         <Plus className="h-4 w-4" />
@@ -315,11 +434,44 @@ export default function Settings() {
                                     <ChevronRight className="h-4 w-4" />
                                 </div>
                                 <span className="tracking-tight">{group}</span>
-                            </div>
-                            <div className="flex items-center gap-3">
                                 <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground bg-muted/50 px-2 py-0.5 rounded-full">
                                     {groupSettings.length} keys
                                 </span>
+                            </div>
+                            <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-7 w-7 rounded-md hover:bg-primary/10"
+                                    onClick={() => {
+                                        setRenameGroupData({ oldName: group, newName: group });
+                                        setIsRenameGroupDialogOpen(true);
+                                    }}
+                                    title="Rename Group"
+                                >
+                                    <Type className="h-3.5 w-3.5" />
+                                </Button>
+                                <div className="w-[1px] h-3 bg-border mx-1" />
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-7 w-7 rounded-md hover:bg-primary/10"
+                                    onClick={() => handleMoveGroup(group, 'up')}
+                                    disabled={groups.indexOf(groups.find(g => g.group === group)) === 0}
+                                    title="Move Group Up"
+                                >
+                                    <ArrowUp className="h-3.5 w-3.5" />
+                                </Button>
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-7 w-7 rounded-md hover:bg-primary/10"
+                                    onClick={() => handleMoveGroup(group, 'down')}
+                                    disabled={groups.indexOf(groups.find(g => g.group === group)) === groups.length - 1}
+                                    title="Move Group Down"
+                                >
+                                    <ArrowDown className="h-3.5 w-3.5" />
+                                </Button>
                             </div>
                         </CollapsibleTrigger>
                         <CollapsibleContent>
@@ -358,6 +510,26 @@ export default function Settings() {
                                                 </TableCell>
                                                 <TableCell className="align-top py-4 pr-6">
                                                     <div className="flex items-center justify-end gap-1">
+                                                        <div className="flex flex-col gap-0.5 mr-2">
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="icon"
+                                                                className="h-6 w-6 rounded-md hover:bg-primary/10"
+                                                                onClick={() => handleMove(setting, 'up')}
+                                                                disabled={groupSettings.indexOf(setting) === 0}
+                                                            >
+                                                                <ArrowUp className="h-3 w-3" />
+                                                            </Button>
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="icon"
+                                                                className="h-6 w-6 rounded-md hover:bg-primary/10"
+                                                                onClick={() => handleMove(setting, 'down')}
+                                                                disabled={groupSettings.indexOf(setting) === groupSettings.length - 1}
+                                                            >
+                                                                <ArrowDown className="h-3 w-3" />
+                                                            </Button>
+                                                        </div>
                                                         <Button
                                                             variant="ghost"
                                                             size="icon"
@@ -409,7 +581,11 @@ export default function Settings() {
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Title</label>
-                                <Input value={currentSetting.settingTitle} disabled className="bg-muted font-bold" />
+                                <Input
+                                    value={currentSetting.settingTitle}
+                                    onChange={(e) => setCurrentSetting({ ...currentSetting, settingTitle: e.target.value })}
+                                    className="font-bold"
+                                />
                             </div>
                             <div className="space-y-2">
                                 <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Group</label>
@@ -544,6 +720,33 @@ export default function Settings() {
                 title="Delete Setting?"
                 description="This will permanently remove this configuration entry. This may break parts of the site that rely on this key."
             />
+
+            {/* Rename Group Dialog */}
+            <Dialog open={isRenameGroupDialogOpen} onOpenChange={setIsRenameGroupDialogOpen}>
+                <DialogContent className="max-w-md bg-card border-none shadow-2xl p-6 rounded-2xl">
+                    <DialogHeader>
+                        <DialogTitle className="text-xl font-bold tracking-tight">Rename Group</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4 mt-4">
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">New Group Name</label>
+                            <Input
+                                value={renameGroupData.newName}
+                                onChange={(e) => setRenameGroupData({ ...renameGroupData, newName: e.target.value })}
+                                className="font-bold"
+                                placeholder="Enter new group name..."
+                            />
+                        </div>
+                        <div className="flex justify-end gap-3 pt-2">
+                            <Button variant="ghost" onClick={() => setIsRenameGroupDialogOpen(false)} className="font-bold">Cancel</Button>
+                            <Button onClick={handleRenameGroup} disabled={saving} className="font-bold px-6">
+                                {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                Rename All
+                            </Button>
+                        </div>
+                    </div>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }
