@@ -181,13 +181,13 @@ export default function Dashboard() {
 
   const StatCard = ({ title, value, subtitle, icon: Icon, trend }) => (
     <Card className="hover:shadow-md transition-shadow">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 p-4 pb-2">
         <CardTitle className="text-sm font-medium">{title}</CardTitle>
         <div className="p-2 rounded-lg bg-muted">
           <Icon className="h-4 w-4 text-muted-foreground" />
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-4 pt-0">
         <div className="text-3xl font-bold">{value}</div>
         <div className="flex items-center gap-2 mt-1">
           <p className="text-xs text-muted-foreground">{subtitle}</p>
@@ -296,7 +296,7 @@ export default function Dashboard() {
         </DialogContent>
       </Dialog>
 
-      <div className="flex flex-col h-[calc(100vh-15rem-1px)] min-h-[600px] overflow-hidden gap-4">
+      <div className="flex flex-col h-[calc(100vh-10rem)] min-h-[600px] overflow-hidden gap-3">
         {/* Header */}
         <div className="flex-none flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
