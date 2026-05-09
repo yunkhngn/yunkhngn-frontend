@@ -296,7 +296,7 @@ export default function Dashboard() {
         </DialogContent>
       </Dialog>
 
-      <div className="flex flex-col h-[calc(100vh-6rem)] overflow-hidden gap-4">
+      <div className="flex flex-col h-[calc(100vh-16rem)] min-h-[600px] overflow-hidden gap-4">
         {/* Header */}
         <div className="flex-none flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
@@ -332,7 +332,7 @@ export default function Dashboard() {
 
 
         {/* Stats Grid */}
-        <div className="flex-none grid gap-3 grid-cols-2 lg:grid-cols-4 h-24">
+        <div className="flex-none grid gap-3 grid-cols-2 lg:grid-cols-4">
           <StatCard
             title="Blogs"
             value={stats.blogs}

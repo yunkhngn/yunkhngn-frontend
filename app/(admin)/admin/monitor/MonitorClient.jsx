@@ -305,18 +305,19 @@ export default function MonitorClient() {
               </div>
 
               <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
-              {containers.map((container) => (
-                <Card key={container.id} className="bg-card hover:border-primary/50 transition-all cursor-pointer overflow-hidden border-border" onClick={() => setActiveTab(container.id)}>
-                  <CardHeader className="p-4 flex flex-row items-center justify-between space-y-0">
-                    <CardTitle className="text-sm font-bold truncate pr-2">{container.names?.[0]?.replace(/^\//, '')}</CardTitle>
-                    <Badge variant="outline" className={`${getStatusColor(container.state)} text-[9px] px-1.5 py-0`}>{container.state.toUpperCase()}</Badge>
-                  </CardHeader>
-                  <CardContent className="p-4 pt-0 space-y-2 text-[10px]">
-                    <div className="flex justify-between text-muted-foreground"><span>Image</span><span className="truncate max-w-[120px] font-mono">{container.image.split(':')[0]}</span></div>
-                    <div className="flex justify-between text-muted-foreground"><span>Status</span><span className="text-emerald-500">{container.status}</span></div>
-                  </CardContent>
-                </Card>
-              ))}
+                {containers.map((container) => (
+                  <Card key={container.id} className="bg-card hover:border-primary/50 transition-all cursor-pointer overflow-hidden border-border" onClick={() => setActiveTab(container.id)}>
+                    <CardHeader className="p-4 flex flex-row items-center justify-between space-y-0">
+                      <CardTitle className="text-sm font-bold truncate pr-2">{container.names?.[0]?.replace(/^\//, '')}</CardTitle>
+                      <Badge variant="outline" className={`${getStatusColor(container.state)} text-[9px] px-1.5 py-0`}>{container.state.toUpperCase()}</Badge>
+                    </CardHeader>
+                    <CardContent className="p-4 pt-0 space-y-2 text-[10px]">
+                      <div className="flex justify-between text-muted-foreground"><span>Image</span><span className="truncate max-w-[120px] font-mono">{container.image.split(':')[0]}</span></div>
+                      <div className="flex justify-between text-muted-foreground"><span>Status</span><span className="text-emerald-500">{container.status}</span></div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
             </TabsContent>
 
             {containers.map((container) => {
