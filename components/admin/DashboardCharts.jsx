@@ -1,96 +1,84 @@
 
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip, AreaChart, Area, LineChart, Line, CartesianGrid, XAxis, YAxis } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip, AreaChart, Area, CartesianGrid, XAxis, YAxis } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
-import { PieChart as PieChartIcon, TrendingUp, BarChart3, Activity } from "lucide-react";
-import { format } from "date-fns";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/Tabs";
+import { PieChart as PieChartIcon, TrendingUp, BarChart3 } from "lucide-react";
 
-export default function DashboardCharts({ stats, theme, analyticsData, analyticsPeriod, activityData }) {
+export default function DashboardCharts({ stats, theme, activityData }) {
     const isDark = theme === 'dark';
 
     const contentData = [
-        { name: 'Blogs', value: stats.blogs, color: isDark ? '#f5f5f5' : '#171717' },      // light: gray-100, dark: gray-900
-        { name: 'Projects', value: stats.projects, color: isDark ? '#d4d4d4' : '#525252' }, // light: gray-300, dark: gray-600
-        { name: 'Photos', value: stats.gallery, color: isDark ? '#a3a3a3' : '#737373' }     // light: gray-400, dark: gray-500
+        { name: 'Blogs', value: stats.blogs, color: isDark ? '#f5f5f5' : '#171717' },
+        { name: 'Projects', value: stats.projects, color: isDark ? '#d4d4d4' : '#525252' },
+        { name: 'Photos', value: stats.gallery, color: isDark ? '#a3a3a3' : '#737373' }
     ];
 
     const blogStatusData = [
-        { name: 'Published', value: stats.blogsPublished, color: isDark ? '#f5f5f5' : '#171717' }, // light: gray-100, dark: gray-900
-        { name: 'Draft', value: stats.blogsDraft, color: isDark ? '#d4d4d4af' : '#525252' }          // light: gray-300, dark: gray-600
+        { name: 'Published', value: stats.blogsPublished, color: isDark ? '#f5f5f5' : '#171717' },
+        { name: 'Draft', value: stats.blogsDraft, color: isDark ? '#d4d4d4af' : '#525252' }
     ];
 
     return (
-        <div className="space-y-8">
-            {/* Analytics Section */}
-            {analyticsData && (
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between">
-                        <CardTitle className="flex items-center gap-2">
-                            <Activity className="h-5 w-5" />
-                            Web Analytics
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                            <div className="p-4 rounded-lg bg-muted/50">
-                                <p className="text-sm text-muted-foreground">Total Requests</p>
-                                <p className="text-2xl font-bold">{analyticsData.totals.requests.toLocaleString()}</p>
-                            </div>
-                            <div className="p-4 rounded-lg bg-muted/50">
-                                <p className="text-sm text-muted-foreground">Data Transfer</p>
-                                <p className="text-2xl font-bold">{(analyticsData.totals.bytes / 1024 / 1024).toFixed(2)} MB</p>
-                            </div>
-                            <div className="p-4 rounded-lg bg-muted/50">
-                                <p className="text-sm text-muted-foreground">Page Views</p>
-                                <p className="text-2xl font-bold">{analyticsData.totals.pageViews.toLocaleString()}</p>
-                            </div>
-                            <div className="p-4 rounded-lg bg-muted/50">
-                                <p className="text-sm text-muted-foreground">Threats Blocked</p>
-                                <p className="text-2xl font-bold">{analyticsData.totals.threats.toLocaleString()}</p>
-                            </div>
-                        </div>
-                        <div className="h-[300px] w-full">
+        <Card className=" h-full flex flex-col lg:min-h-0 border-none shadow-none bg-transparent p-0 gap-0">
+            <CardHeader className="flex-none px-0 pt-0 pb-3">
+                <CardTitle className="text-sm font-bold flex items-center gap-2">
+                    <TrendingUp className="h-4 w-4" />
+                    Activity & Metrics
+                </CardTitle>
+            </CardHeader>
+            <CardContent className="flex-1 min-h-0 flex flex-col p-0 pb-4">
+                <Tabs defaultValue="timeline" className="h-full flex flex-col">
+                    <TabsList className="flex-none grid w-full grid-cols-3 bg-muted/50">
+                        <TabsTrigger value="timeline" className="text-xs">Timeline</TabsTrigger>
+                        <TabsTrigger value="content" className="text-xs">Content</TabsTrigger>
+                        <TabsTrigger value="status" className="text-xs">Status</TabsTrigger>
+                    </TabsList>
+
+                    <div className="flex-1 min-h-0 mt-4 bg-card border rounded-xl p-4">
+                        <TabsContent value="timeline" className="h-full mt-0 focus-visible:ring-0">
                             <ResponsiveContainer width="100%" height="100%">
-                                <LineChart data={analyticsData.chartData}>
-                                    <CartesianGrid strokeDasharray="3 3" stroke={isDark ? "#404040" : "#e5e5e5"} />
+                                <AreaChart data={activityData}>
+                                    <defs>
+                                        <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="5%" stopColor={isDark ? "#f5f5f5" : "#171717"} stopOpacity={0.3} />
+                                            <stop offset="95%" stopColor={isDark ? "#f5f5f5" : "#171717"} stopOpacity={0} />
+                                        </linearGradient>
+                                    </defs>
+                                    <CartesianGrid strokeDasharray="3 3" stroke={isDark ? "#404040" : "#e5e5e5"} vertical={false} />
                                     <XAxis
-                                        dataKey="time"
-                                        tickFormatter={(time) => format(new Date(time), analyticsPeriod === '24h' ? 'HH:mm' : 'MMM dd')}
+                                        dataKey="date"
                                         stroke={isDark ? "#a3a3a3" : "#737373"}
-                                        style={{ fontSize: '12px' }}
+                                        style={{ fontSize: '10px' }}
+                                        tickLine={false}
+                                        axisLine={false}
                                     />
                                     <YAxis
                                         stroke={isDark ? "#a3a3a3" : "#737373"}
-                                        style={{ fontSize: '12px' }}
+                                        style={{ fontSize: '10px' }}
+                                        tickLine={false}
+                                        axisLine={false}
                                     />
                                     <Tooltip
-                                        labelFormatter={(label) => format(new Date(label), 'MMM dd, HH:mm')}
                                         contentStyle={{
                                             backgroundColor: isDark ? '#171717' : '#ffffff',
                                             border: `1px solid ${isDark ? '#404040' : '#e5e5e5'}`,
-                                            borderRadius: '8px'
+                                            borderRadius: '8px',
+                                            fontSize: '12px'
                                         }}
                                     />
-                                    <Legend />
-                                    <Line type="monotone" dataKey="requests" stroke="#8884d8" name="Requests" strokeWidth={2} dot={false} />
-                                    <Line type="monotone" dataKey="pageViews" stroke="#82ca9d" name="Page Views" strokeWidth={2} dot={false} />
-                                </LineChart>
+                                    <Area
+                                        type="monotone"
+                                        dataKey="total"
+                                        stroke={isDark ? "#f5f5f5" : "#171717"}
+                                        fillOpacity={1}
+                                        fill="url(#colorTotal)"
+                                        strokeWidth={2}
+                                    />
+                                </AreaChart>
                             </ResponsiveContainer>
-                        </div>
-                    </CardContent>
-                </Card>
-            )}
+                        </TabsContent>
 
-            <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
-                {/* Content Distribution Chart */}
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                            <PieChartIcon className="h-5 w-5" />
-                            Content Distribution
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="h-[250px] w-full">
+                        <TabsContent value="content" className="h-full mt-0 focus-visible:ring-0">
                             <ResponsiveContainer width="100%" height="100%">
                                 <PieChart>
                                     <Pie
@@ -99,32 +87,23 @@ export default function DashboardCharts({ stats, theme, analyticsData, analytics
                                         cy="50%"
                                         labelLine={false}
                                         label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                                        outerRadius={80}
+                                        outerRadius="80%"
+                                        innerRadius="60%"
                                         fill="#8884d8"
                                         dataKey="value"
+                                        paddingAngle={5}
                                     >
                                         {contentData.map((entry, index) => (
                                             <Cell key={`cell-${index}`} fill={entry.color} />
                                         ))}
                                     </Pie>
                                     <Tooltip />
-                                    <Legend />
+                                    <Legend iconType="circle" wrapperStyle={{ fontSize: '12px' }} />
                                 </PieChart>
                             </ResponsiveContainer>
-                        </div>
-                    </CardContent>
-                </Card>
+                        </TabsContent>
 
-                {/* Blog Status Chart */}
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                            <BarChart3 className="h-5 w-5" />
-                            Blog Status
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="h-[250px] w-full">
+                        <TabsContent value="status" className="h-full mt-0 focus-visible:ring-0">
                             <ResponsiveContainer width="100%" height="100%">
                                 <PieChart>
                                     <Pie
@@ -133,71 +112,24 @@ export default function DashboardCharts({ stats, theme, analyticsData, analytics
                                         cy="50%"
                                         labelLine={false}
                                         label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                                        outerRadius={80}
+                                        outerRadius="80%"
+                                        innerRadius="60%"
                                         fill="#8884d8"
                                         dataKey="value"
+                                        paddingAngle={5}
                                     >
                                         {blogStatusData.map((entry, index) => (
                                             <Cell key={`cell-${index}`} fill={entry.color} />
                                         ))}
                                     </Pie>
                                     <Tooltip />
-                                    <Legend />
+                                    <Legend iconType="circle" wrapperStyle={{ fontSize: '12px' }} />
                                 </PieChart>
                             </ResponsiveContainer>
-                        </div>
-                    </CardContent>
-                </Card>
-            </div>
-
-            {/* Activity Timeline Chart */}
-            <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                        <TrendingUp className="h-5 w-5" />
-                        Activity Timeline (Last 7 Days)
-                    </CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <div className="h-[300px] w-full">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <AreaChart data={activityData}>
-                                <defs>
-                                    <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor={isDark ? "#f5f5f5" : "#171717"} stopOpacity={0.8} />
-                                        <stop offset="95%" stopColor={isDark ? "#f5f5f5" : "#171717"} stopOpacity={0} />
-                                    </linearGradient>
-                                </defs>
-                                <CartesianGrid strokeDasharray="3 3" stroke={isDark ? "#404040" : "#e5e5e5"} />
-                                <XAxis
-                                    dataKey="date"
-                                    stroke={isDark ? "#a3a3a3" : "#737373"}
-                                    style={{ fontSize: '12px' }}
-                                />
-                                <YAxis
-                                    stroke={isDark ? "#a3a3a3" : "#737373"}
-                                    style={{ fontSize: '12px' }}
-                                />
-                                <Tooltip
-                                    contentStyle={{
-                                        backgroundColor: isDark ? '#171717' : '#ffffff',
-                                        border: `1px solid ${isDark ? '#404040' : '#e5e5e5'}`,
-                                        borderRadius: '8px'
-                                    }}
-                                />
-                                <Area
-                                    type="monotone"
-                                    dataKey="total"
-                                    stroke={isDark ? "#f5f5f5" : "#171717"}
-                                    fillOpacity={1}
-                                    fill="url(#colorTotal)"
-                                    strokeWidth={2}
-                                />
-                            </AreaChart>
-                        </ResponsiveContainer>
+                        </TabsContent>
                     </div>
-                </CardContent>
-            </Card>
-        </div>
+                </Tabs>
+            </CardContent>
+        </Card>
     );
 }

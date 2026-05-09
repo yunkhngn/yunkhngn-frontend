@@ -63,7 +63,7 @@ export default function AdminLayoutClient({ children }) {
   return (
     <div className="flex flex-col min-h-screen font-sans bg-background">
       <AdminNavbar />
-      <main className="flex-1 p-1 md:p-8 mt-4 mb-24">
+      <main className="flex-1 p-1 md:p-8 mt-4 mb-4">
         <div className="mx-2 md:container md:mx-auto">{children}</div>
       </main>
     </div>
