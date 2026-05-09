@@ -278,6 +278,12 @@ export default function Settings() {
         e.preventDefault();
         if (!user) return;
 
+        // Validation to prevent saving the literal mask
+        if (currentSetting.content === '********' && currentSetting.isSensitive === false) {
+            toast.error("Please enter the actual key instead of '********' when turning off Sensitive mode.");
+            return;
+        }
+
         // JSON Validation
         const jsonFields = ['education', 'experience', 'skills', 'projects'];
         if (jsonFields.includes(currentSetting.settingTitle)) {
@@ -763,10 +769,10 @@ export default function Settings() {
                                     </SelectTrigger>
                                     <SelectContent>
                                         {groups.map(g => <SelectItem key={g.group} value={g.group}>{g.group}</SelectItem>)}
-                                        <SelectItem value="Other">New Group...</SelectItem>
+                                        <SelectItem value="NEW_GROUP_HIDDEN">New Group...</SelectItem>
                                     </SelectContent>
                                 </Select>
-                                {newSetting.group === 'Other' && (
+                                {newSetting.group === 'NEW_GROUP_HIDDEN' && (
                                     <Input
                                         placeholder="Group name"
                                         onChange={(e) => setNewSetting({ ...newSetting, group: e.target.value })}

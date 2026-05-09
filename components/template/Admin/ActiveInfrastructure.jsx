@@ -13,21 +13,42 @@ export default function ActiveInfrastructure({ containers, getStatusColor, setAc
         <Box className="h-4 w-4 text-primary" />
         <h2 className="text-[11px] font-black tracking-[0.2em] uppercase text-muted-foreground">Active Infrastructure</h2>
       </div>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 items-start">
         {containers.map((container) => {
           const name = container.names?.[0]?.replace(/^\//, '');
           const state = container.state.toLowerCase();
           const isRunning = state === 'running';
 
+          // Assign a deterministic color based on the container ID
+          const colors = ['emerald', 'sky', 'indigo', 'orange', 'violet', 'fuchsia'];
+          const colorIndex = container.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % colors.length;
+          const color = colors[colorIndex];
+
           return (
             <div 
               key={container.id} 
-              className="group relative bg-card/50 backdrop-blur-sm border border-border/50 rounded-2xl p-5 transition-all duration-300 hover:border-primary/30 hover:bg-card/80 cursor-pointer overflow-hidden" 
+              className={cn(
+                "group relative bg-card/50 backdrop-blur-sm border border-border/50 rounded-2xl p-5 transition-all duration-300 hover:bg-card/80 cursor-pointer overflow-hidden",
+                color === 'emerald' && "hover:border-emerald-500/30",
+                color === 'sky' && "hover:border-sky-500/30",
+                color === 'indigo' && "hover:border-indigo-500/30",
+                color === 'orange' && "hover:border-orange-500/30",
+                color === 'violet' && "hover:border-violet-500/30",
+                color === 'fuchsia' && "hover:border-fuchsia-500/30"
+              )} 
               onClick={() => setActiveTab(container.id)}
             >
               <div className="flex flex-col gap-6 relative z-10">
                 <div className="flex items-center justify-between">
-                  <div className="p-2.5 rounded-xl bg-primary/5 text-primary border border-primary/10 transition-all duration-300 group-hover:scale-110">
+                  <div className={cn(
+                    "p-2.5 rounded-xl border transition-all duration-300 group-hover:scale-110",
+                    color === 'emerald' && "bg-emerald-500/5 text-emerald-500 border-emerald-500/10",
+                    color === 'sky' && "bg-sky-500/5 text-sky-500 border-sky-500/10",
+                    color === 'indigo' && "bg-indigo-500/5 text-indigo-500 border-indigo-500/10",
+                    color === 'orange' && "bg-orange-500/5 text-orange-500 border-orange-500/10",
+                    color === 'violet' && "bg-violet-500/5 text-violet-500 border-violet-500/10",
+                    color === 'fuchsia' && "bg-fuchsia-500/5 text-fuchsia-500 border-fuchsia-500/10"
+                  )}>
                     <Box className="h-4.5 w-4.5" />
                   </div>
                   <div className={cn(

@@ -122,7 +122,7 @@ export default function ChatLogsClient() {
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Chat Audit Logs</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Chat Audit Logs</h1>
           <p className="text-sm text-muted-foreground">
             Monitor and review AI chatbot interactions. Total: {total} logs.
           </p>
@@ -334,24 +334,24 @@ export default function ChatLogsClient() {
                   <div className="prose prose-sm dark:prose-invert max-w-none prose-p:leading-relaxed">
                     <ReactMarkdown>{selectedLog.aiResponse}</ReactMarkdown>
                   </div>
-                  
+
                   {selectedLog.imageUrl && (
                     <div className="mt-4 pt-4 border-t border-border/20">
                       <p className="text-[10px] font-bold text-muted-foreground mb-2 flex items-center gap-1">
                         <ImageIcon className="w-3 h-3" /> GENERATED IMAGE
                       </p>
-                      <a 
-                        href={selectedLog.imageUrl} 
-                        target="_blank" 
-                        rel="noopener noreferrer" 
+                      <a
+                        href={selectedLog.imageUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
                         className="block group relative rounded-xl overflow-hidden border border-border/50 bg-black/5"
                       >
-                        <Image 
-                          src={selectedLog.imageUrl} 
-                          alt="Generated output" 
+                        <Image
+                          src={selectedLog.imageUrl}
+                          alt="Generated output"
                           width={800}
                           height={600}
-                          className="w-full h-auto max-h-80 object-contain transition-transform group-hover:scale-[1.02]" 
+                          className="w-full h-auto max-h-80 object-contain transition-transform group-hover:scale-[1.02]"
                           unoptimized
                         />
                         <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
@@ -390,8 +390,8 @@ export default function ChatLogsClient() {
               <Button variant="outline" size="sm" onClick={() => setSelectedLog(null)}>
                 Close
               </Button>
-              <Button 
-                variant="destructive" 
+              <Button
+                variant="destructive"
                 size="sm"
                 onClick={() => {
                   handleDelete(selectedLog.id);

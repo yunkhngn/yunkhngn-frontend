@@ -12,12 +12,12 @@ import { format, isValid } from 'date-fns';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import { AdminPageHeader, BulkActionBar, AdminEmptyState, StatusIndicator } from '@/components/admin/shared';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
 } from '@/components/ui/Table';
 
 
@@ -290,7 +290,7 @@ export default function AdminShortlinks() {
 
     return (
         <>
-            <div className="container mx-auto p-6 max-w-6xl">
+            <div className="mx-auto">
                 <div className="mb-8">
                     <AdminPageHeader
                         title="Shortlinks"

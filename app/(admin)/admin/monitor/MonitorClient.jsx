@@ -216,12 +216,12 @@ export default function MonitorClient() {
   };
 
   return (
-    <div className="max-w-[1600px] mx-auto p-4 space-y-6 bg-background text-foreground">
+    <div className="mx-auto space-y-6 bg-background text-foreground">
       {/* Header Section */}
-      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 pb-4 border-b border-border">
+      <div className="flex flex-row items-end justify-between gap-4 pb-4 border-b border-border">
         <div className="space-y-0.5">
           <div className="flex items-center gap-2.5">
-            <h1 className="text-2xl font-extrabold tracking-tight text-foreground">System Monitor</h1>
+            <h1 className="text-3xl font-extrabold tracking-tight text-foreground">System Monitor</h1>
           </div>
           <p className="text-muted-foreground text-xs font-medium">Real-time infrastructure pulse & distributed container insights.</p>
         </div>
@@ -230,7 +230,7 @@ export default function MonitorClient() {
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" /> AGENT CONNECTED
           </div>
           <Button onClick={() => { fetchContainers(); checkExternalServices(); }} variant="outline" size="sm" className="rounded-full" disabled={loading || checkingServices}>
-            <RefreshCw className={cn("h-4 w-4 mr-2", (loading || checkingServices) && "animate-spin")} /> 
+            <RefreshCw className={cn("h-4 w-4 mr-2", (loading || checkingServices) && "animate-spin")} />
             Sync
           </Button>
         </div>

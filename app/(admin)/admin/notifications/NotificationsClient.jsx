@@ -158,7 +158,6 @@ export default function Notifications() {
                     title="Notifications"
                     action={{ label: 'Mark all as read', icon: <CheckCheck className="mr-2 h-4 w-4" />, onClick: handleMarkAllRead }}
                 />
-
                 <div className="bg-card rounded-md border">
                     <Table>
                         <TableHeader>

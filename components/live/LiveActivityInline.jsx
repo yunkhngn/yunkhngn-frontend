@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import api from '@/lib/api/client';
 import Image from 'next/image';
-import { Disc3 } from 'lucide-react';
+import { Disc3, Github, Headphones } from 'lucide-react';
 import { MarqueeText } from '@/components/ui/MarqueeText';
 
 export default function LiveActivityInline() {
@@ -49,7 +49,7 @@ export default function LiveActivityInline() {
     const getCodingText = () => {
         if (loadingCoding) return "Fetching...";
         if (!codingData) return "No recent activity";
-        
+
         let actionText = "Active on";
         if (codingData.isPrivate) {
             actionText = "Contributed to";
@@ -62,7 +62,7 @@ export default function LiveActivityInline() {
                 case 'IssuesEvent': actionText = "Issue on"; break;
             }
         }
-        
+
         return `${actionText} ${codingData.repo.replace('yunkhngn/', '')}`;
     };
 
@@ -71,9 +71,11 @@ export default function LiveActivityInline() {
     return (
         <div className="flex flex-col gap-2 mt-2 w-full max-w-[400px]">
             <div className="flex items-center gap-3 lg:justify-start w-full overflow-hidden">
-                <span className="text-green-400 shrink-0">coding:</span>
+                <div className="flex items-center gap-1.5 text-green-400 shrink-0">
+                    coding <Github className="w-4 h-4" />:
+                </div>
                 <div className="flex items-center gap-2 overflow-hidden flex-1">
-                    <MarqueeText className="text-gray-300 flex-1 min-w-0">
+                    <MarqueeText className="text-gray-300 min-w-0">
                         {getCodingText()}
                     </MarqueeText>
                     {isCodingActive && (
@@ -85,7 +87,9 @@ export default function LiveActivityInline() {
                 </div>
             </div>
             <div className="flex items-center gap-3 lg:justify-start w-full overflow-hidden">
-                <span className="text-pink-400 shrink-0">listening:</span>
+                <div className="flex items-center gap-1.5 text-pink-400 shrink-0">
+                    listening <Headphones className="w-4 h-4" />:
+                </div>
                 <div className="flex items-center gap-2 overflow-hidden flex-1">
                     {!loadingMusic && musicData ? (
                         <>
@@ -98,7 +102,7 @@ export default function LiveActivityInline() {
                                     <Disc3 className={`w-3 h-3 text-muted-foreground ${musicData.isNowPlaying ? 'animate-spin' : ''}`} />
                                 </div>
                             )}
-                            <MarqueeText className="text-gray-300 flex-1 min-w-0" title={`${musicData.name} - ${musicData.artist}`}>
+                            <MarqueeText className="text-gray-300 min-w-0" title={`${musicData.name} - ${musicData.artist}`}>
                                 {musicData.name} <span className="text-gray-500">({musicData.artist})</span>
                             </MarqueeText>
                             {musicData.isNowPlaying && (
