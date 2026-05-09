@@ -10,6 +10,7 @@ import { format, formatDistanceToNow } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import { Badge } from '@/components/ui/Badge';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
+import { AdminPageHeader, AdminEmptyState } from '@/components/admin/shared';
 import api from '@/lib/api/client';
 import {
     Dialog,
@@ -169,25 +170,19 @@ export default function AdminJournal() {
     return (
         <>
             <div className="space-y-6">
-                {/* Header */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div>
-                        <h1 className="text-3xl font-bold tracking-tight">Journal</h1>
-                        <p className="text-muted-foreground">Micro-blog & daily thoughts</p>
-                    </div>
-                    <div className="flex gap-2">
-                        <Button variant="outline" onClick={() => setIsMoodManagerOpen(true)}>
-                            <Settings className="mr-2 h-4 w-4" /> Manage Moods
-                        </Button>
-                        <Button onClick={() => setIsComposeOpen(!isComposeOpen)}>
-                            {isComposeOpen ? (
-                                <><X className="mr-2 h-4 w-4" /> Close</>
-                            ) : (
-                                <><Plus className="mr-2 h-4 w-4" /> New Entry</>
-                            )}
-                        </Button>
-                    </div>
-                </div>
+                <AdminPageHeader
+                    title="Journal"
+                    description="Micro-blog & daily thoughts"
+                    action={{
+                        label: isComposeOpen ? 'Close' : 'New Entry',
+                        onClick: () => setIsComposeOpen(!isComposeOpen),
+                        icon: isComposeOpen ? <X className="mr-2 h-4 w-4" /> : <Plus className="mr-2 h-4 w-4" />
+                    }}
+                >
+                    <Button variant="outline" onClick={() => setIsMoodManagerOpen(true)}>
+                        <Settings className="mr-2 h-4 w-4" /> Manage Moods
+                    </Button>
+                </AdminPageHeader>
 
                 {/* Compose */}
                 {isComposeOpen && (
@@ -362,9 +357,11 @@ export default function AdminJournal() {
                         </table>
                     </div>
                 ) : (
-                    <div className="text-center py-10 text-muted-foreground">
-                        {search ? 'No matching entries found.' : 'No entries yet. Write your first thought!'}
-                    </div>
+                    <AdminEmptyState
+                        icon={Smile}
+                        title={search ? 'No matching entries found.' : 'No entries yet'}
+                        description={search ? 'Try adjusting your search terms.' : 'Write your first thought!'}
+                    />
                 )}
 
                 <ConfirmModal

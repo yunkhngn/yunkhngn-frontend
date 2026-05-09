@@ -34,7 +34,7 @@ import { toast } from 'sonner';
 import { format, isValid } from 'date-fns';
 import Image from 'next/image';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
-
+import { AdminPageHeader, BulkActionBar, AdminEmptyState } from '@/components/admin/shared';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 const PUBLIC_LETTER_PREFIX = 'https://yunkhngn.dev/letter/';
@@ -462,72 +462,26 @@ export default function AdminLetters() {
 
   return (
     <>
-      <div className="container mx-auto p-6 max-w-6xl">
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-10 gap-4">
-          <div className="space-y-2">
-            <h1 className="text-4xl font-extrabold tracking-tight flex items-center gap-3">
-              <div className="p-3 bg-primary/10 rounded-xl border border-primary/20">
-                <Mail className="h-8 w-8 text-primary" />
-              </div>
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70">Letters</span>
-            </h1>
-            <p className="text-muted-foreground font-medium text-lg ml-1">
-              Manage your handwritten epistles
-            </p>
-          </div>
-          <Button onClick={openCreate} className="px-6 py-6 h-auto rounded-2xl shadow-xl hover:shadow-primary/20 transition-all font-bold gap-2">
-            <Plus className="h-5 w-5" />
-            New letter
-          </Button>
-        </div>
+      <div className="container mx-auto p-6 max-w-6xl space-y-6">
+        <AdminPageHeader
+          title="Letters"
+          description="Manage your handwritten epistles"
+          action={{ label: 'New letter', onClick: openCreate, icon: <Plus className="mr-2 h-4 w-4" /> }}
+        />
 
         {selected.size > 0 && (
-          <div className="flex items-center gap-4 mb-6 p-4 bg-background/60 backdrop-blur-xl border border-border/50 rounded-2xl shadow-lg ring-1 ring-white/5 animate-in slide-in-from-top-4">
-            <span className="text-sm font-bold bg-primary/10 text-primary px-3 py-1 rounded-full">{selected.size} selected</span>
-            <div className="flex-1" />
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => bulkSetStatus(true)}
-              disabled={bulkLoading}
-              className="gap-1.5 rounded-xl font-semibold border-border/50 hover:bg-emerald-500/10 hover:text-emerald-500 hover:border-emerald-500/30"
-            >
-              <ToggleRight className="h-4 w-4" /> Activate
+          <BulkActionBar
+            count={selected.size}
+            onDelete={openBulkDelete}
+            onClear={clearSelection}
+          >
+            <Button size="sm" variant="outline" onClick={() => bulkSetStatus(true)} disabled={bulkLoading}>
+              <ToggleRight className="mr-2 h-4 w-4 text-emerald-500" /> Activate
             </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => bulkSetStatus(false)}
-              disabled={bulkLoading}
-              className="gap-1.5 rounded-xl font-semibold border-border/50 hover:bg-zinc-500/10 hover:text-zinc-400 hover:border-zinc-500/30"
-            >
-              <ToggleLeft className="h-4 w-4" /> Deactivate
+            <Button size="sm" variant="outline" onClick={() => bulkSetStatus(false)} disabled={bulkLoading}>
+              <ToggleLeft className="mr-2 h-4 w-4" /> Deactivate
             </Button>
-            <div className="w-px h-6 bg-border/50 mx-1" />
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={openBulkDelete}
-              disabled={bulkLoading}
-              className="gap-1.5 rounded-xl font-semibold text-rose-500 border-rose-500/20 hover:bg-rose-500/10 hover:border-rose-500/30 hover:text-rose-400"
-            >
-
-              {bulkLoading ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Trash2 className="h-4 w-4" />
-              )}{' '}
-              Delete
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-9 w-9 rounded-full ml-1"
-              onClick={clearSelection}
-            >
-              <XCircle className="h-5 w-5" />
-            </Button>
-          </div>
+          </BulkActionBar>
         )}
 
         {loading ? (
@@ -535,19 +489,12 @@ export default function AdminLetters() {
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
           </div>
         ) : letters.length === 0 ? (
-          <div className="border border-dashed border-border/50 rounded-3xl p-16 flex flex-col items-center justify-center text-center bg-card/10 backdrop-blur-sm">
-            <div className="p-6 bg-muted/30 rounded-full mb-6 ring-1 ring-border/50">
-              <Mail className="h-12 w-12 text-muted-foreground/50" />
-            </div>
-            <h3 className="text-xl font-bold mb-2">No letters yet</h3>
-            <p className="text-muted-foreground mb-8 max-w-sm">
-              Create your first handwritten letter to share with someone special.
-            </p>
-            <Button onClick={openCreate} className="px-8 py-6 h-auto rounded-xl font-bold gap-2">
-              <Plus className="h-5 w-5" />
-              Create a letter
-            </Button>
-          </div>
+          <AdminEmptyState
+            icon={Mail}
+            title="No letters yet"
+            description="Create your first handwritten letter to share with someone special."
+            action={{ label: 'Create a letter', onClick: openCreate, icon: <Plus className="mr-2 h-4 w-4" /> }}
+          />
         ) : (
           <div className="border rounded-lg overflow-hidden overflow-x-auto">
             <table className="w-full text-sm text-left min-w-[800px]">
