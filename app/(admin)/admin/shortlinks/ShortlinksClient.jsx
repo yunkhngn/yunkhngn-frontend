@@ -10,6 +10,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { format, isValid } from 'date-fns';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
+import { AdminPageHeader, BulkActionBar, AdminEmptyState } from '@/components/admin/shared';
+
 
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -281,36 +283,29 @@ export default function AdminShortlinks() {
     return (
         <>
             <div className="container mx-auto p-6 max-w-6xl">
-                <div className="flex items-center justify-between mb-8">
-                    <div>
-                        <h1 className="text-3xl font-bold">Shortlinks</h1>
-                        <p className="text-muted-foreground mt-1">Manage your short URLs</p>
-                    </div>
-                    <Button onClick={openCreate} className="gap-2">
-                        <Plus className="h-4 w-4" />
-                        Create Shortlink
-                    </Button>
+                <div className="mb-8">
+                    <AdminPageHeader
+                        title="Shortlinks"
+                        description="Manage your short URLs"
+                        action={{ label: 'Create Shortlink', icon: <Plus className="h-4 w-4" />, onClick: openCreate }}
+                    />
                 </div>
 
                 {/* Bulk Action Bar */}
                 {selected.size > 0 && (
-                    <div className="flex items-center gap-3 mb-4 p-3 bg-primary/5 border border-primary/20 rounded-lg animate-in slide-in-from-top-2">
-                        <span className="text-sm font-medium">{selected.size} selected</span>
-                        <div className="flex-1" />
+                    <BulkActionBar
+                        count={selected.size}
+                        onClear={clearSelection}
+                        onDelete={openBulkDelete}
+                        loading={bulkLoading}
+                    >
                         <Button variant="outline" size="sm" onClick={() => bulkSetStatus(true)} disabled={bulkLoading} className="gap-1.5">
                             <ToggleRight className="h-3.5 w-3.5 text-green-500" /> Activate
                         </Button>
                         <Button variant="outline" size="sm" onClick={() => bulkSetStatus(false)} disabled={bulkLoading} className="gap-1.5">
                             <ToggleLeft className="h-3.5 w-3.5" /> Deactivate
                         </Button>
-                        <Button variant="outline" size="sm" onClick={openBulkDelete} disabled={bulkLoading} className="gap-1.5 text-red-500 hover:text-red-600 border-red-200 hover:border-red-300 hover:bg-red-50 dark:border-red-800 dark:hover:border-red-700 dark:hover:bg-red-950">
-                            {bulkLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />} Delete
-                        </Button>
-
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={clearSelection}>
-                            <XCircle className="h-4 w-4" />
-                        </Button>
-                    </div>
+                    </BulkActionBar>
                 )}
 
                 {loading ? (
@@ -318,16 +313,11 @@ export default function AdminShortlinks() {
                         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
                     </div>
                 ) : links.length === 0 ? (
-                    <Card>
-                        <CardContent className="flex flex-col items-center justify-center py-16">
-                            <Link2 className="h-12 w-12 text-muted-foreground mb-4" />
-                            <p className="text-muted-foreground text-lg">No shortlinks yet</p>
-                            <Button onClick={openCreate} variant="outline" className="mt-4 gap-2">
-                                <Plus className="h-4 w-4" />
-                                Create your first shortlink
-                            </Button>
-                        </CardContent>
-                    </Card>
+                    <AdminEmptyState
+                        icon={<Link2 className="h-12 w-12" />}
+                        message="No shortlinks yet"
+                        action={{ label: 'Create your first shortlink', onClick: openCreate }}
+                    />
                 ) : (
                     <div className="space-y-3">
                         {/* Select All */}
