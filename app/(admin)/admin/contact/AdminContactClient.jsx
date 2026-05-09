@@ -17,6 +17,14 @@ import { Mail, Clock, CheckCircle, Send, Sparkles, Phone, Building, Trash2, Plus
 import { Checkbox } from '@/components/ui/Checkbox';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import { AdminPageHeader, BulkActionBar } from '@/components/admin/shared';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@/components/ui/Table';
 
 export default function AdminContact() {
     const { user } = useAuth();
@@ -411,73 +419,102 @@ export default function AdminContact() {
                         />
                     )}
 
-                    <div className="flex items-center gap-2 px-4 py-2 border rounded-lg bg-muted/20 mb-2">
-                        <Checkbox
-                            checked={selectedContacts.length === filteredContacts.length && filteredContacts.length > 0}
-                            onCheckedChange={handleSelectAll}
-                        />
-                        <span className="text-sm font-medium text-muted-foreground">Select All</span>
-                    </div>
-
-                    {filteredContacts.length === 0 ? (
-                        <div className="text-center py-12 text-muted-foreground">
-                            No contacts found
-                        </div>
-                    ) : (
-                        filteredContacts.map((contact) => (
-                            <div
-                                key={contact.id}
-                                className="border rounded-lg p-4 hover:bg-muted/50 cursor-pointer transition-colors"
-                                onClick={() => {
-                                    setViewingContact(contact);
-                                    if (contact.status === 'new') {
-                                        markAsRead(contact.id);
-                                    }
-                                }}
-                            >
-                                <div className="flex items-start gap-4">
-                                    <div className="pt-1" onClick={(e) => e.stopPropagation()}>
-                                        <Checkbox
-                                            checked={selectedContacts.includes(contact.id)}
-                                            onCheckedChange={(checked) => handleSelectContact(contact.id, checked)}
-                                        />
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                        <div className="flex flex-col md:flex-row md:items-start justify-between mb-2 gap-2">
-                                            <div className="flex-1 min-w-0">
-                                                <div className="flex flex-wrap items-center gap-2 mb-1">
-                                                    <h3 className="font-semibold truncate">{contact.subject}</h3>
-                                                    {getStatusBadge(contact.status)}
-                                                    <Badge variant="outline" className="text-xs">
-                                                        {contact.category?.toUpperCase() || 'GENERAL'}
-                                                    </Badge>
-                                                </div>
-                                                <p className="text-sm text-muted-foreground truncate">
-                                                    {contact.status === 'sent' ? 'To: ' : 'From: '}
-                                                    {contact.name} ({contact.email})
-                                                    {contact.company && ` • ${contact.company}`}
-                                                </p>
+                    <div className="border border-border rounded-xl bg-card overflow-hidden shadow-sm">
+                        <div className="overflow-x-auto">
+                            <Table>
+                                <TableHeader>
+                                    <TableRow className="bg-muted/50">
+                                        <TableHead className="w-[50px] px-4">
+                                            <div className="flex items-center justify-center">
+                                                <Checkbox
+                                                    checked={selectedContacts.length === filteredContacts.length && filteredContacts.length > 0}
+                                                    onCheckedChange={handleSelectAll}
+                                                />
                                             </div>
-                                            <div className="text-xs text-muted-foreground whitespace-nowrap">
-                                                {new Date(contact.createdAt).toLocaleDateString()}
-                                            </div>
-                                            <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                className="h-8 w-8 text-muted-foreground hover:text-destructive shrink-0"
-                                                onClick={(e) => handleDeleteClick(e, contact.id)}
+                                        </TableHead>
+                                        <TableHead className="w-[20%]">Sender</TableHead>
+                                        <TableHead className="w-[45%]">Subject & Message</TableHead>
+                                        <TableHead>Time</TableHead>
+                                        <TableHead className="text-right px-6">Actions</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {filteredContacts.length === 0 ? (
+                                        <TableRow>
+                                            <TableCell colSpan={5} className="text-center py-12 text-muted-foreground">
+                                                No contacts found
+                                            </TableCell>
+                                        </TableRow>
+                                    ) : (
+                                        filteredContacts.map((contact) => (
+                                            <TableRow
+                                                key={contact.id}
+                                                className={`group cursor-pointer transition-colors ${selectedContacts.includes(contact.id) ? 'bg-primary/[0.02]' : 'hover:bg-muted/30'} ${contact.status === 'new' ? 'bg-muted/10' : ''}`}
+                                                onClick={() => {
+                                                    setViewingContact(contact);
+                                                    if (contact.status === 'new') {
+                                                        markAsRead(contact.id);
+                                                    }
+                                                }}
                                             >
-                                                <Trash2 className="h-4 w-4" />
-                                            </Button>
-                                        </div>
-                                        <p className="text-sm line-clamp-2">
-                                            {contact.message?.replace(/<[^>]*>?/gm, '')}
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        ))
-                    )}
+                                                <TableCell className="px-4" onClick={(e) => e.stopPropagation()}>
+                                                    <div className="flex items-center justify-center">
+                                                        <Checkbox
+                                                            checked={selectedContacts.includes(contact.id)}
+                                                            onCheckedChange={(checked) => handleSelectContact(contact.id, checked)}
+                                                        />
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell className="py-3 max-w-0">
+                                                    <div className="flex flex-col gap-1 truncate">
+                                                        <span className="font-semibold text-sm truncate">{contact.name}</span>
+                                                        <span className="text-xs text-muted-foreground truncate">{contact.email}</span>
+                                                        {contact.company && (
+                                                            <span className="text-[10px] text-muted-foreground truncate flex items-center gap-1">
+                                                                <Building className="w-3 h-3" /> {contact.company}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell className="max-w-0">
+                                                    <div className="flex flex-col gap-1">
+                                                        <div className="flex items-center gap-2">
+                                                            <span className="font-medium text-sm truncate max-w-[200px] md:max-w-[300px]">{contact.subject}</span>
+                                                            {getStatusBadge(contact.status)}
+                                                            <span className="text-[10px] px-1.5 py-0.5 rounded-sm border bg-background text-muted-foreground font-mono uppercase tracking-wider">
+                                                                {contact.category?.toUpperCase() || 'GENERAL'}
+                                                            </span>
+                                                        </div>
+                                                        <div className="text-xs text-muted-foreground truncate max-w-xs md:max-w-md">
+                                                            {contact.message?.replace(/<[^>]*>?/gm, '')}
+                                                        </div>
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold">
+                                                        {new Date(contact.createdAt).toLocaleDateString()}
+                                                    </span>
+                                                </TableCell>
+                                                <TableCell className="text-right px-6">
+                                                    <div className="flex items-center justify-end opacity-0 group-hover:opacity-100 transition-opacity">
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="icon"
+                                                            className="h-8 w-8 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                                                            onClick={(e) => handleDeleteClick(e, contact.id)}
+                                                            title="Delete"
+                                                        >
+                                                            <Trash2 className="h-4 w-4" />
+                                                        </Button>
+                                                    </div>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))
+                                    )}
+                                </TableBody>
+                            </Table>
+                        </div>
+                    </div>
                 </div>
 
                 {/* Contact Detail Modal */}

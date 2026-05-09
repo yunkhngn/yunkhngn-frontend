@@ -158,22 +158,12 @@ export default function MonitorClient() {
     return 'text-muted-foreground pl-3 hover:text-foreground transition-colors';
   };
 
-  if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center h-[60vh] gap-4">
-        <Activity className="h-12 w-12 text-primary animate-pulse" />
-        <p className="text-muted-foreground font-medium animate-pulse">Initializing Monitor...</p>
-      </div>
-    );
-  }
-
   return (
-    <div className="max-w-[1600px] mx-auto p-4 space-y-6 animate-in fade-in duration-700 bg-background text-foreground">
+    <div className="max-w-[1600px] mx-auto p-4 space-y-6 bg-background text-foreground">
       {/* Header Section */}
       <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 pb-4 border-b border-border">
         <div className="space-y-0.5">
           <div className="flex items-center gap-2.5">
-            <Activity className="h-6 w-6 text-primary" />
             <h1 className="text-2xl font-extrabold tracking-tight text-foreground">System Monitor</h1>
           </div>
           <p className="text-muted-foreground text-xs font-medium">Real-time infrastructure pulse & distributed container insights.</p>
@@ -196,202 +186,197 @@ export default function MonitorClient() {
             </TabsTrigger>
           ))}
         </TabsList>
+        <TabsContent value="overview" className="mt-4">
+          {/* System Status Cards */}
+          <div className="grid gap-3 grid-cols-1 md:grid-cols-2 lg:grid-cols-4 mb-6">
+            <Card className="bg-green-500/10 border-green-500/20">
+              <CardContent className="p-4 flex items-center gap-4">
+                <div className="p-2 rounded-full bg-green-500/20 text-green-500">
+                  <Server className="h-5 w-5" />
+                </div>
+                <div className="w-full">
+                  <p className="text-sm font-medium">CPU Load</p>
+                  <div className="flex items-center justify-between">
+                    <p className="text-2xl font-bold font-mono">
+                      {systemStats ? `${systemStats.currentLoad.currentLoad.toFixed(1)}%` : '...'}
+                    </p>
+                    {systemStats && (
+                      <div className="h-1.5 w-16 bg-green-500/20 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-green-500 transition-all duration-500"
+                          style={{ width: `${Math.min(systemStats.currentLoad.currentLoad, 100)}%` }}
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
 
-        <AnimatePresence mode="wait">
-          <motion.div key={activeTab} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
-            <TabsContent value="overview" className="mt-4">
-              {/* System Status Cards */}
-              <div className="grid gap-3 grid-cols-1 md:grid-cols-2 lg:grid-cols-4 mb-6">
-                <Card className="bg-green-500/10 border-green-500/20">
-                  <CardContent className="p-4 flex items-center gap-4">
-                    <div className="p-2 rounded-full bg-green-500/20 text-green-500">
-                      <Server className="h-5 w-5" />
-                    </div>
-                    <div className="w-full">
-                      <p className="text-sm font-medium">CPU Load</p>
-                      <div className="flex items-center justify-between">
+            <Card className="bg-blue-500/10 border-blue-500/20">
+              <CardContent className="p-4 flex items-center gap-4">
+                <div className="p-2 rounded-full bg-blue-500/20 text-blue-500">
+                  <Database className="h-5 w-5" />
+                </div>
+                <div className="w-full">
+                  <p className="text-sm font-medium">Memory (RAM)</p>
+                  {systemStats ? (
+                    <div>
+                      <div className="flex items-end gap-1">
                         <p className="text-2xl font-bold font-mono">
-                          {systemStats ? `${systemStats.currentLoad.currentLoad.toFixed(1)}%` : '...'}
+                          {((systemStats.mem.active / systemStats.mem.total) * 100).toFixed(1)}%
                         </p>
-                        {systemStats && (
-                          <div className="h-1.5 w-16 bg-green-500/20 rounded-full overflow-hidden">
-                            <div
-                              className="h-full bg-green-500 transition-all duration-500"
-                              style={{ width: `${Math.min(systemStats.currentLoad.currentLoad, 100)}%` }}
-                            />
-                          </div>
-                        )}
+                        <p className="text-xs text-muted-foreground mb-1">
+                          ({(systemStats.mem.active / 1024 / 1024 / 1024).toFixed(1)}GB / {(systemStats.mem.total / 1024 / 1024 / 1024).toFixed(1)}GB)
+                        </p>
+                      </div>
+                      <div className="h-1.5 w-full bg-blue-500/20 rounded-full overflow-hidden mt-1">
+                        <div
+                          className="h-full bg-blue-500 transition-all duration-500"
+                          style={{ width: `${(systemStats.mem.active / systemStats.mem.total) * 100}%` }}
+                        />
+                      </div>
+                    </div>
+                  ) : <p className="...">Loading...</p>}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-purple-500/10 border-purple-500/20">
+              <CardContent className="p-4 flex items-center gap-4">
+                <div className="p-2 rounded-full bg-purple-500/20 text-purple-500">
+                  <Activity className="h-5 w-5" />
+                </div>
+                <div className="w-full">
+                  <p className="text-sm font-medium">Uptime</p>
+                  <p className="text-lg font-bold font-mono truncate">
+                    {systemStats && systemStats.time && typeof systemStats.time.uptime === 'number'
+                      ? formatDistanceToNow(new Date(Date.now() - systemStats.time.uptime * 1000))
+                      : '...'}
+                  </p>
+                  <p className="text-xs text-purple-500/80">
+                    System Online
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-orange-500/10 border-orange-500/20">
+              <CardContent className="p-4 flex items-center gap-4">
+                <div className="p-2 rounded-full bg-orange-500/20 text-orange-500">
+                  <Server className="h-5 w-5" />
+                </div>
+                <div className="w-full">
+                  <p className="text-sm font-medium">Disk Usage</p>
+                  {systemStats && systemStats.fsSize && systemStats.fsSize.length > 0 ? (
+                    <div>
+                      <div className="flex items-end gap-1">
+                        <p className="text-2xl font-bold font-mono">
+                          {systemStats.fsSize[0].use.toFixed(1)}%
+                        </p>
+                        <p className="text-xs text-muted-foreground mb-1">
+                          ({(systemStats.fsSize[0].used / 1024 / 1024 / 1024).toFixed(0)}GB used)
+                        </p>
+                      </div>
+                      <div className="h-1.5 w-full bg-orange-500/20 rounded-full overflow-hidden mt-1">
+                        <div
+                          className="h-full bg-orange-500 transition-all duration-500"
+                          style={{ width: `${systemStats.fsSize[0].use}%` }}
+                        />
+                      </div>
+                    </div>
+                  ) : <p className="text-sm font-mono text-muted-foreground">Unknown</p>}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
+            {containers.map((container) => (
+              <Card key={container.id} className="bg-card hover:border-primary/50 transition-all cursor-pointer overflow-hidden border-border" onClick={() => setActiveTab(container.id)}>
+                <CardHeader className="p-4 flex flex-row items-center justify-between space-y-0">
+                  <CardTitle className="text-sm font-bold truncate pr-2">{container.names?.[0]?.replace(/^\//, '')}</CardTitle>
+                  <Badge variant="outline" className={`${getStatusColor(container.state)} text-[9px] px-1.5 py-0`}>{container.state.toUpperCase()}</Badge>
+                </CardHeader>
+                <CardContent className="p-4 pt-0 space-y-2 text-[10px]">
+                  <div className="flex justify-between text-muted-foreground"><span>Image</span><span className="truncate max-w-[120px] font-mono">{container.image.split(':')[0]}</span></div>
+                  <div className="flex justify-between text-muted-foreground"><span>Status</span><span className="text-emerald-500">{container.status}</span></div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
+
+        {containers.map((container) => {
+          const currentStats = stats[container.id] || { cpu: '0.00', memoryFormatted: '0MB', networks: {}, restartPolicy: 'always' };
+          const healthScore = 100 - parseFloat(currentStats.cpu || 0) * 0.5; // Dummy health calculation
+
+          return (
+            <TabsContent key={container.id} value={container.id} className="mt-6 grid grid-cols-1 xl:grid-cols-4 gap-6">
+              {/* Terminal */}
+              <div className="xl:col-span-3 flex flex-col h-[70vh] border border-border rounded-3xl bg-zinc-950 overflow-hidden shadow-sm">
+                <div className="px-6 py-4 border-b border-zinc-800 flex items-center justify-between bg-zinc-900/50">
+                  <div className="flex items-center gap-3">
+                    <Terminal className="h-5 w-5 text-primary" />
+                    <span className="text-sm font-bold text-white">{container.names?.[0]?.replace(/^\//, '')}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <input type="text" placeholder="Grep..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="bg-zinc-800 border-none text-xs px-3 py-1.5 rounded-lg text-white w-32" />
+                    <Button variant="ghost" size="sm" onClick={() => setIsPaused(!isPaused)} className="h-8 rounded-lg text-white bg-zinc-800 hover:bg-zinc-700">{isPaused ? <Play size={14} /> : <Pause size={14} />}</Button>
+                    <Button variant="ghost" size="sm" onClick={() => setLogs(p => ({ ...p, [container.id]: [] }))} className="h-8 rounded-lg text-white bg-zinc-800 hover:bg-zinc-700"><Trash2 size={14} /></Button>
+                  </div>
+                </div>
+                <div className="flex-1 p-6 overflow-y-auto font-mono text-[11px] text-zinc-300">
+                  {(logs[container.id] || []).filter(l => l.message.toLowerCase().includes(searchQuery.toLowerCase())).map((log) => (
+                    <div key={log.id} className={`py-0.5 ${highlightLog(log.message)}`}>{log.message}</div>
+                  ))}
+                  <div ref={(el) => (logsEndRef.current[container.id] = el)} />
+                </div>
+              </div>
+
+              {/* Sidebar */}
+              <div className="space-y-4">
+                <Card className="bg-card border-border rounded-2xl">
+                  <CardHeader className="py-2.5 px-4 border-b border-border bg-muted/30">
+                    <CardTitle className="text-xs font-bold flex items-center gap-2"><Activity size={14} className="text-primary" /> Metrics</CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-4 space-y-4">
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-[10px] font-bold"><span>HEALTH SCORE</span><span className="text-emerald-500">{healthScore.toFixed(0)}%</span></div>
+                      <div className="h-1 bg-muted rounded-full overflow-hidden"><div className="h-full bg-emerald-500" style={{ width: `${healthScore}%` }} /></div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="p-3 rounded-xl bg-muted/50 border border-border">
+                        <p className="text-[9px] text-muted-foreground font-bold">CPU</p>
+                        <p className="text-lg font-mono font-bold text-primary">{currentStats.cpu}%</p>
+                      </div>
+                      <div className="p-3 rounded-xl bg-muted/50 border border-border">
+                        <p className="text-[9px] text-muted-foreground font-bold">MEM</p>
+                        <p className="text-lg font-mono font-bold text-primary">{currentStats.memoryFormatted}</p>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
 
-                <Card className="bg-blue-500/10 border-blue-500/20">
-                  <CardContent className="p-4 flex items-center gap-4">
-                    <div className="p-2 rounded-full bg-blue-500/20 text-blue-500">
-                      <Database className="h-5 w-5" />
+                <Card className="bg-card border-border rounded-2xl">
+                  <CardHeader className="py-2.5 px-4 border-b border-border bg-muted/30">
+                    <CardTitle className="text-xs font-bold flex items-center gap-2"><Database size={14} className="text-primary" /> Environment</CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-4 space-y-3 font-mono text-[9px]">
+                    <div className="pb-1.5 border-b border-border">
+                      <p className="text-muted-foreground font-bold mb-1">NETWORK</p>
+                      <p>{Object.keys(currentStats.networks || {}).join(', ') || 'bridge'}</p>
                     </div>
-                    <div className="w-full">
-                      <p className="text-sm font-medium">Memory (RAM)</p>
-                      {systemStats ? (
-                        <div>
-                          <div className="flex items-end gap-1">
-                            <p className="text-2xl font-bold font-mono">
-                              {((systemStats.mem.active / systemStats.mem.total) * 100).toFixed(1)}%
-                            </p>
-                            <p className="text-xs text-muted-foreground mb-1">
-                              ({(systemStats.mem.active / 1024 / 1024 / 1024).toFixed(1)}GB / {(systemStats.mem.total / 1024 / 1024 / 1024).toFixed(1)}GB)
-                            </p>
-                          </div>
-                          <div className="h-1.5 w-full bg-blue-500/20 rounded-full overflow-hidden mt-1">
-                            <div
-                              className="h-full bg-blue-500 transition-all duration-500"
-                              style={{ width: `${(systemStats.mem.active / systemStats.mem.total) * 100}%` }}
-                            />
-                          </div>
-                        </div>
-                      ) : <p className="...">Loading...</p>}
+                    <div className="pb-1.5 border-b border-border">
+                      <p className="text-muted-foreground font-bold mb-1">RESTART POLICY</p>
+                      <p>{currentStats.restartPolicy}</p>
                     </div>
                   </CardContent>
                 </Card>
-
-                <Card className="bg-purple-500/10 border-purple-500/20">
-                  <CardContent className="p-4 flex items-center gap-4">
-                    <div className="p-2 rounded-full bg-purple-500/20 text-purple-500">
-                      <Activity className="h-5 w-5" />
-                    </div>
-                    <div className="w-full">
-                      <p className="text-sm font-medium">Uptime</p>
-                      <p className="text-lg font-bold font-mono truncate">
-                        {systemStats && systemStats.time && typeof systemStats.time.uptime === 'number'
-                          ? formatDistanceToNow(new Date(Date.now() - systemStats.time.uptime * 1000))
-                          : '...'}
-                      </p>
-                      <p className="text-xs text-purple-500/80">
-                        System Online
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="bg-orange-500/10 border-orange-500/20">
-                  <CardContent className="p-4 flex items-center gap-4">
-                    <div className="p-2 rounded-full bg-orange-500/20 text-orange-500">
-                      <Server className="h-5 w-5" />
-                    </div>
-                    <div className="w-full">
-                      <p className="text-sm font-medium">Disk Usage</p>
-                      {systemStats && systemStats.fsSize && systemStats.fsSize.length > 0 ? (
-                        <div>
-                          <div className="flex items-end gap-1">
-                            <p className="text-2xl font-bold font-mono">
-                              {systemStats.fsSize[0].use.toFixed(1)}%
-                            </p>
-                            <p className="text-xs text-muted-foreground mb-1">
-                              ({(systemStats.fsSize[0].used / 1024 / 1024 / 1024).toFixed(0)}GB used)
-                            </p>
-                          </div>
-                          <div className="h-1.5 w-full bg-orange-500/20 rounded-full overflow-hidden mt-1">
-                            <div
-                              className="h-full bg-orange-500 transition-all duration-500"
-                              style={{ width: `${systemStats.fsSize[0].use}%` }}
-                            />
-                          </div>
-                        </div>
-                      ) : <p className="text-sm font-mono text-muted-foreground">Unknown</p>}
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-
-              <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
-                {containers.map((container) => (
-                  <Card key={container.id} className="bg-card hover:border-primary/50 transition-all cursor-pointer overflow-hidden border-border" onClick={() => setActiveTab(container.id)}>
-                    <CardHeader className="p-4 flex flex-row items-center justify-between space-y-0">
-                      <CardTitle className="text-sm font-bold truncate pr-2">{container.names?.[0]?.replace(/^\//, '')}</CardTitle>
-                      <Badge variant="outline" className={`${getStatusColor(container.state)} text-[9px] px-1.5 py-0`}>{container.state.toUpperCase()}</Badge>
-                    </CardHeader>
-                    <CardContent className="p-4 pt-0 space-y-2 text-[10px]">
-                      <div className="flex justify-between text-muted-foreground"><span>Image</span><span className="truncate max-w-[120px] font-mono">{container.image.split(':')[0]}</span></div>
-                      <div className="flex justify-between text-muted-foreground"><span>Status</span><span className="text-emerald-500">{container.status}</span></div>
-                    </CardContent>
-                  </Card>
-                ))}
               </div>
             </TabsContent>
-
-            {containers.map((container) => {
-              const currentStats = stats[container.id] || { cpu: '0.00', memoryFormatted: '0MB', networks: {}, restartPolicy: 'always' };
-              const healthScore = 100 - parseFloat(currentStats.cpu || 0) * 0.5; // Dummy health calculation
-
-              return (
-                <TabsContent key={container.id} value={container.id} className="mt-6 grid grid-cols-1 xl:grid-cols-4 gap-6">
-                  {/* Terminal */}
-                  <div className="xl:col-span-3 flex flex-col h-[70vh] border border-border rounded-3xl bg-zinc-950 overflow-hidden shadow-sm">
-                    <div className="px-6 py-4 border-b border-zinc-800 flex items-center justify-between bg-zinc-900/50">
-                      <div className="flex items-center gap-3">
-                        <Terminal className="h-5 w-5 text-primary" />
-                        <span className="text-sm font-bold text-white">{container.names?.[0]?.replace(/^\//, '')}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <input type="text" placeholder="Grep..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="bg-zinc-800 border-none text-xs px-3 py-1.5 rounded-lg text-white w-32" />
-                        <Button variant="ghost" size="sm" onClick={() => setIsPaused(!isPaused)} className="h-8 rounded-lg text-white bg-zinc-800 hover:bg-zinc-700">{isPaused ? <Play size={14} /> : <Pause size={14} />}</Button>
-                        <Button variant="ghost" size="sm" onClick={() => setLogs(p => ({ ...p, [container.id]: [] }))} className="h-8 rounded-lg text-white bg-zinc-800 hover:bg-zinc-700"><Trash2 size={14} /></Button>
-                      </div>
-                    </div>
-                    <div className="flex-1 p-6 overflow-y-auto font-mono text-[11px] text-zinc-300">
-                      {(logs[container.id] || []).filter(l => l.message.toLowerCase().includes(searchQuery.toLowerCase())).map((log) => (
-                        <div key={log.id} className={`py-0.5 ${highlightLog(log.message)}`}>{log.message}</div>
-                      ))}
-                      <div ref={(el) => (logsEndRef.current[container.id] = el)} />
-                    </div>
-                  </div>
-
-                  {/* Sidebar */}
-                  <div className="space-y-4">
-                    <Card className="bg-card border-border rounded-2xl">
-                      <CardHeader className="py-2.5 px-4 border-b border-border bg-muted/30">
-                        <CardTitle className="text-xs font-bold flex items-center gap-2"><Activity size={14} className="text-primary" /> Metrics</CardTitle>
-                      </CardHeader>
-                      <CardContent className="p-4 space-y-4">
-                        <div className="space-y-1">
-                          <div className="flex justify-between text-[10px] font-bold"><span>HEALTH SCORE</span><span className="text-emerald-500">{healthScore.toFixed(0)}%</span></div>
-                          <div className="h-1 bg-muted rounded-full overflow-hidden"><div className="h-full bg-emerald-500" style={{ width: `${healthScore}%` }} /></div>
-                        </div>
-                        <div className="grid grid-cols-2 gap-2">
-                          <div className="p-3 rounded-xl bg-muted/50 border border-border">
-                            <p className="text-[9px] text-muted-foreground font-bold">CPU</p>
-                            <p className="text-lg font-mono font-bold text-primary">{currentStats.cpu}%</p>
-                          </div>
-                          <div className="p-3 rounded-xl bg-muted/50 border border-border">
-                            <p className="text-[9px] text-muted-foreground font-bold">MEM</p>
-                            <p className="text-lg font-mono font-bold text-primary">{currentStats.memoryFormatted}</p>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-
-                    <Card className="bg-card border-border rounded-2xl">
-                      <CardHeader className="py-2.5 px-4 border-b border-border bg-muted/30">
-                        <CardTitle className="text-xs font-bold flex items-center gap-2"><Database size={14} className="text-primary" /> Environment</CardTitle>
-                      </CardHeader>
-                      <CardContent className="p-4 space-y-3 font-mono text-[9px]">
-                        <div className="pb-1.5 border-b border-border">
-                          <p className="text-muted-foreground font-bold mb-1">NETWORK</p>
-                          <p>{Object.keys(currentStats.networks || {}).join(', ') || 'bridge'}</p>
-                        </div>
-                        <div className="pb-1.5 border-b border-border">
-                          <p className="text-muted-foreground font-bold mb-1">RESTART POLICY</p>
-                          <p>{currentStats.restartPolicy}</p>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </div>
-                </TabsContent>
-              );
-            })}
-          </motion.div>
-        </AnimatePresence>
+          );
+        })}
       </Tabs>
     </div>
   );
