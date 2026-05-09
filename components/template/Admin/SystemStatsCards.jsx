@@ -20,12 +20,21 @@ export default function SystemStatsCards({ systemStats }) {
             <div className="flex items-center justify-between">
               <div className={cn(
                 "p-2.5 rounded-xl transition-all duration-300 group-hover:scale-110",
-                `bg-${stat.color}-500/10 text-${stat.color}-500`
+                stat.color === 'emerald' && "bg-emerald-500/10 text-emerald-500",
+                stat.color === 'sky' && "bg-sky-500/10 text-sky-500",
+                stat.color === 'indigo' && "bg-indigo-500/10 text-indigo-500",
+                stat.color === 'orange' && "bg-orange-500/10 text-orange-500"
               )}>
                 <stat.icon className="h-5 w-5" />
               </div>
               {stat.status && (
-                <span className={`text-[10px] font-bold uppercase tracking-wider text-${stat.color}-500/80 bg-${stat.color}-500/5 px-2 py-1 rounded-full border border-${stat.color}-500/10`}>
+                <span className={cn(
+                  "text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full border",
+                  stat.color === 'emerald' && "text-emerald-500/80 bg-emerald-500/5 border-emerald-500/10",
+                  stat.color === 'sky' && "text-sky-500/80 bg-sky-500/5 border-sky-500/10",
+                  stat.color === 'indigo' && "text-indigo-500/80 bg-indigo-500/5 border-indigo-500/10",
+                  stat.color === 'orange' && "text-orange-500/80 bg-orange-500/5 border-orange-500/10"
+                )}>
                   {stat.status}
                 </span>
               )}
@@ -39,11 +48,19 @@ export default function SystemStatsCards({ systemStats }) {
                   {stat.subValue && <p className="text-[10px] text-muted-foreground font-mono">{stat.subValue}</p>}
                 </div>
                 {stat.progress !== undefined && (
-                  <div className="h-1 w-full bg-muted/50 rounded-full overflow-hidden">
-                    <div
-                      className={cn("h-full transition-all duration-1000", `bg-${stat.color}-500`)}
-                      style={{ width: `${Math.min(stat.progress, 100)}%` }}
-                    />
+                  <div className="mt-2">
+                    <div className="h-1.5 w-full bg-muted/30 rounded-full overflow-hidden shadow-inner">
+                      <div
+                        className={cn(
+                          "h-full transition-all duration-1000 ease-out rounded-full shadow-[0_0_8px_rgba(0,0,0,0.2)]",
+                          stat.color === 'emerald' && "bg-emerald-500 shadow-emerald-500/20",
+                          stat.color === 'sky' && "bg-sky-500 shadow-sky-500/20",
+                          stat.color === 'indigo' && "bg-indigo-500 shadow-indigo-500/20",
+                          stat.color === 'orange' && "bg-orange-500 shadow-orange-500/20"
+                        )}
+                        style={{ width: `${Math.max(2, Math.min(stat.progress, 100))}%` }}
+                      />
+                    </div>
                   </div>
                 )}
               </div>

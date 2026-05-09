@@ -763,10 +763,10 @@ export default function Settings() {
                                     </SelectTrigger>
                                     <SelectContent>
                                         {groups.map(g => <SelectItem key={g.group} value={g.group}>{g.group}</SelectItem>)}
-                                        <SelectItem value="Other">New Group...</SelectItem>
+                                        <SelectItem value="NEW_GROUP_HIDDEN">New Group...</SelectItem>
                                     </SelectContent>
                                 </Select>
-                                {newSetting.group === 'Other' && (
+                                {newSetting.group === 'NEW_GROUP_HIDDEN' && (
                                     <Input
                                         placeholder="Group name"
                                         onChange={(e) => setNewSetting({ ...newSetting, group: e.target.value })}
