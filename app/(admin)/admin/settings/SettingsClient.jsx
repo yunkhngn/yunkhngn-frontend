@@ -278,6 +278,12 @@ export default function Settings() {
         e.preventDefault();
         if (!user) return;
 
+        // Validation to prevent saving the literal mask
+        if (currentSetting.content === '********' && currentSetting.isSensitive === false) {
+            toast.error("Please enter the actual key instead of '********' when turning off Sensitive mode.");
+            return;
+        }
+
         // JSON Validation
         const jsonFields = ['education', 'experience', 'skills', 'projects'];
         if (jsonFields.includes(currentSetting.settingTitle)) {

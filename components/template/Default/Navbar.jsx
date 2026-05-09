@@ -1,8 +1,9 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useTheme } from 'next-themes';
-import { Search, Moon, Sun, Menu, X, LogOut, LayoutDashboard, User, Settings } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Search, Moon, Sun, Menu, X, LogOut, LayoutDashboard, Settings, Pencil, Activity } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { useState, useEffect } from 'react';
@@ -15,18 +16,20 @@ import {
     DropdownMenuLabel,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
+    DropdownMenuGroup,
 } from "@/components/ui/DropdownMenu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/Avatar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/Dialog";
 import NotificationDropdown from "@/components/ui/NotificationDropdown";
 
 const NAV_ITEMS = [
-    { label: "Project", href: "/project" },
-    { label: "Blog", href: "/blog" },
+    { label: "Home", href: "/" },
+    { label: "About", href: "/about" },
+    { label: "Projects", href: "/project" },
+    { label: "Writing", href: "/blog" },
     { label: "Journal", href: "/journal" },
-    { label: "Photo", href: "/photo" },
-    { label: "About Me", href: "/about" },
-    { label: "Chat with me", href: "/khoa-ai" },
+    { label: "Gallery", href: "/photo" },
+    { label: "Khoa AI", href: "/khoa-ai" },
     { label: "Contact", href: "/contact" },
 ];
 
@@ -34,11 +37,13 @@ export default function Navbar() {
     const { theme, setTheme } = useTheme();
     const { user, loading, signOut } = useAuth();
     const router = useRouter();
+    const pathname = usePathname();
     const [mounted, setMounted] = useState(false);
     const [text, setText] = useState('');
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isSearchOpen, setIsSearchOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
+    const [hoveredPath, setHoveredPath] = useState(pathname);
     const fullText = 'yun.khngn';
 
     // Avoid hydration mismatch & Start typing effect
@@ -77,35 +82,49 @@ export default function Navbar() {
     };
 
     return (
-        <nav className="border-b border-border bg-background backdrop-blur-3xl sticky top-0 z-50">
+        <nav className="border-b border-border/40 bg-background/80 backdrop-blur-xl sticky top-0 z-50 transition-colors duration-300">
             <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-4">
                 {/* Left: Logo & Navigation */}
                 <div className="flex items-center gap-8">
                     {/* Logo */}
-                    <Link href="/" className="font-mono text-lg font-bold flex items-center gap-1 hover:opacity-80 transition-opacity">
+                    <Link href="/" className="font-mono text-lg font-bold flex items-center gap-1 hover:opacity-80 transition-opacity z-10">
                         <span className="text-primary">&gt;</span>
                         <span className="text-foreground min-w-[100px]">{text}</span>
                         <span className="text-primary animate-pulse">_</span>
                     </Link>
 
                     {/* Desktop Navigation */}
-                    <div className="hidden md:flex items-center gap-6">
-                        {NAV_ITEMS.map((item) => (
-                            <Link
-                                key={item.href}
-                                href={item.href}
-                                className="text-sm font-medium hover:text-primary transition-colors"
-                            >
-                                {item.label}
-                            </Link>
-                        ))}
+                    <div
+                        className="hidden lg:flex items-center gap-1 relative z-10"
+                        onMouseLeave={() => setHoveredPath(pathname)}
+                    >
+                        {NAV_ITEMS.map((item) => {
+                            const isActive = item.href === '/' ? pathname === '/' : pathname.startsWith(item.href);
+                            return (
+                                <Link
+                                    key={item.href}
+                                    href={item.href}
+                                    onMouseEnter={() => setHoveredPath(item.href)}
+                                    className={`relative px-3 py-1.5 text-sm font-medium transition-colors rounded-full ${isActive ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+                                >
+                                    {item.href === hoveredPath && (
+                                        <motion.div
+                                            className="absolute inset-0 bg-accent/50 rounded-full -z-10"
+                                            layoutId="navbar-hover"
+                                            transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
+                                        />
+                                    )}
+                                    <span className="relative z-10">{item.label}</span>
+                                </Link>
+                            );
+                        })}
                     </div>
                 </div>
 
                 {/* Right: Actions */}
-                <div className="flex items-center gap-1 md:gap-4">
+                <div className="flex items-center gap-1 lg:gap-4 z-10">
                     {/* Desktop Search Box - Hidden on mobile */}
-                    <form onSubmit={handleSearch} className="hidden md:block">
+                    <form onSubmit={handleSearch} className="hidden lg:block">
                         <div className="relative">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground z-10 pointer-events-none" />
                             <Input
@@ -121,7 +140,7 @@ export default function Navbar() {
                     {/* Mobile Search Button - Hidden on desktop */}
                     <button
                         onClick={() => setIsSearchOpen(true)}
-                        className="md:hidden p-2 hover:bg-accent rounded-full text-muted-foreground transition-colors"
+                        className="lg:hidden p-2 hover:bg-accent rounded-full text-muted-foreground transition-colors"
                         aria-label="Search"
                     >
                         <Search size={20} />
@@ -152,42 +171,65 @@ export default function Navbar() {
                                     </Avatar>
                                 </Button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent className="w-56" align="end" forceMount>
-                                <DropdownMenuLabel className="font-normal">
-                                    <div className="flex flex-col space-y-1">
-                                        <p className="text-sm font-medium leading-none">
-                                            {user.isAnonymous ? "Anonymous" : (user.displayName || "User")}
-                                        </p>
-                                        {user.isAnonymous ? (
-                                            <p className="text-xs leading-none text-muted-foreground">
-                                                Temporary visitor account
+                            <DropdownMenuContent className="w-60" align="end" forceMount>
+                                {/* User Header */}
+                                <DropdownMenuLabel className="font-normal p-3">
+                                    <div className="flex items-center gap-3">
+                                        <Avatar className="h-9 w-9 border">
+                                            <AvatarImage src={user.isAnonymous ? "https://cataas.com/cat" : (user.avatarUrl || user.photoURL)} />
+                                            <AvatarFallback>{user.isAnonymous ? "😺" : (user.displayName?.[0] || user.email?.[0] || "U")}</AvatarFallback>
+                                        </Avatar>
+                                        <div className="flex flex-col space-y-0.5">
+                                            <p className="text-sm font-semibold leading-none text-foreground">
+                                                {user.isAnonymous ? "Anonymous" : (user.displayName || "User")}
                                             </p>
-                                        ) : user.email && (
-                                            <p className="text-xs leading-none text-muted-foreground">
-                                                {user.email}
+                                            <p className="text-xs leading-none text-muted-foreground font-medium">
+                                                {user.isAnonymous ? "Visitor" : user.email}
                                             </p>
-                                        )}
+                                        </div>
                                     </div>
                                 </DropdownMenuLabel>
-                                {!user.isAnonymous && <DropdownMenuSeparator />}
+
+                                {/* Admin Group */}
                                 {!user.isAnonymous && user.role === 'ADMIN' && (
-                                    <DropdownMenuItem asChild>
-                                        <Link href="/admin/dashboard" className="cursor-pointer">
-                                            <LayoutDashboard className="mr-2 h-4 w-4" />
-                                            <span>Dashboard</span>
-                                        </Link>
-                                    </DropdownMenuItem>
+                                    <>
+                                        <DropdownMenuSeparator />
+                                        <DropdownMenuLabel className="text-xs font-semibold text-muted-foreground uppercase tracking-wider py-2">
+                                            Admin
+                                        </DropdownMenuLabel>
+                                        <DropdownMenuGroup>
+                                            <DropdownMenuItem asChild>
+                                                <Link href="/admin/dashboard" className="cursor-pointer py-2">
+                                                    <LayoutDashboard className="mr-2 h-4 w-4 text-sky-500" />
+                                                    <span>Dashboard</span>
+                                                </Link>
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem asChild>
+                                                <Link href="/admin/blog" className="cursor-pointer py-2">
+                                                    <Pencil className="mr-2 h-4 w-4 text-blue-500" />
+                                                    <span>Blog</span>
+                                                </Link>
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem asChild>
+                                                <Link href="/admin/monitor" className="cursor-pointer py-2">
+                                                    <Activity className="mr-2 h-4 w-4 text-emerald-500" />
+                                                    <span>System Monitor</span>
+                                                </Link>
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem asChild>
+                                                <Link href="/admin/settings" className="cursor-pointer py-2">
+                                                    <Settings className="mr-2 h-4 w-4 text-muted-foreground" />
+                                                    <span>Site Settings</span>
+                                                </Link>
+                                            </DropdownMenuItem>
+                                        </DropdownMenuGroup>
+                                    </>
                                 )}
-                                {!user.isAnonymous && user.role === 'ADMIN' && (
-                                    <DropdownMenuItem asChild>
-                                        <Link href="/admin/settings" className="cursor-pointer">
-                                            <Settings className="mr-2 h-4 w-4" />
-                                            <span>Site Settings</span>
-                                        </Link>
-                                    </DropdownMenuItem>
-                                )}
+
                                 <DropdownMenuSeparator />
-                                <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-red-600">
+
+                                {/* Logout */}
+                                <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-rose-500 focus:text-rose-500 focus:bg-rose-500/10 py-2">
                                     <LogOut className="mr-2 h-4 w-4" />
                                     <span>Log out</span>
                                 </DropdownMenuItem>
@@ -223,7 +265,7 @@ export default function Navbar() {
                     {/* Theme Toggle Button */}
                     <button
                         onClick={toggleTheme}
-                        className="hidden md:flex p-2 hover:bg-accent rounded-full text-muted-foreground transition-colors"
+                        className="hidden lg:flex p-2 hover:bg-accent rounded-full text-muted-foreground transition-colors"
                         aria-label="Toggle theme"
                     >
                         {mounted && theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
@@ -231,7 +273,7 @@ export default function Navbar() {
 
                     {/* Mobile Menu Trigger */}
                     <button
-                        className="md:hidden p-2 hover:bg-accent rounded-md"
+                        className="lg:hidden p-2 hover:bg-accent rounded-md"
                         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                     >
                         {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
@@ -241,7 +283,7 @@ export default function Navbar() {
 
             {/* Mobile Menu Overlay */}
             {isMobileMenuOpen && (
-                <div className="md:hidden absolute top-16 left-0 w-full bg-background border-b border-border p-4 flex flex-col gap-4 shadow-lg animate-in slide-in-from-top-5">
+                <div className="lg:hidden absolute top-16 left-0 w-full bg-background/95 backdrop-blur-md border-b border-border p-4 flex flex-col gap-4 shadow-lg animate-in slide-in-from-top-5">
                     {NAV_ITEMS.map((item) => (
                         <Link
                             key={item.href}

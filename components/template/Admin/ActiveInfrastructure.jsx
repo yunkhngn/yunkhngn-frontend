@@ -13,7 +13,7 @@ export default function ActiveInfrastructure({ containers, getStatusColor, setAc
         <Box className="h-4 w-4 text-primary" />
         <h2 className="text-[11px] font-black tracking-[0.2em] uppercase text-muted-foreground">Active Infrastructure</h2>
       </div>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 items-start">
         {containers.map((container) => {
           const name = container.names?.[0]?.replace(/^\//, '');
           const state = container.state.toLowerCase();
