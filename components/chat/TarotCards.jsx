@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 
-const POSITIONS = ['Quá khứ', 'Hiện tại', 'Tương lai'];
+const POSITIONS = ['QUÁ KHỨ', 'HIỆN TẠI', 'TƯƠNG LAI'];
 const POSITION_ICONS = ['🌙', '☀️', '⭐'];
 
 export default function TarotCards({ cards }) {
@@ -41,7 +41,7 @@ export default function TarotCards({ cards }) {
                         className="flex flex-col items-center gap-1.5 flex-1 max-w-[130px]"
                     >
                         {/* Position Label */}
-                        <span className="text-[10px] font-semibold text-muted-foreground tracking-wider uppercase">
+                        <span className="text-[10px] font-semibold text-muted-foreground tracking-wider uppercase whitespace-nowrap">
                             {POSITION_ICONS[index]} {POSITIONS[index]}
                         </span>
 
