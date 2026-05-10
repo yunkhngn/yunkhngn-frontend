@@ -169,13 +169,6 @@ export default function Dashboard() {
     fetchData();
   }, [user]);
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-96">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
-  }
 
   const StatCard = ({ title, value, subtitle, icon: Icon, trend }) => (
     <Card className="hover:shadow-md transition-shadow py-0 gap-0">
