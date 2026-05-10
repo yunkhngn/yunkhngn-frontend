@@ -137,10 +137,11 @@ export default function Comment({ comment, onUpdate, onDelete, onReply, onMentio
             id={`comment-${comment.id}`}
             className="border-b border-border pb-4 last:border-0 flex gap-4 transition-colors duration-500 rounded-lg p-2"
         >
-            <Avatar className="h-10 w-10 flex-shrink-0">
-                {isCommentAdmin && comment.user?.avatarUrl && (
-                    <AvatarImage src={comment.user.avatarUrl} alt={comment.displayName} />
-                )}
+            <Avatar className="h-10 w-10 flex-shrink-0 border border-border/50">
+                <AvatarImage 
+                    src={isCommentAdmin ? (comment.user?.avatarUrl || "https://cataas.com/cat") : "https://cataas.com/cat"} 
+                    alt={comment.displayName} 
+                />
                 <AvatarFallback className={isCommentAdmin ? "bg-primary/10 text-primary" : ""}>
                     {comment.displayName?.[0]?.toUpperCase() || '?'}
                 </AvatarFallback>
