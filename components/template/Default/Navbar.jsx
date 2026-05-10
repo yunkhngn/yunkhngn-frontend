@@ -166,7 +166,7 @@ export default function Navbar() {
                                             alt={user.displayName || "User"}
                                         />
                                         <AvatarFallback>
-                                            {user.isAnonymous ? "😺" : (user.displayName?.[0] || user.email?.[0] || "U")}
+                                            {user.isAnonymous ? "A" : (user.displayName?.[0] || user.email?.[0] || "U")}
                                         </AvatarFallback>
                                     </Avatar>
                                 </Button>
@@ -177,7 +177,7 @@ export default function Navbar() {
                                     <div className="flex items-center gap-3">
                                         <Avatar className="h-9 w-9 border">
                                             <AvatarImage src={user.isAnonymous ? "https://cataas.com/cat" : (user.avatarUrl || user.photoURL)} />
-                                            <AvatarFallback>{user.isAnonymous ? "😺" : (user.displayName?.[0] || user.email?.[0] || "U")}</AvatarFallback>
+                                            <AvatarFallback>{user.isAnonymous ? "A" : (user.displayName?.[0] || user.email?.[0] || "U")}</AvatarFallback>
                                         </Avatar>
                                         <div className="flex flex-col space-y-0.5">
                                             <p className="text-sm font-semibold leading-none text-foreground">
