@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/Button';
 import ReactMarkdown from 'react-markdown';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
+import TarotCards from '@/components/chat/TarotCards';
 
 export default function ChatWindow({ isOpen, onClose }) {
     const [messages, setMessages] = useState([
@@ -112,7 +113,12 @@ export default function ChatWindow({ isOpen, onClose }) {
             if (!res.ok) throw new Error('Failed to fetch response');
 
             const data = await readNestJson(res);
-            setMessages(prev => [...prev, { role: 'assistant', content: data.response, imageUrl: data.imageUrl || null }]);
+            setMessages(prev => [...prev, {
+                role: 'assistant',
+                content: data.response,
+                imageUrl: data.imageUrl || null,
+                tarotCards: data.tarotCards || null
+            }]);
         } catch (error) {
             console.error(error);
             setMessages(prev => [...prev, { role: 'assistant', content: 'Oops! Mất kết nối tới não tớ rồi cậu ơi. Thử lại sau nhé!' }]);
@@ -213,6 +219,9 @@ export default function ChatWindow({ isOpen, onClose }) {
                                                     unoptimized
                                                 />
                                             </a>
+                                        )}
+                                        {msg.tarotCards && (
+                                            <TarotCards cards={msg.tarotCards} />
                                         )}
                                     </div>
                                 </div>

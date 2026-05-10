@@ -50,6 +50,11 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'lastfm.freetls.fastly.net',
         pathname: '/i/u/**'
+      },
+      {
+        protocol: 'https',
+        hostname: 'tarot.yunkhngn.dev',
+        pathname: '/tarotdeck/**'
       }
     ],
   },
