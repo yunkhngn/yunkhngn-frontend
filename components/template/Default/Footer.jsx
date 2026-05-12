@@ -27,7 +27,7 @@ export default function Footer() {
     }, []);
 
     return (
-        <footer className="bg-background border-t border-border pt-16 pb-8 w-full relative z-10 transition-colors duration-500">
+        <footer className="bg-background border-t border-border pt-16 pb-8 w-full relative z-10">
             <div className="container mx-auto px-4">
                 <div className="flex flex-col lg:flex-row gap-8 mb-12">
                     {/* Brand Column */}

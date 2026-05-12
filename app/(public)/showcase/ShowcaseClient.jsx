@@ -127,7 +127,7 @@ export default function Showcase() {
   ];
 
   return (
-    <div className="flex-1 bg-[#FDFBF7] dark:bg-background transition-colors duration-500">
+    <div className="flex-1 bg-[#FDFBF7] dark:bg-background">
       <div className="max-w-7xl mx-auto px-6 py-20 md:py-32">
 
         {/* Hero Section */}

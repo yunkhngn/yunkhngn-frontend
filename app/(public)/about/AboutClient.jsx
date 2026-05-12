@@ -147,7 +147,7 @@ export default function About() {
     return (
         <div
             ref={scrollRef}
-            className="h-[calc(100vh-64px)] overflow-y-auto overflow-x-hidden snap-y snap-mandatory scroll-smooth bg-[#FDFBF7] dark:bg-background text-foreground transition-colors duration-500 font-sans"
+            className="h-[calc(100vh-64px)] overflow-y-auto overflow-x-hidden snap-y snap-mandatory scroll-smooth bg-[#FDFBF7] dark:bg-background text-foreground font-sans"
         >
             <div className="relative w-full">
                 <div className="grid grid-cols-1 lg:grid-cols-10 items-start">
