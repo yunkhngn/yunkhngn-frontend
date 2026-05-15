@@ -247,8 +247,19 @@ export default function Terminal({ embedded = false, className = '' }) {
 
     return (
         <div className={`w-full max-w-4xl mx-auto rounded-lg overflow-hidden border border-gray-800 bg-black/95 shadow-2xl font-mono text-sm md:text-base ${!embedded ? 'my-12' : ''} ${className}`}>
-            {/* Terminal Header - Only show if not embedded */}
-            {!embedded && (
+            {/* Terminal Header */}
+            {embedded ? (
+                <div className="px-4 py-2.5 flex items-center justify-between border-b border-white/10 bg-white/[0.02] text-xs">
+                    <div className="text-gray-400 flex items-center gap-2">
+                        <TerminalIcon size={14} />
+                        <span>nerd@yunkhngn.dev:~</span>
+                    </div>
+                    <div className="text-green-500 font-medium flex items-center gap-1.5">
+                        <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.8)] animate-pulse" />
+                        {onlineCount} {onlineCount <= 1 ? 'nerd' : 'nerds'} online
+                    </div>
+                </div>
+            ) : (
                 <div className="bg-gray-900 px-4 py-2 flex items-center justify-between border-b border-gray-800">
                     <div className="flex gap-2">
                         <div className="w-3 h-3 rounded-full bg-red-500" />
