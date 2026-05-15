@@ -1,7 +1,10 @@
 'use client';
 
-import { useEffect, useMemo } from 'react';
-import { motion } from 'framer-motion';
+import { useEffect, useMemo, useRef } from 'react';
+import { motion, useMotionValue, useTransform, useScroll } from 'framer-motion';
+import HeroBackground from '@/components/home/HeroBackground';
+import RevealHeading from '@/components/home/RevealHeading';
+import TiltCard from '@/components/home/TiltCard';
 import { Button } from '@/components/ui/Button';
 import {
   Github,
@@ -27,6 +30,40 @@ import { getOptimizedUrl, getBlurUrl } from '@/lib/cloudinary';
 import { readCachedSettings, writeCachedSettings } from '@/lib/settingsCache';
 import { sanitizeRichTextToPlainText } from '@/lib/sanitizeRichText';
 import LiveActivityInline from '@/components/live/LiveActivityInline';
+
+function ParallaxPhoto({ photo, index }) {
+  const ref = useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ['start end', 'end start'],
+  });
+  const y = useTransform(
+    scrollYProgress,
+    [0, 1],
+    index % 2 === 0 ? ['-30px', '30px'] : ['30px', '-30px']
+  );
+
+  return (
+    <motion.div
+      ref={ref}
+      style={{ y }}
+      className="break-inside-avoid relative group rounded-xl overflow-hidden cursor-pointer"
+    >
+      <Image
+        src={getOptimizedUrl(photo.imageUrl, { width: 500, quality: 80 })}
+        alt={photo.caption || 'Gallery Photo'}
+        width={500}
+        height={500}
+        className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105"
+        placeholder={getBlurUrl(photo.imageUrl) ? 'blur' : 'empty'}
+        blurDataURL={getBlurUrl(photo.imageUrl)}
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end">
+        {photo.caption && <p className="text-white p-4 font-medium text-sm md:text-base">{photo.caption}</p>}
+      </div>
+    </motion.div>
+  );
+}
 
 export default function HomeContent({
   recentBlogs = [],
@@ -86,59 +123,94 @@ export default function HomeContent({
     },
   ];
 
+  const heroContainerVariants = {
+    hidden: {},
+    visible: { transition: { staggerChildren: 0.2 } },
+  };
+
+  const heroItemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] } },
+  };
+
+  const cardContainerVariants = {
+    hidden: {},
+    visible: { transition: { staggerChildren: 0.08 } },
+  };
+
+  const cardItemVariants = {
+    hidden: { opacity: 0, y: 24 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] } },
+  };
+
   return (
-    <div className="container mx-auto px-4 py-12 md:py-24 max-w-7xl space-y-20">
+    <div className="container mx-auto px-4 pb-12 md:pb-24 pt-0 max-w-7xl space-y-32 overflow-x-hidden">
+      <HeroBackground />
       <JsonLd data={jsonLdData} />
-      <section className="flex flex-col items-center text-center justify-center space-y-8 py-20 md:py-32 max-w-4xl mx-auto">
-        <div className="space-y-6">
-          <h1 className="text-6xl md:text-8xl font-bold tracking-tighter font-serif">Khoa Nguyễn</h1>
-        </div>
+      <section className="relative flex flex-col items-center text-center justify-center space-y-8 min-h-[80vh] max-w-4xl mx-auto">
+        <motion.div
+          variants={heroContainerVariants}
+          initial="hidden"
+          animate="visible"
+          className="w-full flex flex-col items-center space-y-8"
+        >
+          <motion.div variants={heroItemVariants}>
+            <h1 className="text-7xl md:text-9xl font-bold tracking-tighter font-serif bg-gradient-to-br from-foreground to-foreground/60 bg-clip-text text-transparent py-4 leading-tight">
+              Khoa Nguyễn
+            </h1>
+          </motion.div>
 
-        <div className="space-y-6 text-xl md:text-2xl text-muted-foreground leading-relaxed max-w-2xl mx-auto">
-          <p>
-            I am <strong className="font-semibold">Khoa Nguyen (yun.khngn)</strong> - a talented software
-            engineering student, self-taught creator, graphic designer, and guitarist/musician, driven by
-            ambition, curiosity, and the desire to turn ideas into something real.
-          </p>
-        </div>
+          <motion.div variants={heroItemVariants} className="flex flex-wrap items-center justify-center gap-3">
+            {['Software Engineer', 'Graphic Designer', 'Guitarist'].map((role) => (
+              <span
+                key={role}
+                className="rounded-full border border-border/50 px-4 py-1.5 text-sm font-mono text-muted-foreground"
+              >
+                {role}
+              </span>
+            ))}
+          </motion.div>
 
-        <div className="flex flex-wrap items-center justify-center gap-6 pt-8 relative z-10">
-          <Link href="/resume">
-            <Button className="rounded-full px-8 h-12 text-base">Resume</Button>
-          </Link>
-
-          <div className="flex gap-6">
-            {settings.facebook ||
-            settings.instagram ||
-            settings.tiktok ||
-            settings.github ||
-            settings.linkedin ? (
-              <>
-                {settings.facebook && (
-                  <SocialLink href={settings.facebook} icon={<Facebook size={24} />} label="Facebook" />
-                )}
-                {settings.instagram && (
-                  <SocialLink href={settings.instagram} icon={<Instagram size={24} />} label="Instagram" />
-                )}
-                {settings.tiktok && <SocialLink href={settings.tiktok} icon={<TikTok size={24} />} label="TikTok" />}
-                {settings.github && <SocialLink href={settings.github} icon={<Github size={24} />} label="GitHub" />}
-                {settings.linkedin && (
-                  <SocialLink href={settings.linkedin} icon={<Linkedin size={24} />} label="LinkedIn" />
-                )}
-                <SocialLink href="/showcase" icon={<LayoutGrid size={24} />} label="Showcase" />
-              </>
+          <motion.div variants={heroItemVariants} className="text-lg text-muted-foreground leading-relaxed max-w-2xl mx-auto">
+            {settings.homepage_description ? (
+              <p className="whitespace-pre-wrap">
+                {sanitizeRichTextToPlainText(settings.homepage_description)}
+              </p>
             ) : (
-              <>
-                <SocialLink href="https://facebook.com/yunkhngn" icon={<Facebook size={24} />} label="Facebook" />
-                <SocialLink href="https://instagram.com/yunkhngn" icon={<Instagram size={24} />} label="Instagram" />
-                <SocialLink href="https://www.tiktok.com/@yun.khngn" icon={<TikTok size={24} />} label="TikTok" />
-                <SocialLink href="https://github.com/yunkhngn" icon={<Github size={24} />} label="GitHub" />
-                <SocialLink href="https://linkedin.com/in/yunkhngn" icon={<Linkedin size={24} />} label="LinkedIn" />
-                <SocialLink href="/showcase" icon={<LayoutGrid size={24} />} label="Showcase" />
-              </>
+              <p>
+                Hi, I&apos;m <strong className="text-foreground font-medium">Khoa</strong>. I build things for
+                the web and sometimes I break them too. Welcome to my personal terminal.
+              </p>
             )}
-          </div>
-        </div>
+          </motion.div>
+
+          <motion.div variants={heroItemVariants} className="flex flex-wrap items-center justify-center gap-6 pt-4 relative z-10">
+            <Link href="/resume">
+              <Button className="rounded-full px-8 h-12 text-base">Resume</Button>
+            </Link>
+            <div className="flex gap-6">
+              {settings.facebook || settings.instagram || settings.tiktok || settings.github || settings.linkedin ? (
+                <>
+                  {settings.facebook && <SocialLink href={settings.facebook} icon={<Facebook size={24} />} label="Facebook" />}
+                  {settings.instagram && <SocialLink href={settings.instagram} icon={<Instagram size={24} />} label="Instagram" />}
+                  {settings.tiktok && <SocialLink href={settings.tiktok} icon={<TikTok size={24} />} label="TikTok" />}
+                  {settings.github && <SocialLink href={settings.github} icon={<Github size={24} />} label="GitHub" />}
+                  {settings.linkedin && <SocialLink href={settings.linkedin} icon={<Linkedin size={24} />} label="LinkedIn" />}
+                  <SocialLink href="/showcase" icon={<LayoutGrid size={24} />} label="Showcase" />
+                </>
+              ) : (
+                <>
+                  <SocialLink href="https://facebook.com/yunkhngn" icon={<Facebook size={24} />} label="Facebook" />
+                  <SocialLink href="https://instagram.com/yunkhngn" icon={<Instagram size={24} />} label="Instagram" />
+                  <SocialLink href="https://www.tiktok.com/@yun.khngn" icon={<TikTok size={24} />} label="TikTok" />
+                  <SocialLink href="https://github.com/yunkhngn" icon={<Github size={24} />} label="GitHub" />
+                  <SocialLink href="https://linkedin.com/in/yunkhngn" icon={<Linkedin size={24} />} label="LinkedIn" />
+                  <SocialLink href="/showcase" icon={<LayoutGrid size={24} />} label="Showcase" />
+                </>
+              )}
+            </div>
+          </motion.div>
+        </motion.div>
       </section>
 
       <section className="w-full">
@@ -218,6 +290,228 @@ export default function HomeContent({
         </motion.div>
       </section>
 
+      <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+
+      <section className="space-y-8">
+        <div className="flex items-end justify-between">
+          <RevealHeading index={1}>
+            <h2 className="text-4xl md:text-5xl font-bold font-serif">Recent Blogs</h2>
+          </RevealHeading>
+          <Link href="/blog" className="text-sm text-muted-foreground hover:text-primary flex items-center gap-1 transition-colors mb-1">
+            View all <ArrowRight className="h-4 w-4" />
+          </Link>
+        </div>
+
+        <motion.div
+          className="grid gap-8 md:grid-cols-3"
+          variants={cardContainerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+        >
+          {recentBlogs.map((blog) => {
+            const plainText = extractTextFromTipTap(blog.contentJSON);
+            const readTime = calculateReadTime(blog.contentJSON);
+            const firstTag = blog.tags ? blog.tags.split(',')[0].trim() : 'Blog';
+
+            return (
+              <motion.div key={blog.id} variants={cardItemVariants}>
+                <TiltCard className="h-full">
+                  <Link href={`/blog/${blog.slug || blog.id}`} className="group flex flex-col space-y-4 block h-full">
+                    <div className="aspect-[4/3] relative rounded-2xl overflow-hidden bg-muted">
+                      {blog.thumbnail && (
+                        <Image
+                          src={blog.thumbnail}
+                          alt={blog.title}
+                          fill
+                          sizes="(max-width: 768px) 100vw, 33vw"
+                          className="object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
+                      )}
+                      <div className="absolute top-4 left-4">
+                        <Badge
+                          variant="secondary"
+                          className="bg-black/50 hover:bg-black/70 text-white backdrop-blur-md border-none rounded-full px-3 py-1 text-xs font-medium"
+                        >
+                          {firstTag}
+                        </Badge>
+                      </div>
+                    </div>
+
+                    <div className="space-y-3 flex-1 flex flex-col">
+                      <div className="text-xs font-medium text-muted-foreground flex items-center gap-2">
+                        <span suppressHydrationWarning>{format(new Date(blog.createdAt), 'd MMM yyyy')}</span>
+                        <span className="w-1 h-1 rounded-full bg-muted-foreground/50" />
+                        <span>{readTime}</span>
+                      </div>
+
+                      <h3 className="text-2xl font-bold leading-tight group-hover:text-primary transition-colors line-clamp-2">
+                        {blog.title}
+                      </h3>
+
+                      <p className="text-muted-foreground text-base leading-relaxed line-clamp-3 flex-1">{plainText}</p>
+                    </div>
+                  </Link>
+                </TiltCard>
+              </motion.div>
+            );
+          })}
+        </motion.div>
+      </section>
+
+      <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+
+      <section className="space-y-8">
+        <div className="flex items-end justify-between">
+          <RevealHeading index={2}>
+            <h2 className="text-4xl md:text-5xl font-bold font-serif">Featured Projects</h2>
+          </RevealHeading>
+          <Link href="/project" className="text-sm text-muted-foreground hover:text-primary flex items-center gap-1 transition-colors mb-1">
+            View all <ArrowRight className="h-4 w-4" />
+          </Link>
+        </div>
+
+        <motion.div
+          className="grid grid-cols-1 md:grid-cols-4 gap-4 auto-rows-[200px]"
+          variants={cardContainerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+        >
+          {featuredProjects.map((project, i) => (
+            <motion.div
+              key={project.id}
+              className={i === 0 ? 'md:col-span-2 md:row-span-2' : 'md:col-span-1 md:row-span-1'}
+              variants={cardItemVariants}
+            >
+              <Link
+                href={`/project/${project.slug}`}
+                className="group relative rounded-2xl overflow-hidden bg-muted block w-full h-full"
+              >
+                {project.cover && (
+                  <Image
+                    src={project.cover}
+                    alt={project.title}
+                    fill
+                    sizes={i === 0 ? '(max-width: 768px) 100vw, 50vw' : '(max-width: 768px) 100vw, 25vw'}
+                    className="object-cover transition-transform duration-700 group-hover:scale-105"
+                  />
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
+
+                <div className="absolute bottom-0 left-0 p-4 md:p-6 w-full">
+                  <h3
+                    className={`font-bold text-white mb-1 md:mb-2 ${i === 0 ? 'text-xl md:text-2xl lg:text-3xl' : 'text-base md:text-lg'}`}
+                  >
+                    {project.title}
+                  </h3>
+                  {i === 0 && (
+                    <p className="text-gray-200 text-sm md:text-base line-clamp-2 mb-2 md:mb-3 max-w-md">
+                      {project.description}
+                    </p>
+                  )}
+                  <div className="flex flex-wrap gap-1">
+                    {Array.isArray(project.techStack) &&
+                      project.techStack.slice(0, 2).map((tech, idx) => (
+                        <Badge
+                          key={idx}
+                          variant="secondary"
+                          className="bg-white/20 hover:bg-white/30 text-white border-none backdrop-blur-sm text-[10px] px-2 h-5"
+                        >
+                          {tech}
+                        </Badge>
+                      ))}
+                  </div>
+                </div>
+              </Link>
+            </motion.div>
+          ))}
+        </motion.div>
+      </section>
+
+      <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+
+      <section className="container mx-auto px-4 py-20">
+        <div className="mb-12">
+          <RevealHeading index={3}>
+            <h2 className="text-4xl md:text-5xl font-bold flex items-center gap-3">
+              <Github className="h-8 w-8" />
+              Open Source
+            </h2>
+          </RevealHeading>
+        </div>
+        <motion.div
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          variants={cardContainerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+        >
+          {featuredRepos.map((repo) => (
+            <motion.div key={repo.id} variants={cardItemVariants} className="h-full">
+              <TiltCard className="h-full">
+                <a href={repo.html_url} target="_blank" rel="noopener noreferrer" className="group block h-full">
+                  <Card className="h-full hover:border-primary transition-colors">
+                    <CardHeader>
+                      <CardTitle className="flex items-center justify-between text-lg">
+                        <span className="group-hover:text-primary transition-colors line-clamp-1">{repo.name}</span>
+                        <Badge variant="secondary" className="font-normal text-xs">
+                          {repo.language || 'Code'}
+                        </Badge>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <p className="text-muted-foreground text-sm line-clamp-2 h-10">
+                        {repo.description || 'No description available.'}
+                      </p>
+                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                        <div className="flex items-center gap-1">
+                          <Star className="h-4 w-4 text-yellow-500" />
+                          {repo.stargazers_count}
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <GitFork className="h-4 w-4 text-blue-500" />
+                          {repo.forks_count}
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </a>
+              </TiltCard>
+            </motion.div>
+          ))}
+          {featuredRepos.length === 0 && (
+            <div className="col-span-full text-center text-muted-foreground py-8">No featured repositories found.</div>
+          )}
+        </motion.div>
+        <div className="text-center mt-10">
+          <Link href="https://github.com/yunkhngn?tab=repositories" target="_blank" rel="noopener noreferrer">
+            <Button variant="outline" size="lg" className="gap-2">
+              View All Repositories <ArrowRight className="h-4 w-4" />
+            </Button>
+          </Link>
+        </div>
+      </section>
+
+      <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+
+      <section className="space-y-8">
+        <div className="flex items-end justify-between">
+          <RevealHeading index={4}>
+            <h2 className="text-4xl md:text-5xl font-bold font-serif">Locket Gallery</h2>
+          </RevealHeading>
+          <Link href="/photo" className="text-sm text-muted-foreground hover:text-primary flex items-center gap-1 transition-colors mb-1">
+            View gallery <ArrowRight className="h-4 w-4" />
+          </Link>
+        </div>
+
+        <div className="columns-2 md:columns-3 gap-4 space-y-4">
+          {galleryPhotos.map((photo, index) => (
+            <ParallaxPhoto key={photo.id} photo={photo} index={index} />
+          ))}
+        </div>
+      </section>
+
       <section className="w-full">
         <a
           href="https://www.buymeacoffee.com/yunkhngn"
@@ -245,192 +539,6 @@ export default function HomeContent({
             </div>
           </div>
         </a>
-      </section>
-
-      <section className="space-y-8">
-        <div className="flex items-center justify-between">
-          <h2 className="text-3xl font-bold font-serif">Recent Blogs</h2>
-          <Link href="/blog" className="text-sm text-muted-foreground hover:text-primary flex items-center gap-1 transition-colors">
-            View all <ArrowRight className="h-4 w-4" />
-          </Link>
-        </div>
-
-        <div className="grid gap-8 md:grid-cols-3">
-          {recentBlogs.map((blog) => {
-            const plainText = extractTextFromTipTap(blog.contentJSON);
-            const readTime = calculateReadTime(blog.contentJSON);
-            const firstTag = blog.tags ? blog.tags.split(',')[0].trim() : 'Blog';
-
-            return (
-              <Link href={`/blog/${blog.slug || blog.id}`} key={blog.id} className="group flex flex-col space-y-4">
-                <div className="aspect-[4/3] relative rounded-2xl overflow-hidden bg-muted">
-                  {blog.thumbnail && (
-                    <Image
-                      src={blog.thumbnail}
-                      alt={blog.title}
-                      fill
-                      sizes="(max-width: 768px) 100vw, 33vw"
-                      className="object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                  )}
-                  <div className="absolute top-4 left-4">
-                    <Badge
-                      variant="secondary"
-                      className="bg-black/50 hover:bg-black/70 text-white backdrop-blur-md border-none rounded-full px-3 py-1 text-xs font-medium"
-                    >
-                      {firstTag}
-                    </Badge>
-                  </div>
-                </div>
-
-                <div className="space-y-3 flex-1 flex flex-col">
-                  <div className="text-xs font-medium text-muted-foreground flex items-center gap-2">
-                    <span suppressHydrationWarning>{format(new Date(blog.createdAt), 'd MMM yyyy')}</span>
-                    <span className="w-1 h-1 rounded-full bg-muted-foreground/50" />
-                    <span>{readTime}</span>
-                  </div>
-
-                  <h3 className="text-xl font-bold leading-tight group-hover:text-primary transition-colors line-clamp-2">
-                    {blog.title}
-                  </h3>
-
-                  <p className="text-muted-foreground text-sm line-clamp-3 leading-relaxed flex-1">{plainText}</p>
-                </div>
-              </Link>
-            );
-          })}
-        </div>
-      </section>
-
-      <section className="space-y-8">
-        <div className="flex items-center justify-between">
-          <h2 className="text-3xl font-bold font-serif">Featured Projects</h2>
-          <Link href="/project" className="text-sm text-muted-foreground hover:text-primary flex items-center gap-1 transition-colors">
-            View all <ArrowRight className="h-4 w-4" />
-          </Link>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 auto-rows-[200px]">
-          {featuredProjects.map((project, i) => (
-            <Link
-              href={`/project/${project.slug}`}
-              key={project.id}
-              className={`group relative rounded-2xl overflow-hidden bg-muted ${i === 0 ? 'md:col-span-2 md:row-span-2' : 'md:col-span-1 md:row-span-1'}`}
-            >
-              {project.cover && (
-                <Image
-                  src={project.cover}
-                  alt={project.title}
-                  fill
-                  sizes={i === 0 ? '(max-width: 768px) 100vw, 50vw' : '(max-width: 768px) 100vw, 25vw'}
-                  className="object-cover transition-transform duration-700 group-hover:scale-105"
-                />
-              )}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
-
-              <div className="absolute bottom-0 left-0 p-4 md:p-6 w-full">
-                <h3
-                  className={`font-bold text-white mb-1 md:mb-2 ${i === 0 ? 'text-xl md:text-2xl lg:text-3xl' : 'text-base md:text-lg'}`}
-                >
-                  {project.title}
-                </h3>
-                {i === 0 && (
-                  <p className="text-gray-200 text-sm md:text-base line-clamp-2 mb-2 md:mb-3 max-w-md">
-                    {project.description}
-                  </p>
-                )}
-                <div className="flex flex-wrap gap-1">
-                  {Array.isArray(project.techStack) &&
-                    project.techStack.slice(0, 2).map((tech, idx) => (
-                      <Badge
-                        key={idx}
-                        variant="secondary"
-                        className="bg-white/20 hover:bg-white/30 text-white border-none backdrop-blur-sm text-[10px] px-2 h-5"
-                      >
-                        {tech}
-                      </Badge>
-                    ))}
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      <section className="container mx-auto px-4 py-20">
-        <h2 className="text-3xl font-bold mb-12 flex items-center gap-3">
-          <Github className="h-8 w-8" />
-          Open Source
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {featuredRepos.map((repo) => (
-            <a key={repo.id} href={repo.html_url} target="_blank" rel="noopener noreferrer" className="group block h-full">
-              <Card className="h-full hover:border-primary transition-colors">
-                <CardHeader>
-                  <CardTitle className="flex items-center justify-between text-lg">
-                    <span className="group-hover:text-primary transition-colors line-clamp-1">{repo.name}</span>
-                    <Badge variant="secondary" className="font-normal text-xs">
-                      {repo.language || 'Code'}
-                    </Badge>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <p className="text-muted-foreground text-sm line-clamp-2 h-10">
-                    {repo.description || 'No description available.'}
-                  </p>
-                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                    <div className="flex items-center gap-1">
-                      <Star className="h-4 w-4 text-yellow-500" />
-                      {repo.stargazers_count}
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <GitFork className="h-4 w-4 text-blue-500" />
-                      {repo.forks_count}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </a>
-          ))}
-          {featuredRepos.length === 0 && (
-            <div className="col-span-full text-center text-muted-foreground py-8">No featured repositories found.</div>
-          )}
-        </div>
-        <div className="text-center mt-10">
-          <Link href="https://github.com/yunkhngn?tab=repositories" target="_blank" rel="noopener noreferrer">
-            <Button variant="outline" size="lg" className="gap-2">
-              View All Repositories <ArrowRight className="h-4 w-4" />
-            </Button>
-          </Link>
-        </div>
-      </section>
-
-      <section className="space-y-8">
-        <div className="flex items-center justify-between">
-          <h2 className="text-3xl font-bold font-serif">Locket Gallery</h2>
-          <Link href="/photo" className="text-sm text-muted-foreground hover:text-primary flex items-center gap-1 transition-colors">
-            View gallery <ArrowRight className="h-4 w-4" />
-          </Link>
-        </div>
-
-        <div className="columns-2 md:columns-3 gap-4 space-y-4">
-          {galleryPhotos.map((photo) => (
-            <div key={photo.id} className="break-inside-avoid relative group rounded-xl overflow-hidden cursor-pointer">
-              <Image
-                src={getOptimizedUrl(photo.imageUrl, { width: 500, quality: 80 })}
-                alt={photo.caption || 'Gallery Photo'}
-                width={500}
-                height={500}
-                className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105"
-                placeholder={getBlurUrl(photo.imageUrl) ? 'blur' : 'empty'}
-                blurDataURL={getBlurUrl(photo.imageUrl)}
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end">
-                {photo.caption && <p className="text-white p-4 font-medium text-sm md:text-base">{photo.caption}</p>}
-              </div>
-            </div>
-          ))}
-        </div>
       </section>
     </div>
   );
