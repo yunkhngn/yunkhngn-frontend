@@ -31,6 +31,40 @@ import { readCachedSettings, writeCachedSettings } from '@/lib/settingsCache';
 import { sanitizeRichTextToPlainText } from '@/lib/sanitizeRichText';
 import LiveActivityInline from '@/components/live/LiveActivityInline';
 
+function ParallaxPhoto({ photo, index }) {
+  const ref = useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ['start end', 'end start'],
+  });
+  const y = useTransform(
+    scrollYProgress,
+    [0, 1],
+    index % 2 === 0 ? ['-30px', '30px'] : ['30px', '-30px']
+  );
+
+  return (
+    <motion.div
+      ref={ref}
+      style={{ y }}
+      className="break-inside-avoid relative group rounded-xl overflow-hidden cursor-pointer"
+    >
+      <Image
+        src={getOptimizedUrl(photo.imageUrl, { width: 500, quality: 80 })}
+        alt={photo.caption || 'Gallery Photo'}
+        width={500}
+        height={500}
+        className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105"
+        placeholder={getBlurUrl(photo.imageUrl) ? 'blur' : 'empty'}
+        blurDataURL={getBlurUrl(photo.imageUrl)}
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end">
+        {photo.caption && <p className="text-white p-4 font-medium text-sm md:text-base">{photo.caption}</p>}
+      </div>
+    </motion.div>
+  );
+}
+
 export default function HomeContent({
   recentBlogs = [],
   featuredRepos = [],
@@ -256,35 +290,6 @@ export default function HomeContent({
         </motion.div>
       </section>
 
-      <section className="w-full">
-        <a
-          href="https://www.buymeacoffee.com/yunkhngn"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="block w-full"
-        >
-          <div className="transition-all duration-300 w-full rounded-2xl border border-[#ffdd00]/40 bg-gradient-to-r from-[#ffdd00]/15 via-[#ffdd00]/10 to-[#ffdd00]/15 hover:from-[#ffdd00]/25 hover:via-[#ffdd00]/15 hover:to-[#ffdd00]/25 px-6 py-5 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <div className="h-10 w-10 flex-shrink-0 rounded-full bg-[#ffdd00] text-black flex items-center justify-center">
-                <Coffee className="h-5 w-5" />
-              </div>
-              <div>
-                <p className="font-semibold text-base text-foreground">Ủng hộ nuôi website</p>
-                <p className="text-sm text-muted-foreground">
-                  Nếu thấy nội dung hữu ích, mời mình một ly cà phê để tiếp thêm động lực duy trì website nha.
-                </p>
-              </div>
-            </div>
-            <div className="flex-shrink-0">
-              <span className="inline-flex items-center gap-2 rounded-full bg-[#ffdd00] hover:bg-[#facc15] text-black text-sm font-medium px-5 py-2.5 transition-colors">
-                Buy me a coffee
-                <ArrowRight className="h-4 w-4" />
-              </span>
-            </div>
-          </div>
-        </a>
-      </section>
-
       <section className="space-y-8">
         <div className="flex items-end justify-between">
           <RevealHeading index={1}>
@@ -493,23 +498,39 @@ export default function HomeContent({
         </div>
 
         <div className="columns-2 md:columns-3 gap-4 space-y-4">
-          {galleryPhotos.map((photo) => (
-            <div key={photo.id} className="break-inside-avoid relative group rounded-xl overflow-hidden cursor-pointer">
-              <Image
-                src={getOptimizedUrl(photo.imageUrl, { width: 500, quality: 80 })}
-                alt={photo.caption || 'Gallery Photo'}
-                width={500}
-                height={500}
-                className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105"
-                placeholder={getBlurUrl(photo.imageUrl) ? 'blur' : 'empty'}
-                blurDataURL={getBlurUrl(photo.imageUrl)}
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end">
-                {photo.caption && <p className="text-white p-4 font-medium text-sm md:text-base">{photo.caption}</p>}
-              </div>
-            </div>
+          {galleryPhotos.map((photo, index) => (
+            <ParallaxPhoto key={photo.id} photo={photo} index={index} />
           ))}
         </div>
+      </section>
+
+      <section className="w-full">
+        <a
+          href="https://www.buymeacoffee.com/yunkhngn"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block w-full"
+        >
+          <div className="transition-all duration-300 w-full rounded-2xl border border-[#ffdd00]/40 bg-gradient-to-r from-[#ffdd00]/15 via-[#ffdd00]/10 to-[#ffdd00]/15 hover:from-[#ffdd00]/25 hover:via-[#ffdd00]/15 hover:to-[#ffdd00]/25 px-6 py-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="h-10 w-10 flex-shrink-0 rounded-full bg-[#ffdd00] text-black flex items-center justify-center">
+                <Coffee className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="font-semibold text-base text-foreground">Ủng hộ nuôi website</p>
+                <p className="text-sm text-muted-foreground">
+                  Nếu thấy nội dung hữu ích, mời mình một ly cà phê để tiếp thêm động lực duy trì website nha.
+                </p>
+              </div>
+            </div>
+            <div className="flex-shrink-0">
+              <span className="inline-flex items-center gap-2 rounded-full bg-[#ffdd00] hover:bg-[#facc15] text-black text-sm font-medium px-5 py-2.5 transition-colors">
+                Buy me a coffee
+                <ArrowRight className="h-4 w-4" />
+              </span>
+            </div>
+          </div>
+        </a>
       </section>
     </div>
   );
