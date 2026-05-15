@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useMemo, useRef } from 'react';
-import { motion, useMotionValue, useTransform, useScroll } from 'framer-motion';
+import { useEffect, useMemo, useState } from 'react';
+import { motion } from 'framer-motion';
 import HeroBackground from '@/components/home/HeroBackground';
 import RevealHeading from '@/components/home/RevealHeading';
 import TiltCard from '@/components/home/TiltCard';
@@ -32,37 +32,52 @@ import { sanitizeRichTextToPlainText } from '@/lib/sanitizeRichText';
 import LiveActivityInline from '@/components/live/LiveActivityInline';
 import TextDecode from '@/components/home/TextDecode';
 
-function ParallaxPhoto({ photo, index }) {
-  const ref = useRef(null);
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ['start end', 'end start'],
-  });
-  const y = useTransform(
-    scrollYProgress,
-    [0, 1],
-    index % 2 === 0 ? ['-12px', '12px'] : ['12px', '-12px']
-  );
+function HomeMasonryGallery({ photos }) {
+  const [columns, setColumns] = useState(3);
+
+  useEffect(() => {
+    const update = () => {
+      if (window.innerWidth >= 768) setColumns(3);
+      else setColumns(2);
+    };
+    update();
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
+  }, []);
+
+  const cols = Array.from({ length: columns }, () => []);
+  photos.forEach((photo, i) => cols[i % columns].push(photo));
 
   return (
-    <motion.div
-      ref={ref}
-      style={{ y }}
-      className="relative aspect-square group rounded-xl overflow-hidden cursor-pointer"
-    >
-      <Image
-        src={getOptimizedUrl(photo.imageUrl, { width: 500, quality: 80 })}
-        alt={photo.caption || 'Gallery Photo'}
-        fill
-        sizes="(max-width: 768px) 50vw, 33vw"
-        className="object-cover transition-transform duration-500 group-hover:scale-105"
-        placeholder={getBlurUrl(photo.imageUrl) ? 'blur' : 'empty'}
-        blurDataURL={getBlurUrl(photo.imageUrl)}
-      />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end">
-        {photo.caption && <p className="text-white p-4 font-medium text-sm md:text-base">{photo.caption}</p>}
-      </div>
-    </motion.div>
+    <div className="grid gap-4" style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}>
+      {cols.map((colPhotos, ci) => (
+        <div key={ci} className="space-y-4">
+          {colPhotos.map((photo) => (
+            <Link
+              key={photo.id}
+              href="/photo"
+              className="relative block group rounded-xl overflow-hidden bg-muted"
+            >
+              <Image
+                src={getOptimizedUrl(photo.imageUrl, { width: 600, quality: 80 })}
+                alt={photo.caption || 'Gallery Photo'}
+                width={photo.width || 800}
+                height={photo.height || 600}
+                sizes="(max-width: 768px) 50vw, 33vw"
+                className="w-full h-auto transition-transform duration-500 group-hover:scale-105"
+                placeholder={getBlurUrl(photo.imageUrl) ? 'blur' : 'empty'}
+                blurDataURL={getBlurUrl(photo.imageUrl)}
+              />
+              {photo.caption && (
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end">
+                  <p className="text-white p-4 text-sm font-medium line-clamp-2">{photo.caption}</p>
+                </div>
+              )}
+            </Link>
+          ))}
+        </div>
+      ))}
+    </div>
   );
 }
 
@@ -556,11 +571,7 @@ export default function HomeContent({
           </Link>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-          {galleryPhotos.map((photo, index) => (
-            <ParallaxPhoto key={photo.id} photo={photo} index={index} />
-          ))}
-        </div>
+        <HomeMasonryGallery photos={galleryPhotos} />
       </section>
 
       <section className="w-full">
