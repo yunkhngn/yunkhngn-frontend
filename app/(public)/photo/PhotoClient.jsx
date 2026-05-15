@@ -10,6 +10,18 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { getOptimizedUrl, getBlurUrl } from '@/lib/cloudinary';
+import { motion } from 'framer-motion';
+import PageHero from '@/components/shared/PageHero';
+
+const cardContainerVariants = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.06 } },
+};
+
+const cardItemVariants = {
+  hidden: { opacity: 0, y: 16 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] } },
+};
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 const PHOTOS_PER_PAGE = 12;
@@ -338,17 +350,12 @@ export default function Photo() {
     return (
         <div className="w-full max-w-7xl mx-auto p-4 sm:p-8">
             {/* Header */}
-            <div className="mb-12 text-center pt-8">
-                <div className="text-xs font-bold tracking-[0.2em] text-muted-foreground uppercase mb-4">
-                    Gallery
-                </div>
-                <h1 className="text-5xl md:text-7xl font-bold mb-6 text-foreground" style={{ fontFamily: 'var(--font-playfair)' }}>
-                    Locket Library
-                </h1>
-                <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-                    A collection of memories, places, and little things that inspire me.
-                </p>
-            </div>
+            <PageHero
+                eyebrow="Gallery"
+                title="Locket Library"
+                description="A collection of memories, places, and little things that inspire me."
+                className="mb-12 pt-8"
+            />
 
             {/* Filter Bar */}
             <div className="mb-8 space-y-4">
@@ -446,15 +453,29 @@ export default function Photo() {
 
                         {/* Masonry */}
                         {layout === 'masonry' && (
-                            <MasonryGrid photos={photos} openPhoto={openPhoto} lastPhotoRef={lastPhotoRef} />
+                            <motion.div
+                                key={`${layout}-masonry`}
+                                variants={cardContainerVariants}
+                                initial="hidden"
+                                animate="visible"
+                            >
+                                <MasonryGrid photos={photos} openPhoto={openPhoto} lastPhotoRef={lastPhotoRef} />
+                            </motion.div>
                         )}
 
                         {/* Grid */}
                         {layout === 'grid' && (
-                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                            <motion.div
+                                key={`${layout}-grid`}
+                                variants={cardContainerVariants}
+                                initial="hidden"
+                                animate="visible"
+                                className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3"
+                            >
                                 {photos.map((photo, i) => (
-                                    <div
+                                    <motion.div
                                         key={photo.id}
+                                        variants={cardItemVariants}
                                         id={`photo-${photo.id}`}
                                         ref={i === photos.length - 1 ? lastPhotoRef : null}
                                         className="aspect-square relative group cursor-pointer rounded-xl overflow-hidden bg-muted"
@@ -470,14 +491,20 @@ export default function Photo() {
                                             blurDataURL={getBlurUrl(photo.imageUrl)}
                                         />
                                         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
-                                    </div>
+                                    </motion.div>
                                 ))}
-                            </div>
+                            </motion.div>
                         )}
 
                         {/* List */}
                         {layout === 'list' && (
-                            <div className="space-y-6 max-w-3xl mx-auto">
+                            <motion.div
+                                key={`${layout}-list`}
+                                variants={cardContainerVariants}
+                                initial="hidden"
+                                animate="visible"
+                                className="space-y-6 max-w-3xl mx-auto"
+                            >
                                 {photos.map((photo, i) => {
                                     const hasValidDimensions =
                                         typeof photo.width === 'number' &&
@@ -488,8 +515,9 @@ export default function Photo() {
                                     const imageHeight = hasValidDimensions ? photo.height : 600;
 
                                     return (
-                                    <div
+                                    <motion.div
                                         key={photo.id}
+                                        variants={cardItemVariants}
                                         id={`photo-${photo.id}`}
                                         ref={i === photos.length - 1 ? lastPhotoRef : null}
                                         className="group cursor-pointer rounded-xl overflow-hidden bg-muted"
@@ -519,10 +547,10 @@ export default function Photo() {
                                                 )}
                                             </div>
                                         )}
-                                    </div>
+                                    </motion.div>
                                     );
                                 })}
-                            </div>
+                            </motion.div>
                         )}
 
                         {/* Loading more indicator */}
