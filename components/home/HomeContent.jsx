@@ -30,6 +30,7 @@ import { getOptimizedUrl, getBlurUrl } from '@/lib/cloudinary';
 import { readCachedSettings, writeCachedSettings } from '@/lib/settingsCache';
 import { sanitizeRichTextToPlainText } from '@/lib/sanitizeRichText';
 import LiveActivityInline from '@/components/live/LiveActivityInline';
+import TextDecode from '@/components/home/TextDecode';
 
 function ParallaxPhoto({ photo, index }) {
   const ref = useRef(null);
@@ -40,28 +41,30 @@ function ParallaxPhoto({ photo, index }) {
   const y = useTransform(
     scrollYProgress,
     [0, 1],
-    index % 2 === 0 ? ['-30px', '30px'] : ['30px', '-30px']
+    index % 2 === 0 ? ['-12px', '12px'] : ['12px', '-12px']
   );
 
   return (
-    <motion.div
-      ref={ref}
-      style={{ y }}
-      className="break-inside-avoid relative group rounded-xl overflow-hidden cursor-pointer"
-    >
-      <Image
-        src={getOptimizedUrl(photo.imageUrl, { width: 500, quality: 80 })}
-        alt={photo.caption || 'Gallery Photo'}
-        width={500}
-        height={500}
-        className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105"
-        placeholder={getBlurUrl(photo.imageUrl) ? 'blur' : 'empty'}
-        blurDataURL={getBlurUrl(photo.imageUrl)}
-      />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end">
-        {photo.caption && <p className="text-white p-4 font-medium text-sm md:text-base">{photo.caption}</p>}
-      </div>
-    </motion.div>
+    <div className="break-inside-avoid mb-6">
+      <motion.div
+        ref={ref}
+        style={{ y }}
+        className="relative group rounded-xl overflow-hidden cursor-pointer"
+      >
+        <Image
+          src={getOptimizedUrl(photo.imageUrl, { width: 500, quality: 80 })}
+          alt={photo.caption || 'Gallery Photo'}
+          width={500}
+          height={500}
+          className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105"
+          placeholder={getBlurUrl(photo.imageUrl) ? 'blur' : 'empty'}
+          blurDataURL={getBlurUrl(photo.imageUrl)}
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end">
+          {photo.caption && <p className="text-white p-4 font-medium text-sm md:text-base">{photo.caption}</p>}
+        </div>
+      </motion.div>
+    </div>
   );
 }
 
@@ -159,14 +162,13 @@ export default function HomeContent({
               Khoa Nguyễn
             </h1>
           </motion.div>
-
           <motion.div variants={heroItemVariants} className="flex flex-wrap items-center justify-center gap-3">
-            {['Software Engineer', 'Graphic Designer', 'Guitarist'].map((role) => (
+            {['Software Engineer', 'Graphic Designer', 'Guitarist'].map((role, idx) => (
               <span
                 key={role}
                 className="rounded-full border border-border/50 px-4 py-1.5 text-sm font-mono text-muted-foreground"
               >
-                {role}
+                <TextDecode text={role} delay={500 + idx * 200} />
               </span>
             ))}
           </motion.div>
@@ -378,7 +380,7 @@ export default function HomeContent({
           whileInView="visible"
           viewport={{ once: true }}
         >
-          {featuredProjects.map((project, i) => (
+          {featuredProjects.slice(0, 5).map((project, i) => (
             <motion.div
               key={project.id}
               className={i === 0 ? 'md:col-span-2 md:row-span-2' : 'md:col-span-1 md:row-span-1'}
@@ -427,6 +429,57 @@ export default function HomeContent({
             </motion.div>
           ))}
         </motion.div>
+
+        {featuredProjects.length > 5 && (
+          <motion.div
+            className="grid grid-cols-1 md:grid-cols-2 gap-4 auto-rows-[250px]"
+            variants={cardContainerVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+          >
+            {featuredProjects.slice(5, 11).map((project) => (
+              <motion.div key={project.id} variants={cardItemVariants}>
+                <Link
+                  href={`/project/${project.slug}`}
+                  className="group relative rounded-2xl overflow-hidden bg-muted block w-full h-full"
+                >
+                  {project.cover && (
+                    <Image
+                      src={project.cover}
+                      alt={project.title}
+                      fill
+                      sizes="(max-width: 768px) 100vw, 50vw"
+                      className="object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
+
+                  <div className="absolute bottom-0 left-0 p-4 md:p-6 w-full">
+                    <h3 className="font-bold text-white text-xl md:text-2xl mb-1 md:mb-2">
+                      {project.title}
+                    </h3>
+                    <p className="text-gray-200 text-sm md:text-base line-clamp-1 mb-2 md:mb-3 max-w-md">
+                      {project.description}
+                    </p>
+                    <div className="flex flex-wrap gap-1">
+                      {Array.isArray(project.techStack) &&
+                        project.techStack.slice(0, 3).map((tech, idx) => (
+                          <Badge
+                            key={idx}
+                            variant="secondary"
+                            className="bg-white/20 hover:bg-white/30 text-white border-none backdrop-blur-sm text-[10px] px-2 h-5"
+                          >
+                            {tech}
+                          </Badge>
+                        ))}
+                    </div>
+                  </div>
+                </Link>
+              </motion.div>
+            ))}
+          </motion.div>
+        )}
       </section>
 
       <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
@@ -451,7 +504,7 @@ export default function HomeContent({
             <motion.div key={repo.id} variants={cardItemVariants} className="h-full">
               <TiltCard className="h-full">
                 <a href={repo.html_url} target="_blank" rel="noopener noreferrer" className="group block h-full">
-                  <Card className="h-full hover:border-primary transition-colors">
+                  <Card className="h-full hover:border-primary/50 hover:shadow-[0_0_25px_rgba(255,255,255,0.1)] transition-all duration-500">
                     <CardHeader>
                       <CardTitle className="flex items-center justify-between text-lg">
                         <span className="group-hover:text-primary transition-colors line-clamp-1">{repo.name}</span>
@@ -505,7 +558,7 @@ export default function HomeContent({
           </Link>
         </div>
 
-        <div className="columns-2 md:columns-3 gap-4 space-y-4">
+        <div className="columns-2 md:columns-3 gap-6">
           {galleryPhotos.map((photo, index) => (
             <ParallaxPhoto key={photo.id} photo={photo} index={index} />
           ))}
