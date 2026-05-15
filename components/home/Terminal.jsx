@@ -6,6 +6,11 @@ import { stripHtml } from '@/lib/utils';
 import { usePresence } from '@/hooks/usePresence';
 
 export default function Terminal({ embedded = false, className = '' }) {
+    const [mounted, setMounted] = useState(false);
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
     const onlineCount = usePresence();
     const [history, setHistory] = useState([
         { type: 'output', content: 'Welcome to yunkhngn terminal v1.2.4' },
@@ -256,7 +261,7 @@ export default function Terminal({ embedded = false, className = '' }) {
                     </div>
                     <div className="text-green-500 font-medium flex items-center gap-1.5">
                         <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.8)] animate-pulse" />
-                        {onlineCount} {onlineCount <= 1 ? 'nerd' : 'nerds'} online
+                        {mounted ? onlineCount : 1} {(!mounted || onlineCount <= 1) ? 'nerd' : 'nerds'} online
                     </div>
                 </div>
             ) : (
@@ -272,7 +277,7 @@ export default function Terminal({ embedded = false, className = '' }) {
                     </div>
                     <div className="text-green-500 text-xs font-medium flex items-center gap-1.5 shadow-sm">
                         <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.8)] animate-pulse" />
-                        {onlineCount} {onlineCount <= 1 ? 'nerd' : 'nerds'} online
+                        {mounted ? onlineCount : 1} {(!mounted || onlineCount <= 1) ? 'nerd' : 'nerds'} online
                     </div>
                 </div>
             )}
