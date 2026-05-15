@@ -1,7 +1,10 @@
 'use client';
 
-import { useEffect, useMemo } from 'react';
-import { motion } from 'framer-motion';
+import { useEffect, useMemo, useRef } from 'react';
+import { motion, useMotionValue, useTransform, useScroll } from 'framer-motion';
+import HeroBackground from '@/components/home/HeroBackground';
+import RevealHeading from '@/components/home/RevealHeading';
+import TiltCard from '@/components/home/TiltCard';
 import { Button } from '@/components/ui/Button';
 import {
   Github,
@@ -86,59 +89,94 @@ export default function HomeContent({
     },
   ];
 
+  const heroContainerVariants = {
+    hidden: {},
+    visible: { transition: { staggerChildren: 0.2 } },
+  };
+
+  const heroItemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] } },
+  };
+
+  const cardContainerVariants = {
+    hidden: {},
+    visible: { transition: { staggerChildren: 0.08 } },
+  };
+
+  const cardItemVariants = {
+    hidden: { opacity: 0, y: 24 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] } },
+  };
+
   return (
     <div className="container mx-auto px-4 py-12 md:py-24 max-w-7xl space-y-20">
       <JsonLd data={jsonLdData} />
-      <section className="flex flex-col items-center text-center justify-center space-y-8 py-20 md:py-32 max-w-4xl mx-auto">
-        <div className="space-y-6">
-          <h1 className="text-6xl md:text-8xl font-bold tracking-tighter font-serif">Khoa Nguyễn</h1>
-        </div>
+      <section className="relative flex flex-col items-center text-center justify-center space-y-8 py-20 md:py-32 max-w-4xl mx-auto">
+        <HeroBackground />
+        <motion.div
+          variants={heroContainerVariants}
+          initial="hidden"
+          animate="visible"
+          className="w-full flex flex-col items-center space-y-8"
+        >
+          <motion.div variants={heroItemVariants}>
+            <h1 className="text-7xl md:text-9xl font-bold tracking-tighter font-serif bg-gradient-to-br from-foreground to-foreground/60 bg-clip-text text-transparent">
+              Khoa Nguyễn
+            </h1>
+          </motion.div>
 
-        <div className="space-y-6 text-xl md:text-2xl text-muted-foreground leading-relaxed max-w-2xl mx-auto">
-          <p>
-            I am <strong className="font-semibold">Khoa Nguyen (yun.khngn)</strong> - a talented software
-            engineering student, self-taught creator, graphic designer, and guitarist/musician, driven by
-            ambition, curiosity, and the desire to turn ideas into something real.
-          </p>
-        </div>
+          <motion.div variants={heroItemVariants} className="flex flex-wrap items-center justify-center gap-3">
+            {['Software Engineer', 'Graphic Designer', 'Guitarist'].map((role) => (
+              <span
+                key={role}
+                className="rounded-full border border-border/50 px-4 py-1.5 text-sm font-mono text-muted-foreground"
+              >
+                {role}
+              </span>
+            ))}
+          </motion.div>
 
-        <div className="flex flex-wrap items-center justify-center gap-6 pt-8 relative z-10">
-          <Link href="/resume">
-            <Button className="rounded-full px-8 h-12 text-base">Resume</Button>
-          </Link>
-
-          <div className="flex gap-6">
-            {settings.facebook ||
-            settings.instagram ||
-            settings.tiktok ||
-            settings.github ||
-            settings.linkedin ? (
-              <>
-                {settings.facebook && (
-                  <SocialLink href={settings.facebook} icon={<Facebook size={24} />} label="Facebook" />
-                )}
-                {settings.instagram && (
-                  <SocialLink href={settings.instagram} icon={<Instagram size={24} />} label="Instagram" />
-                )}
-                {settings.tiktok && <SocialLink href={settings.tiktok} icon={<TikTok size={24} />} label="TikTok" />}
-                {settings.github && <SocialLink href={settings.github} icon={<Github size={24} />} label="GitHub" />}
-                {settings.linkedin && (
-                  <SocialLink href={settings.linkedin} icon={<Linkedin size={24} />} label="LinkedIn" />
-                )}
-                <SocialLink href="/showcase" icon={<LayoutGrid size={24} />} label="Showcase" />
-              </>
+          <motion.div variants={heroItemVariants} className="text-lg text-muted-foreground leading-relaxed max-w-2xl mx-auto">
+            {settings.homepage_description ? (
+              <p className="whitespace-pre-wrap">
+                {sanitizeRichTextToPlainText(settings.homepage_description)}
+              </p>
             ) : (
-              <>
-                <SocialLink href="https://facebook.com/yunkhngn" icon={<Facebook size={24} />} label="Facebook" />
-                <SocialLink href="https://instagram.com/yunkhngn" icon={<Instagram size={24} />} label="Instagram" />
-                <SocialLink href="https://www.tiktok.com/@yun.khngn" icon={<TikTok size={24} />} label="TikTok" />
-                <SocialLink href="https://github.com/yunkhngn" icon={<Github size={24} />} label="GitHub" />
-                <SocialLink href="https://linkedin.com/in/yunkhngn" icon={<Linkedin size={24} />} label="LinkedIn" />
-                <SocialLink href="/showcase" icon={<LayoutGrid size={24} />} label="Showcase" />
-              </>
+              <p>
+                Hi, I&apos;m <strong className="text-foreground font-medium">Khoa</strong>. I build things for
+                the web and sometimes I break them too. Welcome to my personal terminal.
+              </p>
             )}
-          </div>
-        </div>
+          </motion.div>
+
+          <motion.div variants={heroItemVariants} className="flex flex-wrap items-center justify-center gap-6 pt-4 relative z-10">
+            <Link href="/resume">
+              <Button className="rounded-full px-8 h-12 text-base">Resume</Button>
+            </Link>
+            <div className="flex gap-6">
+              {settings.facebook || settings.instagram || settings.tiktok || settings.github || settings.linkedin ? (
+                <>
+                  {settings.facebook && <SocialLink href={settings.facebook} icon={<Facebook size={24} />} label="Facebook" />}
+                  {settings.instagram && <SocialLink href={settings.instagram} icon={<Instagram size={24} />} label="Instagram" />}
+                  {settings.tiktok && <SocialLink href={settings.tiktok} icon={<TikTok size={24} />} label="TikTok" />}
+                  {settings.github && <SocialLink href={settings.github} icon={<Github size={24} />} label="GitHub" />}
+                  {settings.linkedin && <SocialLink href={settings.linkedin} icon={<Linkedin size={24} />} label="LinkedIn" />}
+                  <SocialLink href="/showcase" icon={<LayoutGrid size={24} />} label="Showcase" />
+                </>
+              ) : (
+                <>
+                  <SocialLink href="https://facebook.com/yunkhngn" icon={<Facebook size={24} />} label="Facebook" />
+                  <SocialLink href="https://instagram.com/yunkhngn" icon={<Instagram size={24} />} label="Instagram" />
+                  <SocialLink href="https://www.tiktok.com/@yun.khngn" icon={<TikTok size={24} />} label="TikTok" />
+                  <SocialLink href="https://github.com/yunkhngn" icon={<Github size={24} />} label="GitHub" />
+                  <SocialLink href="https://linkedin.com/in/yunkhngn" icon={<Linkedin size={24} />} label="LinkedIn" />
+                  <SocialLink href="/showcase" icon={<LayoutGrid size={24} />} label="Showcase" />
+                </>
+              )}
+            </div>
+          </motion.div>
+        </motion.div>
       </section>
 
       <section className="w-full">
