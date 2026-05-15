@@ -10,10 +10,16 @@ class ErrorBoundary extends React.Component {
     }
 
     static getDerivedStateFromError(error) {
+        if (typeof error?.digest === 'string' && error.digest.startsWith('NEXT_')) {
+            throw error;
+        }
         return { hasError: true, error };
     }
 
     componentDidCatch(error, errorInfo) {
+        if (typeof error?.digest === 'string' && error.digest.startsWith('NEXT_')) {
+            return;
+        }
         console.error('ErrorBoundary caught an error:', error, errorInfo);
     }
 

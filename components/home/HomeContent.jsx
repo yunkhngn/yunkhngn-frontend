@@ -144,10 +144,10 @@ export default function HomeContent({
   };
 
   return (
-    <div className="container mx-auto px-4 py-12 md:py-24 max-w-7xl space-y-32">
+    <div className="container mx-auto px-4 pb-12 md:pb-24 pt-0 max-w-7xl space-y-32 overflow-x-hidden">
+      <HeroBackground />
       <JsonLd data={jsonLdData} />
-      <section className="relative flex flex-col items-center text-center justify-center space-y-8 py-20 md:py-32 max-w-4xl mx-auto">
-        <HeroBackground />
+      <section className="relative flex flex-col items-center text-center justify-center space-y-8 min-h-[80vh] max-w-4xl mx-auto">
         <motion.div
           variants={heroContainerVariants}
           initial="hidden"
@@ -155,7 +155,7 @@ export default function HomeContent({
           className="w-full flex flex-col items-center space-y-8"
         >
           <motion.div variants={heroItemVariants}>
-            <h1 className="text-7xl md:text-9xl font-bold tracking-tighter font-serif bg-gradient-to-br from-foreground to-foreground/60 bg-clip-text text-transparent">
+            <h1 className="text-7xl md:text-9xl font-bold tracking-tighter font-serif bg-gradient-to-br from-foreground to-foreground/60 bg-clip-text text-transparent py-4 leading-tight">
               Khoa Nguyễn
             </h1>
           </motion.div>

@@ -22,7 +22,7 @@ const orbs = [
 
 export default function HeroBackground() {
   return (
-    <div className="absolute inset-0 overflow-hidden -z-10 pointer-events-none">
+    <div className="fixed inset-0 w-full h-screen overflow-hidden -z-10 pointer-events-none">
       {orbs.map((orb, i) => (
         <motion.div
           key={i}
