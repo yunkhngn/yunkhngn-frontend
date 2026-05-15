@@ -206,7 +206,7 @@ export default function Contact() {
                     <Button
                         type="submit"
                         disabled={submitting}
-                        className="w-full"
+                        className="w-full font-serif"
                         size="lg"
                     >
                         {submitting ? 'Sending...' : 'Send Message'}
