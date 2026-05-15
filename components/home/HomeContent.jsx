@@ -295,51 +295,61 @@ export default function HomeContent({
           </Link>
         </div>
 
-        <div className="grid gap-8 md:grid-cols-3">
+        <motion.div
+          className="grid gap-8 md:grid-cols-3"
+          variants={cardContainerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+        >
           {recentBlogs.map((blog) => {
             const plainText = extractTextFromTipTap(blog.contentJSON);
             const readTime = calculateReadTime(blog.contentJSON);
             const firstTag = blog.tags ? blog.tags.split(',')[0].trim() : 'Blog';
 
             return (
-              <Link href={`/blog/${blog.slug || blog.id}`} key={blog.id} className="group flex flex-col space-y-4">
-                <div className="aspect-[4/3] relative rounded-2xl overflow-hidden bg-muted">
-                  {blog.thumbnail && (
-                    <Image
-                      src={blog.thumbnail}
-                      alt={blog.title}
-                      fill
-                      sizes="(max-width: 768px) 100vw, 33vw"
-                      className="object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                  )}
-                  <div className="absolute top-4 left-4">
-                    <Badge
-                      variant="secondary"
-                      className="bg-black/50 hover:bg-black/70 text-white backdrop-blur-md border-none rounded-full px-3 py-1 text-xs font-medium"
-                    >
-                      {firstTag}
-                    </Badge>
-                  </div>
-                </div>
+              <motion.div key={blog.id} variants={cardItemVariants}>
+                <TiltCard className="h-full">
+                  <Link href={`/blog/${blog.slug || blog.id}`} className="group flex flex-col space-y-4 block h-full">
+                    <div className="aspect-[4/3] relative rounded-2xl overflow-hidden bg-muted">
+                      {blog.thumbnail && (
+                        <Image
+                          src={blog.thumbnail}
+                          alt={blog.title}
+                          fill
+                          sizes="(max-width: 768px) 100vw, 33vw"
+                          className="object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
+                      )}
+                      <div className="absolute top-4 left-4">
+                        <Badge
+                          variant="secondary"
+                          className="bg-black/50 hover:bg-black/70 text-white backdrop-blur-md border-none rounded-full px-3 py-1 text-xs font-medium"
+                        >
+                          {firstTag}
+                        </Badge>
+                      </div>
+                    </div>
 
-                <div className="space-y-3 flex-1 flex flex-col">
-                  <div className="text-xs font-medium text-muted-foreground flex items-center gap-2">
-                    <span suppressHydrationWarning>{format(new Date(blog.createdAt), 'd MMM yyyy')}</span>
-                    <span className="w-1 h-1 rounded-full bg-muted-foreground/50" />
-                    <span>{readTime}</span>
-                  </div>
+                    <div className="space-y-3 flex-1 flex flex-col">
+                      <div className="text-xs font-medium text-muted-foreground flex items-center gap-2">
+                        <span suppressHydrationWarning>{format(new Date(blog.createdAt), 'd MMM yyyy')}</span>
+                        <span className="w-1 h-1 rounded-full bg-muted-foreground/50" />
+                        <span>{readTime}</span>
+                      </div>
 
-                  <h3 className="text-xl font-bold leading-tight group-hover:text-primary transition-colors line-clamp-2">
-                    {blog.title}
-                  </h3>
+                      <h3 className="text-2xl font-bold leading-tight group-hover:text-primary transition-colors line-clamp-2">
+                        {blog.title}
+                      </h3>
 
-                  <p className="text-muted-foreground text-sm line-clamp-3 leading-relaxed flex-1">{plainText}</p>
-                </div>
-              </Link>
+                      <p className="text-muted-foreground text-base leading-relaxed line-clamp-3 flex-1">{plainText}</p>
+                    </div>
+                  </Link>
+                </TiltCard>
+              </motion.div>
             );
           })}
-        </div>
+        </motion.div>
       </section>
 
       <section className="space-y-8">
@@ -352,51 +362,62 @@ export default function HomeContent({
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 auto-rows-[200px]">
+        <motion.div
+          className="grid grid-cols-1 md:grid-cols-4 gap-4 auto-rows-[200px]"
+          variants={cardContainerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+        >
           {featuredProjects.map((project, i) => (
-            <Link
-              href={`/project/${project.slug}`}
+            <motion.div
               key={project.id}
-              className={`group relative rounded-2xl overflow-hidden bg-muted ${i === 0 ? 'md:col-span-2 md:row-span-2' : 'md:col-span-1 md:row-span-1'}`}
+              className={i === 0 ? 'md:col-span-2 md:row-span-2' : 'md:col-span-1 md:row-span-1'}
+              variants={cardItemVariants}
             >
-              {project.cover && (
-                <Image
-                  src={project.cover}
-                  alt={project.title}
-                  fill
-                  sizes={i === 0 ? '(max-width: 768px) 100vw, 50vw' : '(max-width: 768px) 100vw, 25vw'}
-                  className="object-cover transition-transform duration-700 group-hover:scale-105"
-                />
-              )}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
-
-              <div className="absolute bottom-0 left-0 p-4 md:p-6 w-full">
-                <h3
-                  className={`font-bold text-white mb-1 md:mb-2 ${i === 0 ? 'text-xl md:text-2xl lg:text-3xl' : 'text-base md:text-lg'}`}
-                >
-                  {project.title}
-                </h3>
-                {i === 0 && (
-                  <p className="text-gray-200 text-sm md:text-base line-clamp-2 mb-2 md:mb-3 max-w-md">
-                    {project.description}
-                  </p>
+              <Link
+                href={`/project/${project.slug}`}
+                className="group relative rounded-2xl overflow-hidden bg-muted block w-full h-full"
+              >
+                {project.cover && (
+                  <Image
+                    src={project.cover}
+                    alt={project.title}
+                    fill
+                    sizes={i === 0 ? '(max-width: 768px) 100vw, 50vw' : '(max-width: 768px) 100vw, 25vw'}
+                    className="object-cover transition-transform duration-700 group-hover:scale-105"
+                  />
                 )}
-                <div className="flex flex-wrap gap-1">
-                  {Array.isArray(project.techStack) &&
-                    project.techStack.slice(0, 2).map((tech, idx) => (
-                      <Badge
-                        key={idx}
-                        variant="secondary"
-                        className="bg-white/20 hover:bg-white/30 text-white border-none backdrop-blur-sm text-[10px] px-2 h-5"
-                      >
-                        {tech}
-                      </Badge>
-                    ))}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
+
+                <div className="absolute bottom-0 left-0 p-4 md:p-6 w-full">
+                  <h3
+                    className={`font-bold text-white mb-1 md:mb-2 ${i === 0 ? 'text-xl md:text-2xl lg:text-3xl' : 'text-base md:text-lg'}`}
+                  >
+                    {project.title}
+                  </h3>
+                  {i === 0 && (
+                    <p className="text-gray-200 text-sm md:text-base line-clamp-2 mb-2 md:mb-3 max-w-md">
+                      {project.description}
+                    </p>
+                  )}
+                  <div className="flex flex-wrap gap-1">
+                    {Array.isArray(project.techStack) &&
+                      project.techStack.slice(0, 2).map((tech, idx) => (
+                        <Badge
+                          key={idx}
+                          variant="secondary"
+                          className="bg-white/20 hover:bg-white/30 text-white border-none backdrop-blur-sm text-[10px] px-2 h-5"
+                        >
+                          {tech}
+                        </Badge>
+                      ))}
+                  </div>
                 </div>
-              </div>
-            </Link>
+              </Link>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </section>
 
       <section className="container mx-auto px-4 py-20">
@@ -408,40 +429,50 @@ export default function HomeContent({
             </h2>
           </RevealHeading>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <motion.div
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          variants={cardContainerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+        >
           {featuredRepos.map((repo) => (
-            <a key={repo.id} href={repo.html_url} target="_blank" rel="noopener noreferrer" className="group block h-full">
-              <Card className="h-full hover:border-primary transition-colors">
-                <CardHeader>
-                  <CardTitle className="flex items-center justify-between text-lg">
-                    <span className="group-hover:text-primary transition-colors line-clamp-1">{repo.name}</span>
-                    <Badge variant="secondary" className="font-normal text-xs">
-                      {repo.language || 'Code'}
-                    </Badge>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <p className="text-muted-foreground text-sm line-clamp-2 h-10">
-                    {repo.description || 'No description available.'}
-                  </p>
-                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                    <div className="flex items-center gap-1">
-                      <Star className="h-4 w-4 text-yellow-500" />
-                      {repo.stargazers_count}
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <GitFork className="h-4 w-4 text-blue-500" />
-                      {repo.forks_count}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </a>
+            <motion.div key={repo.id} variants={cardItemVariants} className="h-full">
+              <TiltCard className="h-full">
+                <a href={repo.html_url} target="_blank" rel="noopener noreferrer" className="group block h-full">
+                  <Card className="h-full hover:border-primary transition-colors">
+                    <CardHeader>
+                      <CardTitle className="flex items-center justify-between text-lg">
+                        <span className="group-hover:text-primary transition-colors line-clamp-1">{repo.name}</span>
+                        <Badge variant="secondary" className="font-normal text-xs">
+                          {repo.language || 'Code'}
+                        </Badge>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <p className="text-muted-foreground text-sm line-clamp-2 h-10">
+                        {repo.description || 'No description available.'}
+                      </p>
+                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                        <div className="flex items-center gap-1">
+                          <Star className="h-4 w-4 text-yellow-500" />
+                          {repo.stargazers_count}
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <GitFork className="h-4 w-4 text-blue-500" />
+                          {repo.forks_count}
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </a>
+              </TiltCard>
+            </motion.div>
           ))}
           {featuredRepos.length === 0 && (
             <div className="col-span-full text-center text-muted-foreground py-8">No featured repositories found.</div>
           )}
-        </div>
+        </motion.div>
         <div className="text-center mt-10">
           <Link href="https://github.com/yunkhngn?tab=repositories" target="_blank" rel="noopener noreferrer">
             <Button variant="outline" size="lg" className="gap-2">
