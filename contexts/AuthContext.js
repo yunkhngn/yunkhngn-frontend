@@ -125,9 +125,9 @@ export const AuthProvider = ({ children }) => {
 
             const profile = await readNestJson(res);
             if (profile.role !== 'ADMIN') {
-                await firebaseSignOut(auth);
+                await user.delete();
                 toast.error('Unauthorized: Access restricted to Admins.');
-                throw new Error('Access Denied: Admins only');
+                throw new Error('Access Denied: Account deleted');
             }
 
             user.avatarUrl = profile.avatarUrl;
@@ -168,9 +168,9 @@ export const AuthProvider = ({ children }) => {
 
             const profile = await readNestJson(res);
             if (profile.role !== 'ADMIN') {
-                await firebaseSignOut(auth);
+                await user.delete();
                 toast.error('Unauthorized: Access restricted to Admins.');
-                throw new Error('Access Denied: Admins only');
+                throw new Error('Access Denied: Account deleted');
             }
 
             user.avatarUrl = profile.avatarUrl;

@@ -17,6 +17,8 @@ import { motion, AnimatePresence } from "framer-motion";
 
 import { Button } from "@/components/ui/Button";
 import { readCachedSettings, writeCachedSettings } from '@/lib/settingsCache';
+import HeroBackground from '@/components/home/HeroBackground';
+import RevealHeading from '@/components/home/RevealHeading';
 
 const placeholder = "/image/placeholder.jpg";
 
@@ -26,6 +28,16 @@ const navItems = [
     { id: "skills", label: "skills" },
     { id: "contact", label: "contact" },
 ];
+
+const containerVariants = {
+    hidden: {},
+    visible: { transition: { staggerChildren: 0.07 } },
+};
+
+const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] } },
+};
 
 export default function About() {
     const [settings, setSettings] = useState({});
@@ -181,7 +193,8 @@ export default function About() {
                     <div className="lg:col-span-6 px-6 md:px-12 lg:px-20 xl:px-32">
 
                         {/* My Story Section */}
-                        <section id="story" className="min-h-[calc(100vh-64px)] flex flex-col lg:justify-center snap-start pt-0 pb-24 lg:py-20">
+                        <section id="story" className="min-h-[calc(100vh-64px)] flex flex-col lg:justify-center snap-start pt-0 pb-24 lg:py-20 relative">
+                            <HeroBackground />
                             {/* Mobile Image (Visible only on small screens) - Edge-to-Edge */}
                             <div className="lg:hidden -mx-6 md:-mx-12 w-[calc(100%+3rem)] md:w-[calc(100%+6rem)] aspect-[4/3] relative overflow-hidden mb-12">
                                 <Image
@@ -198,7 +211,7 @@ export default function About() {
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
                             >
-                                <h1 className="text-5xl md:text-7xl font-serif font-bold text-foreground mb-8">
+                                <h1 className="text-5xl md:text-7xl font-serif font-bold bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/60 mb-8">
                                     My story<span className="text-primary">.</span>
                                 </h1>
 
@@ -242,54 +255,60 @@ export default function About() {
                                 className="space-y-16"
                             >
                                 <div>
-                                    <h2 className="text-4xl font-serif font-bold mb-12">Education<span className="text-primary">.</span></h2>
-                                    <div className="space-y-12 border-l border-foreground/10 ml-3 pl-8 md:pl-12">
+                                    <RevealHeading index={1}><h2 className="text-4xl font-serif font-bold mb-12">Education<span className="text-primary">.</span></h2></RevealHeading>
+                                    <motion.div variants={containerVariants} initial="hidden" whileInView="visible" viewport={{ once: true }} className="space-y-12 border-l border-foreground/10 ml-3 pl-8 md:pl-12">
                                         {parsedEducation.length > 0 ? (
                                             parsedEducation.map((edu, i) => (
-                                                <TimelineItem
-                                                    key={i}
-                                                    date={edu.date}
-                                                    title={edu.school}
-                                                    subtitle={edu.degree}
-                                                    description={edu.description}
-                                                    icon={<GraduationCap className="w-4 h-4" />}
-                                                />
+                                                <motion.div key={i} variants={itemVariants}>
+                                                    <TimelineItem
+                                                        date={edu.date}
+                                                        title={edu.school}
+                                                        subtitle={edu.degree}
+                                                        description={edu.description}
+                                                        icon={<GraduationCap className="w-4 h-4" />}
+                                                    />
+                                                </motion.div>
                                             ))
                                         ) : (
-                                            <TimelineItem
-                                                date="2020 - 2024"
-                                                title="FPT University"
-                                                subtitle="Software Engineering"
-                                                icon={<GraduationCap className="w-4 h-4" />}
-                                            />
+                                            <motion.div variants={itemVariants}>
+                                                <TimelineItem
+                                                    date="2020 - 2024"
+                                                    title="FPT University"
+                                                    subtitle="Software Engineering"
+                                                    icon={<GraduationCap className="w-4 h-4" />}
+                                                />
+                                            </motion.div>
                                         )}
-                                    </div>
+                                    </motion.div>
                                 </div>
 
                                 <div>
-                                    <h2 className="text-4xl font-serif font-bold mb-12">Experience<span className="text-primary">.</span></h2>
-                                    <div className="space-y-12 border-l border-foreground/10 ml-3 pl-8 md:pl-12">
+                                    <RevealHeading index={2}><h2 className="text-4xl font-serif font-bold mb-12">Experience<span className="text-primary">.</span></h2></RevealHeading>
+                                    <motion.div variants={containerVariants} initial="hidden" whileInView="visible" viewport={{ once: true }} className="space-y-12 border-l border-foreground/10 ml-3 pl-8 md:pl-12">
                                         {parsedExperience.length > 0 ? (
                                             parsedExperience.map((exp, i) => (
-                                                <TimelineItem
-                                                    key={i}
-                                                    date={exp.date}
-                                                    title={exp.company}
-                                                    subtitle={exp.role}
-                                                    description={exp.description}
-                                                    icon={<Briefcase className="w-4 h-4" />}
-                                                />
+                                                <motion.div key={i} variants={itemVariants}>
+                                                    <TimelineItem
+                                                        date={exp.date}
+                                                        title={exp.company}
+                                                        subtitle={exp.role}
+                                                        description={exp.description}
+                                                        icon={<Briefcase className="w-4 h-4" />}
+                                                    />
+                                                </motion.div>
                                             ))
                                         ) : (
-                                            <TimelineItem
-                                                date="2023 - Present"
-                                                title="Freelance"
-                                                subtitle="Fullstack Developer"
-                                                description="Building modern web applications for clients."
-                                                icon={<Briefcase className="w-4 h-4" />}
-                                            />
+                                            <motion.div variants={itemVariants}>
+                                                <TimelineItem
+                                                    date="2023 - Present"
+                                                    title="Freelance"
+                                                    subtitle="Fullstack Developer"
+                                                    description="Building modern web applications for clients."
+                                                    icon={<Briefcase className="w-4 h-4" />}
+                                                />
+                                            </motion.div>
                                         )}
-                                    </div>
+                                    </motion.div>
                                 </div>
                             </motion.div>
                         </section>
@@ -311,11 +330,11 @@ export default function About() {
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
                             >
-                                <h2 className="text-4xl font-serif font-bold mb-12">Skills<span className="text-primary">.</span></h2>
-                                <div className="grid gap-12">
+                                <RevealHeading index={3}><h2 className="text-4xl font-serif font-bold mb-12">Skills<span className="text-primary">.</span></h2></RevealHeading>
+                                <motion.div variants={containerVariants} initial="hidden" whileInView="visible" viewport={{ once: true }} className="grid gap-12">
                                     {parsedSkills.length > 0 ? (
                                         parsedSkills.map((group, idx) => (
-                                            <div key={idx} className="space-y-6">
+                                            <motion.div key={idx} variants={itemVariants} className="space-y-6">
                                                 <h3 className="text-2xl font-serif text-foreground flex items-center gap-4">
                                                     <span className="w-12 h-[1px] bg-primary block"></span>
                                                     {group.category}
@@ -332,12 +351,12 @@ export default function About() {
                                                         </div>
                                                     ))}
                                                 </div>
-                                            </div>
+                                            </motion.div>
                                         ))
                                     ) : (
                                         <p className="text-muted-foreground">Loading skills...</p>
                                     )}
-                                </div>
+                                </motion.div>
                             </motion.div>
                         </section>
 
@@ -358,7 +377,7 @@ export default function About() {
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
                             >
-                                <h2 className="text-4xl font-serif font-bold mb-8">Contact<span className="text-primary">.</span></h2>
+                                <RevealHeading index={4}><h2 className="text-4xl font-serif font-bold mb-8">Contact<span className="text-primary">.</span></h2></RevealHeading>
                                 <p className="text-xl text-muted-foreground max-w-xl leading-relaxed mb-12">
                                     I&apos;m always open to discussing new projects, creative ideas or opportunities to be part of your visions.
                                 </p>

@@ -5,12 +5,26 @@ import { readNestJson } from '@/lib/api/readJson';
 import { useSearchParams } from 'next/navigation';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
-import { Search, ArrowUpRight } from 'lucide-react';
+import { Search, ArrowUpRight, FileText } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/Badge';
 import { Pagination } from '@/components/ui/Pagination';
+import { motion } from 'framer-motion';
+import PageHero from '@/components/shared/PageHero';
+import RevealHeading from '@/components/home/RevealHeading';
+import TiltCard from '@/components/home/TiltCard';
+
+const cardContainerVariants = {
+    hidden: {},
+    visible: { transition: { staggerChildren: 0.08 } },
+};
+
+const cardItemVariants = {
+    hidden: { opacity: 0, y: 24 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] } },
+};
 
 export default function BlogList() {
     const [blogs, setBlogs] = useState([]);
@@ -96,19 +110,12 @@ export default function BlogList() {
     return (
         <div className="container mx-auto px-4 py-12 md:py-20 max-w-7xl">
             {/* Hero Section */}
-            <div className="flex flex-col items-center text-center mb-20 space-y-6">
-                <div className="space-y-4">
-                    <div className="text-xs font-bold tracking-[0.2em] text-muted-foreground uppercase mb-4">
-                        Curious Blog
-                    </div>
-                    <h1 className="text-4xl md:text-6xl font-bold tracking-tight font-serif">
-                        My Writings & Ideas
-                    </h1>
-                    <p className="text-muted-foreground max-w-2xl mx-auto text-lg md:text-xl">
-                        The latest writings, news, technologies, and resources from me.
-                    </p>
-                </div>
-
+            <PageHero
+                eyebrow="Curious Blog"
+                title="My Writings & Ideas"
+                description="The latest writings, news, technologies, and resources from me."
+                className="mb-20"
+            >
                 <div className="w-full max-w-md flex gap-2 mt-4">
                     <div className="relative flex-1">
                         <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground z-10 pointer-events-none" />
@@ -120,7 +127,7 @@ export default function BlogList() {
                         />
                     </div>
                 </div>
-            </div>
+            </PageHero>
 
             {/* Explore Topics */}
             {allTags.length > 0 && (
@@ -146,59 +153,84 @@ export default function BlogList() {
             )}
 
             {loading ? (
-                <div className="flex justify-center py-20">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                <div className="space-y-16">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
+                        <div className="flex flex-col gap-4">
+                            <div className="aspect-video rounded-3xl bg-muted animate-pulse" />
+                            <div className="space-y-2">
+                                <div className="h-4 w-1/3 bg-muted rounded animate-pulse" />
+                                <div className="h-6 w-3/4 bg-muted rounded animate-pulse" />
+                                <div className="h-4 w-full bg-muted rounded animate-pulse" />
+                            </div>
+                        </div>
+                        <div className="flex flex-col gap-8">
+                            {[...Array(2)].map((_, i) => (
+                                <div key={i} className="flex gap-6 items-start">
+                                    <div className="aspect-[4/3] w-64 rounded-3xl bg-muted animate-pulse flex-shrink-0" />
+                                    <div className="flex-1 space-y-2">
+                                        <div className="h-4 w-1/3 bg-muted rounded animate-pulse" />
+                                        <div className="h-5 w-full bg-muted rounded animate-pulse" />
+                                        <div className="h-4 w-2/3 bg-muted rounded animate-pulse" />
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
                 </div>
             ) : (
                 <>
                     {filteredBlogs.length > 0 ? (
                         <div className="space-y-16">
-                            <h2 className="text-3xl font-bold">
-                                Recent Posts
-                            </h2>
+                            <RevealHeading index={1}>
+                                <h2 className="text-3xl font-bold">
+                                    Recent Posts
+                                </h2>
+                            </RevealHeading>
                             {/* Featured & Recent Section - Only if not filtering */}
                             {!isFiltering && recentBlogs.length > 0 && (
                                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
                                     {/* Featured Post (Left) */}
                                     {recentBlogs[0] && (
-                                        <Link href={`/blog/${recentBlogs[0].slug || recentBlogs[0].id}`} className="group flex flex-col gap-4">
-                                            <div className="aspect-video w-full relative overflow-hidden rounded-3xl bg-muted">
-                                                {recentBlogs[0].thumbnail ? (
-                                                    <Image
-                                                        src={recentBlogs[0].thumbnail}
-                                                        alt={recentBlogs[0].title}
-                                                        fill
-                                                        sizes="(max-width: 1024px) 100vw, 50vw"
-                                                        className="object-cover transition-transform duration-500 group-hover:scale-105"
-                                                    />
-                                                ) : (
-                                                    <div className="flex items-center justify-center h-full text-muted-foreground">No Thumbnail</div>
-                                                )}
-                                            </div>
-                                            <div className="space-y-3">
-                                                <div className="text-sm font-semibold text-primary flex items-center gap-2">
-                                                    <span>Khoa Nguyễn</span>
-                                                    <span>•</span>
-                                                    <span>{format(new Date(recentBlogs[0].createdAt), 'd MMM yyyy')}</span>
+                                        <TiltCard>
+                                            <Link href={`/blog/${recentBlogs[0].slug || recentBlogs[0].id}`} className="group flex flex-col gap-4">
+                                                <div className="aspect-video w-full relative overflow-hidden rounded-3xl bg-muted">
+                                                    {recentBlogs[0].thumbnail ? (
+                                                        <Image
+                                                            src={recentBlogs[0].thumbnail}
+                                                            alt={recentBlogs[0].title}
+                                                            fill
+                                                            sizes="(max-width: 1024px) 100vw, 50vw"
+                                                            className="object-cover transition-transform duration-500 group-hover:scale-105"
+                                                        />
+                                                    ) : (
+                                                        <div className="flex items-center justify-center h-full text-muted-foreground">No Thumbnail</div>
+                                                    )}
                                                 </div>
-                                                <div className="flex justify-between items-start gap-4">
-                                                    <h2 className="text-2xl font-bold group-hover:text-primary transition-colors leading-tight">
-                                                        {recentBlogs[0].title}
-                                                    </h2>
-                                                    <ArrowUpRight className="h-6 w-6 text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0" />
+                                                <div className="space-y-3">
+                                                    <div className="text-sm font-semibold text-primary flex items-center gap-2">
+                                                        <span>Khoa Nguyễn</span>
+                                                        <span>•</span>
+                                                        <span>{format(new Date(recentBlogs[0].createdAt), 'd MMM yyyy')}</span>
+                                                    </div>
+                                                    <div className="flex justify-between items-start gap-4">
+                                                        <h2 className="text-2xl font-bold group-hover:text-primary transition-colors leading-tight">
+                                                            {recentBlogs[0].title}
+                                                        </h2>
+                                                        <ArrowUpRight className="h-6 w-6 text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0" />
+                                                    </div>
+                                                    <p className="text-muted-foreground line-clamp-3 text-base">
+                                                        {getExcerpt(recentBlogs[0])}
+                                                    </p>
+                                                    <div className="flex flex-wrap gap-2 pt-2">
+                                                        {recentBlogs[0].tags && recentBlogs[0].tags.split(',').map((tag, i) => (
+                                                            <Badge key={i} variant="outline" className="rounded-md font-normal">
+                                                                {tag.trim()}
+                                                            </Badge>
+                                                        ))}
+                                                    </div>
                                                 </div>
-                                                <p className="text-muted-foreground line-clamp-3 text-base">
-                                                    {getExcerpt(recentBlogs[0])}
-                                                </p>
-                                                <div className="flex flex-wrap gap-2 pt-2">
-                                                    {recentBlogs[0].tags && recentBlogs[0].tags.split(',').map((tag, i) => (
-                                                        <Badge key={i} variant="outline" className="rounded-md font-normal">
-                                                            {tag.trim()}
-                                                        </Badge>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        </Link>
+                                            </Link>
+                                        </TiltCard>
                                     )}
 
                                     {/* Sidebar Posts (Right) */}
@@ -247,62 +279,75 @@ export default function BlogList() {
                             {/* All Blog Posts Grid (Paginated) */}
                             {paginatedBlogs.length > 0 && (
                                 <div>
-                                    <h2 className="text-2xl font-bold mb-8">
-                                        {isFiltering ? 'Search Results' : 'All blog posts'}
-                                    </h2>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-12">
+                                    <RevealHeading index={2}>
+                                        <h2 className="text-2xl font-bold mb-8">
+                                            {isFiltering ? 'Search Results' : 'All blog posts'}
+                                        </h2>
+                                    </RevealHeading>
+                                    <motion.div
+                                        key={currentPage}
+                                        variants={cardContainerVariants}
+                                        initial="hidden"
+                                        whileInView="visible"
+                                        viewport={{ once: true }}
+                                        className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-12"
+                                    >
                                         {paginatedBlogs.map((blog) => (
-                                            <Link
-                                                href={`/blog/${blog.slug || blog.id}`}
-                                                key={blog.id}
-                                                className="group flex flex-col gap-4"
-                                            >
-                                                <div className="aspect-video relative bg-muted overflow-hidden rounded-3xl">
-                                                    {blog.thumbnail ? (
-                                                        <Image
-                                                            src={blog.thumbnail}
-                                                            alt={blog.title}
-                                                            fill
-                                                            sizes="(max-width: 768px) 100vw, 50vw"
-                                                            className="object-cover transition-transform duration-500 group-hover:scale-105"
-                                                        />
-                                                    ) : (
-                                                        <div className="flex items-center justify-center h-full text-muted-foreground bg-secondary/50">
-                                                            No Thumbnail
+                                            <motion.div key={blog.id} variants={cardItemVariants}>
+                                                <TiltCard>
+                                                    <Link
+                                                        href={`/blog/${blog.slug || blog.id}`}
+                                                        className="group flex flex-col gap-4"
+                                                    >
+                                                        <div className="aspect-video relative bg-muted overflow-hidden rounded-3xl">
+                                                            {blog.thumbnail ? (
+                                                                <Image
+                                                                    src={blog.thumbnail}
+                                                                    alt={blog.title}
+                                                                    fill
+                                                                    sizes="(max-width: 768px) 100vw, 50vw"
+                                                                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                                                                />
+                                                            ) : (
+                                                                <div className="flex items-center justify-center h-full text-muted-foreground bg-secondary/50">
+                                                                    No Thumbnail
+                                                                </div>
+                                                            )}
                                                         </div>
-                                                    )}
-                                                </div>
 
-                                                <div className="space-y-3">
-                                                    <div className="flex flex-col gap-1">
-                                                        <div className="text-xs font-semibold text-primary flex items-center gap-2">
-                                                            <span>Khoa Nguyễn</span>
-                                                            <span>•</span>
-                                                            <span>{format(new Date(blog.createdAt), 'd MMM yyyy')}</span>
+                                                        <div className="space-y-3">
+                                                            <div className="flex flex-col gap-1">
+                                                                <div className="text-xs font-semibold text-primary flex items-center gap-2">
+                                                                    <span>Khoa Nguyễn</span>
+                                                                    <span>•</span>
+                                                                    <span>{format(new Date(blog.createdAt), 'd MMM yyyy')}</span>
+                                                                </div>
+                                                                <h2 className="text-2xl font-bold group-hover:text-primary transition-colors leading-tight">
+                                                                    {blog.title}
+                                                                </h2>
+                                                            </div>
+                                                            <p className="text-muted-foreground line-clamp-2 text-base">
+                                                                {getExcerpt(blog)}
+                                                            </p>
+                                                            <div className="flex flex-wrap gap-2 mt-auto">
+                                                                {blog.tags && blog.tags.split(',').map((tag, i) => (
+                                                                    <Badge key={i} variant="secondary" className="bg-primary/10 text-primary hover:bg-primary/20 border-none rounded-md font-medium">
+                                                                        {tag.trim()}
+                                                                    </Badge>
+                                                                ))}
+                                                            </div>
                                                         </div>
-                                                        <h2 className="text-2xl font-bold group-hover:text-primary transition-colors leading-tight">
-                                                            {blog.title}
-                                                        </h2>
-                                                    </div>
-                                                    <p className="text-muted-foreground line-clamp-2 text-base">
-                                                        {getExcerpt(blog)}
-                                                    </p>
-                                                    <div className="flex flex-wrap gap-2 mt-auto">
-                                                        {blog.tags && blog.tags.split(',').map((tag, i) => (
-                                                            <Badge key={i} variant="secondary" className="bg-primary/10 text-primary hover:bg-primary/20 border-none rounded-md font-medium">
-                                                                {tag.trim()}
-                                                            </Badge>
-                                                        ))}
-                                                    </div>
-                                                </div>
-                                            </Link>
+                                                    </Link>
+                                                </TiltCard>
+                                            </motion.div>
                                         ))}
-                                    </div>
+                                    </motion.div>
                                 </div>
                             )}
                         </div>
                     ) : (
                         <div className="text-center py-20 text-muted-foreground">
+                            <FileText className="h-10 w-10 mx-auto mb-3 opacity-40" />
                             No articles found matching your search.
                         </div>
                     )}
@@ -319,4 +364,3 @@ export default function BlogList() {
         </div>
     );
 }
-

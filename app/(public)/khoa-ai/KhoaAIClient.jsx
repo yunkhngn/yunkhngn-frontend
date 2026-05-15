@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import HeroBackground from '@/components/home/HeroBackground';
 import { readNestJson } from '@/lib/api/readJson';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -125,7 +127,12 @@ export default function KhoaAIClient() {
         <div className="h-[calc(100dvh-64px)] w-full flex relative overflow-hidden bg-background">
 
             {/* Left Side - Chat Area (70%) */}
-            <div className="flex-1 lg:flex-[7] flex flex-col relative bg-background border-r border-border z-10">
+            <motion.div
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                className="flex-1 lg:flex-[7] flex flex-col relative bg-background border-r border-border z-10"
+            >
                 {/* Header */}
                 <div className="flex-none border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 p-4 flex items-center justify-between">
                     <div className="flex items-center gap-3">
@@ -286,10 +293,16 @@ export default function KhoaAIClient() {
                         </div>
                     </div>
                 </div>
-            </div>
+            </motion.div>
 
             {/* Right Side - Messenger Details Sidebar (30%) */}
-            <div className="hidden lg:flex lg:flex-[3] max-w-[400px] flex-col overflow-y-auto bg-muted/5 z-0 border-l border-border">
+            <motion.div
+                initial={{ opacity: 0, x: 16 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+                className="hidden lg:flex lg:flex-[3] max-w-[400px] flex-col overflow-y-auto bg-muted/5 z-0 border-l border-border relative"
+            >
+                <HeroBackground subtle />
                 {/* Profile Info */}
                 <div className="flex flex-col items-center text-center p-8 border-b border-border">
                     <div className="relative w-24 h-24 rounded-full overflow-hidden border-2 border-border shadow-sm mb-4">
@@ -335,7 +348,7 @@ export default function KhoaAIClient() {
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-muted-foreground"><path d="m6 9 6 6 6-6" /></svg>
                     </div>
                 </div>
-            </div>
+            </motion.div>
 
         </div>
     );

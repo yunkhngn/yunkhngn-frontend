@@ -32,7 +32,18 @@ import api from '@/lib/api/client';
 import { toast } from 'sonner';
 import Image from 'next/image';
 import { getOptimizedUrl, getBlurUrl } from '@/lib/cloudinary';
+import { motion } from 'framer-motion';
+import PageHero from '@/components/shared/PageHero';
 
+const cardContainerVariants = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.08 } },
+};
+
+const cardItemVariants = {
+  hidden: { opacity: 0, y: 24 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] } },
+};
 
 
 function JournalEntry({ entry, moodInfo, moods, avatarUrl, onEdit, onDelete, onReaction, onViewImage, onReply, isReply = false }) {
@@ -648,23 +659,18 @@ export default function JournalPage() {
     return (
         <div className="container mx-auto px-4 py-12 md:py-20 max-w-3xl">
             {/* Hero */}
-            <div className="flex flex-col items-center text-center mb-16 space-y-4">
-                <div className="text-xs font-bold tracking-[0.2em] text-muted-foreground uppercase">
-                    Daily Journal
-                </div>
-                <h1 className="text-5xl md:text-7xl font-bold tracking-tight font-serif">
-                    Thoughts & Notes
-                </h1>
-                <p className="text-muted-foreground max-w-lg text-lg">
-                    Short thoughts, ideas, TIL, and daily code snippets. Or just anything that comes to mind.
-                </p>
-
+            <PageHero
+                eyebrow="Daily Journal"
+                title="Thoughts & Notes"
+                description="Short thoughts, ideas, TIL, and daily code snippets. Or just anything that comes to mind."
+                className="mb-16"
+            >
                 {user && (
                     <div className="pt-4">
                         <Button
                             onClick={() => {
                                 setEditingEntry(null);
-                                setReplyingTo(null); // Clear replying state when creating new entry
+                                setReplyingTo(null);
                                 setIsComposeOpen(true);
                             }}
                             className="rounded-full shadow-lg h-12 px-6 text-base"
@@ -673,7 +679,7 @@ export default function JournalPage() {
                         </Button>
                     </div>
                 )}
-            </div>
+            </PageHero>
 
             <ComposeModal
                 isOpen={isComposeOpen}
@@ -720,12 +726,18 @@ export default function JournalPage() {
                     {[1, 2, 3].map(i => <JournalSkeleton key={i} />)}
                 </div>
             ) : sortedDates.length > 0 ? (
-                <div className="space-y-10 relative">
+                <motion.div
+                    variants={cardContainerVariants}
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={{ once: true }}
+                    className="space-y-10 relative"
+                >
                     {/* Timeline Main Line */}
                     <div className="absolute left-[15px] top-4 bottom-4 w-px bg-border/40 z-0"></div>
 
                     {sortedDates.map(date => (
-                        <div key={date} className="relative z-10">
+                        <motion.div key={date} variants={cardItemVariants} className="relative z-10">
                             {/* Date Header */}
                             <div className="flex items-center gap-4 mb-6 sticky top-20 bg-background/80 backdrop-blur-md py-2 z-20">
                                 <div className="w-[30px] flex justify-center shrink-0">
@@ -755,9 +767,9 @@ export default function JournalPage() {
                                     );
                                 })}
                             </div>
-                        </div>
+                        </motion.div>
                     ))}
-                </div>
+                </motion.div>
             ) : (
                 <div className="text-center py-20 bg-muted/30 rounded-3xl border border-dashed border-border">
                     <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
