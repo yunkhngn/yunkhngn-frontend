@@ -47,6 +47,7 @@ const ADMIN_NAV_ITEMS = [
         children: [
             { label: "AI", href: "/admin/ai", icon: Brain },
             { label: "Monitor", href: "/admin/monitor", icon: Terminal },
+            { label: "Audit Logs", href: "/admin/audit-logs", icon: FileText },
             { label: "Profile", href: "/admin/profile", icon: User },
             { label: "Settings", href: "/admin/settings", icon: Settings },
         ]
