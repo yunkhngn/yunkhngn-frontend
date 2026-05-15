@@ -286,9 +286,11 @@ export default function HomeContent({
       </section>
 
       <section className="space-y-8">
-        <div className="flex items-center justify-between">
-          <h2 className="text-3xl font-bold font-serif">Recent Blogs</h2>
-          <Link href="/blog" className="text-sm text-muted-foreground hover:text-primary flex items-center gap-1 transition-colors">
+        <div className="flex items-end justify-between">
+          <RevealHeading index={1}>
+            <h2 className="text-4xl md:text-5xl font-bold font-serif">Recent Blogs</h2>
+          </RevealHeading>
+          <Link href="/blog" className="text-sm text-muted-foreground hover:text-primary flex items-center gap-1 transition-colors mb-1">
             View all <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
@@ -341,9 +343,11 @@ export default function HomeContent({
       </section>
 
       <section className="space-y-8">
-        <div className="flex items-center justify-between">
-          <h2 className="text-3xl font-bold font-serif">Featured Projects</h2>
-          <Link href="/project" className="text-sm text-muted-foreground hover:text-primary flex items-center gap-1 transition-colors">
+        <div className="flex items-end justify-between">
+          <RevealHeading index={2}>
+            <h2 className="text-4xl md:text-5xl font-bold font-serif">Featured Projects</h2>
+          </RevealHeading>
+          <Link href="/project" className="text-sm text-muted-foreground hover:text-primary flex items-center gap-1 transition-colors mb-1">
             View all <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
@@ -396,10 +400,14 @@ export default function HomeContent({
       </section>
 
       <section className="container mx-auto px-4 py-20">
-        <h2 className="text-3xl font-bold mb-12 flex items-center gap-3">
-          <Github className="h-8 w-8" />
-          Open Source
-        </h2>
+        <div className="mb-12">
+          <RevealHeading index={3}>
+            <h2 className="text-4xl md:text-5xl font-bold flex items-center gap-3">
+              <Github className="h-8 w-8" />
+              Open Source
+            </h2>
+          </RevealHeading>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {featuredRepos.map((repo) => (
             <a key={repo.id} href={repo.html_url} target="_blank" rel="noopener noreferrer" className="group block h-full">
@@ -444,9 +452,11 @@ export default function HomeContent({
       </section>
 
       <section className="space-y-8">
-        <div className="flex items-center justify-between">
-          <h2 className="text-3xl font-bold font-serif">Locket Gallery</h2>
-          <Link href="/photo" className="text-sm text-muted-foreground hover:text-primary flex items-center gap-1 transition-colors">
+        <div className="flex items-end justify-between">
+          <RevealHeading index={4}>
+            <h2 className="text-4xl md:text-5xl font-bold font-serif">Locket Gallery</h2>
+          </RevealHeading>
+          <Link href="/photo" className="text-sm text-muted-foreground hover:text-primary flex items-center gap-1 transition-colors mb-1">
             View gallery <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
