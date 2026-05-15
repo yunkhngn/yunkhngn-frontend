@@ -315,6 +315,56 @@ export default function ProjectDetail({ projectData }) {
                         </motion.div>
                     </div>
                 </div>
+
+                {/* Suggested Projects */}
+                {projectData.relatedProjects && projectData.relatedProjects.length > 0 && (
+                    <div className="mt-20 border-t border-border/40 pt-12">
+                        <h3 className="text-2xl font-bold mb-8">Suggested Projects</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            {projectData.relatedProjects.map((relProject) => (
+                                <Link key={relProject.id} href={`/project/${relProject.slug || relProject.id}`} className="group block">
+                                    <div className="relative aspect-video mb-4 overflow-hidden rounded-xl bg-muted">
+                                        {relProject.cover ? (
+                                            <Image
+                                                src={relProject.cover}
+                                                alt={relProject.title}
+                                                fill
+                                                sizes="(max-width: 768px) 100vw, 33vw"
+                                                className="object-cover transition-transform duration-300 group-hover:scale-105"
+                                            />
+                                        ) : (
+                                            <div className="flex items-center justify-center h-full text-muted-foreground bg-secondary/30">
+                                                <span className="text-4xl font-bold opacity-20">P</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="space-y-2">
+                                        <h4 className="text-lg font-bold group-hover:text-primary transition-colors line-clamp-1">
+                                            {relProject.title}
+                                        </h4>
+                                        <p className="text-muted-foreground text-sm line-clamp-2">
+                                            {relProject.description}
+                                        </p>
+                                        {relProject.techStack && (
+                                            <div className="flex flex-wrap gap-1.5 pt-1">
+                                                {(Array.isArray(relProject.techStack)
+                                                    ? relProject.techStack
+                                                    : typeof relProject.techStack === 'string'
+                                                        ? JSON.parse(relProject.techStack)
+                                                        : []
+                                                ).slice(0, 3).map((tech, i) => (
+                                                    <span key={i} className="px-2 py-0.5 bg-secondary/50 text-secondary-foreground rounded text-xs font-medium">
+                                                        {tech}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                </Link>
+                            ))}
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );
