@@ -285,6 +285,7 @@ export default function BlogList() {
                                         </h2>
                                     </RevealHeading>
                                     <motion.div
+                                        key={currentPage}
                                         variants={cardContainerVariants}
                                         initial="hidden"
                                         whileInView="visible"

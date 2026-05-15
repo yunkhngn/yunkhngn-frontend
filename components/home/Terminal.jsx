@@ -3,8 +3,10 @@ import { readNestJson } from '@/lib/api/readJson';
 import { Terminal as TerminalIcon, X, Maximize2, Minus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { stripHtml } from '@/lib/utils';
+import { usePresence } from '@/hooks/usePresence';
 
 export default function Terminal({ embedded = false, className = '' }) {
+    const onlineCount = usePresence();
     const [history, setHistory] = useState([
         { type: 'output', content: 'Welcome to yunkhngn terminal v1.2.4' },
         { type: 'output', content: "Type 'help' to see available commands." }
@@ -257,9 +259,9 @@ export default function Terminal({ embedded = false, className = '' }) {
                         <TerminalIcon size={14} />
                         <span>nerd@yunkhngn.dev:~</span>
                     </div>
-                    <div className="opacity-0">
-                        {/* Spacer for centering */}
-                        <div className="w-12" />
+                    <div className="text-green-500 text-xs font-medium flex items-center gap-1.5 shadow-sm">
+                        <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.8)] animate-pulse" />
+                        {onlineCount} {onlineCount <= 1 ? 'nerd' : 'nerds'} online
                     </div>
                 </div>
             )}

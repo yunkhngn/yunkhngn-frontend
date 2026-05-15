@@ -45,26 +45,24 @@ function ParallaxPhoto({ photo, index }) {
   );
 
   return (
-    <div className="break-inside-avoid mb-6">
-      <motion.div
-        ref={ref}
-        style={{ y }}
-        className="relative group rounded-xl overflow-hidden cursor-pointer"
-      >
-        <Image
-          src={getOptimizedUrl(photo.imageUrl, { width: 500, quality: 80 })}
-          alt={photo.caption || 'Gallery Photo'}
-          width={500}
-          height={500}
-          className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105"
-          placeholder={getBlurUrl(photo.imageUrl) ? 'blur' : 'empty'}
-          blurDataURL={getBlurUrl(photo.imageUrl)}
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end">
-          {photo.caption && <p className="text-white p-4 font-medium text-sm md:text-base">{photo.caption}</p>}
-        </div>
-      </motion.div>
-    </div>
+    <motion.div
+      ref={ref}
+      style={{ y }}
+      className="relative aspect-square group rounded-xl overflow-hidden cursor-pointer"
+    >
+      <Image
+        src={getOptimizedUrl(photo.imageUrl, { width: 500, quality: 80 })}
+        alt={photo.caption || 'Gallery Photo'}
+        fill
+        sizes="(max-width: 768px) 50vw, 33vw"
+        className="object-cover transition-transform duration-500 group-hover:scale-105"
+        placeholder={getBlurUrl(photo.imageUrl) ? 'blur' : 'empty'}
+        blurDataURL={getBlurUrl(photo.imageUrl)}
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end">
+        {photo.caption && <p className="text-white p-4 font-medium text-sm md:text-base">{photo.caption}</p>}
+      </div>
+    </motion.div>
   );
 }
 
@@ -150,7 +148,7 @@ export default function HomeContent({
     <div className="container mx-auto px-4 pb-12 md:pb-24 pt-0 max-w-7xl space-y-32 overflow-x-hidden">
       <HeroBackground />
       <JsonLd data={jsonLdData} />
-      <section className="relative flex flex-col items-center text-center justify-center space-y-8 min-h-[80vh] max-w-4xl mx-auto">
+      <section className="relative flex flex-col items-center text-center justify-start pt-16 md:pt-24 space-y-8 min-h-[80vh] max-w-4xl mx-auto">
         <motion.div
           variants={heroContainerVariants}
           initial="hidden"
@@ -558,7 +556,7 @@ export default function HomeContent({
           </Link>
         </div>
 
-        <div className="columns-2 md:columns-3 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
           {galleryPhotos.map((photo, index) => (
             <ParallaxPhoto key={photo.id} photo={photo} index={index} />
           ))}

@@ -179,6 +179,7 @@ export default function ProjectList() {
                         {filteredProjects.length > 0 ? (
                             <>
                                 <motion.div
+                                    key={currentPage}
                                     variants={cardContainerVariants}
                                     initial="hidden"
                                     whileInView="visible"
