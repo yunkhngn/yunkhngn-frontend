@@ -144,7 +144,7 @@ export default function HomeContent({
   };
 
   return (
-    <div className="container mx-auto px-4 py-12 md:py-24 max-w-7xl space-y-20">
+    <div className="container mx-auto px-4 py-12 md:py-24 max-w-7xl space-y-32">
       <JsonLd data={jsonLdData} />
       <section className="relative flex flex-col items-center text-center justify-center space-y-8 py-20 md:py-32 max-w-4xl mx-auto">
         <HeroBackground />
@@ -290,6 +290,8 @@ export default function HomeContent({
         </motion.div>
       </section>
 
+      <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+
       <section className="space-y-8">
         <div className="flex items-end justify-between">
           <RevealHeading index={1}>
@@ -356,6 +358,8 @@ export default function HomeContent({
           })}
         </motion.div>
       </section>
+
+      <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
 
       <section className="space-y-8">
         <div className="flex items-end justify-between">
@@ -425,6 +429,8 @@ export default function HomeContent({
         </motion.div>
       </section>
 
+      <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+
       <section className="container mx-auto px-4 py-20">
         <div className="mb-12">
           <RevealHeading index={3}>
@@ -486,6 +492,8 @@ export default function HomeContent({
           </Link>
         </div>
       </section>
+
+      <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
 
       <section className="space-y-8">
         <div className="flex items-end justify-between">
