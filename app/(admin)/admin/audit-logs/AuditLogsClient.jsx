@@ -259,15 +259,15 @@ export default function AuditLogsClient() {
             </select>
           </label>
           <label className="flex flex-col text-xs text-muted-foreground gap-1 flex-1 min-w-[12rem]">
-            <span>Actor (user ID)</span>
+            <span>Actor (email)</span>
             <Input
               value={userIdFilter}
               onChange={(e) => {
                 setUserIdFilter(e.target.value);
                 setPage(1);
               }}
-              placeholder="Filter by user ID"
-              aria-label="Filter by user ID"
+              placeholder="Filter by email"
+              aria-label="Filter by actor email"
             />
           </label>
           <label className="flex flex-col text-xs text-muted-foreground gap-1">
@@ -365,9 +365,7 @@ export default function AuditLogsClient() {
                         className="text-xs text-muted-foreground font-mono"
                         title={log.userId || 'system'}
                       >
-                        {log.userId
-                          ? log.userId.substring(0, 8) + '…'
-                          : 'system'}
+                        {log.userId || 'system'}
                       </TableCell>
                       <TableCell className="text-xs text-muted-foreground">
                         {log.ipAddress || '-'}

@@ -116,21 +116,23 @@ export default function AIManagementClient() {
 
     const handleReindexAll = async () => {
         triggerConfirm({
-            title: "Reindex All Knowledge",
-            description: "This will re-sync all knowledge entries and blogs to the vector database. Continue?",
+            title: "Reindex RAG Content",
+            description: "This will enqueue all published blogs and projects for RAG reindex. Continue?",
             variant: "default",
             onConfirm: async () => {
                 closeConfirm();
                 setIsReindexing(true);
                 try {
-                    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/knowledge/sync-all`, {
+                    const token = await user.getIdToken();
+                    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/queues/rag-sync/reindex`, {
                         method: 'POST',
                         headers: {
-                            'Authorization': `Bearer ${user.accessToken}`
+                            'Authorization': `Bearer ${token}`
                         }
                     });
                     if (res.ok) {
-                        toast.success('Reindexing started successfully');
+                        const data = await readNestJson(res);
+                        toast.success(`Queued ${data.total ?? 0} RAG reindex jobs`);
                         setTimeout(fetchRagStats, 3000);
                     } else {
                         toast.error('Failed to start reindexing');
