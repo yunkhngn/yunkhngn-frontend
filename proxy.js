@@ -8,7 +8,7 @@ export function proxy() {
 
   const csp = [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://apis.google.com https://cdn.jsdelivr.net https://vercel.live",
+    "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://apis.google.com https://cdn.jsdelivr.net https://vercel.live https://*.firebasedatabase.app https://www.gstatic.com",
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net",
     "img-src 'self' blob: data: https://res.cloudinary.com https://github.com https://avatars.githubusercontent.com https://lh3.googleusercontent.com https://cataas.com https://placekitten.com https://cdn.buymeacoffee.com https://lastfm.freetls.fastly.net https://tarot.yunkhngn.dev",
     "font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net",
