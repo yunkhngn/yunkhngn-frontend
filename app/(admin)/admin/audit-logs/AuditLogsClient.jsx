@@ -5,6 +5,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import Link from 'next/link';
 import {
   Loader2,
   Search,
@@ -14,6 +15,7 @@ import {
   Globe,
   Monitor,
   User as UserIcon,
+  ExternalLink,
 } from 'lucide-react';
 import {
   Table,
@@ -48,6 +50,22 @@ const ACTION_COLORS = {
 function getActionColor(action) {
   const prefix = action?.split('_')[0];
   return ACTION_COLORS[prefix] || 'bg-muted text-muted-foreground';
+}
+
+function parseDetails(raw) {
+  if (!raw) return null;
+  try {
+    const parsed = typeof raw === 'string' ? JSON.parse(raw) : raw;
+    return parsed && typeof parsed === 'object' ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
+function entityAdminLink(entity, entityId, slug) {
+  if (entity === 'Blog') return `/admin/blog/${entityId}/edit`;
+  if (entity === 'Project' && slug) return `/admin/project/edit-project/${slug}`;
+  return null;
 }
 
 const LOCAL_TZ =
@@ -297,7 +315,7 @@ export default function AuditLogsClient() {
                 <TableRow className="bg-muted/50">
                   <TableHead>Action</TableHead>
                   <TableHead>Entity</TableHead>
-                  <TableHead>Entity ID</TableHead>
+                  <TableHead>Target</TableHead>
                   <TableHead>Actor</TableHead>
                   <TableHead>IP</TableHead>
                   <TableHead>Time</TableHead>
@@ -307,6 +325,9 @@ export default function AuditLogsClient() {
               <TableBody>
                 {logs.map((log) => {
                   const created = new Date(log.createdAt);
+                  const details = parseDetails(log.details);
+                  const entityTitle = details?.title;
+                  const adminLink = entityAdminLink(log.entity, log.entityId, details?.slug);
                   return (
                     <TableRow
                       key={log.id}
@@ -322,13 +343,23 @@ export default function AuditLogsClient() {
                       <TableCell className="text-sm font-medium">
                         {log.entity}
                       </TableCell>
-                      <TableCell
-                        className="text-xs text-muted-foreground font-mono"
-                        title={log.entityId || ''}
-                      >
-                        {log.entityId
-                          ? log.entityId.substring(0, 8) + '…'
-                          : '-'}
+                      <TableCell className="text-sm max-w-[180px]">
+                        {entityTitle && adminLink ? (
+                          <Link
+                            href={adminLink}
+                            className="font-medium hover:underline text-foreground truncate flex items-center gap-1 group"
+                            title={entityTitle}
+                          >
+                            <span className="truncate">{entityTitle}</span>
+                            <ExternalLink className="w-3 h-3 shrink-0 opacity-0 group-hover:opacity-60 transition-opacity" />
+                          </Link>
+                        ) : entityTitle ? (
+                          <span className="font-medium truncate block" title={entityTitle}>{entityTitle}</span>
+                        ) : (
+                          <span className="text-xs text-muted-foreground font-mono" title={log.entityId || ''}>
+                            {log.entityId ? log.entityId.substring(0, 8) + '…' : '-'}
+                          </span>
+                        )}
                       </TableCell>
                       <TableCell
                         className="text-xs text-muted-foreground font-mono"
@@ -405,7 +436,11 @@ export default function AuditLogsClient() {
         onOpenChange={(open) => !open && setSelectedLog(null)}
       >
         <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-y-auto">
-          {selectedLog && (
+          {selectedLog && (() => {
+            const dlDetails = parseDetails(selectedLog.details);
+            const dlTitle = dlDetails?.title;
+            const dlLink = entityAdminLink(selectedLog.entity, selectedLog.entityId, dlDetails?.slug);
+            return (
             <>
               <DialogHeader>
                 <DialogTitle className="flex items-center gap-3">
@@ -453,14 +488,29 @@ export default function AuditLogsClient() {
                   />
                 </div>
 
-                {selectedLog.entityId && (
+                {(dlTitle || selectedLog.entityId) && (
                   <div className="bg-muted/30 p-3 rounded-xl">
                     <p className="text-[10px] text-muted-foreground font-bold uppercase mb-1">
-                      Entity ID
+                      Target
                     </p>
-                    <p className="text-sm font-mono break-all">
-                      {selectedLog.entityId}
-                    </p>
+                    {dlTitle && dlLink ? (
+                      <Link
+                        href={dlLink}
+                        className="text-sm font-semibold hover:underline flex items-center gap-1.5 group"
+                      >
+                        {dlTitle}
+                        <ExternalLink className="w-3.5 h-3.5 opacity-50 group-hover:opacity-100 transition-opacity" />
+                      </Link>
+                    ) : dlTitle ? (
+                      <p className="text-sm font-semibold">{dlTitle}</p>
+                    ) : (
+                      <p className="text-sm font-mono break-all">{selectedLog.entityId}</p>
+                    )}
+                    {selectedLog.entityId && (
+                      <p className="text-[10px] text-muted-foreground font-mono mt-1 break-all">
+                        ID: {selectedLog.entityId}
+                      </p>
+                    )}
                   </div>
                 )}
 
@@ -497,7 +547,8 @@ export default function AuditLogsClient() {
                 </Button>
               </DialogFooter>
             </>
-          )}
+            );
+          })()}
         </DialogContent>
       </Dialog>
     </div>
