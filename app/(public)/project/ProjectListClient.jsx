@@ -86,7 +86,8 @@ export default function ProjectList() {
     const filterItems = (items) => {
         return items.filter(item => {
             const matchesSearch = item.title.toLowerCase().includes(search.toLowerCase());
-            const matchesTag = selectedTag ? item.tags && item.tags.includes(selectedTag) : true;
+            const itemTags = item.tags ? item.tags.split(',').map(t => t.trim()) : [];
+            const matchesTag = selectedTag ? itemTags.includes(selectedTag) : true;
             return matchesSearch && matchesTag;
         });
     };
@@ -103,6 +104,8 @@ export default function ProjectList() {
     useEffect(() => {
         setCurrentPage(1);
     }, [search, selectedTag]);
+
+    const isFiltering = search.length > 0 || selectedTag !== null;
 
     return (
         <div className="container mx-auto px-4 py-12 md:py-20 max-w-7xl">
@@ -174,12 +177,14 @@ export default function ProjectList() {
                     {/* Projects Section */}
                     <section>
                         <RevealHeading index={1}>
-                            <h2 className="text-3xl font-bold flex items-center gap-3">Featured Projects</h2>
+                            <h2 className="text-3xl font-bold flex items-center gap-3">
+                                {isFiltering ? 'Project Results' : 'Featured Projects'}
+                            </h2>
                         </RevealHeading>
                         {filteredProjects.length > 0 ? (
                             <>
                                 <motion.div
-                                    key={currentPage}
+                                    key={`projects-${currentPage}-${selectedTag || 'all'}-${search}`}
                                     variants={cardContainerVariants}
                                     initial="hidden"
                                     whileInView="visible"
@@ -260,11 +265,12 @@ export default function ProjectList() {
                         <RevealHeading index={2}>
                             <h2 className="text-3xl font-bold flex items-center gap-3">
                                 <Github className="h-8 w-8" />
-                                Open Source Contributions
+                                {isFiltering ? 'Repository Results' : 'Open Source Contributions'}
                             </h2>
                         </RevealHeading>
                         {filteredRepos.length > 0 ? (
                             <motion.div
+                                key={`repos-${selectedTag || 'all'}-${search}`}
                                 variants={cardContainerVariants}
                                 initial="hidden"
                                 whileInView="visible"

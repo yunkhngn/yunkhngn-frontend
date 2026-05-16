@@ -727,6 +727,7 @@ export default function JournalPage() {
                 </div>
             ) : sortedDates.length > 0 ? (
                 <motion.div
+                    key={selectedMood || 'all'}
                     variants={cardContainerVariants}
                     initial="hidden"
                     whileInView="visible"
