@@ -66,7 +66,8 @@ export default function BlogList() {
 
     const filteredBlogs = blogs.filter(blog => {
         const matchesSearch = blog.title.toLowerCase().includes(search.toLowerCase());
-        const matchesTag = selectedTag ? blog.tags && blog.tags.includes(selectedTag) : true;
+        const blogTags = blog.tags ? blog.tags.split(',').map(t => t.trim()) : [];
+        const matchesTag = selectedTag ? blogTags.includes(selectedTag) : true;
         return matchesSearch && matchesTag;
     });
 
@@ -181,111 +182,113 @@ export default function BlogList() {
                 <>
                     {filteredBlogs.length > 0 ? (
                         <div className="space-y-16">
-                            <RevealHeading index={1}>
-                                <h2 className="text-3xl font-bold">
-                                    Recent Posts
-                                </h2>
-                            </RevealHeading>
                             {/* Featured & Recent Section - Only if not filtering */}
                             {!isFiltering && recentBlogs.length > 0 && (
-                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
-                                    {/* Featured Post (Left) */}
-                                    {recentBlogs[0] && (
-                                        <TiltCard>
-                                            <Link href={`/blog/${recentBlogs[0].slug || recentBlogs[0].id}`} className="group flex flex-col gap-4">
-                                                <div className="aspect-video w-full relative overflow-hidden rounded-3xl bg-muted">
-                                                    {recentBlogs[0].thumbnail ? (
-                                                        <Image
-                                                            src={recentBlogs[0].thumbnail}
-                                                            alt={recentBlogs[0].title}
-                                                            fill
-                                                            sizes="(max-width: 1024px) 100vw, 50vw"
-                                                            className="object-cover transition-transform duration-500 group-hover:scale-105"
-                                                        />
-                                                    ) : (
-                                                        <div className="flex items-center justify-center h-full text-muted-foreground">No Thumbnail</div>
-                                                    )}
-                                                </div>
-                                                <div className="space-y-3">
-                                                    <div className="text-sm font-semibold text-primary flex items-center gap-2">
-                                                        <span>Khoa Nguyễn</span>
-                                                        <span>•</span>
-                                                        <span>{format(new Date(recentBlogs[0].createdAt), 'd MMM yyyy')}</span>
+                                <>
+                                    <RevealHeading index={1}>
+                                        <h2 className="text-3xl font-bold mb-8">
+                                            Recent Posts
+                                        </h2>
+                                    </RevealHeading>
+                                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
+                                        {/* Featured Post (Left) */}
+                                        {recentBlogs[0] && (
+                                            <TiltCard>
+                                                <Link href={`/blog/${recentBlogs[0].slug || recentBlogs[0].id}`} className="group flex flex-col gap-4">
+                                                    <div className="aspect-video w-full relative overflow-hidden rounded-3xl bg-muted">
+                                                        {recentBlogs[0].thumbnail ? (
+                                                            <Image
+                                                                src={recentBlogs[0].thumbnail}
+                                                                alt={recentBlogs[0].title}
+                                                                fill
+                                                                sizes="(max-width: 1024px) 100vw, 50vw"
+                                                                className="object-cover transition-transform duration-500 group-hover:scale-105"
+                                                            />
+                                                        ) : (
+                                                            <div className="flex items-center justify-center h-full text-muted-foreground">No Thumbnail</div>
+                                                        )}
                                                     </div>
-                                                    <div className="flex justify-between items-start gap-4">
-                                                        <h2 className="text-2xl font-bold group-hover:text-primary transition-colors leading-tight">
-                                                            {recentBlogs[0].title}
-                                                        </h2>
-                                                        <ArrowUpRight className="h-6 w-6 text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0" />
+                                                    <div className="space-y-3">
+                                                        <div className="text-sm font-semibold text-primary flex items-center gap-2">
+                                                            <span>Khoa Nguyễn</span>
+                                                            <span>•</span>
+                                                            <span>{format(new Date(recentBlogs[0].createdAt), 'd MMM yyyy')}</span>
+                                                        </div>
+                                                        <div className="flex justify-between items-start gap-4">
+                                                            <h2 className="text-2xl font-bold group-hover:text-primary transition-colors leading-tight">
+                                                                {recentBlogs[0].title}
+                                                            </h2>
+                                                            <ArrowUpRight className="h-6 w-6 text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0" />
+                                                        </div>
+                                                        <p className="text-muted-foreground line-clamp-3 text-base">
+                                                            {getExcerpt(recentBlogs[0])}
+                                                        </p>
+                                                        <div className="flex flex-wrap gap-2 pt-2">
+                                                            {recentBlogs[0].tags && recentBlogs[0].tags.split(',').map((tag, i) => (
+                                                                <Badge key={i} variant="outline" className="rounded-md font-normal">
+                                                                    {tag.trim()}
+                                                                </Badge>
+                                                            ))}
+                                                        </div>
                                                     </div>
-                                                    <p className="text-muted-foreground line-clamp-3 text-base">
-                                                        {getExcerpt(recentBlogs[0])}
-                                                    </p>
-                                                    <div className="flex flex-wrap gap-2 pt-2">
-                                                        {recentBlogs[0].tags && recentBlogs[0].tags.split(',').map((tag, i) => (
-                                                            <Badge key={i} variant="outline" className="rounded-md font-normal">
-                                                                {tag.trim()}
-                                                            </Badge>
-                                                        ))}
-                                                    </div>
-                                                </div>
-                                            </Link>
-                                        </TiltCard>
-                                    )}
+                                                </Link>
+                                            </TiltCard>
+                                        )}
 
-                                    {/* Sidebar Posts (Right) */}
-                                    <div className="flex flex-col gap-8">
-                                        {recentBlogs.slice(1, 3).map((blog) => (
-                                            <Link href={`/blog/${blog.slug || blog.id}`} key={blog.id} className="group flex flex-col md:flex-row gap-6 items-start">
-                                                <div className="aspect-video md:aspect-[4/3] w-full md:w-64 relative overflow-hidden rounded-3xl bg-muted flex-shrink-0">
-                                                    {blog.thumbnail ? (
-                                                        <Image
-                                                            src={blog.thumbnail}
-                                                            alt={blog.title}
-                                                            fill
-                                                            sizes="(max-width: 768px) 100vw, 256px"
-                                                            className="object-cover transition-transform duration-500 group-hover:scale-105"
-                                                        />
-                                                    ) : (
-                                                        <div className="flex items-center justify-center h-full text-muted-foreground text-xs">No Thumbnail</div>
-                                                    )}
-                                                </div>
-                                                <div className="flex-1 space-y-2">
-                                                    <div className="text-xs font-semibold text-primary flex items-center gap-2">
-                                                        <span>Khoa Nguyễn</span>
-                                                        <span>•</span>
-                                                        <span>{format(new Date(blog.createdAt), 'd MMM yyyy')}</span>
+                                        {/* Sidebar Posts (Right) */}
+                                        <div className="flex flex-col gap-8">
+                                            {recentBlogs.slice(1, 3).map((blog) => (
+                                                <Link href={`/blog/${blog.slug || blog.id}`} key={blog.id} className="group flex flex-col md:flex-row gap-6 items-start">
+                                                    <div className="aspect-video md:aspect-[4/3] w-full md:w-64 relative overflow-hidden rounded-3xl bg-muted flex-shrink-0">
+                                                        {blog.thumbnail ? (
+                                                            <Image
+                                                                src={blog.thumbnail}
+                                                                alt={blog.title}
+                                                                fill
+                                                                sizes="(max-width: 768px) 100vw, 256px"
+                                                                className="object-cover transition-transform duration-500 group-hover:scale-105"
+                                                            />
+                                                        ) : (
+                                                            <div className="flex items-center justify-center h-full text-muted-foreground text-xs">No Thumbnail</div>
+                                                        )}
                                                     </div>
-                                                    <h3 className="text-lg font-bold group-hover:text-primary transition-colors line-clamp-2">
-                                                        {blog.title}
-                                                    </h3>
-                                                    <p className="text-muted-foreground text-sm line-clamp-2">
-                                                        {getExcerpt(blog)}
-                                                    </p>
-                                                    <div className="flex flex-wrap gap-2 pt-1">
-                                                        {blog.tags && blog.tags.split(',').slice(0, 2).map((tag, i) => (
-                                                            <Badge key={i} variant="outline" className="text-xs rounded-md font-normal">
-                                                                {tag.trim()}
-                                                            </Badge>
-                                                        ))}
+                                                    <div className="flex-1 space-y-2">
+                                                        <div className="text-xs font-semibold text-primary flex items-center gap-2">
+                                                            <span>Khoa Nguyễn</span>
+                                                            <span>•</span>
+                                                            <span>{format(new Date(blog.createdAt), 'd MMM yyyy')}</span>
+                                                        </div>
+                                                        <h3 className="text-lg font-bold group-hover:text-primary transition-colors line-clamp-2">
+                                                            {blog.title}
+                                                        </h3>
+                                                        <p className="text-muted-foreground text-sm line-clamp-2">
+                                                            {getExcerpt(blog)}
+                                                        </p>
+                                                        <div className="flex flex-wrap gap-2 pt-1">
+                                                            {blog.tags && blog.tags.split(',').slice(0, 2).map((tag, i) => (
+                                                                <Badge key={i} variant="outline" className="text-xs rounded-md font-normal">
+                                                                    {tag.trim()}
+                                                                </Badge>
+                                                            ))}
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            </Link>
-                                        ))}
+                                                </Link>
+                                            ))}
+                                        </div>
                                     </div>
-                                </div>
+                                </>
                             )}
 
                             {/* All Blog Posts Grid (Paginated) */}
                             {paginatedBlogs.length > 0 && (
                                 <div>
-                                    <RevealHeading index={2}>
+                                    <RevealHeading index={isFiltering ? 1 : 2}>
                                         <h2 className="text-2xl font-bold mb-8">
                                             {isFiltering ? 'Search Results' : 'All blog posts'}
                                         </h2>
                                     </RevealHeading>
                                     <motion.div
-                                        key={currentPage}
+                                        key={`${currentPage}-${selectedTag || 'all'}-${search}`}
                                         variants={cardContainerVariants}
                                         initial="hidden"
                                         whileInView="visible"
