@@ -1,7 +1,7 @@
 import NewBlogClient from './NewBlogClient';
 
 export const metadata = {
-  title: 'New Blog',
+  title: 'New Blog | Admin',
 };
 
 export default function NewBlogPage() {

@@ -1,7 +1,7 @@
 import AddProjectClient from './AddProjectClient';
 
 export const metadata = {
-  title: 'Add Project',
+  title: 'New Project | Admin',
 };
 
 export default function AddProjectPage() {

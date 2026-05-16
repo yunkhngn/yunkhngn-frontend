@@ -1,7 +1,7 @@
 import AdminJournalClient from './AdminJournalClient';
 
 export const metadata = {
-  title: 'Journal',
+  title: 'Journal | Admin',
 };
 
 export default function AdminJournalPage() {

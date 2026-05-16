@@ -1,7 +1,7 @@
 import DashboardClient from './DashboardClient';
 
 export const metadata = {
-  title: 'Dashboard',
+  title: 'Dashboard | Admin',
 };
 
 export default function AdminDashboardPage() {
