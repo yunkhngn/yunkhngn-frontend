@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { useTheme } from 'next-themes';
-import { Bell, Bot, Moon, Sun, Menu, X, LogOut, LayoutDashboard, User, FileText, Folder, Image, Settings, MessageSquare, Mail, LayoutGrid, Link2, BookOpen, Terminal, Brain, MousePointerClick } from 'lucide-react';
+import { Bell, Bot, Moon, Sun, Menu, X, LogOut, LayoutDashboard, User, FileText, Folder, Image, Settings, MessageSquare, Mail, LayoutGrid, Link2, BookOpen, Terminal, Brain, MousePointerClick, Layers } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
@@ -48,6 +48,7 @@ const ADMIN_NAV_ITEMS = [
             { label: "AI", href: "/admin/ai", icon: Brain },
             { label: "Monitor", href: "/admin/monitor", icon: Terminal },
             { label: "Audit Logs", href: "/admin/audit-logs", icon: FileText },
+            { label: "Queues", href: `${process.env.NEXT_PUBLIC_API_URL || ''}/admin/queues`, icon: Layers, external: true },
             { label: "Profile", href: "/admin/profile", icon: User },
             { label: "Settings", href: "/admin/settings", icon: Settings },
         ]
@@ -173,6 +174,22 @@ export default function AdminNavbar() {
                             // Check exact match or starts with (e.g., /admin/blog/new)
                             const isChildActive = pathname === child.href || pathname.startsWith(child.href + '/');
                             const ChildIcon = child.icon;
+
+                            if (child.external) {
+                                return (
+                                    <a
+                                        key={index}
+                                        href={child.href}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className={`flex items-center gap-2 py-3 text-sm font-medium transition-colors relative group text-muted-foreground hover:text-foreground`}
+                                    >
+                                        <ChildIcon size={14} className="group-hover:text-foreground" />
+                                        {child.label}
+                                    </a>
+                                );
+                            }
+
                             return (
                                 <Link
                                     key={index}
@@ -209,6 +226,22 @@ export default function AdminNavbar() {
                                         {item.children.map((child) => {
                                             const ChildIcon = child.icon;
                                             const isActive = pathname === child.href || pathname.startsWith(child.href + '/');
+
+                                            if (child.external) {
+                                                return (
+                                                    <a
+                                                        key={child.href}
+                                                        href={child.href}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors text-muted-foreground hover:bg-accent hover:text-foreground`}
+                                                    >
+                                                        <ChildIcon size={16} />
+                                                        {child.label}
+                                                    </a>
+                                                );
+                                            }
+
                                             return (
                                                 <Link
                                                     key={child.href}
