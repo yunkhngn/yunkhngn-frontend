@@ -744,7 +744,7 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
                                         </div>
                                         <div className="text-left">
                                             <div className="font-medium text-sm">{user?.displayName || "Khoa Nguyễn"}</div>
-                                            <div className="text-xs text-muted-foreground">Author & Developer</div>
+                                            <div className="text-xs text-muted-foreground">Author</div>
                                         </div>
                                     </div>
                                 </div>
