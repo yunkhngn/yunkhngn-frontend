@@ -1,7 +1,7 @@
 import AdminBlogDetailClient from './AdminBlogDetailClient';
 
 export const metadata = {
-  title: 'Blog',
+  title: 'Blog | Admin',
 };
 
 export default function AdminBlogDetailPage() {

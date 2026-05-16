@@ -1,7 +1,7 @@
 import AdminContactClient from './AdminContactClient';
 
 export const metadata = {
-  title: 'Contact',
+  title: 'Contact | Admin',
 };
 
 export default function AdminContactPage() {

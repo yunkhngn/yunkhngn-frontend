@@ -1,7 +1,7 @@
 import AdminBlogListClient from './AdminBlogListClient';
 
 export const metadata = {
-  title: 'Manage Blogs',
+  title: 'Blogs | Admin',
 };
 
 export default function AdminBlogListPage() {

@@ -1,7 +1,7 @@
 import MediaClient from './MediaClient';
 
 export const metadata = {
-  title: 'Media Manager',
+  title: 'Media | Admin',
 };
 
 export default function AdminMediaPage() {

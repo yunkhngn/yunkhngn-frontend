@@ -1,7 +1,7 @@
 import MonitorClient from './MonitorClient';
 
 export const metadata = {
-  title: 'Container Monitor',
+  title: 'Monitor | Admin',
 };
 
 export default function MonitorPage() {

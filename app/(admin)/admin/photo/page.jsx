@@ -1,7 +1,7 @@
 import AdminPhotoClient from './AdminPhotoClient';
 
 export const metadata = {
-  title: 'Photo Gallery',
+  title: 'Photo Gallery | Admin',
 };
 
 export default function AdminPhotoPage() {

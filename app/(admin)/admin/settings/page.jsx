@@ -1,7 +1,7 @@
 import SettingsClient from './SettingsClient';
 
 export const metadata = {
-  title: 'Site Settings',
+  title: 'Settings | Admin',
 };
 
 export default function AdminSettingsPage() {
