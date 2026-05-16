@@ -318,7 +318,7 @@ export default function BlogDetail({ blogData }) {
                                         </div>
                                         <div className="text-left">
                                             <div className="font-medium text-sm">Khoa Nguyễn</div>
-                                            <div className="text-xs text-muted-foreground">Author & Developer</div>
+                                            <div className="text-xs text-muted-foreground">Author</div>
                                         </div>
                                     </div>
                                     <div className="h-6 w-px bg-border"></div>
@@ -355,7 +355,7 @@ export default function BlogDetail({ blogData }) {
                                         </div>
                                         <div>
                                             <div className="font-serif text-lg font-bold">Khoa Nguyễn</div>
-                                            <div className="text-sm text-muted-foreground">Author & Developer</div>
+                                            <div className="text-sm text-muted-foreground">Author</div>
                                         </div>
                                     </div>
 

@@ -111,7 +111,7 @@ export default function ViewBlog() {
                                 </div>
                                 <div className="text-left">
                                     <div className="font-medium text-sm">Khoa Nguyễn</div>
-                                    <div className="text-xs text-muted-foreground">Author & Developer</div>
+                                    <div className="text-xs text-muted-foreground">Author</div>
                                 </div>
                             </div>
                         </header>
@@ -133,7 +133,7 @@ export default function ViewBlog() {
                                     </div>
                                     <div>
                                         <div className="font-serif text-lg font-bold">Khoa Nguyễn</div>
-                                        <div className="text-sm text-muted-foreground">Author & Developer</div>
+                                        <div className="text-sm text-muted-foreground">Author</div>
                                     </div>
                                 </div>
 
