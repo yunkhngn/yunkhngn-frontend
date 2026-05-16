@@ -36,7 +36,8 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
         seoTitle: '',
         seoDescription: '',
         seoImage: '',
-        imageSettings: null
+        imageSettings: null,
+        sendNewsletter: false
     });
     const [submitting, setSubmitting] = useState(false);
     const [uploading, setUploading] = useState(false);
@@ -113,7 +114,8 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
                 seoTitle: initialData.seoTitle || '',
                 seoDescription: initialData.seoDescription || '',
                 seoImage: initialData.seoImage || '',
-                imageSettings: parsedSettings
+                imageSettings: parsedSettings,
+                sendNewsletter: false
             });
         }
     }, [initialData, isEditing, getDraftKey]);
@@ -164,7 +166,8 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
                 seoTitle: initialData.seoTitle || '',
                 seoDescription: initialData.seoDescription || '',
                 seoImage: initialData.seoImage || '',
-                imageSettings: parsedSettings
+                imageSettings: parsedSettings,
+                sendNewsletter: false
             });
         } else {
             setFormData({
@@ -177,7 +180,8 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
                 seoTitle: '',
                 seoDescription: '',
                 seoImage: '',
-                imageSettings: null
+                imageSettings: null,
+                sendNewsletter: false
             });
             setSlugManuallyEdited(false);
         }
@@ -366,7 +370,8 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
                 seoTitle: formData.seoTitle,
                 seoDescription: formData.seoDescription,
                 seoImage: formData.seoImage,
-                imageSettings: formData.imageSettings ? JSON.stringify(formData.imageSettings) : null
+                imageSettings: formData.imageSettings ? JSON.stringify(formData.imageSettings) : null,
+                sendNewsletter: formData.sendNewsletter
             };
             await onSubmit(payload);
 
@@ -777,41 +782,52 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
 
             {/* Fixed Action Bar */}
             <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border p-4 z-50">
-                <div className="container mx-auto flex gap-2 justify-end">
-                    <Button variant="ghost" onClick={() => router.back()}>
-                        Cancel
-                    </Button>
-                    {!isEditing ? (
-                        <Button onClick={() => handleSubmit('DRAFT')} disabled={submitting}>
-                            {submitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-                            Save Draft
+                <div className="container mx-auto flex items-center justify-between">
+                    <label className="flex items-center gap-2 text-sm text-muted-foreground font-medium cursor-pointer">
+                        <input
+                            type="checkbox"
+                            checked={formData.sendNewsletter || false}
+                            onChange={(e) => setFormData(prev => ({ ...prev, sendNewsletter: e.target.checked }))}
+                            className="rounded border-gray-300 text-primary focus:ring-primary w-4 h-4 cursor-pointer"
+                        />
+                        Notify subscribers via newsletter
+                    </label>
+                    <div className="flex gap-2 justify-end">
+                        <Button variant="ghost" onClick={() => router.back()}>
+                            Cancel
                         </Button>
-                    ) : (
-                        <>
-                            {formData.status === 'DRAFT' ? (
-                                <>
-                                    <Button onClick={() => handleSubmit('PUBLISHED')} disabled={submitting}>
-                                        {submitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <UploadCloud className="mr-2 h-4 w-4" />}
-                                        Publish
-                                    </Button>
-                                    <Button variant="outline" onClick={() => handleSubmit('DRAFT')} disabled={submitting}>
-                                        <Save className="mr-2 h-4 w-4" />
-                                        Save Draft
-                                    </Button>
-                                </>
-                            ) : (
-                                <>
-                                    <Button onClick={() => handleSubmit()} disabled={submitting}>
-                                        {submitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-                                        Update Blog
-                                    </Button>
-                                    <Button variant="ghost" className="text-destructive hover:text-destructive" onClick={() => handleSubmit('DRAFT')} disabled={submitting}>
-                                        Unpublish
-                                    </Button>
-                                </>
-                            )}
-                        </>
-                    )}
+                        {!isEditing ? (
+                            <Button onClick={() => handleSubmit('DRAFT')} disabled={submitting}>
+                                {submitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+                                Save Draft
+                            </Button>
+                        ) : (
+                            <>
+                                {formData.status === 'DRAFT' ? (
+                                    <>
+                                        <Button onClick={() => handleSubmit('PUBLISHED')} disabled={submitting}>
+                                            {submitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <UploadCloud className="mr-2 h-4 w-4" />}
+                                            Publish
+                                        </Button>
+                                        <Button variant="outline" onClick={() => handleSubmit('DRAFT')} disabled={submitting}>
+                                            <Save className="mr-2 h-4 w-4" />
+                                            Save Draft
+                                        </Button>
+                                    </>
+                                ) : (
+                                    <>
+                                        <Button onClick={() => handleSubmit()} disabled={submitting}>
+                                            {submitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+                                            Update Blog
+                                        </Button>
+                                        <Button variant="ghost" className="text-destructive hover:text-destructive" onClick={() => handleSubmit('DRAFT')} disabled={submitting}>
+                                            Unpublish
+                                        </Button>
+                                    </>
+                                )}
+                            </>
+                        )}
+                    </div>
                 </div>
             </div>
         </div>

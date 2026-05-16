@@ -32,7 +32,8 @@ export default function ProjectForm({ initialData, onSubmit, isEditing = false }
         contentJSON: '',
         seoTitle: '',
         seoDescription: '',
-        seoImage: ''
+        seoImage: '',
+        sendNewsletter: false
     });
     const [submitting, setSubmitting] = useState(false);
     const [uploading, setUploading] = useState(false);
@@ -62,7 +63,8 @@ export default function ProjectForm({ initialData, onSubmit, isEditing = false }
                 contentJSON: initialData.contentJSON || '',
                 seoTitle: initialData.seoTitle || '',
                 seoDescription: initialData.seoDescription || '',
-                seoImage: initialData.seoImage || ''
+                seoImage: initialData.seoImage || '',
+                sendNewsletter: false
             });
         }
     }, [initialData]);
@@ -81,7 +83,8 @@ export default function ProjectForm({ initialData, onSubmit, isEditing = false }
                 contentJSON: initialData.contentJSON || '',
                 seoTitle: initialData.seoTitle || '',
                 seoDescription: initialData.seoDescription || '',
-                seoImage: initialData.seoImage || ''
+                seoImage: initialData.seoImage || '',
+                sendNewsletter: false
             });
         } else {
             setFormData({
@@ -96,7 +99,8 @@ export default function ProjectForm({ initialData, onSubmit, isEditing = false }
                 contentJSON: '',
                 seoTitle: '',
                 seoDescription: '',
-                seoImage: ''
+                seoImage: '',
+                sendNewsletter: false
             });
             setSlugManuallyEdited(false);
         }
@@ -561,11 +565,22 @@ export default function ProjectForm({ initialData, onSubmit, isEditing = false }
                     </TabsContent>
                 </Tabs>
 
-                <div className="pt-4 flex gap-2">
-                    <Button className="w-full md:w-auto" onClick={handleSubmit} disabled={submitting}>
-                        {submitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-                        {isEditing ? 'Update Project' : 'Create Project'}
-                    </Button>
+                <div className="pt-4 flex gap-2 justify-between items-center">
+                    <label className="flex items-center gap-2 text-sm text-muted-foreground font-medium cursor-pointer">
+                        <input
+                            type="checkbox"
+                            checked={formData.sendNewsletter || false}
+                            onChange={(e) => setFormData(prev => ({ ...prev, sendNewsletter: e.target.checked }))}
+                            className="rounded border-gray-300 text-primary focus:ring-primary w-4 h-4 cursor-pointer"
+                        />
+                        Notify subscribers via newsletter
+                    </label>
+                    <div className="flex gap-2">
+                        <Button className="w-full md:w-auto" onClick={handleSubmit} disabled={submitting}>
+                            {submitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+                            {isEditing ? 'Update Project' : 'Create Project'}
+                        </Button>
+                    </div>
                 </div>
             </div>
         </div>
