@@ -74,16 +74,20 @@ export default function BlogDetail({ blogData }) {
 
     // Increment view count
     useEffect(() => {
+        const controller = new AbortController();
         const incrementView = async () => {
             try {
                 await fetch(`${process.env.NEXT_PUBLIC_API_URL}/blogs/${blog.slug}/view`, {
                     method: 'POST',
+                    signal: controller.signal,
                 });
             } catch (error) {
+                if (error?.name === 'AbortError') return;
                 console.error('Failed to increment view:', error);
             }
         };
         incrementView();
+        return () => controller.abort();
     }, [blog.slug]);
 
     const shareUrl = typeof window !== 'undefined' ? window.location.href : '';

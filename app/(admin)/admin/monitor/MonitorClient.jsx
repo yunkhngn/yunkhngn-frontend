@@ -43,6 +43,7 @@ export default function MonitorClient() {
 
   const fetchContainers = useCallback(async () => {
     if (!user) return;
+    if (typeof document !== 'undefined' && document.visibilityState !== 'visible') return;
     try {
       const token = await user.getIdToken();
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/monitor/containers`, {
@@ -62,7 +63,16 @@ export default function MonitorClient() {
   useEffect(() => {
     fetchContainers();
     const interval = setInterval(fetchContainers, 15000);
-    return () => clearInterval(interval);
+
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') fetchContainers();
+    };
+    document.addEventListener('visibilitychange', onVisible);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', onVisible);
+    };
   }, [user, fetchContainers]);
 
   useEffect(() => {

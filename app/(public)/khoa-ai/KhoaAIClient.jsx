@@ -36,9 +36,12 @@ export default function KhoaAIClient() {
     }, [messages, isLoading]);
 
     useEffect(() => {
+        const controller = new AbortController();
         const fetchSettings = async () => {
             try {
-                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/settings`);
+                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/settings`, {
+                    signal: controller.signal,
+                });
                 if (res.ok) {
                     const data = await readNestJson(res);
                     const forbiddenSetting = data.find(s => s.settingTitle === 'chat_forbidden_words');
@@ -48,10 +51,12 @@ export default function KhoaAIClient() {
                     }
                 }
             } catch (error) {
+                if (error?.name === 'AbortError') return;
                 console.error("Failed to fetch chat settings", error);
             }
         };
         fetchSettings();
+        return () => controller.abort();
     }, []);
 
     const handleSubmit = async (e) => {
