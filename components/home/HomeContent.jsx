@@ -28,6 +28,7 @@ import JsonLd from '@/components/seo/JsonLd';
 import Terminal from '@/components/home/Terminal';
 import { getOptimizedUrl, getBlurUrl } from '@/lib/cloudinary';
 import { readCachedSettings, writeCachedSettings } from '@/lib/settingsCache';
+import StatusBadge from '@/components/live/StatusBadge';
 import { sanitizeRichTextToPlainText } from '@/lib/sanitizeRichText';
 import LiveActivityInline from '@/components/live/LiveActivityInline';
 import TextDecode from '@/components/home/TextDecode';
@@ -260,7 +261,7 @@ export default function HomeContent({
                     className="object-cover"
                   />
                 </div>
-                <div className="absolute bottom-4 right-4 w-5 h-5 bg-green-500 border-4 border-[#1a1a1a] rounded-full animate-pulse z-10" />
+                <StatusBadge />
               </div>
 
               <div className="space-y-4 w-full">
