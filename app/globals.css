@@ -3,6 +3,10 @@
 @tailwind utilities;
 
 @layer base {
+    html {
+        scrollbar-gutter: stable;
+    }
+
     :root {
         /* Codecademy-inspired Theme */
         --background: 0 0% 100%;
