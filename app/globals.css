@@ -7,6 +7,12 @@
         scrollbar-gutter: stable;
     }
 
+    /* Prevent Radix UI / Shadcn scroll lock layout shift when scrollbar-gutter is active */
+    body[data-scroll-locked] {
+        padding-right: 0 !important;
+        margin-right: 0 !important;
+    }
+
     :root {
         /* Codecademy-inspired Theme */
         --background: 0 0% 100%;
