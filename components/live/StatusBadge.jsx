@@ -46,8 +46,8 @@ export default function StatusBadge() {
             disabled={!isAdmin}
             aria-label={isAdmin ? 'Edit status' : `Status: ${statusText}`}
             className={`flex items-center px-3 py-1.5 rounded-full border border-white/10 bg-neutral-950/80 backdrop-blur-md shadow-[0_8px_32px_rgba(0,0,0,0.5)] transition-all duration-300 select-none group text-left ${isAdmin
-                ? 'cursor-pointer hover:border-blue-500/50 hover:bg-neutral-950 hover:scale-105'
-                : 'cursor-default hover:border-white/20 hover:scale-105'
+              ? 'cursor-pointer hover:border-blue-500/50 hover:bg-neutral-950 hover:scale-105'
+              : 'cursor-default hover:border-white/20 hover:scale-105'
               }`}
           >
             <span className="relative flex h-2 w-2 mr-2 shrink-0">
