@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 @layer base {
-    html {
+    html:not(.no-scrollbar-gutter) {
         scrollbar-gutter: stable;
     }
 

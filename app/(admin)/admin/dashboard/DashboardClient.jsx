@@ -74,6 +74,16 @@ export default function Dashboard() {
   const [activityData, setActivityData] = useState([]);
 
   useEffect(() => {
+    // Disable global scrollbar and gutter for the dashboard page on desktop
+    document.documentElement.classList.add('no-scrollbar-gutter');
+    document.body.classList.add('lg:overflow-hidden');
+    return () => {
+      document.documentElement.classList.remove('no-scrollbar-gutter');
+      document.body.classList.remove('lg:overflow-hidden');
+    };
+  }, []);
+
+  useEffect(() => {
     const fetchData = async () => {
       if (!user) return;
       try {
