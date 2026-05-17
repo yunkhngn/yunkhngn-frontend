@@ -1,11 +1,11 @@
 'use client';
 
 import { useAdminStatus } from '@/hooks/useAdminStatus';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
 import { useState } from 'react';
 import EditStatusModal from './EditStatusModal';
-import { Edit2 } from 'lucide-react';
+import { Edit2, Plus } from 'lucide-react';
 
 export default function StatusBadge() {
   const status = useAdminStatus();
@@ -16,29 +16,21 @@ export default function StatusBadge() {
   const isOnline = status.online;
   const isBusy = status.busy;
   const statusText = status.text;
+  const hasStatus = Boolean(statusText);
 
-  // Determine dot color and label
-  let dotColor = 'bg-zinc-500';
-  let dotRing = 'ring-zinc-500/20';
-  let defaultLabel = 'Offline';
+  // Spec rule: no status text → no badge. Exception: an admin gets a dashed
+  // "Set status" placeholder so they have a clickable entry point.
+  if (!hasStatus && !isAdmin) return null;
 
-  if (isOnline) {
-    if (isBusy) {
-      dotColor = 'bg-rose-500';
-      dotRing = 'ring-rose-500/30';
-      defaultLabel = 'Do Not Disturb';
-    } else {
-      dotColor = 'bg-emerald-500';
-      dotRing = 'ring-emerald-500/30';
-      defaultLabel = 'Active Now';
-    }
+  // Dot color per spec: gray when offline, green when online, red when busy.
+  let dotColor;
+  if (!isOnline) {
+    dotColor = 'bg-zinc-500';
+  } else if (isBusy) {
+    dotColor = 'bg-rose-500';
   } else {
-    dotColor = 'bg-amber-500/80';
-    dotRing = 'ring-amber-500/10';
-    defaultLabel = 'Away';
+    dotColor = 'bg-emerald-500';
   }
-
-  const displayText = statusText || defaultLabel;
 
   return (
     <>
@@ -48,39 +40,63 @@ export default function StatusBadge() {
         transition={{ duration: 0.4, ease: 'easeOut' }}
         className="absolute -bottom-3 left-1/2 -translate-x-1/2 z-20 flex items-center"
       >
-        <button
-          onClick={() => isAdmin && setModalOpen(true)}
-          disabled={!isAdmin}
-          className={`flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/10 bg-neutral-950/80 backdrop-blur-md shadow-[0_8px_32px_rgba(0,0,0,0.5)] transition-all duration-300 select-none group text-left ${
-            isAdmin
-              ? 'cursor-pointer hover:border-blue-500/50 hover:bg-neutral-950 hover:scale-105'
-              : 'cursor-default hover:border-white/20 hover:scale-105'
-          }`}
-        >
-          {/* Breathing/Pulsing indicator dot wrapper */}
-          <div className="relative flex h-2 w-2">
-            {isOnline && (
-              <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${dotColor}`} />
+        {hasStatus ? (
+          <button
+            onClick={() => isAdmin && setModalOpen(true)}
+            disabled={!isAdmin}
+            aria-label={isAdmin ? 'Edit status' : `Status: ${statusText}`}
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/10 bg-neutral-950/80 backdrop-blur-md shadow-[0_8px_32px_rgba(0,0,0,0.5)] transition-all duration-300 select-none group text-left ${
+              isAdmin
+                ? 'cursor-pointer hover:border-blue-500/50 hover:bg-neutral-950 hover:scale-105'
+                : 'cursor-default hover:border-white/20 hover:scale-105'
+            }`}
+          >
+            <span className="relative flex h-2 w-2">
+              {isOnline && (
+                <span
+                  className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${dotColor}`}
+                />
+              )}
+              <span
+                className={`relative inline-flex rounded-full h-2 w-2 ${dotColor}`}
+              />
+            </span>
+
+            <span className="text-[10px] font-mono tracking-wide text-zinc-300 font-medium whitespace-nowrap max-w-[180px] truncate group-hover:text-white transition-colors duration-200">
+              {statusText}
+            </span>
+
+            {isAdmin && (
+              <Edit2
+                size={8}
+                className="text-zinc-500 group-hover:text-blue-400 transition-colors duration-200 ml-0.5 opacity-0 group-hover:opacity-100"
+              />
             )}
-            <span className={`relative inline-flex rounded-full h-2 w-2 ${dotColor}`} />
-          </div>
-
-          {/* Text */}
-          <span className="text-[10px] font-mono tracking-wide text-zinc-300 font-medium whitespace-nowrap max-w-[150px] truncate group-hover:text-white transition-colors duration-200">
-            {displayText}
-          </span>
-
-          {/* Edit Icon for Admin */}
-          {isAdmin && (
-            <Edit2
-              size={8}
-              className="text-zinc-500 group-hover:text-blue-400 transition-colors duration-200 ml-0.5 opacity-0 group-hover:opacity-100"
+          </button>
+        ) : (
+          <button
+            onClick={() => setModalOpen(true)}
+            aria-label="Set status"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-dashed border-white/15 bg-neutral-950/60 backdrop-blur-md shadow-[0_8px_32px_rgba(0,0,0,0.5)] transition-all duration-300 cursor-pointer hover:border-blue-500/50 hover:bg-neutral-950 hover:scale-105 group"
+          >
+            <Plus
+              size={10}
+              className="text-zinc-400 group-hover:text-blue-400 transition-colors"
             />
-          )}
-        </button>
+            <span className="text-[10px] font-mono tracking-wide text-zinc-400 font-medium whitespace-nowrap group-hover:text-white transition-colors">
+              Set status
+            </span>
+          </button>
+        )}
       </motion.div>
 
-      <EditStatusModal isOpen={modalOpen} onClose={() => setModalOpen(false)} />
+      {isAdmin && (
+        <EditStatusModal
+          isOpen={modalOpen}
+          onClose={() => setModalOpen(false)}
+          current={status}
+        />
+      )}
     </>
   );
 }

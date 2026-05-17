@@ -7,11 +7,25 @@ import {
   Disc3,
   Github,
   Headphones,
-  Code2,
+  Clock,
   Gamepad2,
-  CloudSun,
+  Cloud,
 } from 'lucide-react';
 import { MarqueeText } from '@/components/ui/MarqueeText';
+
+const POLL_INTERVAL_MS = 15000;
+
+const WEATHER_EMOJI = {
+  Clear: '☀️',
+  Clouds: '☁️',
+  Rain: '🌧',
+  Drizzle: '🌦',
+  Thunderstorm: '⛈',
+  Snow: '❄️',
+  Mist: '🌫',
+  Haze: '🌫',
+  Fog: '🌫',
+};
 
 export default function LiveActivityInline() {
   const [codingData, setCodingData] = useState(null);
@@ -22,45 +36,30 @@ export default function LiveActivityInline() {
 
   const [loadingCoding, setLoadingCoding] = useState(true);
   const [loadingMusic, setLoadingMusic] = useState(true);
-  const [loadingWakatime, setLoadingWakatime] = useState(true);
-  const [loadingSteam, setLoadingSteam] = useState(true);
-  const [loadingWeather, setLoadingWeather] = useState(true);
 
   useEffect(() => {
-    const fetchData = async () => {
-      // 1. GitHub Coding Activity
-      api.get('/admin/github/latest-activity')
-        .then((res) => setCodingData(res.data))
-        .catch((err) => console.error('Failed to fetch GitHub activity', err))
-        .finally(() => setLoadingCoding(false));
-
-      // 2. Last.fm Listening
-      api.get('/lastfm/playing')
-        .then((res) => setMusicData(res.data))
-        .catch((err) => console.error('Failed to fetch Last.fm activity', err))
-        .finally(() => setLoadingMusic(false));
-
-      // 3. WakaTime Coding Duration
-      api.get('/wakatime/today')
-        .then((res) => setWakatimeData(res.data))
-        .catch((err) => console.error('Failed to fetch WakaTime activity', err))
-        .finally(() => setLoadingWakatime(false));
-
-      // 4. Steam Gaming
-      api.get('/steam/now-playing')
-        .then((res) => setSteamData(res.data))
-        .catch((err) => console.error('Failed to fetch Steam activity', err))
-        .finally(() => setLoadingSteam(false));
-
-      // 5. Hanoi Weather
-      api.get('/weather/hanoi')
-        .then((res) => setWeatherData(res.data))
-        .catch((err) => console.error('Failed to fetch weather', err))
-        .finally(() => setLoadingWeather(false));
+    const safeGet = (path, setter, onFinally) => {
+      api
+        .get(path)
+        .then((res) => setter(res.data))
+        .catch(() => setter(null))
+        .finally(() => {
+          if (onFinally) onFinally();
+        });
     };
 
-    fetchData();
-    const interval = setInterval(fetchData, 30000); // refresh every 30 seconds
+    const fetchAll = () => {
+      safeGet('/admin/github/latest-activity', setCodingData, () =>
+        setLoadingCoding(false),
+      );
+      safeGet('/lastfm/playing', setMusicData, () => setLoadingMusic(false));
+      safeGet('/wakatime/today', setWakatimeData);
+      safeGet('/steam/now-playing', setSteamData);
+      safeGet('/weather/hanoi', setWeatherData);
+    };
+
+    fetchAll();
+    const interval = setInterval(fetchAll, POLL_INTERVAL_MS);
     return () => clearInterval(interval);
   }, []);
 
@@ -94,31 +93,46 @@ export default function LiveActivityInline() {
     return `${actionText} ${codingData.repo.replace('yunkhngn/', '')}`;
   };
 
-  const getWakaTimeText = () => {
-    if (loadingWakatime) return 'Fetching...';
-    if (!wakatimeData || !wakatimeData.text) return 'Not coded today';
-    return `${wakatimeData.text} today`;
-  };
-
-  const getSteamText = () => {
-    if (loadingSteam) return 'Fetching...';
-    if (!steamData || !steamData.name) return 'Not playing anything';
-    return `Playing ${steamData.name}`;
-  };
-
-  const getWeatherText = () => {
-    if (loadingWeather) return 'Fetching...';
-    if (!weatherData) return 'Unknown weather';
-    return `${weatherData.temp}°C, ${weatherData.condition} in Hanoi`;
-  };
-
   const isCodingActive =
     codingData &&
     new Date() - new Date(codingData.timestamp) < 10 * 60 * 1000;
 
+  const weatherEmoji = weatherData
+    ? WEATHER_EMOJI[weatherData.condition] ?? '🌡'
+    : '';
+
   return (
     <div className="flex flex-col gap-2 mt-2 w-full max-w-[400px]">
-      {/* 1. GitHub Coding Activity */}
+      {/* Weather (hidden when null) */}
+      {weatherData && (
+        <div className="flex items-center gap-3 lg:justify-start w-full overflow-hidden">
+          <div className="flex items-center gap-1.5 text-yellow-400 shrink-0">
+            weather <Cloud className="w-4 h-4" />:
+          </div>
+          <div className="flex items-center gap-2 overflow-hidden flex-1">
+            <span className="text-gray-300 truncate">
+              {weatherData.temp}°C {weatherEmoji} {weatherData.condition}
+            </span>
+          </div>
+        </div>
+      )}
+
+      {/* WakaTime (hidden when null) */}
+      {wakatimeData && (
+        <div className="flex items-center gap-3 lg:justify-start w-full overflow-hidden">
+          <div className="flex items-center gap-1.5 text-purple-400 shrink-0">
+            wakatime <Clock className="w-4 h-4" />:
+          </div>
+          <div className="flex items-center gap-2 overflow-hidden flex-1">
+            <MarqueeText className="text-gray-300 min-w-0">
+              {wakatimeData.text} today
+              {wakatimeData.top_language ? ` · ${wakatimeData.top_language}` : ''}
+            </MarqueeText>
+          </div>
+        </div>
+      )}
+
+      {/* Coding (existing) */}
       <div className="flex items-center gap-3 lg:justify-start w-full overflow-hidden">
         <div className="flex items-center gap-1.5 text-green-400 shrink-0">
           coding <Github className="w-4 h-4" />:
@@ -136,7 +150,7 @@ export default function LiveActivityInline() {
         </div>
       </div>
 
-      {/* 2. Last.fm Listening */}
+      {/* Listening (existing) */}
       <div className="flex items-center gap-3 lg:justify-start w-full overflow-hidden">
         <div className="flex items-center gap-1.5 text-pink-400 shrink-0">
           listening <Headphones className="w-4 h-4" />:
@@ -189,53 +203,23 @@ export default function LiveActivityInline() {
         </div>
       </div>
 
-      {/* 3. WakaTime Coding Time */}
-      <div className="flex items-center gap-3 lg:justify-start w-full overflow-hidden">
-        <div className="flex items-center gap-1.5 text-blue-400 shrink-0">
-          today-code <Code2 className="w-4 h-4" />:
-        </div>
-        <div className="flex items-center gap-2 overflow-hidden flex-1">
-          <MarqueeText className="text-gray-300 min-w-0">
-            {getWakaTimeText()}
-          </MarqueeText>
-          {wakatimeData?.text && (
+      {/* Playing / Steam (hidden when not in-game) */}
+      {steamData?.name && (
+        <div className="flex items-center gap-3 lg:justify-start w-full overflow-hidden">
+          <div className="flex items-center gap-1.5 text-orange-400 shrink-0">
+            playing <Gamepad2 className="w-4 h-4" />:
+          </div>
+          <div className="flex items-center gap-2 overflow-hidden flex-1">
+            <MarqueeText className="text-gray-300 min-w-0">
+              {steamData.name}
+            </MarqueeText>
             <span className="relative flex h-2 w-2 shrink-0">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
             </span>
-          )}
+          </div>
         </div>
-      </div>
-
-      {/* 4. Steam Gaming */}
-      <div className="flex items-center gap-3 lg:justify-start w-full overflow-hidden">
-        <div className="flex items-center gap-1.5 text-red-400 shrink-0">
-          gaming <Gamepad2 className="w-4 h-4" />:
-        </div>
-        <div className="flex items-center gap-2 overflow-hidden flex-1">
-          <MarqueeText className="text-gray-300 min-w-0">
-            {getSteamText()}
-          </MarqueeText>
-          {steamData?.name && (
-            <span className="relative flex h-2 w-2 shrink-0">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
-            </span>
-          )}
-        </div>
-      </div>
-
-      {/* 5. Hanoi Weather */}
-      <div className="flex items-center gap-3 lg:justify-start w-full overflow-hidden">
-        <div className="flex items-center gap-1.5 text-yellow-400 shrink-0">
-          weather <CloudSun className="w-4 h-4" />:
-        </div>
-        <div className="flex items-center gap-2 overflow-hidden flex-1">
-          <MarqueeText className="text-gray-300 min-w-0">
-            {getWeatherText()}
-          </MarqueeText>
-        </div>
-      </div>
+      )}
     </div>
   );
 }
