@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import { MarqueeText } from '@/components/ui/MarqueeText';
 
-const POLL_INTERVAL_MS = 15000;
+const POLL_INTERVAL_MS = 60000;
 
 const WEATHER_EMOJI = {
   Clear: '☀️',
@@ -49,6 +49,9 @@ export default function LiveActivityInline() {
     };
 
     const fetchAll = () => {
+      if (typeof document !== 'undefined' && document.visibilityState !== 'visible') {
+        return;
+      }
       safeGet('/admin/github/latest-activity', setCodingData, () =>
         setLoadingCoding(false),
       );
@@ -60,7 +63,16 @@ export default function LiveActivityInline() {
 
     fetchAll();
     const interval = setInterval(fetchAll, POLL_INTERVAL_MS);
-    return () => clearInterval(interval);
+
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') fetchAll();
+    };
+    document.addEventListener('visibilitychange', onVisible);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', onVisible);
+    };
   }, []);
 
   const getCodingText = () => {

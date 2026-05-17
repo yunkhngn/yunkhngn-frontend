@@ -34,15 +34,26 @@ export default function LiveActivityContainer({ isStatic = false }) {
             }
         };
 
-        fetchCoding();
-        fetchMusic();
-
-        const interval = setInterval(() => {
+        const fetchAll = () => {
+            if (typeof document !== 'undefined' && document.visibilityState !== 'visible') {
+                return;
+            }
             fetchCoding();
             fetchMusic();
-        }, 10000);
+        };
 
-        return () => clearInterval(interval);
+        fetchAll();
+        const interval = setInterval(fetchAll, 60000);
+
+        const onVisible = () => {
+            if (document.visibilityState === 'visible') fetchAll();
+        };
+        document.addEventListener('visibilitychange', onVisible);
+
+        return () => {
+            clearInterval(interval);
+            document.removeEventListener('visibilitychange', onVisible);
+        };
     }, []);
 
     useEffect(() => {

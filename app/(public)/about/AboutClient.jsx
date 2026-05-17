@@ -89,9 +89,12 @@ export default function About() {
             applySettings(cachedSettings);
         }
 
+        const controller = new AbortController();
         const fetchSettings = async () => {
             try {
-                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/settings`);
+                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/settings`, {
+                    signal: controller.signal,
+                });
                 if (res.ok) {
                     const data = await readNestJson(res);
                     const settingsObj = data.reduce((acc, curr) => {
@@ -102,10 +105,12 @@ export default function About() {
                     writeCachedSettings(settingsObj);
                 }
             } catch (error) {
+                if (error?.name === 'AbortError') return;
                 console.error("Failed to fetch settings", error);
             }
         };
         fetchSettings();
+        return () => controller.abort();
     }, []);
 
     const [activeSection, setActiveSection] = useState("story");

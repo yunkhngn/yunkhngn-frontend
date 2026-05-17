@@ -21,8 +21,12 @@ export function NotificationProvider({ children }) {
         userRef.current = user;
     }, [user]);
 
+    // Notifications are admin-only. Skip the socket entirely for public visitors
+    // and non-admin users so they don't open a persistent connection to the VPS.
+    const isAdmin = user?.role === 'ADMIN';
     useEffect(() => {
-        // Remove /api from URL for socket connection if present
+        if (!isAdmin) return;
+
         const startUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
         const socketUrl = startUrl.replace(/\/api$/, '');
 
@@ -30,10 +34,6 @@ export function NotificationProvider({ children }) {
             reconnection: true,
             reconnectionDelay: 1000,
             reconnectionAttempts: 5,
-        });
-
-        newSocket.on('connect', () => {
-            console.log('Connected to socket server');
         });
 
         newSocket.on('connect_error', (error) => {
@@ -54,7 +54,7 @@ export function NotificationProvider({ children }) {
         return () => {
             newSocket.disconnect();
         };
-    }, [user]);
+    }, [isAdmin]);
 
     const fetchNotifications = useCallback(async () => {
         const currentUser = userRef.current;
