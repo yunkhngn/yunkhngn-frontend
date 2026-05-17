@@ -45,13 +45,12 @@ export default function StatusBadge() {
             onClick={() => isAdmin && setModalOpen(true)}
             disabled={!isAdmin}
             aria-label={isAdmin ? 'Edit status' : `Status: ${statusText}`}
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/10 bg-neutral-950/80 backdrop-blur-md shadow-[0_8px_32px_rgba(0,0,0,0.5)] transition-all duration-300 select-none group text-left ${
-              isAdmin
+            className={`flex items-center px-3 py-1.5 rounded-full border border-white/10 bg-neutral-950/80 backdrop-blur-md shadow-[0_8px_32px_rgba(0,0,0,0.5)] transition-all duration-300 select-none group text-left ${isAdmin
                 ? 'cursor-pointer hover:border-blue-500/50 hover:bg-neutral-950 hover:scale-105'
                 : 'cursor-default hover:border-white/20 hover:scale-105'
-            }`}
+              }`}
           >
-            <span className="relative flex h-2 w-2">
+            <span className="relative flex h-2 w-2 mr-2 shrink-0">
               {isOnline && (
                 <span
                   className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${dotColor}`}
@@ -67,10 +66,12 @@ export default function StatusBadge() {
             </span>
 
             {isAdmin && (
-              <Edit2
-                size={8}
-                className="text-zinc-500 group-hover:text-blue-400 transition-colors duration-200 ml-0.5 opacity-0 group-hover:opacity-100"
-              />
+              <span className="w-0 opacity-0 overflow-hidden transition-all duration-300 ease-out group-hover:w-2 group-hover:opacity-100 group-hover:ml-1.5 flex items-center justify-center shrink-0">
+                <Edit2
+                  size={8}
+                  className="text-zinc-500 group-hover:text-blue-400 transition-colors duration-200"
+                />
+              </span>
             )}
           </button>
         ) : (
