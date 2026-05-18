@@ -33,6 +33,18 @@ export function useAdminPresence() {
         });
     });
 
-    return () => unsub();
+    return () => {
+      unsub();
+      // When the admin signs out (or the hook unmounts on role transition),
+      // explicitly flip online=false and cancel the disconnect handler so a
+      // signed-out admin doesn't keep showing online until tab close.
+      onDisconnect(statusRef)
+        .cancel()
+        .catch(() => {});
+      update(statusRef, {
+        online: false,
+        lastChange: serverTimestamp(),
+      }).catch(() => {});
+    };
   }, [isAdmin]);
 }

@@ -12,8 +12,29 @@ import {
   Cloud,
 } from 'lucide-react';
 import { MarqueeText } from '@/components/ui/MarqueeText';
+import { formatDistanceToNow } from 'date-fns';
 
 const POLL_INTERVAL_MS = 60000;
+
+function formatMinutes(minutes) {
+  if (!minutes || minutes <= 0) return '';
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  if (h === 0) return `${m}m`;
+  if (m === 0) return `${h}h`;
+  return `${h}h ${m}m`;
+}
+
+function PulseDot({ color = 'green' }) {
+  const halo = color === 'orange' ? 'bg-orange-400' : 'bg-green-400';
+  const dot = color === 'orange' ? 'bg-orange-500' : 'bg-green-500';
+  return (
+    <span className="relative flex h-2 w-2 shrink-0">
+      <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${halo}`}></span>
+      <span className={`relative inline-flex rounded-full h-2 w-2 ${dot}`}></span>
+    </span>
+  );
+}
 
 const WEATHER_EMOJI = {
   Clear: '☀️',
@@ -137,9 +158,26 @@ export default function LiveActivityInline() {
           </div>
           <div className="flex items-center gap-2 overflow-hidden flex-1">
             <MarqueeText className="text-gray-300 min-w-0">
-              {wakatimeData.text} today
-              {wakatimeData.top_language ? ` · ${wakatimeData.top_language}` : ''}
+              {wakatimeData.is_coding_now ? (
+                <>
+                  Coding {wakatimeData.text}
+                  {wakatimeData.top_language
+                    ? ` · ${wakatimeData.top_language}`
+                    : ''}
+                </>
+              ) : (
+                <>
+                  {wakatimeData.text} today
+                  {wakatimeData.last_heartbeat_at
+                    ? ` · last keystroke ${formatDistanceToNow(
+                        new Date(wakatimeData.last_heartbeat_at),
+                        { addSuffix: true },
+                      )}`
+                    : ''}
+                </>
+              )}
             </MarqueeText>
+            {wakatimeData.is_coding_now && <PulseDot />}
           </div>
         </div>
       )}
@@ -215,7 +253,7 @@ export default function LiveActivityInline() {
         </div>
       </div>
 
-      {/* Playing / Steam (hidden when not in-game) */}
+      {/* Playing / Steam */}
       {steamData?.name && (
         <div className="flex items-center gap-3 lg:justify-start w-full overflow-hidden">
           <div className="flex items-center gap-1.5 text-orange-400 shrink-0">
@@ -223,12 +261,23 @@ export default function LiveActivityInline() {
           </div>
           <div className="flex items-center gap-2 overflow-hidden flex-1">
             <MarqueeText className="text-gray-300 min-w-0">
-              {steamData.name}
+              {steamData.is_playing_now ? (
+                <>
+                  {steamData.name}{' '}
+                  <span className="text-gray-500">(now)</span>
+                </>
+              ) : (
+                <>
+                  {steamData.name}
+                  {steamData.playtime_2weeks_minutes ? (
+                    <span className="text-gray-500">
+                      {` · ${formatMinutes(steamData.playtime_2weeks_minutes)} this week`}
+                    </span>
+                  ) : null}
+                </>
+              )}
             </MarqueeText>
-            <span className="relative flex h-2 w-2 shrink-0">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
-            </span>
+            {steamData.is_playing_now && <PulseDot color="orange" />}
           </div>
         </div>
       )}
