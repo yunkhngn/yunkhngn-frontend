@@ -6,6 +6,15 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 import ToolCard from './ToolCard';
 import WhatToEat from './what-to-eat/WhatToEat';
+import ChromeExtensionCard from './ChromeExtensionCard';
+
+const CATEGORIES = [
+  { key: 'food', label: 'Ăn uống', emoji: '🍜' },
+  { key: 'health', label: 'Sức khoẻ', emoji: '💪' },
+  { key: 'entertainment', label: 'Giải trí', emoji: '🎉' },
+  { key: 'coding', label: 'Coding', emoji: '💻' },
+  { key: 'utility', label: 'Tiện ích', emoji: '🛠' },
+];
 
 const TOOLS = [
   {
@@ -13,7 +22,25 @@ const TOOLS = [
     icon: '🍜',
     name: 'Hôm nay ăn gì?',
     description: 'Gợi ý món ăn dựa theo thời tiết và giờ hiện tại.',
+    category: 'food',
     Component: WhatToEat,
+  },
+];
+
+const CHROME_EXTENSIONS = [
+  {
+    id: 'fptu-schedule',
+    icon: '🗓',
+    name: 'FPTU Schedule',
+    description: 'Quản lý và xuất lịch học, lịch thi, reminder từ FAP.',
+    storeUrl: 'https://chromewebstore.google.com/detail/fptu-schedule/obiiippodjlfcmdipfbkneknbakjekfm',
+  },
+  {
+    id: 'better-sleep',
+    icon: '😴',
+    name: 'Better Sleep',
+    description: 'Sleep planning and tracker.',
+    storeUrl: 'https://chromewebstore.google.com/detail/better-sleep/bbeciemkpnopjobcaapiipfolhnninkm',
   },
 ];
 
