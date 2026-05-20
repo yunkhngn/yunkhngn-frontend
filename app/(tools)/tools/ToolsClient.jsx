@@ -15,6 +15,7 @@ import JsonFormatter from './json-formatter/JsonFormatter';
 import Base64 from './base64/Base64';
 import UuidGenerator from './uuid-generator/UuidGenerator';
 import RegexTester from './regex-tester/RegexTester';
+import QrGenerator from './qr-generator/QrGenerator';
 
 const CATEGORIES = [
   { key: 'food', label: 'Ăn uống', emoji: '🍜' },
@@ -96,6 +97,14 @@ const TOOLS = [
     description: 'Nhập pattern + test string để highlight match trực tiếp.',
     category: 'coding',
     Component: RegexTester,
+  },
+  {
+    id: 'qr-generator',
+    icon: '📱',
+    name: 'QR Code Generator',
+    description: 'Nhập text hoặc URL để tạo QR code. Download PNG.',
+    category: 'utility',
+    Component: QrGenerator,
   },
 ];
 
