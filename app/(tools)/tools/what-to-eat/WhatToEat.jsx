@@ -11,6 +11,9 @@ const MEAL_EMOJI = { sáng: '🌅', trưa: '☀️', chiều: '🌤️', tối: 
 const ERROR_MESSAGES = {
   LOCATION_DENIED:
     'Bạn chưa cho phép truy cập vị trí. Vui lòng bật lại trong cài đặt trình duyệt.',
+  LOCATION_UNAVAILABLE:
+    'Không xác định được vị trí. Kiểm tra Location Services trên máy và thử lại.',
+  LOCATION_TIMEOUT: 'Lấy vị trí quá lâu. Thử lại nhé.',
   NETWORK_ERROR: 'Không kết nối được. Kiểm tra mạng và thử lại.',
   AI_ERROR: 'AI đang bận. Thử lại sau nhé.',
 };
@@ -55,10 +58,17 @@ export default function WhatToEat() {
         setCoords(c);
         callSuggest(c);
       },
-      () => {
-        setErrorKey('LOCATION_DENIED');
+      (err) => {
+        const key =
+          err.code === 1
+            ? 'LOCATION_DENIED'
+            : err.code === 3
+              ? 'LOCATION_TIMEOUT'
+              : 'LOCATION_UNAVAILABLE';
+        setErrorKey(key);
         setToolState('error');
       },
+      { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 },
     );
   };
 
@@ -69,6 +79,7 @@ export default function WhatToEat() {
       locate();
     }
   };
+
 
   return (
     <div className="min-h-[260px] flex flex-col">
