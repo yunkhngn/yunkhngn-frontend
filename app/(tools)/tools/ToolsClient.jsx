@@ -109,21 +109,121 @@ export default function ToolsClient() {
       ) : (
         <motion.div
           key="grid"
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
         >
-          {TOOLS.map((tool) => (
-            <ToolCard
-              key={tool.id}
-              id={tool.id}
-              icon={tool.icon}
-              name={tool.name}
-              description={tool.description}
-              onClick={() => setSelectedId(tool.id)}
+          {/* Search + filter controls */}
+          <div className="mb-6 space-y-3">
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Tìm tool..."
+              className="w-full px-4 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
             />
-          ))}
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={() => setActiveCategory('all')}
+                className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
+                  activeCategory === 'all'
+                    ? 'bg-foreground text-background'
+                    : 'bg-muted text-muted-foreground hover:bg-accent'
+                }`}
+              >
+                Tất cả
+              </button>
+              {CATEGORIES.filter((c) => activeCategoryKeys.includes(c.key)).map((cat) => (
+                <button
+                  key={cat.key}
+                  onClick={() => setActiveCategory(cat.key)}
+                  className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
+                    activeCategory === cat.key
+                      ? 'bg-foreground text-background'
+                      : 'bg-muted text-muted-foreground hover:bg-accent'
+                  }`}
+                >
+                  {cat.emoji} {cat.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Tools: flat grid when filtering, sectioned when not */}
+          {isFiltering ? (
+            filteredTools.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {filteredTools.map((tool) => (
+                  <ToolCard
+                    key={tool.id}
+                    id={tool.id}
+                    icon={tool.icon}
+                    name={tool.name}
+                    description={tool.description}
+                    onClick={() => setSelectedId(tool.id)}
+                  />
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground py-8 text-center">
+                Không tìm thấy tool nào.
+              </p>
+            )
+          ) : (
+            <div className="space-y-10">
+              {CATEGORIES.filter((c) => activeCategoryKeys.includes(c.key)).map((cat) => {
+                const tools = TOOLS.filter((t) => t.category === cat.key);
+                if (tools.length === 0) return null;
+                return (
+                  <section key={cat.key}>
+                    <h2 className="text-base font-semibold text-foreground mb-4">
+                      {cat.emoji} {cat.label}
+                    </h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {tools.map((tool) => (
+                        <ToolCard
+                          key={tool.id}
+                          id={tool.id}
+                          icon={tool.icon}
+                          name={tool.name}
+                          description={tool.description}
+                          onClick={() => setSelectedId(tool.id)}
+                        />
+                      ))}
+                    </div>
+                  </section>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Chrome Extensions — always visible, below tools */}
+          <section className="mt-12">
+            <h2 className="text-base font-semibold text-foreground mb-4 flex items-center gap-2">
+              <svg className="w-5 h-5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="10" fill="#4285F4"/>
+                <circle cx="12" cy="12" r="4" fill="white"/>
+                <path d="M12 8h8.5A10 10 0 0 0 12 2v6z" fill="#EA4335"/>
+                <path d="M3.5 16.5A10 10 0 0 0 20.5 16.5H12l-8.5 0z" fill="#FBBC04" opacity="0.01"/>
+                <path d="M12 8h8.5A10 10 0 0 1 20.5 16.5L16 12H12V8z" fill="#FBBC04"/>
+                <path d="M3.5 16.5A10 10 0 0 0 12 22l4-8H3.5z" fill="#34A853"/>
+                <path d="M3.5 7.5A10 10 0 0 0 3.5 16.5L8 12l-4.5-4.5z" fill="#EA4335" opacity="0.01"/>
+                <path d="M12 2A10 10 0 0 0 3.5 7.5L8 12l4-4z" fill="#EA4335" opacity="0.1"/>
+              </svg>
+              Chrome Extensions
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {CHROME_EXTENSIONS.map((ext) => (
+                <ChromeExtensionCard
+                  key={ext.id}
+                  icon={ext.icon}
+                  name={ext.name}
+                  description={ext.description}
+                  storeUrl={ext.storeUrl}
+                />
+              ))}
+            </div>
+          </section>
         </motion.div>
       )}
     </AnimatePresence>
