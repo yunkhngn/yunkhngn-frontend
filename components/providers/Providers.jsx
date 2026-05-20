@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import { ThemeProvider } from 'next-themes';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { NotificationProvider } from '@/contexts/NotificationContext';
@@ -8,8 +9,12 @@ import { Toaster } from 'sonner';
 import PresenceTracker from '@/components/live/PresenceTracker';
 
 export default function Providers({ children }) {
+  useEffect(() => {
+    document.documentElement.classList.add('theme-ready');
+  }, []);
+
   return (
-    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+    <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
       <AuthProvider>
         <PresenceTracker />
         <NotificationProvider>
