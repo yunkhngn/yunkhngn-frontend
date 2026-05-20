@@ -13,6 +13,7 @@ import WaterTracker from './water-tracker/WaterTracker';
 import RandomQuote from './random-quote/RandomQuote';
 import JsonFormatter from './json-formatter/JsonFormatter';
 import Base64 from './base64/Base64';
+import UuidGenerator from './uuid-generator/UuidGenerator';
 
 const CATEGORIES = [
   { key: 'food', label: 'Ăn uống', emoji: '🍜' },
@@ -78,6 +79,14 @@ const TOOLS = [
     description: 'Encode hoặc decode Base64 ngay lập tức.',
     category: 'coding',
     Component: Base64,
+  },
+  {
+    id: 'uuid-generator',
+    icon: '🆔',
+    name: 'UUID Generator',
+    description: 'Generate UUID v4. Copy 1 click hoặc batch ×5.',
+    category: 'coding',
+    Component: UuidGenerator,
   },
 ];
 
