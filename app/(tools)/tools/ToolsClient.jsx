@@ -11,6 +11,7 @@ import BMI from './bmi/BMI';
 import SleepCalculator from './sleep-calculator/SleepCalculator';
 import WaterTracker from './water-tracker/WaterTracker';
 import RandomQuote from './random-quote/RandomQuote';
+import JsonFormatter from './json-formatter/JsonFormatter';
 
 const CATEGORIES = [
   { key: 'food', label: 'Ăn uống', emoji: '🍜' },
@@ -60,6 +61,14 @@ const TOOLS = [
     description: 'Quote ngẫu nhiên theo chủ đề: động lực, cuộc sống, coding.',
     category: 'entertainment',
     Component: RandomQuote,
+  },
+  {
+    id: 'json-formatter',
+    icon: '📋',
+    name: 'JSON Formatter',
+    description: 'Paste JSON để format + validate. Copy kết quả 1 click.',
+    category: 'coding',
+    Component: JsonFormatter,
   },
 ];
 
