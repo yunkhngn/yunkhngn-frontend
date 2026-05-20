@@ -17,6 +17,7 @@ import UuidGenerator from './uuid-generator/UuidGenerator';
 import RegexTester from './regex-tester/RegexTester';
 import QrGenerator from './qr-generator/QrGenerator';
 import UnitConverter from './unit-converter/UnitConverter';
+import PasswordGenerator from './password-generator/PasswordGenerator';
 
 const CATEGORIES = [
   { key: 'food', label: 'Ăn uống', emoji: '🍜' },
@@ -114,6 +115,14 @@ const TOOLS = [
     description: 'Đổi đơn vị nhiệt độ, cân nặng, và khoảng cách.',
     category: 'utility',
     Component: UnitConverter,
+  },
+  {
+    id: 'password-generator',
+    icon: '🔐',
+    name: 'Password Generator',
+    description: 'Tạo mật khẩu ngẫu nhiên với tùy chọn độ dài và ký tự.',
+    category: 'utility',
+    Component: PasswordGenerator,
   },
 ];
 
