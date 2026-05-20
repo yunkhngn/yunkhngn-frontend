@@ -16,6 +16,7 @@ import Base64 from './base64/Base64';
 import UuidGenerator from './uuid-generator/UuidGenerator';
 import RegexTester from './regex-tester/RegexTester';
 import QrGenerator from './qr-generator/QrGenerator';
+import UnitConverter from './unit-converter/UnitConverter';
 
 const CATEGORIES = [
   { key: 'food', label: 'Ăn uống', emoji: '🍜' },
@@ -105,6 +106,14 @@ const TOOLS = [
     description: 'Nhập text hoặc URL để tạo QR code. Download PNG.',
     category: 'utility',
     Component: QrGenerator,
+  },
+  {
+    id: 'unit-converter',
+    icon: '📐',
+    name: 'Unit Converter',
+    description: 'Đổi đơn vị nhiệt độ, cân nặng, và khoảng cách.',
+    category: 'utility',
+    Component: UnitConverter,
   },
 ];
 
