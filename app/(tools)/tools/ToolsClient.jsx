@@ -8,6 +8,7 @@ import ToolCard from './ToolCard';
 import WhatToEat from './what-to-eat/WhatToEat';
 import ChromeExtensionCard from './ChromeExtensionCard';
 import BMI from './bmi/BMI';
+import SleepCalculator from './sleep-calculator/SleepCalculator';
 
 const CATEGORIES = [
   { key: 'food', label: 'Ăn uống', emoji: '🍜' },
@@ -33,6 +34,14 @@ const TOOLS = [
     description: 'Nhập chiều cao và cân nặng để tính chỉ số BMI.',
     category: 'health',
     Component: BMI,
+  },
+  {
+    id: 'sleep-calculator',
+    icon: '🌙',
+    name: 'Tính giờ ngủ',
+    description: 'Nhập giờ thức dậy để biết nên đi ngủ lúc mấy giờ.',
+    category: 'health',
+    Component: SleepCalculator,
   },
 ];
 
