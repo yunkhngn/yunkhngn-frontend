@@ -3,7 +3,7 @@
 
 import { motion } from 'framer-motion';
 
-export default function ToolCard({ id, icon, name, description, onClick, badge }) {
+export default function ToolCard({ id, icon: Icon, name, description, onClick, badge }) {
   return (
     <motion.div
       layoutId={`tool-${id}`}
@@ -17,7 +17,7 @@ export default function ToolCard({ id, icon, name, description, onClick, badge }
           {badge}
         </span>
       )}
-      <span className="text-3xl mb-3 block">{icon}</span>
+      {Icon && <Icon className="w-8 h-8 text-foreground mb-3" />}
       <h3 className="font-semibold mb-1 text-foreground">{name}</h3>
       <p className="text-sm text-muted-foreground">{description}</p>
     </motion.div>

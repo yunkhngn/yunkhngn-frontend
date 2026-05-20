@@ -3,7 +3,30 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X } from 'lucide-react';
+import {
+  X,
+  Utensils,
+  Activity,
+  Sparkles,
+  Code,
+  Wrench,
+  ChefHat,
+  Scale,
+  Moon,
+  Droplet,
+  Quote,
+  Braces,
+  Binary,
+  Fingerprint,
+  SearchCode,
+  QrCode,
+  Ruler,
+  KeyRound,
+  Film,
+  Salad,
+  CalendarDays,
+  MoonStar,
+} from 'lucide-react';
 import ToolCard from './ToolCard';
 import WhatToEat from './what-to-eat/WhatToEat';
 import ChromeExtensionCard from './ChromeExtensionCard';
@@ -22,17 +45,17 @@ import MovieSuggest from './movie-suggest/MovieSuggest';
 import CalorieCounter from './calorie-counter/CalorieCounter';
 
 const CATEGORIES = [
-  { key: 'food', label: 'Ăn uống', emoji: '🍜' },
-  { key: 'health', label: 'Sức khoẻ', emoji: '💪' },
-  { key: 'entertainment', label: 'Giải trí', emoji: '🎉' },
-  { key: 'coding', label: 'Coding', emoji: '💻' },
-  { key: 'utility', label: 'Tiện ích', emoji: '🛠' },
+  { key: 'food', label: 'Ăn uống', icon: Utensils },
+  { key: 'health', label: 'Sức khoẻ', icon: Activity },
+  { key: 'entertainment', label: 'Giải trí', icon: Sparkles },
+  { key: 'coding', label: 'Coding', icon: Code },
+  { key: 'utility', label: 'Tiện ích', icon: Wrench },
 ];
 
 const TOOLS = [
   {
     id: 'what-to-eat',
-    icon: '🍜',
+    icon: ChefHat,
     name: 'Hôm nay ăn gì?',
     description: 'Gợi ý món ăn dựa theo thời tiết và giờ hiện tại.',
     category: 'food',
@@ -40,7 +63,7 @@ const TOOLS = [
   },
   {
     id: 'bmi',
-    icon: '⚖️',
+    icon: Scale,
     name: 'Tính BMI',
     description: 'Nhập chiều cao và cân nặng để tính chỉ số BMI.',
     category: 'health',
@@ -48,7 +71,7 @@ const TOOLS = [
   },
   {
     id: 'sleep-calculator',
-    icon: '🌙',
+    icon: Moon,
     name: 'Tính giờ ngủ',
     description: 'Nhập giờ thức dậy để biết nên đi ngủ lúc mấy giờ.',
     category: 'health',
@@ -56,7 +79,7 @@ const TOOLS = [
   },
   {
     id: 'water-tracker',
-    icon: '💧',
+    icon: Droplet,
     name: 'Nhắc uống nước',
     description: 'Nhập cân nặng để tính lượng nước cần uống mỗi ngày.',
     category: 'health',
@@ -64,7 +87,7 @@ const TOOLS = [
   },
   {
     id: 'random-quote',
-    icon: '💬',
+    icon: Quote,
     name: 'Random Quote',
     description: 'Quote ngẫu nhiên theo chủ đề: động lực, cuộc sống, coding.',
     category: 'entertainment',
@@ -72,7 +95,7 @@ const TOOLS = [
   },
   {
     id: 'json-formatter',
-    icon: '📋',
+    icon: Braces,
     name: 'JSON Formatter',
     description: 'Paste JSON để format + validate. Copy kết quả 1 click.',
     category: 'coding',
@@ -80,7 +103,7 @@ const TOOLS = [
   },
   {
     id: 'base64',
-    icon: '🔤',
+    icon: Binary,
     name: 'Base64',
     description: 'Encode hoặc decode Base64 ngay lập tức.',
     category: 'coding',
@@ -88,7 +111,7 @@ const TOOLS = [
   },
   {
     id: 'uuid-generator',
-    icon: '🆔',
+    icon: Fingerprint,
     name: 'UUID Generator',
     description: 'Generate UUID v4. Copy 1 click hoặc batch ×5.',
     category: 'coding',
@@ -96,7 +119,7 @@ const TOOLS = [
   },
   {
     id: 'regex-tester',
-    icon: '🔍',
+    icon: SearchCode,
     name: 'Regex Tester',
     description: 'Nhập pattern + test string để highlight match trực tiếp.',
     category: 'coding',
@@ -104,7 +127,7 @@ const TOOLS = [
   },
   {
     id: 'qr-generator',
-    icon: '📱',
+    icon: QrCode,
     name: 'QR Code Generator',
     description: 'Nhập text hoặc URL để tạo QR code. Download PNG.',
     category: 'utility',
@@ -112,7 +135,7 @@ const TOOLS = [
   },
   {
     id: 'unit-converter',
-    icon: '📐',
+    icon: Ruler,
     name: 'Unit Converter',
     description: 'Đổi đơn vị nhiệt độ, cân nặng, và khoảng cách.',
     category: 'utility',
@@ -120,7 +143,7 @@ const TOOLS = [
   },
   {
     id: 'password-generator',
-    icon: '🔐',
+    icon: KeyRound,
     name: 'Password Generator',
     description: 'Tạo mật khẩu ngẫu nhiên với tùy chọn độ dài và ký tự.',
     category: 'utility',
@@ -128,7 +151,7 @@ const TOOLS = [
   },
   {
     id: 'movie-suggest',
-    icon: '🎬',
+    icon: Film,
     name: 'Gợi ý phim AI',
     description: 'Hỏi AI gợi ý phim dựa trên tâm trạng và thể loại.',
     category: 'entertainment',
@@ -136,7 +159,7 @@ const TOOLS = [
   },
   {
     id: 'calorie-counter',
-    icon: '🥗',
+    icon: Salad,
     name: 'Tính calo ăn uống',
     description: 'Nhập mô tả món ăn để AI ước lượng calo & macros.',
     category: 'health',
@@ -147,14 +170,14 @@ const TOOLS = [
 const CHROME_EXTENSIONS = [
   {
     id: 'fptu-schedule',
-    icon: '🗓',
+    icon: CalendarDays,
     name: 'FPTU Schedule',
     description: 'Quản lý và xuất lịch học, lịch thi, reminder từ FAP.',
     storeUrl: 'https://chromewebstore.google.com/detail/fptu-schedule/obiiippodjlfcmdipfbkneknbakjekfm',
   },
   {
     id: 'better-sleep',
-    icon: '😴',
+    icon: MoonStar,
     name: 'Better Sleep',
     description: 'Sleep planning and tracker.',
     storeUrl: 'https://chromewebstore.google.com/detail/better-sleep/bbeciemkpnopjobcaapiipfolhnninkm',
@@ -210,7 +233,7 @@ export default function ToolsClient() {
         >
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
-              <span className="text-2xl">{selected.icon}</span>
+              {selected.icon && <selected.icon className="w-6 h-6 text-foreground" />}
               <h2 className="text-lg font-semibold">{selected.name}</h2>
             </div>
             <button
@@ -250,19 +273,23 @@ export default function ToolsClient() {
               >
                 Tất cả
               </button>
-              {CATEGORIES.filter((c) => activeCategoryKeys.includes(c.key)).map((cat) => (
-                <button
-                  key={cat.key}
-                  onClick={() => setActiveCategory(cat.key)}
-                  className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-                    activeCategory === cat.key
-                      ? 'bg-foreground text-background'
-                      : 'bg-muted text-muted-foreground hover:bg-accent'
-                  }`}
-                >
-                  {cat.emoji} {cat.label}
-                </button>
-              ))}
+              {CATEGORIES.filter((c) => activeCategoryKeys.includes(c.key)).map((cat) => {
+                const Icon = cat.icon;
+                return (
+                  <button
+                    key={cat.key}
+                    onClick={() => setActiveCategory(cat.key)}
+                    className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium transition-colors ${
+                      activeCategory === cat.key
+                        ? 'bg-foreground text-background'
+                        : 'bg-muted text-muted-foreground hover:bg-accent'
+                    }`}
+                  >
+                    {Icon && <Icon size={14} />}
+                    {cat.label}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
@@ -291,10 +318,12 @@ export default function ToolsClient() {
               {CATEGORIES.filter((c) => activeCategoryKeys.includes(c.key)).map((cat) => {
                 const tools = TOOLS.filter((t) => t.category === cat.key);
                 if (tools.length === 0) return null;
+                const Icon = cat.icon;
                 return (
                   <section key={cat.key}>
-                    <h2 className="text-base font-semibold text-foreground mb-4">
-                      {cat.emoji} {cat.label}
+                    <h2 className="text-base font-semibold text-foreground mb-4 flex items-center gap-2">
+                      {Icon && <Icon size={18} className="text-foreground" />}
+                      {cat.label}
                     </h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                       {tools.map((tool) => (
