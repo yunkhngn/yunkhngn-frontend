@@ -20,6 +20,8 @@ import {
   Scale,
   QrCode,
   KeyRound,
+  Film,
+  Salad,
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -603,6 +605,8 @@ export default function HomeContent({
             { id: 'bmi', icon: Scale, name: 'Tính BMI', description: 'Nhập chiều cao và cân nặng để tính chỉ số BMI.' },
             { id: 'qr-generator', icon: QrCode, name: 'QR Code Generator', description: 'Nhập text hoặc URL để tạo QR code. Download PNG.' },
             { id: 'password-generator', icon: KeyRound, name: 'Password Generator', description: 'Tạo mật khẩu ngẫu nhiên với tùy chọn độ dài và ký tự.' },
+            { id: 'movie-suggest', icon: Film, name: 'Gợi ý phim AI', description: 'Hỏi AI gợi ý phim dựa trên tâm trạng và thể loại.' },
+            { id: 'calorie-counter', icon: Salad, name: 'Tính calo ăn uống', description: 'Nhập mô tả món ăn để AI ước lượng calo & macros.' },
           ].map((tool) => {
             const Icon = tool.icon;
             return (
