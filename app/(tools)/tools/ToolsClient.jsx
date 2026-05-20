@@ -48,6 +48,28 @@ export default function ToolsClient() {
   const [selectedId, setSelectedId] = useState(null);
   const selected = TOOLS.find((t) => t.id === selectedId);
 
+  const [search, setSearch] = useState('');
+  const [activeCategory, setActiveCategory] = useState('all');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedSearch(search), 200);
+    return () => clearTimeout(t);
+  }, [search]);
+
+  const activeCategoryKeys = [...new Set(TOOLS.map((t) => t.category))];
+
+  const filteredTools = TOOLS.filter((tool) => {
+    const matchesCategory = activeCategory === 'all' || tool.category === activeCategory;
+    const matchesSearch =
+      !debouncedSearch ||
+      tool.name.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+      tool.description.toLowerCase().includes(debouncedSearch.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
+
+  const isFiltering = debouncedSearch !== '' || activeCategory !== 'all';
+
   const close = useCallback(() => setSelectedId(null), []);
 
   useEffect(() => {
