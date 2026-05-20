@@ -575,6 +575,51 @@ export default function HomeContent({
         <HomeMasonryGallery photos={galleryPhotos} />
       </section>
 
+      <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+
+      <section className="space-y-8">
+        <div className="flex items-end justify-between">
+          <RevealHeading index={5}>
+            <h2 className="text-4xl md:text-5xl font-bold font-serif">Tools</h2>
+          </RevealHeading>
+          <Link href="/tools" className="text-sm text-muted-foreground hover:text-primary flex items-center gap-1 transition-colors mb-1">
+            Xem tất cả <ArrowRight className="h-4 w-4" />
+          </Link>
+        </div>
+
+        <motion.div
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+          variants={cardContainerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+        >
+          {[
+            { id: 'what-to-eat', icon: '🍜', name: 'Hôm nay ăn gì?', description: 'Gợi ý món ăn dựa theo thời tiết và giờ hiện tại.' },
+          ].map((tool) => (
+            <motion.div key={tool.id} variants={cardItemVariants}>
+              <Link
+                href="/tools"
+                className="group flex flex-col gap-3 rounded-xl border border-border bg-card p-5 hover:bg-accent hover:border-border/80 transition-all duration-200"
+              >
+                <span className="text-3xl">{tool.icon}</span>
+                <div>
+                  <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors mb-1">
+                    {tool.name}
+                  </h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{tool.description}</p>
+                </div>
+                <span className="text-xs text-muted-foreground flex items-center gap-1 mt-auto opacity-0 group-hover:opacity-100 transition-opacity">
+                  Mở tool <ArrowRight className="h-3 w-3" />
+                </span>
+              </Link>
+            </motion.div>
+          ))}
+        </motion.div>
+      </section>
+
+      <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+
       <section className="w-full">
         <a
           href="https://www.buymeacoffee.com/yunkhngn"
