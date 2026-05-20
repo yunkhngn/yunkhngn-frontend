@@ -12,6 +12,7 @@ import SleepCalculator from './sleep-calculator/SleepCalculator';
 import WaterTracker from './water-tracker/WaterTracker';
 import RandomQuote from './random-quote/RandomQuote';
 import JsonFormatter from './json-formatter/JsonFormatter';
+import Base64 from './base64/Base64';
 
 const CATEGORIES = [
   { key: 'food', label: 'Ăn uống', emoji: '🍜' },
@@ -69,6 +70,14 @@ const TOOLS = [
     description: 'Paste JSON để format + validate. Copy kết quả 1 click.',
     category: 'coding',
     Component: JsonFormatter,
+  },
+  {
+    id: 'base64',
+    icon: '🔤',
+    name: 'Base64',
+    description: 'Encode hoặc decode Base64 ngay lập tức.',
+    category: 'coding',
+    Component: Base64,
   },
 ];
 
