@@ -19,6 +19,7 @@ import QrGenerator from './qr-generator/QrGenerator';
 import UnitConverter from './unit-converter/UnitConverter';
 import PasswordGenerator from './password-generator/PasswordGenerator';
 import MovieSuggest from './movie-suggest/MovieSuggest';
+import CalorieCounter from './calorie-counter/CalorieCounter';
 
 const CATEGORIES = [
   { key: 'food', label: 'Ăn uống', emoji: '🍜' },
@@ -132,6 +133,14 @@ const TOOLS = [
     description: 'Hỏi AI gợi ý phim dựa trên tâm trạng và thể loại.',
     category: 'entertainment',
     Component: MovieSuggest,
+  },
+  {
+    id: 'calorie-counter',
+    icon: '🥗',
+    name: 'Tính calo ăn uống',
+    description: 'Nhập mô tả món ăn để AI ước lượng calo & macros.',
+    category: 'health',
+    Component: CalorieCounter,
   },
 ];
 
