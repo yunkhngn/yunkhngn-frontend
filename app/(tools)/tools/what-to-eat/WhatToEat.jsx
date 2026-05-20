@@ -1,31 +1,21 @@
-// yunkhngn-fe/app/(tools)/tools/what-to-eat/WhatToEat.jsx
 'use client';
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MapPin, Loader2, RefreshCw } from 'lucide-react';
+import { Loader2, RefreshCw, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 
 const MEAL_EMOJI = { sáng: '🌅', trưa: '☀️', chiều: '🌤️', tối: '🌙' };
 
-const ERROR_MESSAGES = {
-  LOCATION_DENIED:
-    'Bạn chưa cho phép truy cập vị trí. Vui lòng bật lại trong cài đặt trình duyệt.',
-  LOCATION_UNAVAILABLE:
-    'Không xác định được vị trí. Kiểm tra Location Services trên máy và thử lại.',
-  LOCATION_TIMEOUT: 'Lấy vị trí quá lâu. Thử lại nhé.',
-  NETWORK_ERROR: 'Không kết nối được. Kiểm tra mạng và thử lại.',
-  AI_ERROR: 'AI đang bận. Thử lại sau nhé.',
-};
-
 export default function WhatToEat() {
   const [toolState, setToolState] = useState('idle');
-  const [coords, setCoords] = useState(null);
+  const [location, setLocation] = useState('');
   const [result, setResult] = useState(null);
-  const [errorKey, setErrorKey] = useState(null);
+  const [errorMsg, setErrorMsg] = useState('');
 
-  const callSuggest = async (c) => {
+  const callSuggest = async (loc) => {
     setToolState('loading');
+    setErrorMsg('');
     try {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/ai/tools/what-to-eat`,
@@ -33,53 +23,32 @@ export default function WhatToEat() {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            lat: c.lat,
-            lon: c.lon,
+            location: loc,
             timezone: 'Asia/Ho_Chi_Minh',
           }),
         },
       );
-      if (!res.ok) throw new Error('AI_ERROR');
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.detail || 'AI_ERROR');
+      }
       const data = await res.json();
       setResult(data);
       setToolState('success');
-    } catch {
-      setErrorKey('AI_ERROR');
+    } catch (e) {
+      setErrorMsg(
+        e.message && e.message !== 'AI_ERROR'
+          ? 'Không tìm thấy địa điểm này. Thử tên thành phố khác nhé.'
+          : 'AI đang bận. Thử lại sau nhé.',
+      );
       setToolState('error');
     }
   };
 
-  const locate = () => {
-    setToolState('locating');
-    setErrorKey(null);
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const c = { lat: pos.coords.latitude, lon: pos.coords.longitude };
-        setCoords(c);
-        callSuggest(c);
-      },
-      (err) => {
-        const key =
-          err.code === 1
-            ? 'LOCATION_DENIED'
-            : err.code === 3
-              ? 'LOCATION_TIMEOUT'
-              : 'LOCATION_UNAVAILABLE';
-        setErrorKey(key);
-        setToolState('error');
-      },
-      { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 },
-    );
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (location.trim()) callSuggest(location.trim());
   };
-
-  const retry = () => {
-    if (errorKey === 'LOCATION_DENIED') {
-      setToolState('idle');
-    } else {
-      locate();
-    }
-  };
-
 
   return (
     <div className="min-h-[260px] flex flex-col">
@@ -93,17 +62,26 @@ export default function WhatToEat() {
             className="flex flex-col items-center justify-center flex-1 gap-4 py-8"
           >
             <p className="text-sm text-muted-foreground text-center max-w-xs">
-              Mình cần biết vị trí của bạn để lấy thời tiết và gợi ý món phù
-              hợp nhất.
+              Nhập tên thành phố hoặc quận để mình gợi ý món phù hợp thời tiết
+              hôm nay.
             </p>
-            <Button onClick={locate} className="gap-2">
-              <MapPin size={16} />
-              Cho tôi biết vị trí
-            </Button>
+            <form onSubmit={handleSubmit} className="flex gap-2 w-full max-w-xs">
+              <input
+                type="text"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                placeholder="Hà Nội, Quận 1..."
+                className="flex-1 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                autoFocus
+              />
+              <Button type="submit" size="icon" disabled={!location.trim()}>
+                <ArrowRight size={16} />
+              </Button>
+            </form>
           </motion.div>
         )}
 
-        {(toolState === 'locating' || toolState === 'loading') && (
+        {toolState === 'loading' && (
           <motion.div
             key="loading"
             initial={{ opacity: 0 }}
@@ -112,11 +90,7 @@ export default function WhatToEat() {
             className="flex flex-col items-center justify-center flex-1 gap-3 py-8"
           >
             <Loader2 size={28} className="animate-spin text-muted-foreground" />
-            <p className="text-sm text-muted-foreground">
-              {toolState === 'locating'
-                ? 'Đang lấy vị trí...'
-                : 'Đang hỏi AI...'}
-            </p>
+            <p className="text-sm text-muted-foreground">Đang hỏi AI...</p>
           </motion.div>
         )}
 
@@ -128,7 +102,6 @@ export default function WhatToEat() {
             exit={{ opacity: 0 }}
             className="flex flex-col md:flex-row gap-6 py-2"
           >
-            {/* Context panel */}
             <div className="flex flex-wrap gap-2 md:flex-col md:gap-2 md:min-w-[160px]">
               <span className="inline-flex items-center gap-1.5 text-xs bg-muted rounded-full px-3 py-1.5 text-muted-foreground">
                 {MEAL_EMOJI[result.context.meal_type]} Bữa{' '}
@@ -143,20 +116,29 @@ export default function WhatToEat() {
               </span>
             </div>
 
-            {/* Suggestion */}
             <div className="flex-1">
               <p className="text-sm leading-relaxed whitespace-pre-line text-foreground">
                 {result.suggestion}
               </p>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => callSuggest(coords)}
-                className="mt-4 gap-2 text-muted-foreground"
-              >
-                <RefreshCw size={14} />
-                Gợi ý lại
-              </Button>
+              <div className="flex gap-2 mt-4">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => callSuggest(location)}
+                  className="gap-2 text-muted-foreground"
+                >
+                  <RefreshCw size={14} />
+                  Gợi ý lại
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setToolState('idle')}
+                  className="text-muted-foreground"
+                >
+                  Đổi địa điểm
+                </Button>
+              </div>
             </div>
           </motion.div>
         )}
@@ -170,9 +152,9 @@ export default function WhatToEat() {
             className="flex flex-col items-center justify-center flex-1 gap-4 py-8"
           >
             <p className="text-sm text-muted-foreground text-center max-w-xs">
-              {ERROR_MESSAGES[errorKey] ?? ERROR_MESSAGES.AI_ERROR}
+              {errorMsg}
             </p>
-            <Button variant="outline" size="sm" onClick={retry}>
+            <Button variant="outline" size="sm" onClick={() => setToolState('idle')}>
               Thử lại
             </Button>
           </motion.div>
