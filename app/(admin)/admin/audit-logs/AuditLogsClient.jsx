@@ -326,7 +326,7 @@ export default function AuditLogsClient() {
                 {logs.map((log) => {
                   const created = new Date(log.createdAt);
                   const details = parseDetails(log.details);
-                  const entityTitle = details?.title;
+                  const entityTitle = details?.title ?? details?.settingTitle;
                   const adminLink = entityAdminLink(log.entity, log.entityId, details?.slug);
                   return (
                     <TableRow
@@ -436,7 +436,7 @@ export default function AuditLogsClient() {
         <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-y-auto">
           {selectedLog && (() => {
             const dlDetails = parseDetails(selectedLog.details);
-            const dlTitle = dlDetails?.title;
+            const dlTitle = dlDetails?.title ?? dlDetails?.settingTitle;
             const dlLink = entityAdminLink(selectedLog.entity, selectedLog.entityId, dlDetails?.slug);
             return (
             <>

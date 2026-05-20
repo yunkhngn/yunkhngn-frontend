@@ -333,7 +333,7 @@ export default function HomeContent({
             return (
               <motion.div key={blog.id} variants={cardItemVariants}>
                 <TiltCard className="h-full">
-                  <Link href={`/blog/${blog.slug || blog.id}`} className="group flex flex-col space-y-4 block h-full">
+                  <Link href={`/blog/${blog.slug || blog.id}`} className="group flex flex-col space-y-4 block h-full p-0 hover:p-2 transition-[padding] duration-300 rounded-2xl">
                     <div className="aspect-[4/3] relative rounded-2xl overflow-hidden bg-muted">
                       {blog.thumbnail && (
                         <Image
