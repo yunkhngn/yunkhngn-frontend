@@ -18,6 +18,7 @@ import RegexTester from './regex-tester/RegexTester';
 import QrGenerator from './qr-generator/QrGenerator';
 import UnitConverter from './unit-converter/UnitConverter';
 import PasswordGenerator from './password-generator/PasswordGenerator';
+import MovieSuggest from './movie-suggest/MovieSuggest';
 
 const CATEGORIES = [
   { key: 'food', label: 'Ăn uống', emoji: '🍜' },
@@ -123,6 +124,14 @@ const TOOLS = [
     description: 'Tạo mật khẩu ngẫu nhiên với tùy chọn độ dài và ký tự.',
     category: 'utility',
     Component: PasswordGenerator,
+  },
+  {
+    id: 'movie-suggest',
+    icon: '🎬',
+    name: 'Gợi ý phim AI',
+    description: 'Hỏi AI gợi ý phim dựa trên tâm trạng và thể loại.',
+    category: 'entertainment',
+    Component: MovieSuggest,
   },
 ];
 
