@@ -353,16 +353,16 @@
     }
 }
 
-/* Smooth theme transitions for core elements */
-body,
-.bg-background,
-.bg-card,
-.bg-muted,
-.bg-accent,
-.border,
-.border-border,
-.text-foreground,
-.text-muted-foreground {
+/* Smooth theme transitions for core elements — only after hydration to prevent initial load flash */
+html.theme-ready body,
+html.theme-ready .bg-background,
+html.theme-ready .bg-card,
+html.theme-ready .bg-muted,
+html.theme-ready .bg-accent,
+html.theme-ready .border,
+html.theme-ready .border-border,
+html.theme-ready .text-foreground,
+html.theme-ready .text-muted-foreground {
     transition: background-color 300ms cubic-bezier(0.4, 0, 0.2, 1),
                 border-color 300ms cubic-bezier(0.4, 0, 0.2, 1),
                 color 300ms cubic-bezier(0.4, 0, 0.2, 1),

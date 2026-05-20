@@ -30,14 +30,18 @@ export default function WhatToEat() {
       );
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
-        throw new Error(err.detail || 'AI_ERROR');
+        const detail = err.detail || err.message || '';
+        if (res.status === 400 || detail.toLowerCase().includes('location')) {
+          throw new Error('LOCATION_ERROR');
+        }
+        throw new Error('AI_ERROR');
       }
       const data = await res.json();
       setResult(data);
       setToolState('success');
     } catch (e) {
       setErrorMsg(
-        e.message && e.message !== 'AI_ERROR'
+        e.message === 'LOCATION_ERROR'
           ? 'Không tìm thấy địa điểm này. Thử tên thành phố khác nhé.'
           : 'AI đang bận. Thử lại sau nhé.',
       );
