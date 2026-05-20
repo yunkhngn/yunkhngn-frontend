@@ -7,6 +7,7 @@ import { X } from 'lucide-react';
 import ToolCard from './ToolCard';
 import WhatToEat from './what-to-eat/WhatToEat';
 import ChromeExtensionCard from './ChromeExtensionCard';
+import BMI from './bmi/BMI';
 
 const CATEGORIES = [
   { key: 'food', label: 'Ăn uống', emoji: '🍜' },
@@ -24,6 +25,14 @@ const TOOLS = [
     description: 'Gợi ý món ăn dựa theo thời tiết và giờ hiện tại.',
     category: 'food',
     Component: WhatToEat,
+  },
+  {
+    id: 'bmi',
+    icon: '⚖️',
+    name: 'Tính BMI',
+    description: 'Nhập chiều cao và cân nặng để tính chỉ số BMI.',
+    category: 'health',
+    Component: BMI,
   },
 ];
 
