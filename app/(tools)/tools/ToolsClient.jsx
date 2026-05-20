@@ -9,6 +9,7 @@ import WhatToEat from './what-to-eat/WhatToEat';
 import ChromeExtensionCard from './ChromeExtensionCard';
 import BMI from './bmi/BMI';
 import SleepCalculator from './sleep-calculator/SleepCalculator';
+import WaterTracker from './water-tracker/WaterTracker';
 
 const CATEGORIES = [
   { key: 'food', label: 'Ăn uống', emoji: '🍜' },
@@ -42,6 +43,14 @@ const TOOLS = [
     description: 'Nhập giờ thức dậy để biết nên đi ngủ lúc mấy giờ.',
     category: 'health',
     Component: SleepCalculator,
+  },
+  {
+    id: 'water-tracker',
+    icon: '💧',
+    name: 'Nhắc uống nước',
+    description: 'Nhập cân nặng để tính lượng nước cần uống mỗi ngày.',
+    category: 'health',
+    Component: WaterTracker,
   },
 ];
 
