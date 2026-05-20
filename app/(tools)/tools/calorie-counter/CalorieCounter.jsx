@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Loader2, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
+import { readNestJson } from '@/lib/api/readJson';
 
 export default function CalorieCounter() {
   const [query, setQuery] = useState('');
@@ -26,7 +27,7 @@ export default function CalorieCounter() {
         },
       );
       if (!res.ok) throw new Error();
-      const data = await res.json();
+      const data = await readNestJson(res);
       setResult(data);
       setToolState('success');
     } catch {
