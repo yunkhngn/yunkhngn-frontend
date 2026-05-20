@@ -596,6 +596,9 @@ export default function HomeContent({
         >
           {[
             { id: 'what-to-eat', icon: '🍜', name: 'Hôm nay ăn gì?', description: 'Gợi ý món ăn dựa theo thời tiết và giờ hiện tại.' },
+            { id: 'bmi', icon: '⚖️', name: 'Tính BMI', description: 'Nhập chiều cao và cân nặng để tính chỉ số BMI.' },
+            { id: 'qr-generator', icon: '📱', name: 'QR Code Generator', description: 'Nhập text hoặc URL để tạo QR code. Download PNG.' },
+            { id: 'password-generator', icon: '🔐', name: 'Password Generator', description: 'Tạo mật khẩu ngẫu nhiên với tùy chọn độ dài và ký tự.' },
           ].map((tool) => (
             <motion.div key={tool.id} variants={cardItemVariants}>
               <Link
