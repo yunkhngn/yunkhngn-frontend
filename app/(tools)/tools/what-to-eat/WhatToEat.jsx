@@ -2,11 +2,12 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Loader2, RefreshCw, ArrowRight } from 'lucide-react';
+import { Loader2, RefreshCw, ArrowRight, Sunrise, Sun, Sunset, Moon, MapPin, Thermometer } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { readNestJson } from '@/lib/api/readJson';
+import ReactMarkdown from 'react-markdown';
 
-const MEAL_EMOJI = { sáng: '🌅', trưa: '☀️', chiều: '🌤️', tối: '🌙' };
+const MEAL_ICONS = { sáng: Sunrise, trưa: Sun, chiều: Sunset, tối: Moon };
 
 export default function WhatToEat() {
   const [toolState, setToolState] = useState('idle');
@@ -54,6 +55,8 @@ export default function WhatToEat() {
     e.preventDefault();
     if (location.trim()) callSuggest(location.trim());
   };
+
+  const MealIcon = result?.context?.meal_type ? (MEAL_ICONS[result.context.meal_type] || Sun) : Sun;
 
   return (
     <div className="min-h-[260px] flex flex-col">
@@ -109,22 +112,33 @@ export default function WhatToEat() {
           >
             <div className="flex flex-wrap gap-2 md:flex-col md:gap-2 md:min-w-[160px]">
               <span className="inline-flex items-center gap-1.5 text-xs bg-muted rounded-full px-3 py-1.5 text-muted-foreground">
-                {MEAL_EMOJI[result.context.meal_type]} Bữa{' '}
-                {result.context.meal_type} · {result.context.current_time_vn}
+                <MealIcon size={14} className="shrink-0" />
+                Bữa {result.context.meal_type} · {result.context.current_time_vn}
               </span>
               <span className="inline-flex items-center gap-1.5 text-xs bg-muted rounded-full px-3 py-1.5 text-muted-foreground">
-                📍 {result.context.location_name}
+                <MapPin size={14} className="shrink-0" />
+                {result.context.location_name}
               </span>
               <span className="inline-flex items-center gap-1.5 text-xs bg-muted rounded-full px-3 py-1.5 text-muted-foreground">
-                🌡️ {result.context.temperature_c.toFixed(0)}°C ·{' '}
+                <Thermometer size={14} className="shrink-0" />
+                {result.context.temperature_c.toFixed(0)}°C ·{' '}
                 {result.context.weather_description}
               </span>
             </div>
 
-            <div className="flex-1">
-              <p className="text-sm leading-relaxed whitespace-pre-line text-foreground">
+            <div className="flex-1 text-sm text-foreground">
+              <ReactMarkdown
+                components={{
+                  p: ({ children }) => <p className="mb-3 last:mb-0 leading-relaxed">{children}</p>,
+                  ul: ({ children }) => <ul className="list-disc pl-5 my-3 space-y-1.5">{children}</ul>,
+                  ol: ({ children }) => <ol className="list-decimal pl-5 my-3 space-y-1.5">{children}</ol>,
+                  li: ({ children }) => <li className="leading-relaxed">{children}</li>,
+                  strong: ({ children }) => <strong className="font-semibold text-foreground">{children}</strong>,
+                  em: ({ children }) => <em className="italic">{children}</em>,
+                }}
+              >
                 {result.suggestion}
-              </p>
+              </ReactMarkdown>
               <div className="flex gap-2 mt-4">
                 <Button
                   variant="ghost"
