@@ -15,7 +15,7 @@ git push origin dev
 
 # Create PR via GitHub CLI
 gh pr create --base main --head dev --title "$LATEST_COMMIT" --body "Automated PR from dev to main." || {
-    echo "⚠️ PR creation via gh failed (could already exist)."
+    echo "PR creation via gh failed (could already exist)."
 }
 
 # Merge PR via GitHub CLI
