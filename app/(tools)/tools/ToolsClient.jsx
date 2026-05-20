@@ -10,6 +10,7 @@ import ChromeExtensionCard from './ChromeExtensionCard';
 import BMI from './bmi/BMI';
 import SleepCalculator from './sleep-calculator/SleepCalculator';
 import WaterTracker from './water-tracker/WaterTracker';
+import RandomQuote from './random-quote/RandomQuote';
 
 const CATEGORIES = [
   { key: 'food', label: 'Ăn uống', emoji: '🍜' },
@@ -51,6 +52,14 @@ const TOOLS = [
     description: 'Nhập cân nặng để tính lượng nước cần uống mỗi ngày.',
     category: 'health',
     Component: WaterTracker,
+  },
+  {
+    id: 'random-quote',
+    icon: '💬',
+    name: 'Random Quote',
+    description: 'Quote ngẫu nhiên theo chủ đề: động lực, cuộc sống, coding.',
+    category: 'entertainment',
+    Component: RandomQuote,
   },
 ];
 
