@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Loader2, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
+import { readNestJson } from '@/lib/api/readJson';
 
 const MOODS = ['Vui vẻ', 'Buồn bã', 'Căng thẳng', 'Tò mò', 'Lãng mạn', 'Chán nản'];
 const GENRES = ['Hành động', 'Hài hước', 'Kinh dị', 'Tình cảm', 'Viễn tưởng', 'Tâm lý'];
@@ -40,7 +41,7 @@ export default function MovieSuggest() {
         },
       );
       if (!res.ok) throw new Error();
-      const data = await res.json();
+      const data = await readNestJson(res);
       setResult(data);
       setToolState('success');
     } catch {

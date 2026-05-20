@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Loader2, RefreshCw, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
+import { readNestJson } from '@/lib/api/readJson';
 
 const MEAL_EMOJI = { sáng: '🌅', trưa: '☀️', chiều: '🌤️', tối: '🌙' };
 
@@ -36,7 +37,7 @@ export default function WhatToEat() {
         }
         throw new Error('AI_ERROR');
       }
-      const data = await res.json();
+      const data = await readNestJson(res);
       setResult(data);
       setToolState('success');
     } catch (e) {
