@@ -3,9 +3,10 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Loader2, RefreshCw } from 'lucide-react';
+import { Loader2, RefreshCw, Salad } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { readNestJson } from '@/lib/api/readJson';
+import ReactMarkdown from 'react-markdown';
 
 export default function CalorieCounter() {
   const [query, setQuery] = useState('');
@@ -63,8 +64,8 @@ export default function CalorieCounter() {
                 rows={3}
                 className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring resize-y"
               />
-              <Button type="submit" className="w-full" disabled={!query.trim()}>
-                Tính Calo 🥗
+              <Button type="submit" className="w-full gap-2" disabled={!query.trim()}>
+                Tính Calo <Salad size={16} />
               </Button>
             </form>
           </motion.div>
@@ -91,8 +92,25 @@ export default function CalorieCounter() {
             exit={{ opacity: 0 }}
             className="space-y-4"
           >
-            <div className="text-sm leading-relaxed whitespace-pre-line text-foreground markdown-content">
-              {result.suggestion}
+            <div className="text-sm text-foreground">
+              <ReactMarkdown
+                components={{
+                  p: ({ children }) => <p className="mb-3 last:mb-0 leading-relaxed">{children}</p>,
+                  ul: ({ children }) => <ul className="list-disc pl-5 my-3 space-y-1.5">{children}</ul>,
+                  ol: ({ children }) => <ol className="list-decimal pl-5 my-3 space-y-1.5">{children}</ol>,
+                  li: ({ children }) => <li className="leading-relaxed">{children}</li>,
+                  strong: ({ children }) => <strong className="font-semibold text-foreground">{children}</strong>,
+                  em: ({ children }) => <em className="italic">{children}</em>,
+                  table: ({ children }) => <div className="overflow-x-auto my-3"><table className="min-w-full border-collapse border border-border text-left text-xs">{children}</table></div>,
+                  thead: ({ children }) => <thead className="bg-muted text-muted-foreground uppercase font-semibold">{children}</thead>,
+                  tbody: ({ children }) => <tbody className="divide-y divide-border">{children}</tbody>,
+                  tr: ({ children }) => <tr className="hover:bg-muted/30 transition-colors">{children}</tr>,
+                  th: ({ children }) => <th className="px-3 py-2 border border-border font-medium">{children}</th>,
+                  td: ({ children }) => <td className="px-3 py-2 border border-border">{children}</td>,
+                }}
+              >
+                {result.suggestion}
+              </ReactMarkdown>
             </div>
             <div className="flex gap-2">
               <Button

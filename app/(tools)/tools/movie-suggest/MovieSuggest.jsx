@@ -3,9 +3,10 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Loader2, RefreshCw } from 'lucide-react';
+import { Loader2, RefreshCw, Film } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { readNestJson } from '@/lib/api/readJson';
+import ReactMarkdown from 'react-markdown';
 
 const MOODS = ['Vui vẻ', 'Buồn bã', 'Căng thẳng', 'Tò mò', 'Lãng mạn', 'Chán nản'];
 const GENRES = ['Hành động', 'Hài hước', 'Kinh dị', 'Tình cảm', 'Viễn tưởng', 'Tâm lý'];
@@ -100,8 +101,8 @@ export default function MovieSuggest() {
                 })}
               </div>
             </div>
-            <Button onClick={getSuggestion} className="w-full" disabled={!mood}>
-              Gợi ý phim 🎬
+            <Button onClick={getSuggestion} className="w-full gap-2" disabled={!mood}>
+              Gợi ý phim <Film size={16} />
             </Button>
           </motion.div>
         )}
@@ -127,9 +128,20 @@ export default function MovieSuggest() {
             exit={{ opacity: 0 }}
             className="space-y-4"
           >
-            <p className="text-sm leading-relaxed whitespace-pre-line text-foreground">
-              {result.suggestion}
-            </p>
+            <div className="text-sm text-foreground">
+              <ReactMarkdown
+                components={{
+                  p: ({ children }) => <p className="mb-3 last:mb-0 leading-relaxed">{children}</p>,
+                  ul: ({ children }) => <ul className="list-disc pl-5 my-3 space-y-1.5">{children}</ul>,
+                  ol: ({ children }) => <ol className="list-decimal pl-5 my-3 space-y-1.5">{children}</ol>,
+                  li: ({ children }) => <li className="leading-relaxed">{children}</li>,
+                  strong: ({ children }) => <strong className="font-semibold text-foreground">{children}</strong>,
+                  em: ({ children }) => <em className="italic">{children}</em>,
+                }}
+              >
+                {result.suggestion}
+              </ReactMarkdown>
+            </div>
             <div className="flex gap-2">
               <Button
                 variant="ghost"
