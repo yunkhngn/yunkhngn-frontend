@@ -16,6 +16,10 @@ import {
   ArrowRight,
   LayoutGrid,
   Coffee,
+  ChefHat,
+  Scale,
+  QrCode,
+  KeyRound,
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -595,29 +599,32 @@ export default function HomeContent({
           viewport={{ once: true }}
         >
           {[
-            { id: 'what-to-eat', icon: '🍜', name: 'Hôm nay ăn gì?', description: 'Gợi ý món ăn dựa theo thời tiết và giờ hiện tại.' },
-            { id: 'bmi', icon: '⚖️', name: 'Tính BMI', description: 'Nhập chiều cao và cân nặng để tính chỉ số BMI.' },
-            { id: 'qr-generator', icon: '📱', name: 'QR Code Generator', description: 'Nhập text hoặc URL để tạo QR code. Download PNG.' },
-            { id: 'password-generator', icon: '🔐', name: 'Password Generator', description: 'Tạo mật khẩu ngẫu nhiên với tùy chọn độ dài và ký tự.' },
-          ].map((tool) => (
-            <motion.div key={tool.id} variants={cardItemVariants}>
-              <Link
-                href="/tools"
-                className="group flex flex-col gap-3 rounded-xl border border-border bg-card p-5 hover:bg-accent hover:border-border/80 transition-all duration-200"
-              >
-                <span className="text-3xl">{tool.icon}</span>
-                <div>
-                  <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors mb-1">
-                    {tool.name}
-                  </h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{tool.description}</p>
-                </div>
-                <span className="text-xs text-muted-foreground flex items-center gap-1 mt-auto opacity-0 group-hover:opacity-100 transition-opacity">
-                  Mở tool <ArrowRight className="h-3 w-3" />
-                </span>
-              </Link>
-            </motion.div>
-          ))}
+            { id: 'what-to-eat', icon: ChefHat, name: 'Hôm nay ăn gì?', description: 'Gợi ý món ăn dựa theo thời tiết và giờ hiện tại.' },
+            { id: 'bmi', icon: Scale, name: 'Tính BMI', description: 'Nhập chiều cao và cân nặng để tính chỉ số BMI.' },
+            { id: 'qr-generator', icon: QrCode, name: 'QR Code Generator', description: 'Nhập text hoặc URL để tạo QR code. Download PNG.' },
+            { id: 'password-generator', icon: KeyRound, name: 'Password Generator', description: 'Tạo mật khẩu ngẫu nhiên với tùy chọn độ dài và ký tự.' },
+          ].map((tool) => {
+            const Icon = tool.icon;
+            return (
+              <motion.div key={tool.id} variants={cardItemVariants}>
+                <Link
+                  href="/tools"
+                  className="group flex flex-col gap-3 rounded-xl border border-border bg-card p-5 hover:bg-accent hover:border-border/80 transition-all duration-200"
+                >
+                  {Icon && <Icon className="w-8 h-8 text-foreground mb-1 group-hover:text-primary transition-colors" />}
+                  <div>
+                    <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors mb-1">
+                      {tool.name}
+                    </h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">{tool.description}</p>
+                  </div>
+                  <span className="text-xs text-muted-foreground flex items-center gap-1 mt-auto opacity-0 group-hover:opacity-100 transition-opacity">
+                    Mở tool <ArrowRight className="h-3 w-3" />
+                  </span>
+                </Link>
+              </motion.div>
+            );
+          })}
         </motion.div>
       </section>
 
