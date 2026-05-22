@@ -139,6 +139,90 @@ export default function PhotoManager() {
     useEffect(() => { fetchPhotos(1); }, [fetchPhotos]);
     useEffect(() => { fetchAlbums(); }, []);
 
+    const startPolling = useCallback((initialStatus = null) => {
+        setLocketLoading(true);
+        if (initialStatus && !initialStatus.isRunning) {
+            setLocketLoading(false);
+            if (initialStatus.lastResult?.error) {
+                setLocketResult({ ok: false, error: initialStatus.lastResult.error });
+                toast.error(initialStatus.lastResult.error);
+            } else if (initialStatus.lastResult) {
+                setLocketResult({ ok: true, imported: initialStatus.lastResult.imported, skipped: initialStatus.lastResult.skipped });
+                toast.success(`Backup xong: +${initialStatus.lastResult.imported} ảnh mới`);
+                fetchPhotos(1);
+            }
+            return;
+        }
+
+        let consecutiveErrors = 0;
+        const poll = async () => {
+            try {
+                const t = await user.getIdToken();
+                const r = await fetch(`${API_URL}/locket-backup/status`, {
+                    headers: { Authorization: `Bearer ${t}` },
+                });
+                if (!r.ok) throw new Error(`HTTP error! status: ${r.status}`);
+                const d = await r.json();
+                const status = d.data ?? d;
+                
+                consecutiveErrors = 0;
+                
+                if (!status.isRunning) {
+                    setLocketLoading(false);
+                    if (status.lastResult?.error) {
+                        setLocketResult({ ok: false, error: status.lastResult.error });
+                        toast.error(status.lastResult.error);
+                    } else if (status.lastResult) {
+                        setLocketResult({ ok: true, imported: status.lastResult.imported, skipped: status.lastResult.skipped });
+                        toast.success(`Backup xong: +${status.lastResult.imported} ảnh mới`);
+                        fetchPhotos(1);
+                    }
+                    return;
+                }
+            } catch (err) {
+                console.error('Locket backup polling error:', err);
+                consecutiveErrors++;
+                if (consecutiveErrors >= 5) {
+                    setLocketLoading(false);
+                    toast.error('Mất kết nối với dịch vụ backup');
+                    return;
+                }
+            }
+            setTimeout(poll, 3000);
+        };
+        setTimeout(poll, 3000);
+    }, [user, fetchPhotos]);
+
+    // Check backup status on mount
+    useEffect(() => {
+        const checkBackupOnMount = async () => {
+            if (!user) return;
+            try {
+                const token = await user.getIdToken();
+                const res = await fetch(`${API_URL}/locket-backup/status`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                if (res.ok) {
+                    const statusData = await res.json();
+                    const status = statusData.data ?? statusData;
+                    if (status.isRunning) {
+                        startPolling(status);
+                    } else if (status.lastResult) {
+                        setLocketResult({
+                            ok: !status.lastResult.error,
+                            imported: status.lastResult.imported,
+                            skipped: status.lastResult.skipped,
+                            error: status.lastResult.error
+                        });
+                    }
+                }
+            } catch (err) {
+                console.error('Failed to check backup status on mount:', err);
+            }
+        };
+        checkBackupOnMount();
+    }, [user, startPolling]);
+
     // File handling
     const processFiles = async (files) => {
         if (!files || files.length === 0) return;
@@ -173,58 +257,39 @@ export default function PhotoManager() {
     };
 
     const handleLocketBackup = async () => {
-        const token = await user.getIdToken();
+        if (!user) return;
+        
+        try {
+            const token = await user.getIdToken();
 
-        // Check if already running before triggering
-        const statusRes = await fetch(`${API_URL}/locket-backup/status`, {
-            headers: { Authorization: `Bearer ${token}` },
-        });
-        const statusData = await statusRes.json();
-        if (statusData.data?.isRunning) {
-            toast.info('Backup đang chạy, vui lòng chờ...');
-            setLocketLoading(true);
-        } else {
-            // Fire the backup (202 — backend runs async)
-            const res = await fetch(`${API_URL}/locket-backup/run`, {
-                method: 'POST',
+            // Check if already running before triggering
+            const statusRes = await fetch(`${API_URL}/locket-backup/status`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
-            if (!res.ok) {
-                const err = await res.json();
-                toast.error(err?.message || 'Không thể bắt đầu backup');
-                return;
-            }
-            setLocketLoading(true);
-            setLocketResult(null);
-        }
-
-        // Poll /status until done
-        const poll = async () => {
-            try {
-                const t = await user.getIdToken();
-                const r = await fetch(`${API_URL}/locket-backup/status`, {
-                    headers: { Authorization: `Bearer ${t}` },
+            const statusData = await statusRes.json();
+            const status = statusData.data ?? statusData;
+            
+            if (status.isRunning) {
+                toast.info('Backup đang chạy, vui lòng chờ...');
+                startPolling(status);
+            } else {
+                // Fire the backup (202 — backend runs async)
+                const res = await fetch(`${API_URL}/locket-backup/run`, {
+                    method: 'POST',
+                    headers: { Authorization: `Bearer ${token}` },
                 });
-                const d = await r.json();
-                const status = d.data ?? d;
-                if (!status.isRunning) {
-                    setLocketLoading(false);
-                    if (status.lastResult?.error) {
-                        setLocketResult({ ok: false, error: status.lastResult.error });
-                        toast.error(status.lastResult.error);
-                    } else if (status.lastResult) {
-                        setLocketResult({ ok: true, imported: status.lastResult.imported, skipped: status.lastResult.skipped });
-                        toast.success(`Backup xong: +${status.lastResult.imported} ảnh mới`);
-                        if (status.lastResult.imported > 0) fetchPhotos(1);
-                    }
+                if (!res.ok) {
+                    const err = await res.json();
+                    toast.error(err?.message || 'Không thể bắt đầu backup');
                     return;
                 }
-            } catch {
-                // ignore transient poll error
+                setLocketResult(null);
+                startPolling();
             }
-            setTimeout(poll, 3000);
-        };
-        setTimeout(poll, 3000);
+        } catch (err) {
+            console.error('Failed to trigger Locket backup:', err);
+            toast.error('Không thể kết nối đến server backup');
+        }
     };
 
     const handleFileSelect = (e) => { processFiles(e.target.files); e.target.value = ''; };
