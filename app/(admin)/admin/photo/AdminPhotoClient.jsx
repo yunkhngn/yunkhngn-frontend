@@ -60,6 +60,16 @@ function PhotoCard({ photo, isSelected, onToggleSelect, onView, onEdit, onDelete
     );
 }
 
+async function getApiErrorMessage(response, fallback) {
+    try {
+        const data = await response.json();
+        const message = data?.message || data?.data?.message || data?.error;
+        return Array.isArray(message) ? message.join(', ') : message || fallback;
+    } catch {
+        return fallback;
+    }
+}
+
 export default function PhotoManager() {
     const { user } = useAuth();
 
@@ -266,6 +276,12 @@ export default function PhotoManager() {
             const statusRes = await fetch(`${API_URL}/locket-backup/status`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
+            if (!statusRes.ok) {
+                const message = await getApiErrorMessage(statusRes, `Không thể kiểm tra trạng thái backup (${statusRes.status})`);
+                toast.error(message);
+                return;
+            }
+
             const statusData = await statusRes.json();
             const status = statusData.data ?? statusData;
             
@@ -279,8 +295,8 @@ export default function PhotoManager() {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 if (!res.ok) {
-                    const err = await res.json();
-                    toast.error(err?.message || 'Không thể bắt đầu backup');
+                    const message = await getApiErrorMessage(res, `Không thể bắt đầu backup (${res.status})`);
+                    toast.error(message);
                     return;
                 }
                 setLocketResult(null);
@@ -622,30 +638,32 @@ export default function PhotoManager() {
                                     </Button>
                                 </div>
                             )}
-                        </div>
 
-                        {/* Locket Backup */}
-                        <div className="bg-card text-card-foreground rounded-xl border shadow-sm p-6 mt-4">
-                            <h2 className="text-lg font-semibold mb-1">Backup từ Locket</h2>
-                            <p className="text-xs text-muted-foreground mb-4">Fetch & lưu ảnh/video từ tài khoản Locket. Ảnh trùng sẽ tự động bỏ qua.</p>
-
-                            <Button className="w-full" onClick={handleLocketBackup} disabled={locketLoading} variant="outline">
-                                {locketLoading ? (
-                                    <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Đang xử lý...</>
-                                ) : (
-                                    'Backup ngay'
-                                )}
-                            </Button>
-
-                            {locketResult && (
-                                <div className={`mt-3 text-xs rounded-lg p-3 ${locketResult.ok ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-700 border border-red-200'}`}>
-                                    {locketResult.ok
-                                        ? `+${locketResult.imported} ảnh mới · bỏ qua ${locketResult.skipped} trùng`
-                                        : locketResult.error}
+                            {/* Locket Backup */}
+                            <div className="mt-6 border-t pt-5">
+                                <div className="mb-3">
+                                    <h2 className="text-sm font-semibold">Backup từ Locket</h2>
+                                    <p className="mt-1 text-xs text-muted-foreground">Fetch ảnh/video từ Locket và bỏ qua ảnh trùng.</p>
                                 </div>
-                            )}
 
-                            <p className="text-xs text-muted-foreground mt-3 opacity-60">Tự động backup vào ngày 1 hàng tháng</p>
+                                <Button className="w-full" onClick={handleLocketBackup} disabled={locketLoading || !user} variant="outline">
+                                    {locketLoading ? (
+                                        <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Đang xử lý...</>
+                                    ) : (
+                                        'Backup ngay'
+                                    )}
+                                </Button>
+
+                                {locketResult && (
+                                    <div className={`mt-3 text-xs rounded-lg p-3 ${locketResult.ok ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-700 border border-red-200'}`}>
+                                        {locketResult.ok
+                                            ? `+${locketResult.imported} ảnh mới · bỏ qua ${locketResult.skipped} trùng`
+                                            : locketResult.error}
+                                    </div>
+                                )}
+
+                                <p className="text-xs text-muted-foreground mt-3 opacity-60">Tự động backup vào ngày 1 hàng tháng</p>
+                            </div>
                         </div>
                     </div>
 
