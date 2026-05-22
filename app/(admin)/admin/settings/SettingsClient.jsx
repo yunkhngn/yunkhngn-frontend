@@ -163,6 +163,7 @@ export default function Settings() {
     const [searchQuery, setSearchQuery] = useState('');
     const [deleteId, setDeleteId] = useState(null);
     const [isJsonMode, setIsJsonMode] = useState(false);
+    const [isCustomGroup, setIsCustomGroup] = useState(false);
     const fileInputRef = useRef(null);
 
     const sensors = useSensors(
@@ -348,6 +349,7 @@ export default function Settings() {
                 await fetchSettings();
                 setIsCreateDialogOpen(false);
                 setNewSetting({ settingTitle: '', content: '', group: 'General', isSensitive: false });
+                setIsCustomGroup(false);
                 toast.success('New setting created');
             } else {
                 const errorData = await res.json();
@@ -490,6 +492,7 @@ export default function Settings() {
                     </div>
                     <Button onClick={() => {
                         setIsJsonMode(false);
+                        setIsCustomGroup(false);
                         setIsCreateDialogOpen(true);
                     }} className="gap-2">
                         <Plus className="h-4 w-4" />
@@ -761,8 +764,16 @@ export default function Settings() {
                             <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Group</label>
                             <div className="flex gap-2">
                                 <Select
-                                    value={newSetting.group}
-                                    onValueChange={(v) => setNewSetting({ ...newSetting, group: v })}
+                                    value={isCustomGroup ? "NEW_GROUP_HIDDEN" : newSetting.group}
+                                    onValueChange={(v) => {
+                                        if (v === 'NEW_GROUP_HIDDEN') {
+                                            setIsCustomGroup(true);
+                                            setNewSetting({ ...newSetting, group: '' });
+                                        } else {
+                                            setIsCustomGroup(false);
+                                            setNewSetting({ ...newSetting, group: v });
+                                        }
+                                    }}
                                 >
                                     <SelectTrigger className="w-full font-bold">
                                         <SelectValue placeholder="Select group" />
@@ -772,9 +783,10 @@ export default function Settings() {
                                         <SelectItem value="NEW_GROUP_HIDDEN">New Group...</SelectItem>
                                     </SelectContent>
                                 </Select>
-                                {newSetting.group === 'NEW_GROUP_HIDDEN' && (
+                                {isCustomGroup && (
                                     <Input
                                         placeholder="Group name"
+                                        value={newSetting.group}
                                         onChange={(e) => setNewSetting({ ...newSetting, group: e.target.value })}
                                         className="font-bold"
                                     />

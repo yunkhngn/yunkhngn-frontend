@@ -105,6 +105,10 @@ export default function PhotoManager() {
     const [isDragging, setIsDragging] = useState(false);
     const fileInputRef = useRef(null);
 
+    // Locket backup
+    const [locketLoading, setLocketLoading] = useState(false);
+    const [locketResult, setLocketResult] = useState(null);
+
     // Fetch photos
     const fetchPhotos = useCallback(async (page = 1) => {
         setLoading(true);
@@ -166,6 +170,61 @@ export default function PhotoManager() {
             });
         }
         setStagedPhotos(prev => [...prev, ...newStaged]);
+    };
+
+    const handleLocketBackup = async () => {
+        const token = await user.getIdToken();
+
+        // Check if already running before triggering
+        const statusRes = await fetch(`${API_URL}/locket-backup/status`, {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        const statusData = await statusRes.json();
+        if (statusData.data?.isRunning) {
+            toast.info('Backup đang chạy, vui lòng chờ...');
+            setLocketLoading(true);
+        } else {
+            // Fire the backup (202 — backend runs async)
+            const res = await fetch(`${API_URL}/locket-backup/run`, {
+                method: 'POST',
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            if (!res.ok) {
+                const err = await res.json();
+                toast.error(err?.message || 'Không thể bắt đầu backup');
+                return;
+            }
+            setLocketLoading(true);
+            setLocketResult(null);
+        }
+
+        // Poll /status until done
+        const poll = async () => {
+            try {
+                const t = await user.getIdToken();
+                const r = await fetch(`${API_URL}/locket-backup/status`, {
+                    headers: { Authorization: `Bearer ${t}` },
+                });
+                const d = await r.json();
+                const status = d.data ?? d;
+                if (!status.isRunning) {
+                    setLocketLoading(false);
+                    if (status.lastResult?.error) {
+                        setLocketResult({ ok: false, error: status.lastResult.error });
+                        toast.error(status.lastResult.error);
+                    } else if (status.lastResult) {
+                        setLocketResult({ ok: true, imported: status.lastResult.imported, skipped: status.lastResult.skipped });
+                        toast.success(`Backup xong: +${status.lastResult.imported} ảnh mới`);
+                        if (status.lastResult.imported > 0) fetchPhotos(1);
+                    }
+                    return;
+                }
+            } catch {
+                // ignore transient poll error
+            }
+            setTimeout(poll, 3000);
+        };
+        setTimeout(poll, 3000);
     };
 
     const handleFileSelect = (e) => { processFiles(e.target.files); e.target.value = ''; };
@@ -498,6 +557,30 @@ export default function PhotoManager() {
                                     </Button>
                                 </div>
                             )}
+                        </div>
+
+                        {/* Locket Backup */}
+                        <div className="bg-card text-card-foreground rounded-xl border shadow-sm p-6 mt-4">
+                            <h2 className="text-lg font-semibold mb-1">Backup từ Locket</h2>
+                            <p className="text-xs text-muted-foreground mb-4">Fetch & lưu ảnh/video từ tài khoản Locket. Ảnh trùng sẽ tự động bỏ qua.</p>
+
+                            <Button className="w-full" onClick={handleLocketBackup} disabled={locketLoading} variant="outline">
+                                {locketLoading ? (
+                                    <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Đang xử lý...</>
+                                ) : (
+                                    'Backup ngay'
+                                )}
+                            </Button>
+
+                            {locketResult && (
+                                <div className={`mt-3 text-xs rounded-lg p-3 ${locketResult.ok ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-700 border border-red-200'}`}>
+                                    {locketResult.ok
+                                        ? `+${locketResult.imported} ảnh mới · bỏ qua ${locketResult.skipped} trùng`
+                                        : locketResult.error}
+                                </div>
+                            )}
+
+                            <p className="text-xs text-muted-foreground mt-3 opacity-60">Tự động backup vào ngày 1 hàng tháng</p>
                         </div>
                     </div>
 
