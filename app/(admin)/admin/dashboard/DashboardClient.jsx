@@ -391,7 +391,7 @@ export default function Dashboard() {
                     <TabsContent value="blogs" className="mt-0 focus-visible:ring-0 flex-1 flex flex-col">
                       <div className="space-y-1">
                         {recentBlogs.map((blog) => (
-                          <div key={blog.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50 transition-colors group border border-transparent hover:border-border">
+                          <Link href={`/admin/blog/${blog.slug}`} key={blog.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50 transition-colors group border border-transparent hover:border-border">
                             <div className="h-10 w-10 rounded bg-muted flex-shrink-0 overflow-hidden flex items-center justify-center">
                               {blog.thumbnail ? (
                                 <Image src={blog.thumbnail} alt="" width={40} height={40} className="object-cover w-full h-full" />
@@ -412,7 +412,7 @@ export default function Dashboard() {
                                 <FileEdit className="h-4 w-4 text-amber-500" />
                               )}
                             </div>
-                          </div>
+                          </Link>
                         ))}
                         {recentBlogs.length === 0 && <div className="text-center text-muted-foreground py-8 text-xs">No blogs yet.</div>}
                       </div>
@@ -437,9 +437,9 @@ export default function Dashboard() {
                     <TabsContent value="photos" className="mt-0 focus-visible:ring-0 flex-1 flex flex-col">
                       <div className="grid grid-cols-3 gap-2">
                         {recentPhotos.map((photo) => (
-                          <div key={photo.id} className="aspect-square rounded-lg overflow-hidden bg-muted border border-border group">
+                          <Link href="/admin/photo" key={photo.id} className="aspect-square rounded-lg overflow-hidden bg-muted border border-border group block">
                             <Image src={photo.imageUrl} alt={photo.caption || 'Photo'} width={100} height={100} className="object-cover w-full h-full group-hover:scale-110 transition-transform" />
-                          </div>
+                          </Link>
                         ))}
                       </div>
                       {recentPhotos.length === 0 && <div className="text-center text-muted-foreground py-8 text-xs">No photos yet.</div>}
