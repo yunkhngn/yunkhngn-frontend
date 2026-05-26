@@ -60,16 +60,6 @@ function PhotoCard({ photo, isSelected, onToggleSelect, onView, onEdit, onDelete
     );
 }
 
-async function getApiErrorMessage(response, fallback) {
-    try {
-        const data = await response.json();
-        const message = data?.message || data?.data?.message || data?.error;
-        return Array.isArray(message) ? message.join(', ') : message || fallback;
-    } catch {
-        return fallback;
-    }
-}
-
 export default function PhotoManager() {
     const { user } = useAuth();
 
@@ -115,10 +105,6 @@ export default function PhotoManager() {
     const [isDragging, setIsDragging] = useState(false);
     const fileInputRef = useRef(null);
 
-    // Locket backup
-    const [locketLoading, setLocketLoading] = useState(false);
-    const [locketResult, setLocketResult] = useState(null);
-
     // Fetch photos
     const fetchPhotos = useCallback(async (page = 1) => {
         setLoading(true);
@@ -148,90 +134,6 @@ export default function PhotoManager() {
 
     useEffect(() => { fetchPhotos(1); }, [fetchPhotos]);
     useEffect(() => { fetchAlbums(); }, []);
-
-    const startPolling = useCallback((initialStatus = null) => {
-        setLocketLoading(true);
-        if (initialStatus && !initialStatus.isRunning) {
-            setLocketLoading(false);
-            if (initialStatus.lastResult?.error) {
-                setLocketResult({ ok: false, error: initialStatus.lastResult.error });
-                toast.error(initialStatus.lastResult.error);
-            } else if (initialStatus.lastResult) {
-                setLocketResult({ ok: true, imported: initialStatus.lastResult.imported, skipped: initialStatus.lastResult.skipped });
-                toast.success(`Backup xong: +${initialStatus.lastResult.imported} ảnh mới`);
-                fetchPhotos(1);
-            }
-            return;
-        }
-
-        let consecutiveErrors = 0;
-        const poll = async () => {
-            try {
-                const t = await user.getIdToken();
-                const r = await fetch(`${API_URL}/locket-backup/status`, {
-                    headers: { Authorization: `Bearer ${t}` },
-                });
-                if (!r.ok) throw new Error(`HTTP error! status: ${r.status}`);
-                const d = await r.json();
-                const status = d.data ?? d;
-                
-                consecutiveErrors = 0;
-                
-                if (!status.isRunning) {
-                    setLocketLoading(false);
-                    if (status.lastResult?.error) {
-                        setLocketResult({ ok: false, error: status.lastResult.error });
-                        toast.error(status.lastResult.error);
-                    } else if (status.lastResult) {
-                        setLocketResult({ ok: true, imported: status.lastResult.imported, skipped: status.lastResult.skipped });
-                        toast.success(`Backup xong: +${status.lastResult.imported} ảnh mới`);
-                        fetchPhotos(1);
-                    }
-                    return;
-                }
-            } catch (err) {
-                console.error('Locket backup polling error:', err);
-                consecutiveErrors++;
-                if (consecutiveErrors >= 5) {
-                    setLocketLoading(false);
-                    toast.error('Mất kết nối với dịch vụ backup');
-                    return;
-                }
-            }
-            setTimeout(poll, 3000);
-        };
-        setTimeout(poll, 3000);
-    }, [user, fetchPhotos]);
-
-    // Check backup status on mount
-    useEffect(() => {
-        const checkBackupOnMount = async () => {
-            if (!user) return;
-            try {
-                const token = await user.getIdToken();
-                const res = await fetch(`${API_URL}/locket-backup/status`, {
-                    headers: { Authorization: `Bearer ${token}` },
-                });
-                if (res.ok) {
-                    const statusData = await res.json();
-                    const status = statusData.data ?? statusData;
-                    if (status.isRunning) {
-                        startPolling(status);
-                    } else if (status.lastResult) {
-                        setLocketResult({
-                            ok: !status.lastResult.error,
-                            imported: status.lastResult.imported,
-                            skipped: status.lastResult.skipped,
-                            error: status.lastResult.error
-                        });
-                    }
-                }
-            } catch (err) {
-                console.error('Failed to check backup status on mount:', err);
-            }
-        };
-        checkBackupOnMount();
-    }, [user, startPolling]);
 
     // File handling
     const processFiles = async (files) => {
@@ -264,48 +166,6 @@ export default function PhotoManager() {
             });
         }
         setStagedPhotos(prev => [...prev, ...newStaged]);
-    };
-
-    const handleLocketBackup = async () => {
-        if (!user) return;
-        
-        try {
-            const token = await user.getIdToken();
-
-            // Check if already running before triggering
-            const statusRes = await fetch(`${API_URL}/locket-backup/status`, {
-                headers: { Authorization: `Bearer ${token}` },
-            });
-            if (!statusRes.ok) {
-                const message = await getApiErrorMessage(statusRes, `Không thể kiểm tra trạng thái backup (${statusRes.status})`);
-                toast.error(message);
-                return;
-            }
-
-            const statusData = await statusRes.json();
-            const status = statusData.data ?? statusData;
-            
-            if (status.isRunning) {
-                toast.info('Backup đang chạy, vui lòng chờ...');
-                startPolling(status);
-            } else {
-                // Fire the backup (202 — backend runs async)
-                const res = await fetch(`${API_URL}/locket-backup/run`, {
-                    method: 'POST',
-                    headers: { Authorization: `Bearer ${token}` },
-                });
-                if (!res.ok) {
-                    const message = await getApiErrorMessage(res, `Không thể bắt đầu backup (${res.status})`);
-                    toast.error(message);
-                    return;
-                }
-                setLocketResult(null);
-                startPolling();
-            }
-        } catch (err) {
-            console.error('Failed to trigger Locket backup:', err);
-            toast.error('Không thể kết nối đến server backup');
-        }
     };
 
     const handleFileSelect = (e) => { processFiles(e.target.files); e.target.value = ''; };
@@ -638,32 +498,6 @@ export default function PhotoManager() {
                                     </Button>
                                 </div>
                             )}
-
-                            {/* Locket Backup */}
-                            <div className="mt-6 border-t pt-5">
-                                <div className="mb-3">
-                                    <h2 className="text-sm font-semibold">Backup từ Locket</h2>
-                                    <p className="mt-1 text-xs text-muted-foreground">Fetch ảnh/video từ Locket và bỏ qua ảnh trùng.</p>
-                                </div>
-
-                                <Button className="w-full" onClick={handleLocketBackup} disabled={locketLoading || !user} variant="outline">
-                                    {locketLoading ? (
-                                        <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Đang xử lý...</>
-                                    ) : (
-                                        'Backup ngay'
-                                    )}
-                                </Button>
-
-                                {locketResult && (
-                                    <div className={`mt-3 text-xs rounded-lg p-3 ${locketResult.ok ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-700 border border-red-200'}`}>
-                                        {locketResult.ok
-                                            ? `+${locketResult.imported} ảnh mới · bỏ qua ${locketResult.skipped} trùng`
-                                            : locketResult.error}
-                                    </div>
-                                )}
-
-                                <p className="text-xs text-muted-foreground mt-3 opacity-60">Tự động backup vào ngày 1 hàng tháng</p>
-                            </div>
                         </div>
                     </div>
 
