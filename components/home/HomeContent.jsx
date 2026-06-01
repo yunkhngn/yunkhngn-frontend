@@ -131,7 +131,7 @@ export default function HomeContent({
       '@type': 'Person',
       name: 'Khoa Nguyễn',
       url: 'https://yunkhngn.dev',
-      image: 'https://github.com/yunkhngn.png',
+      image: settings.avatar || 'https://github.com/yunkhngn.png',
       sameAs: [
         settings.facebook || 'https://facebook.com/yunkhngn',
         settings.instagram || 'https://instagram.com/yunkhngn',

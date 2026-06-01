@@ -18,6 +18,7 @@ import { useFocusMode } from '@/contexts/FocusModeContext';
 import { extractTextFromTipTap, stripHtml } from '@/lib/utils';
 import JsonLd from '@/components/seo/JsonLd';
 import TableOfContents from '@/components/blog/TableOfContents';
+import { readCachedSettings } from '@/lib/settingsCache';
 
 export default function BlogDetail({ blogData }) {
     const router = useRouter();
@@ -27,6 +28,7 @@ export default function BlogDetail({ blogData }) {
     const [scrollProgress, setScrollProgress] = useState(0);
     const [publishing, setPublishing] = useState(false);
     const [creatingLink, setCreatingLink] = useState(false);
+    const [ownerAvatar] = useState(() => readCachedSettings()?.avatar || 'https://github.com/yunkhngn.png');
 
     const handleCreateShortlink = async () => {
         setCreatingLink(true);
@@ -318,7 +320,7 @@ export default function BlogDetail({ blogData }) {
                                 <div className="flex items-center justify-center gap-6">
                                     <div className="flex items-center gap-4">
                                         <div className="relative w-10 h-10 rounded-full overflow-hidden bg-muted">
-                                            <Image src="https://github.com/yunkhngn.png" alt="Author" fill sizes="40px" className="object-cover" />
+                                            <Image src={ownerAvatar} alt="Author" fill sizes="40px" className="object-cover" />
                                         </div>
                                         <div className="text-left">
                                             <div className="font-medium text-sm">Khoa Nguyễn</div>
@@ -355,7 +357,7 @@ export default function BlogDetail({ blogData }) {
                                 <div className="flex flex-col md:flex-row items-center justify-between gap-6">
                                     <div className="flex items-center gap-4">
                                         <div className="relative w-14 h-14 rounded-full overflow-hidden bg-muted border-2 border-background shadow-sm">
-                                            <Image src="https://github.com/yunkhngn.png" alt="Author" fill sizes="56px" className="object-cover" />
+                                            <Image src={ownerAvatar} alt="Author" fill sizes="56px" className="object-cover" />
                                         </div>
                                         <div>
                                             <div className="font-serif text-lg font-bold">Khoa Nguyễn</div>

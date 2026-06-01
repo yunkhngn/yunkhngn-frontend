@@ -13,6 +13,7 @@ import { format, isValid } from 'date-fns';
 import { Badge } from '@/components/ui/Badge';
 import { StatusIndicator } from '@/components/admin/shared';
 import dynamic from 'next/dynamic';
+import { readCachedSettings } from '@/lib/settingsCache';
 const TipTapViewer = dynamic(() => import('@/components/ui/TipTapViewer'), { ssr: false });
 
 export default function ViewBlog() {
@@ -22,6 +23,7 @@ export default function ViewBlog() {
     const { user } = useAuth();
     const [blog, setBlog] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [ownerAvatar] = useState(() => readCachedSettings()?.avatar || 'https://github.com/yunkhngn.png');
 
     const fetchBlog = useCallback(async () => {
         try {
@@ -107,7 +109,7 @@ export default function ViewBlog() {
 
                             <div className="flex items-center justify-center gap-4">
                                 <div className="relative w-10 h-10 rounded-full overflow-hidden bg-muted">
-                                    <Image src="https://github.com/yunkhngn.png" alt="Author" fill sizes="40px" className="object-cover" />
+                                    <Image src={ownerAvatar} alt="Author" fill sizes="40px" className="object-cover" />
                                 </div>
                                 <div className="text-left">
                                     <div className="font-medium text-sm">Khoa Nguyễn</div>
@@ -129,7 +131,7 @@ export default function ViewBlog() {
                             <div className="flex flex-col md:flex-row items-center justify-between gap-6">
                                 <div className="flex items-center gap-4">
                                     <div className="relative w-14 h-14 rounded-full overflow-hidden bg-muted border-2 border-background shadow-sm">
-                                        <Image src="https://github.com/yunkhngn.png" alt="Author" fill sizes="56px" className="object-cover" />
+                                        <Image src={ownerAvatar} alt="Author" fill sizes="56px" className="object-cover" />
                                     </div>
                                     <div>
                                         <div className="font-serif text-lg font-bold">Khoa Nguyễn</div>
