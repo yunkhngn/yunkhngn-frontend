@@ -19,8 +19,11 @@ const LABELS = {
 
 // Font buffers cached globally
 let playfairBoldBuffer;
+let playfairBoldVietnameseBuffer;
 let beVietnamRegularBuffer;
+let beVietnamRegularVietnameseBuffer;
 let beVietnamBoldBuffer;
+let beVietnamBoldVietnameseBuffer;
 let jetbrainsMonoBuffer;
 
 function toArrayBuffer(buffer) {
@@ -31,14 +34,20 @@ function getFonts() {
   if (!playfairBoldBuffer) {
     const fontDir = path.join(process.cwd(), 'public/fonts');
     playfairBoldBuffer = toArrayBuffer(fs.readFileSync(path.join(fontDir, 'PlayfairDisplay-Bold.woff')));
+    playfairBoldVietnameseBuffer = toArrayBuffer(fs.readFileSync(path.join(fontDir, 'PlayfairDisplay-Bold-vietnamese.woff')));
     beVietnamRegularBuffer = toArrayBuffer(fs.readFileSync(path.join(fontDir, 'BeVietnamPro-Regular.woff')));
+    beVietnamRegularVietnameseBuffer = toArrayBuffer(fs.readFileSync(path.join(fontDir, 'BeVietnamPro-Regular-vietnamese.woff')));
     beVietnamBoldBuffer = toArrayBuffer(fs.readFileSync(path.join(fontDir, 'BeVietnamPro-Bold.woff')));
+    beVietnamBoldVietnameseBuffer = toArrayBuffer(fs.readFileSync(path.join(fontDir, 'BeVietnamPro-Bold-vietnamese.woff')));
     jetbrainsMonoBuffer = toArrayBuffer(fs.readFileSync(path.join(fontDir, 'JetBrainsMono-Regular.woff')));
   }
   return {
     playfairBold: playfairBoldBuffer,
+    playfairBoldVietnamese: playfairBoldVietnameseBuffer,
     beVietnamRegular: beVietnamRegularBuffer,
+    beVietnamRegularVietnamese: beVietnamRegularVietnameseBuffer,
     beVietnamBold: beVietnamBoldBuffer,
+    beVietnamBoldVietnamese: beVietnamBoldVietnameseBuffer,
     jetbrainsMono: jetbrainsMonoBuffer,
   };
 }
@@ -79,8 +88,11 @@ export async function GET(request) {
       height: 630,
       fonts: [
         { name: 'Playfair Display', data: fonts.playfairBold, weight: 700, style: 'normal' },
+        { name: 'Playfair Display', data: fonts.playfairBoldVietnamese, weight: 700, style: 'normal' },
         { name: 'Be Vietnam Pro', data: fonts.beVietnamRegular, weight: 400, style: 'normal' },
+        { name: 'Be Vietnam Pro', data: fonts.beVietnamRegularVietnamese, weight: 400, style: 'normal' },
         { name: 'Be Vietnam Pro', data: fonts.beVietnamBold, weight: 700, style: 'normal' },
+        { name: 'Be Vietnam Pro', data: fonts.beVietnamBoldVietnamese, weight: 700, style: 'normal' },
         { name: 'JetBrains Mono', data: fonts.jetbrainsMono, weight: 400, style: 'normal' },
       ],
     };
