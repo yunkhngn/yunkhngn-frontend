@@ -14,9 +14,13 @@ export async function generateMetadata({ params }) {
   }
   const desc = project.seoDescription || project.description || '';
   const title = project.seoTitle || project.title;
-  const ogImage = project.cover
-    ? project.cover
-    : `https://yunkhngn.dev/api/og?title=${encodeURIComponent(title)}&type=project&description=${encodeURIComponent(desc.slice(0, 100))}`;
+  const ogParams = new URLSearchParams({
+    title,
+    type: 'project',
+    description: desc.slice(0, 100),
+    ...(project.cover ? { thumbnail: project.cover } : {}),
+  });
+  const ogImage = `https://yunkhngn.dev/api/og?${ogParams.toString()}`;
 
   return {
     title,
