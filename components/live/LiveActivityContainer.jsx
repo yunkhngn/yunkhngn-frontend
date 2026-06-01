@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import CodingActivity from './CodingActivity';
 import MusicPlayer from './MusicPlayer';
 import api from '@/lib/api/client';
+import { getCached, setCached } from '@/lib/liveActivityCache';
 import { AnimatePresence, motion } from 'framer-motion';
 
 export default function LiveActivityContainer({ isStatic = false }) {
@@ -14,8 +15,11 @@ export default function LiveActivityContainer({ isStatic = false }) {
     useEffect(() => {
         const fetchCoding = async () => {
             try {
+                const cached = getCached('coding');
+                if (cached !== null) { setCodingData(cached); setLoadingCoding(false); return; }
                 const res = await api.get('/admin/github/latest-activity');
                 setCodingData(res.data);
+                setCached('coding', res.data, 120_000);
             } catch (error) {
                 console.error("Failed to fetch coding activity", error);
             } finally {
@@ -25,8 +29,11 @@ export default function LiveActivityContainer({ isStatic = false }) {
 
         const fetchMusic = async () => {
             try {
+                const cached = getCached('music');
+                if (cached !== null) { setMusicData(cached); setLoadingMusic(false); return; }
                 const res = await api.get('/lastfm/playing');
                 setMusicData(res.data);
+                setCached('music', res.data, 30_000);
             } catch (error) {
                 console.error("Failed to fetch music activity", error);
             } finally {
