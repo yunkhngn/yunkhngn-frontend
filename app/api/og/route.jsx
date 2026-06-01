@@ -1,5 +1,8 @@
 import { ImageResponse } from 'next/og';
 
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 const GITHUB_AVATAR = 'https://github.com/yunkhngn.png';
 
 // Matches site light theme: hsl(0 0% 100%) bg, hsl(232 59% 10%) text
