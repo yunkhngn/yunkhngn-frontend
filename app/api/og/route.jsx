@@ -93,24 +93,15 @@ export async function GET(request) {
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '52px 52px 48px 60px' }}>
               {/* Top */}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span style={{ fontSize: 16, color: MUTED, fontFamily: '"JetBrains Mono", monospace' }}>{`yunkhngn.dev`}</span>
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 8,
-                  border: `2px solid ${BORDER}`,
-                  background: BG,
-                  borderRadius: 4,
-                  padding: '5px 12px 5px 10px',
-                  fontSize: 12,
-                  fontWeight: 700,
-                  fontFamily: '"JetBrains Mono", monospace',
-                  letterSpacing: '0.08em',
-                  textTransform: 'uppercase',
-                  boxShadow: `3px 3px 0px ${BORDER}`,
-                }}>
-                  <div style={{ width: 6, height: 6, borderRadius: '50%', background: BORDER, display: 'flex' }} />
-                  <span>{label}</span>
+                <div style={{ display: 'flex', alignItems: 'center', fontSize: 16, fontWeight: 700, fontFamily: '"JetBrains Mono", monospace', color: TEXT }}>
+                  <span style={{ marginRight: 6 }}>&gt;</span>
+                  <span>yun.khngn</span>
+                  <span style={{ marginLeft: 3 }}>_</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', fontSize: 14, fontWeight: 700, fontFamily: '"JetBrains Mono", monospace', color: TEXT }}>
+                  <span style={{ marginRight: 6 }}>&gt;</span>
+                  <span>{label.toLowerCase()}</span>
+                  <span style={{ marginLeft: 3 }}>_</span>
                 </div>
               </div>
               {/* Middle */}
@@ -144,24 +135,15 @@ export async function GET(request) {
         <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '56px 80px 52px', background: BG, border: `8px solid ${BORDER}`, boxSizing: 'border-box' }}>
           {/* Top */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <span style={{ fontSize: 17, color: MUTED, fontFamily: '"JetBrains Mono", monospace' }}>{`yunkhngn.dev`}</span>
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 8,
-              border: `2px solid ${BORDER}`,
-              background: BG,
-              borderRadius: 4,
-              padding: '5px 12px 5px 10px',
-              fontSize: 12,
-              fontWeight: 700,
-              fontFamily: '"JetBrains Mono", monospace',
-              letterSpacing: '0.08em',
-              textTransform: 'uppercase',
-              boxShadow: `3px 3px 0px ${BORDER}`,
-            }}>
-              <div style={{ width: 6, height: 6, borderRadius: '50%', background: BORDER, display: 'flex' }} />
-              <span>{label}</span>
+            <div style={{ display: 'flex', alignItems: 'center', fontSize: 18, fontWeight: 700, fontFamily: '"JetBrains Mono", monospace', color: TEXT }}>
+              <span style={{ marginRight: 6 }}>&gt;</span>
+              <span>yun.khngn</span>
+              <span style={{ marginLeft: 3 }}>_</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', fontSize: 16, fontWeight: 700, fontFamily: '"JetBrains Mono", monospace', color: TEXT }}>
+              <span style={{ marginRight: 6 }}>&gt;</span>
+              <span>{label.toLowerCase()}</span>
+              <span style={{ marginLeft: 3 }}>_</span>
             </div>
           </div>
           {/* Middle */}
