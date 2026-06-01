@@ -55,6 +55,11 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'tarot.yunkhngn.dev',
         pathname: '/tarotdeck/**'
+      },
+      {
+        protocol: 'https',
+        hostname: 'media.valorant-api.com',
+        pathname: '/**'
       }
     ],
   },
