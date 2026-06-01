@@ -33,7 +33,7 @@ export default function Resume() {
         fetchSettings();
     }, []);
 
-    const isPdf = cvUrl.toLowerCase().endsWith('.pdf');
+    const isPdf = cvUrl.toLowerCase().split('?')[0].endsWith('.pdf');
 
     return (
         <div className="container mx-auto px-4 py-12 md:py-20 max-w-6xl">
