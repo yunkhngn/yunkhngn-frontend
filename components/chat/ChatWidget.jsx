@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { readNestJson } from '@/lib/api/readJson';
+import { readCachedSettings } from '@/lib/settingsCache';
 import Link from 'next/link';
 import Image from 'next/image';
 import { X, Send, Loader2, Maximize2, Minimize2 } from 'lucide-react';
@@ -10,6 +11,8 @@ import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import TarotCards from '@/components/chat/TarotCards';
 
+const FALLBACK_AVATAR = 'https://github.com/yunkhngn.png';
+
 export default function ChatWindow({ isOpen, onClose }) {
     const [messages, setMessages] = useState([
         { role: 'assistant', content: 'Chào cậu! Tớ là Khoa Nguyễn. Cậu muốn hỏi gì về tớ, projects hay kinh nghiệm của tớ không? Feel free to ask ^^!' }
@@ -18,6 +21,7 @@ export default function ChatWindow({ isOpen, onClose }) {
     const [isLoading, setIsLoading] = useState(false);
     const [isExpanded, setIsExpanded] = useState(false);
     const [forbiddenWords, setForbiddenWords] = useState([]);
+    const [avatarUrl, setAvatarUrl] = useState(() => readCachedSettings()?.avatar || FALLBACK_AVATAR);
 
     // Safety & Anti-spam refs
     const lastSentTime = useRef(0);
@@ -47,6 +51,8 @@ export default function ChatWindow({ isOpen, onClose }) {
                         const words = forbiddenSetting.content.split(/[,\n]+/).map(w => w.trim().toLowerCase()).filter(Boolean);
                         setForbiddenWords(words);
                     }
+                    const avatarSetting = data.find(s => s.settingTitle === 'avatar');
+                    if (avatarSetting?.content) setAvatarUrl(avatarSetting.content);
                 }
             } catch (error) {
                 console.error("Failed to fetch chat settings", error);
@@ -154,7 +160,7 @@ export default function ChatWindow({ isOpen, onClose }) {
                             <div className="relative">
                                 <div className="w-2 h-2 absolute top-0 right-0 bg-green-500 rounded-full animate-pulse" />
                                 <div className="relative p-0.5 bg-primary/10 rounded-full overflow-hidden w-9 h-9 border border-primary/20">
-                                    <Image src="https://github.com/yunkhngn.png" alt="Khoa AI" fill sizes="36px" className="object-cover" />
+                                    <Image src={avatarUrl} alt="Khoa AI" fill sizes="36px" className="object-cover" />
                                 </div>
                             </div>
                             <div>
@@ -180,7 +186,7 @@ export default function ChatWindow({ isOpen, onClose }) {
                                     "relative w-8 h-8 rounded-full flex items-center justify-center shrink-0 overflow-hidden border border-border/50",
                                     msg.role === 'user' ? "bg-muted" : "bg-primary/10"
                                 )}>
-                                    {msg.role === 'user' ? <Image src="/image/cat.jpg" alt="User" fill sizes="32px" className="object-cover" /> : <Image src="https://github.com/yunkhngn.png" alt="AI" fill sizes="32px" className="object-cover" />}
+                                    {msg.role === 'user' ? <Image src="/image/cat.jpg" alt="User" fill sizes="32px" className="object-cover" /> : <Image src={avatarUrl} alt="AI" fill sizes="32px" className="object-cover" />}
                                 </div>
                                 <div className={cn(
                                     "rounded-2xl px-4 py-2 text-sm shadow-sm",
@@ -230,7 +236,7 @@ export default function ChatWindow({ isOpen, onClose }) {
                         {isLoading && (
                             <div className="flex gap-3 max-w-[85%]">
                                 <div className="relative w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0 overflow-hidden border border-border/50">
-                                    <Image src="https://github.com/yunkhngn.png" alt="AI" fill sizes="32px" className="object-cover" />
+                                    <Image src={avatarUrl} alt="AI" fill sizes="32px" className="object-cover" />
                                 </div>
                                 <div className="bg-muted/50 rounded-2xl rounded-tl-sm px-4 py-2 flex items-center gap-1">
                                     <span className="w-1.5 h-1.5 bg-foreground/40 rounded-full animate-bounce [animation-delay:-0.3s]"></span>

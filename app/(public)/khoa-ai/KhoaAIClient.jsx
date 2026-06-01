@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import { readCachedSettings } from '@/lib/settingsCache';
 import { motion } from 'framer-motion';
 import HeroBackground from '@/components/home/HeroBackground';
 import { readNestJson } from '@/lib/api/readJson';
@@ -21,6 +22,7 @@ export default function KhoaAIClient() {
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [forbiddenWords, setForbiddenWords] = useState([]);
+    const [avatarUrl, setAvatarUrl] = useState(() => readCachedSettings()?.avatar || 'https://github.com/yunkhngn.png');
 
     const lastSentTime = useRef(0);
     const lastMessageContent = useRef('');
@@ -49,6 +51,8 @@ export default function KhoaAIClient() {
                         const words = forbiddenSetting.content.split(/[,\n]+/).map(w => w.trim().toLowerCase()).filter(Boolean);
                         setForbiddenWords(words);
                     }
+                    const avatarSetting = data.find(s => s.settingTitle === 'avatar');
+                    if (avatarSetting?.content) setAvatarUrl(avatarSetting.content);
                 }
             } catch (error) {
                 if (error?.name === 'AbortError') return;
@@ -142,7 +146,7 @@ export default function KhoaAIClient() {
                 <div className="flex-none border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 p-4 flex items-center justify-between">
                     <div className="flex items-center gap-3">
                         <div className="relative w-10 h-10 rounded-full overflow-hidden border border-border shrink-0">
-                            <Image src="https://github.com/yunkhngn.png" alt="Khoa AI" fill sizes="40px" className="object-cover" />
+                            <Image src={avatarUrl} alt="Khoa AI" fill sizes="40px" className="object-cover" />
                         </div>
                         <div className="flex flex-col">
                             <h2 className="font-semibold text-sm">Khoa Nguyễn</h2>
@@ -170,7 +174,7 @@ export default function KhoaAIClient() {
                                     {msg.role === 'user' ? (
                                         <Image src="/image/cat.jpg" alt="You" fill sizes="32px" className="object-cover" />
                                     ) : (
-                                        <Image src="https://github.com/yunkhngn.png" alt="Khoa AI" fill sizes="32px" className="object-cover" />
+                                        <Image src={avatarUrl} alt="Khoa AI" fill sizes="32px" className="object-cover" />
                                     )}
                                 </div>
 
@@ -235,7 +239,7 @@ export default function KhoaAIClient() {
                         {isLoading && (
                             <div className="flex gap-4 w-full flex-row">
                                 <div className="shrink-0 relative w-8 h-8 rounded-sm overflow-hidden border border-border/50">
-                                    <Image src="https://github.com/yunkhngn.png" alt="Khoa AI" fill sizes="32px" className="object-cover" />
+                                    <Image src={avatarUrl} alt="Khoa AI" fill sizes="32px" className="object-cover" />
                                 </div>
                                 <div className="flex flex-col gap-2 items-start">
                                     <span className="text-xs font-semibold text-muted-foreground px-1">Khoa AI</span>
@@ -311,7 +315,7 @@ export default function KhoaAIClient() {
                 {/* Profile Info */}
                 <div className="flex flex-col items-center text-center p-8 border-b border-border">
                     <div className="relative w-24 h-24 rounded-full overflow-hidden border-2 border-border shadow-sm mb-4">
-                        <Image src="https://github.com/yunkhngn.png" alt="Khoa AI" fill sizes="96px" className="object-cover" />
+                        <Image src={avatarUrl} alt="Khoa AI" fill sizes="96px" className="object-cover" />
                     </div>
                     <h2 className="font-bold text-xl mb-1">Khoa Nguyễn</h2>
                     <p className="text-xs text-muted-foreground mb-6">yun.khngn • Phiên bản AI</p>

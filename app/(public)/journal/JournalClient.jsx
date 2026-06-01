@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { readNestJson } from '@/lib/api/readJson';
+import { readCachedSettings } from '@/lib/settingsCache';
 import { useAuth } from '@/contexts/AuthContext';
 import { format, formatDistanceToNow, isValid } from 'date-fns';
 import { vi } from 'date-fns/locale';
@@ -501,7 +502,7 @@ export default function JournalPage() {
     const [loading, setLoading] = useState(true);
     const [selectedMood, setSelectedMood] = useState(null);
     const [moods, setMoods] = useState(DEFAULT_MOODS);
-    const [avatarUrl, setAvatarUrl] = useState("https://github.com/yunkhngn.png");
+    const [avatarUrl, setAvatarUrl] = useState(() => readCachedSettings()?.avatar || 'https://github.com/yunkhngn.png');
 
     // Edit/Delete/Reply State
     const [editingEntry, setEditingEntry] = useState(null);
