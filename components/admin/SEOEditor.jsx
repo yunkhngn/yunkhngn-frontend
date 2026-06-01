@@ -3,11 +3,11 @@ import { Textarea } from '@/components/ui/Textarea';
 import { Button } from '@/components/ui/Button';
 import { UploadCloud, X } from 'lucide-react';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { toast } from 'sonner';
 import { extractTextFromTipTap } from '@/lib/utils';
 
-export default function SEOEditor({ data, onChange, onImageUpload }) {
+export default function SEOEditor({ data, onChange, onImageUpload, type = 'blog' }) {
     const handleImageUpload = async (e) => {
         const file = e.target.files?.[0];
         if (!file) return;
@@ -24,7 +24,27 @@ export default function SEOEditor({ data, onChange, onImageUpload }) {
     const previewTitle = data.seoTitle || data.title || 'Page Title';
     const rawContent = extractTextFromTipTap(data.contentJSON);
     const previewDescription = data.seoDescription || (rawContent ? rawContent.substring(0, 160) + (rawContent.length > 160 ? '...' : '') : 'This is how your page description will appear in search results.');
-    const previewImage = data.seoImage || data.thumbnail;
+    const previewImage = data.seoImage || data.thumbnail || data.cover;
+
+    // Dynamic OG preview URL — debounced so it doesn't fire on every keystroke
+    const [ogPreviewUrl, setOgPreviewUrl] = useState('');
+    const [ogKey, setOgKey] = useState(0);
+    const debounceRef = useRef(null);
+
+    useEffect(() => {
+        clearTimeout(debounceRef.current);
+        debounceRef.current = setTimeout(() => {
+            const base = typeof window !== 'undefined' ? window.location.origin : '';
+            const q = new URLSearchParams();
+            q.set('title', previewTitle);
+            q.set('type', type);
+            if (previewDescription) q.set('description', previewDescription);
+            if (previewImage) q.set('thumbnail', previewImage);
+            setOgPreviewUrl(`${base}/api/og?${q.toString()}`);
+            setOgKey(k => k + 1);
+        }, 800);
+        return () => clearTimeout(debounceRef.current);
+    }, [previewTitle, previewDescription, previewImage, type]);
 
     return (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
@@ -149,19 +169,21 @@ export default function SEOEditor({ data, onChange, onImageUpload }) {
                         </p>
                     </div>
 
-                    <h3 className="text-lg font-semibold mb-2 mt-8">Facebook Share Preview</h3>
+                    <h3 className="text-lg font-semibold mb-2 mt-8">Social Share Preview</h3>
                     <div className="bg-[#f0f2f5] dark:bg-[#18191a] border rounded-lg overflow-hidden max-w-[400px]">
-                        {previewImage && (
-                            <div className="aspect-[1.91/1] relative bg-gray-200">
-                                <Image
-                                    src={previewImage}
+                        <div className="aspect-[1.91/1] relative bg-muted/50">
+                            {ogPreviewUrl ? (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img
+                                    key={ogKey}
+                                    src={ogPreviewUrl}
                                     alt="OG Preview"
-                                    fill
-                                    sizes="400px"
-                                    className="object-cover"
+                                    className="w-full h-full object-cover"
                                 />
-                            </div>
-                        )}
+                            ) : (
+                                <div className="flex items-center justify-center h-full text-xs text-muted-foreground">Loading…</div>
+                            )}
+                        </div>
                         <div className="p-3 bg-white dark:bg-[#242526] border-t dark:border-[#242526]">
                             <p className="text-xs text-[#65676b] dark:text-[#b0b3b8] uppercase truncate">yunkhngn.dev</p>
                             <h4 className="font-semibold text-[#050505] dark:text-[#e4e6eb] truncate mt-0.5">

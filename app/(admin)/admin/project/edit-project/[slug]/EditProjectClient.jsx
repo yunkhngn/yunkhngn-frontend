@@ -58,7 +58,6 @@ export default function EditProject() {
             if (!res.ok) throw new Error('Failed to update project');
 
             toast.success('Project updated successfully');
-            router.push('/admin/project');
         } catch (error) {
             console.error(error);
             toast.error('Failed to update project');

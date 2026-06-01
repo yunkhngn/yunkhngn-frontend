@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { useTheme } from 'next-themes';
-import { Bell, Bot, Moon, Sun, Menu, X, LogOut, LayoutDashboard, User, FileText, Folder, Image, Settings, MessageSquare, Mail, LayoutGrid, Link2, BookOpen, Terminal, Brain, MousePointerClick, Layers, Send } from 'lucide-react';
+import { Bell, Bot, Moon, Sun, Menu, X, LogOut, LayoutDashboard, User, FileText, Folder, Image, Settings, MessageSquare, Mail, LayoutGrid, Link2, BookOpen, Terminal, Brain, MousePointerClick, Layers, Send, Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
@@ -51,6 +51,7 @@ const ADMIN_NAV_ITEMS = [
             { label: "Audit Logs", href: "/admin/audit-logs", icon: FileText },
             { label: "Queues", href: `${process.env.NEXT_PUBLIC_API_URL || ''}/admin/queues`, icon: Layers, external: true },
             { label: "Profile", href: "/admin/profile", icon: User },
+            { label: "OG Preview", href: "/admin/og-preview", icon: Share2 },
             { label: "Settings", href: "/admin/settings", icon: Settings },
         ]
     }
