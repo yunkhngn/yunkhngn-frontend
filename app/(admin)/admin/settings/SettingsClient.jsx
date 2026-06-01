@@ -421,8 +421,7 @@ export default function Settings() {
         setUploading(true);
         try {
             const token = await user.getIdToken();
-            const isCV = currentSetting.settingTitle === 'cv_url';
-            const folder = isCV ? 'cv' : 'appearance';
+            const folder = currentSetting.settingTitle === 'cv_url' ? 'cv' : 'settings';
 
             const signRes = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/media/signature`, {
                 headers: { Authorization: `Bearer ${token}` },
@@ -448,6 +447,7 @@ export default function Settings() {
             toast.error('Upload failed');
         } finally {
             setUploading(false);
+            if (fileInputRef.current) fileInputRef.current.value = '';
         }
     };
 
@@ -719,6 +719,32 @@ export default function Settings() {
                                 />
                             )}
                         </div>
+
+                        {(
+                            <div className="flex items-center gap-3">
+                                <input
+                                    ref={fileInputRef}
+                                    type="file"
+                                    className="hidden"
+                                    accept="image/*,.pdf,.svg"
+                                    onChange={handleUploadCV}
+                                />
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    className="font-bold gap-2"
+                                    onClick={() => fileInputRef.current?.click()}
+                                    disabled={uploading}
+                                >
+                                    {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <UploadCloud className="h-4 w-4" />}
+                                    {uploading ? 'Uploading...' : 'Upload File'}
+                                </Button>
+                                {currentSetting.content && (
+                                    <span className="text-xs text-muted-foreground truncate max-w-[300px]">{currentSetting.content}</span>
+                                )}
+                            </div>
+                        )}
 
                         <div className="flex items-center gap-3 px-1">
                             <Checkbox
