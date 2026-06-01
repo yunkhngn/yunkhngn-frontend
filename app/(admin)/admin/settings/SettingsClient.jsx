@@ -427,7 +427,7 @@ export default function Settings() {
                 headers: { Authorization: `Bearer ${token}` },
                 params: { folder }
             });
-            const { signature, timestamp, cloudName, apiKey } = signRes.data;
+            const { signature, timestamp, cloudName, apiKey } = signRes.data?.data ?? signRes.data;
 
             const formData = new FormData();
             formData.append('file', file);
