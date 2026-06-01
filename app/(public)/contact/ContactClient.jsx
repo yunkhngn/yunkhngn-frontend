@@ -7,18 +7,7 @@ import { Textarea } from '@/components/ui/Textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/Select';
 import { toast } from 'sonner';
 import { Mail, User, MessageSquare, Phone, Building, Tag } from 'lucide-react';
-import { motion } from 'framer-motion';
 import PageHero from '@/components/shared/PageHero';
-
-const containerVariants = {
-    hidden: {},
-    visible: { transition: { staggerChildren: 0.07 } },
-};
-
-const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] } },
-};
 
 export default function Contact() {
     const [formData, setFormData] = useState({
@@ -69,15 +58,12 @@ export default function Contact() {
                 className="mb-12"
             />
 
-            <motion.form
+            <form
                 onSubmit={handleSubmit}
-                variants={containerVariants}
-                initial="hidden"
-                animate="visible"
                 className="space-y-6 max-w-2xl mx-auto"
             >
                 {/* Name */}
-                <motion.div variants={itemVariants} className="space-y-2">
+                <div className="space-y-2">
                     <label htmlFor="name" className="text-base font-semibold text-foreground">
                         Your name
                     </label>
@@ -94,10 +80,10 @@ export default function Contact() {
                             aria-label="Your Name"
                         />
                     </div>
-                </motion.div>
+                </div>
 
                 {/* Email */}
-                <motion.div variants={itemVariants} className="space-y-2">
+                <div className="space-y-2">
                     <label className="text-base font-semibold text-foreground">
                         Email
                     </label>
@@ -112,10 +98,10 @@ export default function Contact() {
                             required
                         />
                     </div>
-                </motion.div>
+                </div>
 
                 {/* Phone */}
-                <motion.div variants={itemVariants} className="space-y-2">
+                <div className="space-y-2">
                     <label className="text-base font-semibold text-foreground">
                         Phone (Optional)
                     </label>
@@ -129,10 +115,10 @@ export default function Contact() {
                             className="pl-10"
                         />
                     </div>
-                </motion.div>
+                </div>
 
                 {/* Company */}
-                <motion.div variants={itemVariants} className="space-y-2">
+                <div className="space-y-2">
                     <label className="text-base font-semibold text-foreground">
                         Company (Optional)
                     </label>
@@ -146,10 +132,10 @@ export default function Contact() {
                             className="pl-10"
                         />
                     </div>
-                </motion.div>
+                </div>
 
                 {/* Category */}
-                <motion.div variants={itemVariants} className="space-y-2">
+                <div className="space-y-2">
                     <label className="text-base font-semibold text-foreground">
                         Category
                     </label>
@@ -167,10 +153,10 @@ export default function Contact() {
                             </SelectContent>
                         </Select>
                     </div>
-                </motion.div>
+                </div>
 
                 {/* Subject */}
-                <motion.div variants={itemVariants} className="space-y-2">
+                <div className="space-y-2">
                     <label className="text-base font-semibold text-foreground">
                         Subject
                     </label>
@@ -185,10 +171,10 @@ export default function Contact() {
                             required
                         />
                     </div>
-                </motion.div>
+                </div>
 
                 {/* Message */}
-                <motion.div variants={itemVariants} className="space-y-2">
+                <div className="space-y-2">
                     <label className="text-base font-semibold text-foreground">
                         Message
                     </label>
@@ -199,10 +185,10 @@ export default function Contact() {
                         rows={8}
                         required
                     />
-                </motion.div>
+                </div>
 
                 {/* Submit Button */}
-                <motion.div variants={itemVariants}>
+                <div>
                     <Button
                         type="submit"
                         disabled={submitting}
@@ -211,8 +197,8 @@ export default function Contact() {
                     >
                         {submitting ? 'Sending...' : 'Send Message'}
                     </Button>
-                </motion.div>
-            </motion.form>
+                </div>
+            </form>
         </div>
     );
 }

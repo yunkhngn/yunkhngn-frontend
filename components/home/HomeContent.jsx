@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { motion } from 'framer-motion';
+import { LazyMotion, domAnimation, m as motion } from 'framer-motion';
 import HeroBackground from '@/components/home/HeroBackground';
 import RevealHeading from '@/components/home/RevealHeading';
 import TiltCard from '@/components/home/TiltCard';
@@ -167,6 +167,7 @@ export default function HomeContent({
   };
 
   return (
+    <LazyMotion features={domAnimation}>
     <div className="container mx-auto px-4 pb-12 md:pb-24 pt-0 max-w-7xl space-y-32 overflow-x-hidden">
       <HeroBackground />
       <JsonLd data={jsonLdData} />
@@ -265,6 +266,7 @@ export default function HomeContent({
                     fill
                     sizes="(max-width: 768px) 8rem, 12rem"
                     className="object-cover"
+                    priority
                   />
                 </div>
                 <StatusBadge />
@@ -663,6 +665,7 @@ export default function HomeContent({
         </a>
       </section>
     </div>
+    </LazyMotion>
   );
 }
 

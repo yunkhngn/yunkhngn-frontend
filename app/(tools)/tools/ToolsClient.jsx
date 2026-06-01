@@ -1,7 +1,8 @@
 // yunkhngn-fe/app/(tools)/tools/ToolsClient.jsx
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, Suspense } from 'react';
+import dynamic from 'next/dynamic';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   X,
@@ -26,23 +27,33 @@ import {
   Salad,
   CalendarDays,
   MoonStar,
+  Loader2,
 } from 'lucide-react';
 import ToolCard from './ToolCard';
-import WhatToEat from './what-to-eat/WhatToEat';
 import ChromeExtensionCard from './ChromeExtensionCard';
-import BMI from './bmi/BMI';
-import SleepCalculator from './sleep-calculator/SleepCalculator';
-import WaterTracker from './water-tracker/WaterTracker';
-import RandomQuote from './random-quote/RandomQuote';
-import JsonFormatter from './json-formatter/JsonFormatter';
-import Base64 from './base64/Base64';
-import UuidGenerator from './uuid-generator/UuidGenerator';
-import RegexTester from './regex-tester/RegexTester';
-import QrGenerator from './qr-generator/QrGenerator';
-import UnitConverter from './unit-converter/UnitConverter';
-import PasswordGenerator from './password-generator/PasswordGenerator';
-import MovieSuggest from './movie-suggest/MovieSuggest';
-import CalorieCounter from './calorie-counter/CalorieCounter';
+
+const ToolLoader = () => (
+  <div className="flex items-center justify-center py-12">
+    <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+  </div>
+);
+
+const TOOL_COMPONENTS = {
+  'what-to-eat': dynamic(() => import('./what-to-eat/WhatToEat'), { loading: ToolLoader }),
+  'bmi': dynamic(() => import('./bmi/BMI'), { loading: ToolLoader }),
+  'sleep-calculator': dynamic(() => import('./sleep-calculator/SleepCalculator'), { loading: ToolLoader }),
+  'water-tracker': dynamic(() => import('./water-tracker/WaterTracker'), { loading: ToolLoader }),
+  'random-quote': dynamic(() => import('./random-quote/RandomQuote'), { loading: ToolLoader }),
+  'json-formatter': dynamic(() => import('./json-formatter/JsonFormatter'), { loading: ToolLoader }),
+  'base64': dynamic(() => import('./base64/Base64'), { loading: ToolLoader }),
+  'uuid-generator': dynamic(() => import('./uuid-generator/UuidGenerator'), { loading: ToolLoader }),
+  'regex-tester': dynamic(() => import('./regex-tester/RegexTester'), { loading: ToolLoader }),
+  'qr-generator': dynamic(() => import('./qr-generator/QrGenerator'), { loading: ToolLoader }),
+  'unit-converter': dynamic(() => import('./unit-converter/UnitConverter'), { loading: ToolLoader }),
+  'password-generator': dynamic(() => import('./password-generator/PasswordGenerator'), { loading: ToolLoader }),
+  'movie-suggest': dynamic(() => import('./movie-suggest/MovieSuggest'), { loading: ToolLoader }),
+  'calorie-counter': dynamic(() => import('./calorie-counter/CalorieCounter'), { loading: ToolLoader }),
+};
 
 const CATEGORIES = [
   { key: 'food', label: 'Ăn uống', icon: Utensils },
@@ -53,118 +64,20 @@ const CATEGORIES = [
 ];
 
 const TOOLS = [
-  {
-    id: 'what-to-eat',
-    icon: ChefHat,
-    name: 'Hôm nay ăn gì?',
-    description: 'Gợi ý món ăn dựa theo thời tiết và giờ hiện tại.',
-    category: 'food',
-    Component: WhatToEat,
-  },
-  {
-    id: 'bmi',
-    icon: Scale,
-    name: 'Tính BMI',
-    description: 'Nhập chiều cao và cân nặng để tính chỉ số BMI.',
-    category: 'health',
-    Component: BMI,
-  },
-  {
-    id: 'sleep-calculator',
-    icon: Moon,
-    name: 'Tính giờ ngủ',
-    description: 'Nhập giờ thức dậy để biết nên đi ngủ lúc mấy giờ.',
-    category: 'health',
-    Component: SleepCalculator,
-  },
-  {
-    id: 'water-tracker',
-    icon: Droplet,
-    name: 'Nhắc uống nước',
-    description: 'Nhập cân nặng để tính lượng nước cần uống mỗi ngày.',
-    category: 'health',
-    Component: WaterTracker,
-  },
-  {
-    id: 'random-quote',
-    icon: Quote,
-    name: 'Random Quote',
-    description: 'Quote ngẫu nhiên theo chủ đề: động lực, cuộc sống, coding.',
-    category: 'entertainment',
-    Component: RandomQuote,
-  },
-  {
-    id: 'json-formatter',
-    icon: Braces,
-    name: 'JSON Formatter',
-    description: 'Paste JSON để format + validate. Copy kết quả 1 click.',
-    category: 'coding',
-    Component: JsonFormatter,
-  },
-  {
-    id: 'base64',
-    icon: Binary,
-    name: 'Base64',
-    description: 'Encode hoặc decode Base64 ngay lập tức.',
-    category: 'coding',
-    Component: Base64,
-  },
-  {
-    id: 'uuid-generator',
-    icon: Fingerprint,
-    name: 'UUID Generator',
-    description: 'Generate UUID v4. Copy 1 click hoặc batch ×5.',
-    category: 'coding',
-    Component: UuidGenerator,
-  },
-  {
-    id: 'regex-tester',
-    icon: SearchCode,
-    name: 'Regex Tester',
-    description: 'Nhập pattern + test string để highlight match trực tiếp.',
-    category: 'coding',
-    Component: RegexTester,
-  },
-  {
-    id: 'qr-generator',
-    icon: QrCode,
-    name: 'QR Code Generator',
-    description: 'Nhập text hoặc URL để tạo QR code. Download PNG.',
-    category: 'utility',
-    Component: QrGenerator,
-  },
-  {
-    id: 'unit-converter',
-    icon: Ruler,
-    name: 'Unit Converter',
-    description: 'Đổi đơn vị nhiệt độ, cân nặng, và khoảng cách.',
-    category: 'utility',
-    Component: UnitConverter,
-  },
-  {
-    id: 'password-generator',
-    icon: KeyRound,
-    name: 'Password Generator',
-    description: 'Tạo mật khẩu ngẫu nhiên với tùy chọn độ dài và ký tự.',
-    category: 'utility',
-    Component: PasswordGenerator,
-  },
-  {
-    id: 'movie-suggest',
-    icon: Film,
-    name: 'Gợi ý phim AI',
-    description: 'Hỏi AI gợi ý phim dựa trên tâm trạng và thể loại.',
-    category: 'entertainment',
-    Component: MovieSuggest,
-  },
-  {
-    id: 'calorie-counter',
-    icon: Salad,
-    name: 'Tính calo ăn uống',
-    description: 'Nhập mô tả món ăn để AI ước lượng calo & macros.',
-    category: 'health',
-    Component: CalorieCounter,
-  },
+  { id: 'what-to-eat', icon: ChefHat, name: 'Hôm nay ăn gì?', description: 'Gợi ý món ăn dựa theo thời tiết và giờ hiện tại.', category: 'food' },
+  { id: 'bmi', icon: Scale, name: 'Tính BMI', description: 'Nhập chiều cao và cân nặng để tính chỉ số BMI.', category: 'health' },
+  { id: 'sleep-calculator', icon: Moon, name: 'Tính giờ ngủ', description: 'Nhập giờ thức dậy để biết nên đi ngủ lúc mấy giờ.', category: 'health' },
+  { id: 'water-tracker', icon: Droplet, name: 'Nhắc uống nước', description: 'Nhập cân nặng để tính lượng nước cần uống mỗi ngày.', category: 'health' },
+  { id: 'random-quote', icon: Quote, name: 'Random Quote', description: 'Quote ngẫu nhiên theo chủ đề: động lực, cuộc sống, coding.', category: 'entertainment' },
+  { id: 'json-formatter', icon: Braces, name: 'JSON Formatter', description: 'Paste JSON để format + validate. Copy kết quả 1 click.', category: 'coding' },
+  { id: 'base64', icon: Binary, name: 'Base64', description: 'Encode hoặc decode Base64 ngay lập tức.', category: 'coding' },
+  { id: 'uuid-generator', icon: Fingerprint, name: 'UUID Generator', description: 'Generate UUID v4. Copy 1 click hoặc batch ×5.', category: 'coding' },
+  { id: 'regex-tester', icon: SearchCode, name: 'Regex Tester', description: 'Nhập pattern + test string để highlight match trực tiếp.', category: 'coding' },
+  { id: 'qr-generator', icon: QrCode, name: 'QR Code Generator', description: 'Nhập text hoặc URL để tạo QR code. Download PNG.', category: 'utility' },
+  { id: 'unit-converter', icon: Ruler, name: 'Unit Converter', description: 'Đổi đơn vị nhiệt độ, cân nặng, và khoảng cách.', category: 'utility' },
+  { id: 'password-generator', icon: KeyRound, name: 'Password Generator', description: 'Tạo mật khẩu ngẫu nhiên với tùy chọn độ dài và ký tự.', category: 'utility' },
+  { id: 'movie-suggest', icon: Film, name: 'Gợi ý phim AI', description: 'Hỏi AI gợi ý phim dựa trên tâm trạng và thể loại.', category: 'entertainment' },
+  { id: 'calorie-counter', icon: Salad, name: 'Tính calo ăn uống', description: 'Nhập mô tả món ăn để AI ước lượng calo & macros.', category: 'health' },
 ];
 
 const CHROME_EXTENSIONS = [
@@ -244,7 +157,7 @@ export default function ToolsClient() {
               <X size={18} />
             </button>
           </div>
-          <selected.Component />
+          {(() => { const ToolComponent = TOOL_COMPONENTS[selected.id]; return ToolComponent ? <ToolComponent /> : null; })()}
         </motion.div>
       ) : (
         <motion.div
