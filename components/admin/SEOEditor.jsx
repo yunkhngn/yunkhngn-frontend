@@ -170,8 +170,8 @@ export default function SEOEditor({ data, onChange, onImageUpload, type = 'blog'
                     </div>
 
                     <h3 className="text-lg font-semibold mb-2 mt-8">Social Share Preview</h3>
-                    <div className="bg-[#f0f2f5] dark:bg-[#18191a] border rounded-lg overflow-hidden max-w-[400px]">
-                        <div className="aspect-[1.91/1] relative bg-muted/50">
+                    <div className="bg-[#f0f2f5] dark:bg-[#18191a] border rounded-lg overflow-hidden w-full max-w-[525px]">
+                        <div className="relative bg-muted/50 w-full" style={{ aspectRatio: '1.91 / 1' }}>
                             {ogPreviewUrl ? (
                                 // eslint-disable-next-line @next/next/no-img-element
                                 <img
