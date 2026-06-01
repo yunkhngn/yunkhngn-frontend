@@ -17,7 +17,7 @@ export async function generateMetadata({ params }) {
   const ogParams = new URLSearchParams({
     title,
     type: 'project',
-    description: desc.slice(0, 100),
+    description: desc,
     ...(project.cover ? { thumbnail: project.cover } : {}),
   });
   const ogImage = `https://yunkhngn.dev/api/og?${ogParams.toString()}`;

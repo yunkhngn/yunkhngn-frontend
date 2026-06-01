@@ -774,6 +774,7 @@ export default function BlogForm({ initialData, onSubmit, isEditing = false }) {
                                     setIsDirty(true);
                                 }}
                                 onImageUpload={handleEditorImageUpload}
+                                type="blog"
                             />
                         </TabsContent>
                     </Tabs>

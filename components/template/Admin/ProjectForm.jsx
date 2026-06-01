@@ -561,6 +561,7 @@ export default function ProjectForm({ initialData, onSubmit, isEditing = false }
                                 setIsDirty(true);
                             }}
                             onImageUpload={handleEditorImageUpload}
+                            type="project"
                         />
                     </TabsContent>
                 </Tabs>

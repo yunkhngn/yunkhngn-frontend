@@ -44,7 +44,6 @@ export default function EditBlog() {
                 headers: { Authorization: `Bearer ${token}` }
             });
             toast.success('Blog updated successfully');
-            router.push('/admin/blog');
         } catch (error) {
             console.error(error);
             toast.error(error.response?.data?.message || 'Failed to update blog');
