@@ -54,6 +54,7 @@ export default function LiveActivityInline() {
   const [wakatimeData, setWakatimeData] = useState(null);
   const [steamData, setSteamData] = useState(null);
   const [weatherData, setWeatherData] = useState(null);
+  const [valorantData, setValorantData] = useState(null);
 
   const [loadingCoding, setLoadingCoding] = useState(true);
   const [loadingMusic, setLoadingMusic] = useState(true);
@@ -80,6 +81,7 @@ export default function LiveActivityInline() {
       safeGet('/wakatime/today', setWakatimeData);
       safeGet('/steam/now-playing', setSteamData);
       safeGet('/weather/hanoi', setWeatherData);
+      safeGet('/valorant/recent', setValorantData);
     };
 
     fetchAll();
@@ -254,6 +256,33 @@ export default function LiveActivityInline() {
       </div>
 
       {/* Playing / Steam */}
+      {valorantData && (
+        <div className="flex items-center gap-3 lg:justify-start w-full overflow-hidden">
+          <div className="flex items-center gap-1.5 text-red-400 shrink-0">
+            valorant <Gamepad2 className="w-4 h-4" />:
+          </div>
+          <div className="flex items-center gap-2 overflow-hidden flex-1">
+            {valorantData.agent_icon && (
+              <div className="relative w-5 h-5 shrink-0 rounded-[4px] overflow-hidden border border-white/10">
+                <Image src={valorantData.agent_icon} alt={valorantData.agent} fill sizes="20px" className="object-cover" />
+              </div>
+            )}
+            <MarqueeText className="text-gray-300 min-w-0">
+              {valorantData.agent}
+              {' · '}
+              {valorantData.kills}/{valorantData.deaths}/{valorantData.assists}
+              {' · '}
+              <span className={valorantData.won === true ? 'text-green-400' : valorantData.won === false ? 'text-red-400' : 'text-gray-500'}>
+                {valorantData.won === true ? 'Win' : valorantData.won === false ? 'Loss' : 'Draw'}
+              </span>
+              {' · '}
+              <span className="text-gray-500">{valorantData.mode}</span>
+            </MarqueeText>
+            {valorantData.is_recent && <PulseDot color="orange" />}
+          </div>
+        </div>
+      )}
+
       {steamData?.name && (
         <div className="flex items-center gap-3 lg:justify-start w-full overflow-hidden">
           <div className="flex items-center gap-1.5 text-orange-400 shrink-0">
