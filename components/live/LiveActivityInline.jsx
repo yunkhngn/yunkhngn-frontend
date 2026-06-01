@@ -287,8 +287,6 @@ export default function LiveActivityInline() {
             <MarqueeText className="text-gray-300 min-w-0">
               {valorantData.agent}
               {' · '}
-              {valorantData.kills}/{valorantData.deaths}/{valorantData.assists}
-              {' · '}
               <span className={valorantData.won === true ? 'text-green-400' : valorantData.won === false ? 'text-red-400' : 'text-gray-500'}>
                 {valorantData.won === true ? 'Win' : valorantData.won === false ? 'Loss' : 'Draw'}
               </span>

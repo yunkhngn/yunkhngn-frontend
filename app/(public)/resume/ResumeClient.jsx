@@ -62,23 +62,11 @@ export default function Resume() {
                                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
                             </div>
                         ) : isPdf ? (
-                            <object
-                                data={cvUrl}
-                                type="application/pdf"
-                                className="w-full h-full"
-                            >
-                                <div className="flex flex-col items-center justify-center h-full p-4 text-center">
-                                    <p className="mb-2">Unable to display PDF directly.</p>
-                                    <a
-                                        href={cvUrl}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="text-blue-500 hover:underline"
-                                    >
-                                        Click here to view PDF
-                                    </a>
-                                </div>
-                            </object>
+                            <iframe
+                                src={`https://docs.google.com/viewer?url=${encodeURIComponent(cvUrl)}&embedded=true`}
+                                className="w-full h-full border-0"
+                                title="CV"
+                            />
                         ) : (
                             <Image
                                 src={cvUrl}
