@@ -13,6 +13,16 @@ import {
 } from 'lucide-react';
 import { MarqueeText } from '@/components/ui/MarqueeText';
 import { formatDistanceToNow } from 'date-fns';
+import { getCached, setCached } from '@/lib/liveActivityCache';
+
+const TTL = {
+  coding:   120_000,
+  music:     30_000,
+  wakatime:  60_000,
+  steam:     60_000,
+  weather:  600_000,
+  valorant: 120_000,
+};
 
 const POLL_INTERVAL_MS = 60000;
 
@@ -60,10 +70,19 @@ export default function LiveActivityInline() {
   const [loadingMusic, setLoadingMusic] = useState(true);
 
   useEffect(() => {
-    const safeGet = (path, setter, onFinally) => {
+    const safeGet = (cacheKey, path, setter, ttlMs, onFinally) => {
+      const cached = getCached(cacheKey);
+      if (cached !== null) {
+        setter(cached);
+        if (onFinally) onFinally();
+        return;
+      }
       api
         .get(path)
-        .then((res) => setter(res.data))
+        .then((res) => {
+          setter(res.data);
+          setCached(cacheKey, res.data, ttlMs);
+        })
         .catch(() => setter(null))
         .finally(() => {
           if (onFinally) onFinally();
@@ -74,14 +93,12 @@ export default function LiveActivityInline() {
       if (typeof document !== 'undefined' && document.visibilityState !== 'visible') {
         return;
       }
-      safeGet('/admin/github/latest-activity', setCodingData, () =>
-        setLoadingCoding(false),
-      );
-      safeGet('/lastfm/playing', setMusicData, () => setLoadingMusic(false));
-      safeGet('/wakatime/today', setWakatimeData);
-      safeGet('/steam/now-playing', setSteamData);
-      safeGet('/weather/hanoi', setWeatherData);
-      safeGet('/valorant/recent', setValorantData);
+      safeGet('coding',   '/admin/github/latest-activity', setCodingData,  TTL.coding,   () => setLoadingCoding(false));
+      safeGet('music',    '/lastfm/playing',               setMusicData,    TTL.music,    () => setLoadingMusic(false));
+      safeGet('wakatime', '/wakatime/today',               setWakatimeData, TTL.wakatime);
+      safeGet('steam',    '/steam/now-playing',            setSteamData,    TTL.steam);
+      safeGet('weather',  '/weather/hanoi',                setWeatherData,  TTL.weather);
+      safeGet('valorant', '/valorant/recent',              setValorantData, TTL.valorant);
     };
 
     fetchAll();
