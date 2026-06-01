@@ -13,9 +13,13 @@ export async function generateMetadata({ params }) {
     return { title: 'Not found' };
   }
   const desc = blog.seoDescription || blog.description || '';
-  const ogImage = blog.thumbnail
-    ? blog.thumbnail
-    : `https://yunkhngn.dev/api/og?title=${encodeURIComponent(blog.title)}&type=blog&description=${encodeURIComponent(desc.slice(0, 100))}`;
+  const ogParams = new URLSearchParams({
+    title: blog.title,
+    type: 'blog',
+    description: desc.slice(0, 100),
+    ...(blog.thumbnail ? { thumbnail: blog.thumbnail } : {}),
+  });
+  const ogImage = `https://yunkhngn.dev/api/og?${ogParams.toString()}`;
 
   return {
     title: blog.title,
