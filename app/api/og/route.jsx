@@ -62,7 +62,7 @@ export async function GET(request) {
     const { searchParams } = new URL(request.url);
     const title = (searchParams.get('title') || 'Khoa Nguyễn').slice(0, 70);
     const type = searchParams.get('type') || 'page';
-    const desc = (searchParams.get('description') || 'Software Engineer · Designer · Guitarist').slice(0, 120);
+    const desc = (searchParams.get('description') || 'Software Engineer · Graphic Designer · Guitarist').slice(0, 120);
     const thumbnailParam = searchParams.get('thumbnail') || null;
     const label = LABELS[type] || 'Portfolio';
     const titleSize = thumbnailParam ? (title.length > 35 ? 40 : 48) : (title.length > 35 ? 52 : 64);
@@ -98,10 +98,20 @@ export async function GET(request) {
                   <span>yun.khngn</span>
                   <span style={{ marginLeft: 3 }}>_</span>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', fontSize: 14, fontWeight: 700, fontFamily: '"JetBrains Mono", monospace', color: TEXT }}>
-                  <span style={{ marginRight: 6 }}>&gt;</span>
-                  <span>{label.toLowerCase()}</span>
-                  <span style={{ marginLeft: 3 }}>_</span>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  background: BORDER,
+                  color: BG,
+                  borderRadius: 20,
+                  padding: '4px 12px',
+                  fontSize: 11,
+                  fontWeight: 700,
+                  fontFamily: '"JetBrains Mono", monospace',
+                  letterSpacing: '0.06em',
+                  textTransform: 'uppercase',
+                }}>
+                  {label}
                 </div>
               </div>
               {/* Middle */}
@@ -140,10 +150,20 @@ export async function GET(request) {
               <span>yun.khngn</span>
               <span style={{ marginLeft: 3 }}>_</span>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', fontSize: 16, fontWeight: 700, fontFamily: '"JetBrains Mono", monospace', color: TEXT }}>
-              <span style={{ marginRight: 6 }}>&gt;</span>
-              <span>{label.toLowerCase()}</span>
-              <span style={{ marginLeft: 3 }}>_</span>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              background: BORDER,
+              color: BG,
+              borderRadius: 20,
+              padding: '5px 14px',
+              fontSize: 12,
+              fontWeight: 700,
+              fontFamily: '"JetBrains Mono", monospace',
+              letterSpacing: '0.06em',
+              textTransform: 'uppercase',
+            }}>
+              {label}
             </div>
           </div>
           {/* Middle */}
