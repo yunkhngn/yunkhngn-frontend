@@ -200,15 +200,15 @@ export default function ToolsClient() {
   }, [close]);
 
   return (
-    <AnimatePresence mode="popLayout">
+    <AnimatePresence mode="wait">
       {selected ? (
         <motion.div
           key="expanded"
-          layoutId={`tool-${selected.id}`}
           className="bg-card border border-border rounded-xl p-6"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 15 }}
+          transition={{ duration: 0.2, ease: 'easeOut' }}
         >
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
@@ -228,9 +228,10 @@ export default function ToolsClient() {
       ) : (
         <motion.div
           key="grid"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
+          initial={{ opacity: 0, y: -15 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -15 }}
+          transition={{ duration: 0.2, ease: 'easeOut' }}
         >
           {/* Search + filter controls */}
           <div className="mb-6 space-y-3">

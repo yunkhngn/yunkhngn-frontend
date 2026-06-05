@@ -6,7 +6,6 @@ import { motion } from 'framer-motion';
 export default function ToolCard({ id, icon: Icon, name, description, onClick, badge }) {
   return (
     <motion.div
-      layoutId={`tool-${id}`}
       onClick={onClick}
       className="relative cursor-pointer bg-card border border-border rounded-xl p-5 hover:bg-accent transition-colors"
       whileHover={{ y: -2 }}
