@@ -4,6 +4,7 @@ import {
   JetBrains_Mono,
   Be_Vietnam_Pro,
 } from 'next/font/google';
+import localFont from 'next/font/local';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { Analytics } from "@vercel/analytics/next"
 
@@ -25,6 +26,18 @@ const beVietnamPro = Be_Vietnam_Pro({
   subsets: ['latin', 'vietnamese'],
   weight: ['100', '200', '300', '400', '500', '600', '700', '800', '900'],
   variable: '--font-be-vietnam-pro',
+  display: 'swap',
+});
+
+const reebie = localFont({
+  src: '../public/fonts/Reebie.ttf',
+  variable: '--font-reebie',
+  display: 'swap',
+});
+
+const fzHandwriting = localFont({
+  src: '../public/fonts/fz-handwriting.ttf',
+  variable: '--font-fz',
   display: 'swap',
 });
 
@@ -83,7 +96,7 @@ export default function RootLayout({ children }) {
         <link rel="dns-prefetch" href="https://avatars.githubusercontent.com" />
       </head>
       <body
-        className={`${playfair.variable} ${jetbrainsMono.variable} ${beVietnamPro.variable} font-sans antialiased`}
+        className={`${playfair.variable} ${jetbrainsMono.variable} ${beVietnamPro.variable} ${reebie.variable} ${fzHandwriting.variable} font-sans antialiased`}
       >
         <Providers>{children}</Providers>
         <SpeedInsights />
