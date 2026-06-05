@@ -35,6 +35,8 @@ import { format, isValid } from 'date-fns';
 import Image from 'next/image';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import { AdminPageHeader, BulkActionBar, AdminEmptyState, StatusIndicator } from '@/components/admin/shared';
+import { cn } from '@/lib/utils';
+import LetterEditor from '@/components/admin/LetterEditor';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 const PUBLIC_LETTER_PREFIX = 'https://yunkhngn.dev/letter/';
@@ -66,6 +68,9 @@ export default function AdminLetters() {
     isActive: true,
     enableAnimation: true,
     pages: [emptyPage()],
+    kind: 'scan',
+    font: 'fz',
+    contentJSON: '',
   });
 
   const fetchLetters = useCallback(async () => {
@@ -107,6 +112,9 @@ export default function AdminLetters() {
       isActive: true,
       enableAnimation: true,
       pages: [emptyPage()],
+      kind: 'scan',
+      font: 'fz',
+      contentJSON: '',
     });
     setEditing(null);
   };
@@ -125,6 +133,9 @@ export default function AdminLetters() {
       removePassword: false,
       isActive: letter.isActive,
       enableAnimation: letter.enableAnimation ?? true,
+      kind: letter.kind || 'scan',
+      font: letter.font || 'fz',
+      contentJSON: letter.contentJSON || '',
       pages:
         letter.pages?.length > 0
           ? letter.pages.map((p) => ({
@@ -197,25 +208,37 @@ export default function AdminLetters() {
   };
 
   const handleSave = async () => {
-    const pagesPayload = form.pages
-      .filter((p) => p.imageUrl)
-      .map((p, i) => ({
-        imageUrl: p.imageUrl,
-        width: p.width ?? undefined,
-        height: p.height ?? undefined,
-        sortOrder: i,
-      }));
+    const isTextMode = form.kind === 'text';
+    let pagesPayload = [];
 
-    if (pagesPayload.length === 0) {
-      toast.error('Add at least one page image');
-      return;
+    if (!isTextMode) {
+      pagesPayload = form.pages
+        .filter((p) => p.imageUrl)
+        .map((p, i) => ({
+          imageUrl: p.imageUrl,
+          width: p.width ?? undefined,
+          height: p.height ?? undefined,
+          sortOrder: i,
+        }));
+
+      if (pagesPayload.length === 0) {
+        toast.error('Add at least one page image');
+        return;
+      }
+    } else {
+      if (!form.contentJSON || form.contentJSON.trim() === '') {
+        toast.error('Nội dung thư không được để trống');
+        return;
+      }
     }
 
     let pagesChanged = true;
-    if (editing && editing.pages?.length === pagesPayload.length) {
+    if (!isTextMode && editing && editing.pages?.length === pagesPayload.length) {
       pagesChanged = pagesPayload.some(
         (p, i) => p.imageUrl !== editing.pages[i]?.imageUrl,
       );
+    } else if (isTextMode) {
+      pagesChanged = false;
     }
 
     setSaving(true);
@@ -225,9 +248,16 @@ export default function AdminLetters() {
         title: form.title || undefined,
         isActive: form.isActive,
         enableAnimation: form.enableAnimation,
+        kind: form.kind,
       };
 
-      if (!editing || pagesChanged) body.pages = pagesPayload;
+      if (isTextMode) {
+        body.font = form.font;
+        body.contentJSON = form.contentJSON;
+      } else {
+        if (!editing || pagesChanged) body.pages = pagesPayload;
+      }
+
       if (form.code.trim()) body.code = form.code.trim();
       if (form.password.trim()) body.password = form.password.trim();
       if (editing && form.removePassword) body.removePassword = true;
@@ -533,18 +563,27 @@ export default function AdminLetters() {
                               src={letter.pages[0].imageUrl}
                               alt=""
                               fill
-                              sizes="64px"
+                              sizes="64px; 64px"
                               className="object-cover"
                               unoptimized
                             />
                           ) : (
-                            <div className="w-full h-full flex items-center justify-center">
-                              <ImageIcon className="h-4 w-4 text-muted-foreground/30" />
+                            <div className="w-full h-full flex items-center justify-center bg-neutral-900">
+                              {letter.kind === 'text' ? (
+                                <span className={cn(
+                                  "text-sm font-bold text-amber-500/80",
+                                  letter.font === 'reebie' ? 'font-reebie' : 'font-fz'
+                                )}>
+                                  Aa
+                                </span>
+                              ) : (
+                                <ImageIcon className="h-4 w-4 text-muted-foreground/30" />
+                              )}
                             </div>
                           )}
                           <div className="absolute inset-x-0 bottom-0 top-1/2 bg-gradient-to-t from-black/80 to-transparent pointer-events-none" />
                           <span className="absolute bottom-1 right-1 text-[8px] font-bold text-white">
-                            {letter.pages?.length || 0}p
+                            {letter.kind === 'text' ? 'Text' : `${letter.pages?.length || 0}p`}
                           </span>
                         </div>
                         <div>
@@ -749,86 +788,125 @@ export default function AdminLetters() {
             </label>
 
             <div>
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium">Pages (max 3)</span>
-                {form.pages.length < 3 && (
-                  <Button type="button" variant="outline" size="sm" onClick={addPageSlot}>
-                    Add page
-                  </Button>
-                )}
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {form.pages.map((page, index) => (
-                  <div
-                    key={page.localKey || index}
-                    className="border border-border/50 rounded-lg p-3 bg-muted/30 relative group"
-                  >
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                        Page {index + 1}
-                      </span>
-                      {form.pages.length > 1 && (
-                        <button
-                          type="button"
-                          className="p-1 rounded-full hover:bg-red-500/10 text-muted-foreground hover:text-red-500 transition-colors"
-                          onClick={() => removePageSlot(index)}
-                        >
-                          <XCircle className="h-3.5 w-3.5" />
-                        </button>
-                      )}
-                    </div>
-
-                    <div className="flex gap-3 items-center">
-                      <div className="relative w-14 h-14 rounded border border-border bg-background shrink-0 overflow-hidden">
-                        {page.imageUrl ? (
-                          <Image src={page.imageUrl} alt="" fill sizes="56px" className="object-cover" unoptimized />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center">
-                            <ImageIcon className="h-5 w-5 text-muted-foreground/30" />
-                          </div>
-                        )}
-                        {uploadingIdx === index && (
-                          <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                            <Loader2 className="h-4 w-4 animate-spin text-white" />
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="flex-1 min-w-0">
-                        <input
-                          ref={(el) => {
-                            fileRefs.current[index] = el;
-                          }}
-                          type="file"
-                          accept="image/*"
-                          className="hidden"
-                          onChange={(e) => {
-                            const f = e.target.files?.[0];
-                            if (f) uploadImageAt(index, f);
-                            e.target.value = '';
-                          }}
-                        />
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          className="w-full h-8 text-[11px] gap-1.5"
-                          disabled={uploadingIdx === index}
-                          onClick={() => fileRefs.current[index]?.click()}
-                        >
-                          {page.imageUrl ? 'Replace' : 'Upload'}
-                        </Button>
-                        {page.imageUrl && (
-                          <p className="text-[10px] text-muted-foreground mt-1 truncate">
-                            {page.imageUrl.split('/').pop()}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                ))}
+              <label className="block text-sm font-medium mb-1.5">Loại thư</label>
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setForm((f) => ({ ...f, kind: 'scan' }))}
+                  className={cn(
+                    "py-2 rounded-md border text-sm font-medium transition-all",
+                    form.kind === 'scan'
+                      ? "bg-amber-500/10 border-amber-500 text-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.1)]"
+                      : "bg-background border-border text-muted-foreground hover:border-neutral-700"
+                  )}
+                >
+                  Thư quét ảnh (Scan)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setForm((f) => ({ ...f, kind: 'text' }))}
+                  className={cn(
+                    "py-2 rounded-md border text-sm font-medium transition-all",
+                    form.kind === 'text'
+                      ? "bg-amber-500/10 border-amber-500 text-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.1)]"
+                      : "bg-background border-border text-muted-foreground hover:border-neutral-700"
+                  )}
+                >
+                  Thư viết tay (Write)
+                </button>
               </div>
             </div>
+
+            {form.kind === 'text' ? (
+              <LetterEditor
+                value={form.contentJSON}
+                onChange={(contentJSON) => setForm((f) => ({ ...f, contentJSON }))}
+                font={form.font}
+                onFontChange={(font) => setForm((f) => ({ ...f, font }))}
+              />
+            ) : (
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium">Pages (max 3)</span>
+                  {form.pages.length < 3 && (
+                    <Button type="button" variant="outline" size="sm" onClick={addPageSlot}>
+                      Add page
+                    </Button>
+                  )}
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {form.pages.map((page, index) => (
+                    <div
+                      key={page.localKey || index}
+                      className="border border-border/50 rounded-lg p-3 bg-muted/30 relative group"
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                          Page {index + 1}
+                        </span>
+                        {form.pages.length > 1 && (
+                          <button
+                            type="button"
+                            className="p-1 rounded-full hover:bg-red-500/10 text-muted-foreground hover:text-red-500 transition-colors"
+                            onClick={() => removePageSlot(index)}
+                          >
+                            <XCircle className="h-3.5 w-3.5" />
+                          </button>
+                        )}
+                      </div>
+
+                      <div className="flex gap-3 items-center">
+                        <div className="relative w-14 h-14 rounded border border-border bg-background shrink-0 overflow-hidden">
+                          {page.imageUrl ? (
+                            <Image src={page.imageUrl} alt="" fill sizes="56px" className="object-cover" unoptimized />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center">
+                              <ImageIcon className="h-5 w-5 text-muted-foreground/30" />
+                            </div>
+                          )}
+                          {uploadingIdx === index && (
+                            <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                              <Loader2 className="h-4 w-4 animate-spin text-white" />
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="flex-1 min-w-0">
+                          <input
+                            ref={(el) => {
+                              fileRefs.current[index] = el;
+                            }}
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={(e) => {
+                              const f = e.target.files?.[0];
+                              if (f) uploadImageAt(index, f);
+                              e.target.value = '';
+                            }}
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className="w-full h-8 text-[11px] gap-1.5"
+                            disabled={uploadingIdx === index}
+                            onClick={() => fileRefs.current[index]?.click()}
+                          >
+                            {page.imageUrl ? 'Replace' : 'Upload'}
+                          </Button>
+                          {page.imageUrl && (
+                            <p className="text-[10px] text-muted-foreground mt-1 truncate">
+                              {page.imageUrl.split('/').pop()}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           <DialogFooter className="p-6 pt-2 border-t mt-4">
