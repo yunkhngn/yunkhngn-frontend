@@ -70,7 +70,7 @@ export default function AspectRatio() {
             className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
         </div>
       </div>
-      {width && height && (
+      {width && height && ratioW > 0 && ratioH > 0 && (
         <div className="flex justify-center py-2">
           <div
             className="border-2 border-foreground/20 bg-muted/20 rounded flex items-center justify-center text-xs text-muted-foreground"

@@ -31,11 +31,11 @@ export default function ShadowGenerator() {
   }
 
   const sliders = [
-    { label: `X: ${x}px`, value: x, set: setX, min: -50, max: 50 },
-    { label: `Y: ${y}px`, value: y, set: setY, min: -50, max: 50 },
-    { label: `Blur: ${blur}px`, value: blur, set: setBlur, min: 0, max: 100 },
-    { label: `Spread: ${spread}px`, value: spread, set: setSpread, min: -50, max: 50 },
-    { label: `Opacity: ${opacity}%`, value: opacity, set: setOpacity, min: 0, max: 100 },
+    { key: 'x', label: `X: ${x}px`, value: x, set: setX, min: -50, max: 50 },
+    { key: 'y', label: `Y: ${y}px`, value: y, set: setY, min: -50, max: 50 },
+    { key: 'blur', label: `Blur: ${blur}px`, value: blur, set: setBlur, min: 0, max: 100 },
+    { key: 'spread', label: `Spread: ${spread}px`, value: spread, set: setSpread, min: -50, max: 50 },
+    { key: 'opacity', label: `Opacity: ${opacity}%`, value: opacity, set: setOpacity, min: 0, max: 100 },
   ];
 
   return (
@@ -44,8 +44,8 @@ export default function ShadowGenerator() {
         <div className="w-24 h-24 bg-background rounded-xl" style={{ boxShadow: shadow }} />
       </div>
       <div className="space-y-3">
-        {sliders.map(({ label, value, set, min, max }) => (
-          <div key={label}>
+        {sliders.map(({ key, label, value, set, min, max }) => (
+          <div key={key}>
             <label className="text-xs text-muted-foreground mb-1 block">{label}</label>
             <input type="range" min={min} max={max} value={value} onChange={e => set(Number(e.target.value))} className="w-full" />
           </div>

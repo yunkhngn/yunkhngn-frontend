@@ -50,6 +50,8 @@ export default function BpmTapper() {
     return () => window.removeEventListener('keydown', handler);
   }, [tap]);
 
+  useEffect(() => () => clearTimeout(resetTimer.current), []);
+
   return (
     <div className="space-y-6">
       <div className="text-center">

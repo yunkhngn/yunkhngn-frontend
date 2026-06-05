@@ -1,7 +1,7 @@
 // yunkhngn-fe/app/(tools)/tools/note-frequency/NoteFrequency.jsx
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 
 const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 
@@ -10,30 +10,28 @@ function noteFreq(octave, noteIdx) {
   return 440 * Math.pow(2, (midi - 69) / 12);
 }
 
-function playNote(freq) {
-  const ctx = new AudioContext();
-  const osc = ctx.createOscillator();
-  const gain = ctx.createGain();
-  osc.connect(gain);
-  gain.connect(ctx.destination);
-  osc.type = 'sine';
-  osc.frequency.value = freq;
-  gain.gain.setValueAtTime(0.3, ctx.currentTime);
-  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1);
-  osc.start(ctx.currentTime);
-  osc.stop(ctx.currentTime + 1);
-}
-
 export default function NoteFrequency() {
   const [playing, setPlaying] = useState(null);
   const [minOct, setMinOct] = useState(3);
   const [maxOct, setMaxOct] = useState(5);
+  const audioCtxRef = useRef(null);
 
   const octaves = Array.from({ length: maxOct - minOct + 1 }, (_, i) => minOct + i);
 
   function handlePlay(octave, noteIdx) {
     const key = `${octave}-${noteIdx}`;
-    playNote(noteFreq(octave, noteIdx));
+    if (!audioCtxRef.current) audioCtxRef.current = new AudioContext();
+    const ctx = audioCtxRef.current;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.type = 'sine';
+    osc.frequency.value = noteFreq(octave, noteIdx);
+    gain.gain.setValueAtTime(0.3, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 1);
     setPlaying(key);
     setTimeout(() => setPlaying(null), 1000);
   }

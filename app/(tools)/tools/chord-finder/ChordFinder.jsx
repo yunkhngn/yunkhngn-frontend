@@ -7,18 +7,16 @@ import { Copy, Check } from 'lucide-react';
 const NOTES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 
 const QUALITIES = [
-  { label: 'Major', key: 'maj', intervals: [0, 4, 7] },
-  { label: 'Minor', key: 'min', intervals: [0, 3, 7] },
-  { label: 'Dom 7', key: '7', intervals: [0, 4, 7, 10] },
-  { label: 'Maj 7', key: 'maj7', intervals: [0, 4, 7, 11] },
-  { label: 'Min 7', key: 'min7', intervals: [0, 3, 7, 10] },
-  { label: 'Dim', key: 'dim', intervals: [0, 3, 6] },
-  { label: 'Aug', key: 'aug', intervals: [0, 4, 8] },
-  { label: 'Sus2', key: 'sus2', intervals: [0, 2, 7] },
-  { label: 'Sus4', key: 'sus4', intervals: [0, 5, 7] },
+  { label: 'Major', key: 'maj', intervals: [0, 4, 7], degrees: ['Root', '3rd', '5th'] },
+  { label: 'Minor', key: 'min', intervals: [0, 3, 7], degrees: ['Root', '3rd', '5th'] },
+  { label: 'Dom 7', key: '7', intervals: [0, 4, 7, 10], degrees: ['Root', '3rd', '5th', '7th'] },
+  { label: 'Maj 7', key: 'maj7', intervals: [0, 4, 7, 11], degrees: ['Root', '3rd', '5th', '7th'] },
+  { label: 'Min 7', key: 'min7', intervals: [0, 3, 7, 10], degrees: ['Root', '3rd', '5th', '7th'] },
+  { label: 'Dim', key: 'dim', intervals: [0, 3, 6], degrees: ['Root', '3rd', '5th'] },
+  { label: 'Aug', key: 'aug', intervals: [0, 4, 8], degrees: ['Root', '3rd', '5th'] },
+  { label: 'Sus2', key: 'sus2', intervals: [0, 2, 7], degrees: ['Root', '2nd', '5th'] },
+  { label: 'Sus4', key: 'sus4', intervals: [0, 5, 7], degrees: ['Root', '4th', '5th'] },
 ];
-
-const DEGREE_LABELS = ['Root', '3rd', '5th', '7th', '9th', '11th'];
 
 export default function ChordFinder() {
   const [root, setRoot] = useState('C');
@@ -70,7 +68,7 @@ export default function ChordFinder() {
           {chordNotes.map((note, i) => (
             <div key={i} className="flex-1 bg-background border border-border rounded-lg py-3 text-center">
               <p className="text-lg font-mono font-bold">{note}</p>
-              <p className="text-xs text-muted-foreground mt-1">{DEGREE_LABELS[i] || `${i + 1}th`}</p>
+              <p className="text-xs text-muted-foreground mt-1">{q?.degrees[i] ?? `${i + 1}th`}</p>
             </div>
           ))}
         </div>
