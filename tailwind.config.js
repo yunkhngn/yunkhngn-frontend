@@ -60,6 +60,8 @@ module.exports = {
         mono: ["var(--font-jetbrains-mono)", "monospace"],
         heading: ["var(--font-be-vietnam-pro)", "sans-serif"],
         serif: ["var(--font-playfair)", "serif"],
+        reebie: ["var(--font-reebie)", "cursive"],
+        fz: ["var(--font-fz)", "cursive"],
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
