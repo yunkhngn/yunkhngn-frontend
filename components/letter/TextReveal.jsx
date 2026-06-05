@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { tokenizeLetterContent } from '@/lib/letterContent';
 import { cn } from '@/lib/utils';
 
@@ -9,16 +9,26 @@ export default function TextReveal({
   onComplete,
 }) {
   const tokens = useMemo(() => tokenizeLetterContent(contentJSON), [contentJSON]);
+
+  const [prevTokens, setPrevTokens] = useState(tokens);
+  const [prevEnable, setPrevEnable] = useState(enableAnimation);
   const [visibleCount, setVisibleCount] = useState(enableAnimation ? 0 : tokens.length);
 
-  useEffect(() => {
+  if (tokens !== prevTokens || enableAnimation !== prevEnable) {
+    setPrevTokens(tokens);
+    setPrevEnable(enableAnimation);
     setVisibleCount(enableAnimation ? 0 : tokens.length);
-  }, [tokens, enableAnimation]);
+  }
+
+  const visibleCountRef = useRef(visibleCount);
+  visibleCountRef.current = visibleCount;
+
+  const onCompleteRef = useRef(onComplete);
+  onCompleteRef.current = onComplete;
 
   useEffect(() => {
     if (!enableAnimation) {
-      setVisibleCount(tokens.length);
-      onComplete?.();
+      onCompleteRef.current?.();
       return;
     }
 
@@ -26,7 +36,7 @@ export default function TextReveal({
 
     const revealNext = (index) => {
       if (index >= tokens.length) {
-        onComplete?.();
+        onCompleteRef.current?.();
         return;
       }
 
@@ -55,12 +65,12 @@ export default function TextReveal({
       timeoutId = setTimeout(() => revealNext(index + 1), delay);
     };
 
-    if (tokens.length > 0 && visibleCount < tokens.length) {
-      timeoutId = setTimeout(() => revealNext(visibleCount), 100);
+    if (tokens.length > 0 && visibleCountRef.current < tokens.length) {
+      timeoutId = setTimeout(() => revealNext(visibleCountRef.current), 100);
     }
 
     return () => clearTimeout(timeoutId);
-  }, [tokens, enableAnimation, onComplete]);
+  }, [tokens, enableAnimation]);
 
   const fontClass = font === 'reebie' ? 'font-reebie' : 'font-fz';
 
