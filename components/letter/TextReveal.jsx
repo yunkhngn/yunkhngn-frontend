@@ -48,18 +48,18 @@ export default function TextReveal({
         return;
       }
 
-      let delay = 300; // base typing delay
+      let delay = 150; // base typing delay
 
       if (currentToken.type === 'word') {
         const text = currentToken.text;
         const lastChar = text[text.length - 1];
         if (['.', '?', '!'].includes(lastChar)) {
-          delay += 400;
+          delay += 250;
         } else if ([',', ';', ':', '-'].includes(lastChar)) {
-          delay += 200;
+          delay += 100;
         }
       } else if (currentToken.type === 'newline') {
-        delay = 400;
+        delay = 250;
       }
 
       timeoutId = setTimeout(() => revealNext(index + 1), delay);
@@ -90,7 +90,7 @@ export default function TextReveal({
           <span
             key={index}
             className={cn(
-              "transition-opacity duration-500 ease-out",
+              "transition-opacity duration-300 ease-out",
               isRevealed ? "opacity-100" : "opacity-0 pointer-events-none select-none"
             )}
           >

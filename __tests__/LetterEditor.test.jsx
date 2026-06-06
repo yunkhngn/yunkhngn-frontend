@@ -21,15 +21,15 @@ describe('LetterEditor Component', () => {
 
     render(<LetterEditor value={json} font="fz" onChange={jest.fn()} onFontChange={jest.fn()} />);
 
-    const textarea = screen.getByPlaceholderText(/Viết nội dung thư/);
-    expect(textarea.value).toBe('Hello\n\nWorld');
+    const textarea = screen.getByPlaceholderText(/Write your letter/);
+    expect(textarea.value).toBe('Hello\nWorld');
   });
 
   test('calls onChange with correct TipTap JSON structure when typing', () => {
     const onChange = jest.fn();
     render(<LetterEditor value="" font="fz" onChange={onChange} onFontChange={jest.fn()} />);
 
-    const textarea = screen.getByPlaceholderText(/Viết nội dung thư/);
+    const textarea = screen.getByPlaceholderText(/Write your letter/);
     fireEvent.change(textarea, { target: { value: 'Line1\n\nLine2' } });
 
     expect(onChange).toHaveBeenCalledWith(
@@ -37,7 +37,26 @@ describe('LetterEditor Component', () => {
         type: 'doc',
         content: [
           { type: 'paragraph', content: [{ type: 'text', text: 'Line1' }] },
+          { type: 'paragraph' },
           { type: 'paragraph', content: [{ type: 'text', text: 'Line2' }] },
+        ],
+      }),
+    );
+  });
+
+  test('a single newline maps to a single line break (one paragraph per line)', () => {
+    const onChange = jest.fn();
+    render(<LetterEditor value="" font="fz" onChange={onChange} onFontChange={jest.fn()} />);
+
+    const textarea = screen.getByPlaceholderText(/Write your letter/);
+    fireEvent.change(textarea, { target: { value: 'A\nB' } });
+
+    expect(onChange).toHaveBeenCalledWith(
+      JSON.stringify({
+        type: 'doc',
+        content: [
+          { type: 'paragraph', content: [{ type: 'text', text: 'A' }] },
+          { type: 'paragraph', content: [{ type: 'text', text: 'B' }] },
         ],
       }),
     );
@@ -47,7 +66,7 @@ describe('LetterEditor Component', () => {
     const onFontChange = jest.fn();
     render(<LetterEditor value="" font="fz" onChange={jest.fn()} onFontChange={onFontChange} />);
 
-    const buttonReebie = screen.getByText('Cỡ chữ Reebie');
+    const buttonReebie = screen.getByText('Reebie font');
     fireEvent.click(buttonReebie);
 
     expect(onFontChange).toHaveBeenCalledWith('reebie');

@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { useAuth } from '@/contexts/AuthContext';
 import { readNestJson } from '@/lib/api/readJson';
 import { Button } from '@/components/ui/Button';
+import { Card, CardContent } from '@/components/ui/Card';
 import { toast } from 'sonner';
 import { Loader2, Image as ImageIcon, XCircle, ArrowLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -122,7 +123,7 @@ export default function LetterForm({ letter = null }) {
         return;
       }
     } else if (!form.contentJSON || form.contentJSON.trim() === '') {
-      toast.error('Nội dung thư không được để trống');
+      toast.error('Letter content cannot be empty');
       return;
     }
 
@@ -183,7 +184,7 @@ export default function LetterForm({ letter = null }) {
   };
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6 pb-24">
+    <div className="w-full space-y-6 pb-24">
       <div className="flex items-center gap-3">
         <Button variant="ghost" size="icon" onClick={goBack} title="Back">
           <ArrowLeft className="h-5 w-5" />
@@ -198,7 +199,8 @@ export default function LetterForm({ letter = null }) {
         </div>
       </div>
 
-      <div className="space-y-5">
+      <Card>
+        <CardContent className="space-y-5 pt-6">
         <div>
           <label className="block text-sm font-medium mb-1">Code</label>
           <input
@@ -260,7 +262,7 @@ export default function LetterForm({ letter = null }) {
         </label>
 
         <div>
-          <label className="block text-sm font-medium mb-1.5">Loại thư</label>
+          <label className="block text-sm font-medium mb-1.5">Letter type</label>
           <div className="grid grid-cols-2 gap-3">
             <button
               type="button"
@@ -272,7 +274,7 @@ export default function LetterForm({ letter = null }) {
                   : 'bg-background border-border text-muted-foreground hover:border-neutral-700',
               )}
             >
-              Thư quét ảnh (Scan)
+              Scanned (Scan)
             </button>
             <button
               type="button"
@@ -284,11 +286,15 @@ export default function LetterForm({ letter = null }) {
                   : 'bg-background border-border text-muted-foreground hover:border-neutral-700',
               )}
             >
-              Thư viết tay (Write)
+              Written (Write)
             </button>
           </div>
         </div>
+        </CardContent>
+      </Card>
 
+      <Card>
+        <CardContent className="pt-6">
         {form.kind === 'text' ? (
           <LetterEditor
             value={form.contentJSON}
@@ -379,9 +385,10 @@ export default function LetterForm({ letter = null }) {
             </div>
           </div>
         )}
-      </div>
+        </CardContent>
+      </Card>
 
-      <div className="flex justify-end gap-2 border-t pt-4">
+      <div className="flex justify-end gap-2 pt-2">
         <Button variant="outline" onClick={goBack}>
           Cancel
         </Button>
