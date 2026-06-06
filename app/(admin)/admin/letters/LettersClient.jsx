@@ -1,17 +1,9 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { readNestJson } from '@/lib/api/readJson';
-import { Card, CardContent } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-  DialogDescription,
-} from '@/components/ui/Dialog';
 import { Checkbox } from '@/components/ui/Checkbox';
 import {
   Mail,
@@ -22,9 +14,6 @@ import {
   Loader2,
   ToggleLeft,
   ToggleRight,
-  CheckSquare,
-  Square,
-  XCircle,
   Lock,
   Image as ImageIcon,
   RefreshCw,
@@ -34,44 +23,21 @@ import { toast } from 'sonner';
 import { format, isValid } from 'date-fns';
 import Image from 'next/image';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
-import { AdminPageHeader, BulkActionBar, AdminEmptyState, StatusIndicator } from '@/components/admin/shared';
+import { AdminPageHeader, BulkActionBar, AdminEmptyState } from '@/components/admin/shared';
 import { cn } from '@/lib/utils';
-import LetterEditor from '@/components/admin/LetterEditor';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 const PUBLIC_LETTER_PREFIX = 'https://yunkhngn.dev/letter/';
 
-function emptyPage() {
-  return { imageUrl: '', width: null, height: null, localKey: Math.random().toString(36).slice(2) };
-}
-
 export default function AdminLetters() {
+  const router = useRouter();
   const { user } = useAuth();
   const [letters, setLetters] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [editing, setEditing] = useState(null);
-  const [saving, setSaving] = useState(false);
   const [selected, setSelected] = useState(new Set());
   const [bulkLoading, setBulkLoading] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [uploadingIdx, setUploadingIdx] = useState(null);
-
-  const fileRefs = useRef({});
-
-  const [form, setForm] = useState({
-    code: '',
-    title: '',
-    password: '',
-    removePassword: false,
-    isActive: true,
-    enableAnimation: true,
-    pages: [emptyPage()],
-    kind: 'scan',
-    font: 'fz',
-    contentJSON: '',
-  });
 
   const fetchLetters = useCallback(async () => {
     if (!user) return;
@@ -103,210 +69,8 @@ export default function AdminLetters() {
     return () => clearInterval(id);
   }, [anyProcessing, fetchLetters]);
 
-  const resetForm = () => {
-    setForm({
-      code: '',
-      title: '',
-      password: '',
-      removePassword: false,
-      isActive: true,
-      enableAnimation: true,
-      pages: [emptyPage()],
-      kind: 'scan',
-      font: 'fz',
-      contentJSON: '',
-    });
-    setEditing(null);
-  };
-
-  const openCreate = () => {
-    resetForm();
-    setDialogOpen(true);
-  };
-
-  const openEdit = (letter) => {
-    setEditing(letter);
-    setForm({
-      code: letter.code,
-      title: letter.title || '',
-      password: '',
-      removePassword: false,
-      isActive: letter.isActive,
-      enableAnimation: letter.enableAnimation ?? true,
-      kind: letter.kind || 'scan',
-      font: letter.font || 'fz',
-      contentJSON: letter.contentJSON || '',
-      pages:
-        letter.pages?.length > 0
-          ? letter.pages.map((p) => ({
-            imageUrl: p.imageUrl,
-            width: p.width,
-            height: p.height,
-            localKey: p.id || Math.random().toString(36).slice(2),
-          }))
-          : [emptyPage()],
-    });
-    setDialogOpen(true);
-  };
-
-  const uploadImageAt = async (index, file) => {
-    if (!file || !file.type.startsWith('image/')) return;
-    setUploadingIdx(index);
-    try {
-      const token = await user.getIdToken();
-      const folder = encodeURIComponent('blog-portfolio/letters');
-      const sigRes = await fetch(`${API_URL}/gallery/signature?folder=${folder}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!sigRes.ok) throw new Error('Signature failed');
-      const { signature, timestamp, cloudName, apiKey } = await readNestJson(sigRes);
-
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('api_key', apiKey);
-      formData.append('timestamp', timestamp);
-      formData.append('signature', signature);
-      formData.append('folder', 'blog-portfolio/letters');
-
-      const uploadRes = await fetch(
-        `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
-        { method: 'POST', body: formData },
-      );
-      if (!uploadRes.ok) throw new Error('Upload failed');
-      const uploadData = await uploadRes.json();
-
-      setForm((f) => {
-        const pages = [...f.pages];
-        pages[index] = {
-          ...pages[index],
-          imageUrl: uploadData.secure_url,
-          width: uploadData.width,
-          height: uploadData.height,
-        };
-        return { ...f, pages };
-      });
-      toast.success('Image uploaded');
-    } catch (e) {
-      console.error(e);
-      toast.error('Upload failed');
-    } finally {
-      setUploadingIdx(null);
-    }
-  };
-
-  const addPageSlot = () => {
-    if (form.pages.length >= 3) return;
-    setForm((f) => ({ ...f, pages: [...f.pages, emptyPage()] }));
-  };
-
-  const removePageSlot = (index) => {
-    if (form.pages.length <= 1) return;
-    setForm((f) => ({
-      ...f,
-      pages: f.pages.filter((_, i) => i !== index),
-    }));
-  };
-
-  const handleSave = async () => {
-    const isTextMode = form.kind === 'text';
-    let pagesPayload = [];
-
-    if (!isTextMode) {
-      pagesPayload = form.pages
-        .filter((p) => p.imageUrl)
-        .map((p, i) => ({
-          imageUrl: p.imageUrl,
-          width: p.width ?? undefined,
-          height: p.height ?? undefined,
-          sortOrder: i,
-        }));
-
-      if (pagesPayload.length === 0) {
-        toast.error('Add at least one page image');
-        return;
-      }
-    } else {
-      if (!form.contentJSON || form.contentJSON.trim() === '') {
-        toast.error('Nội dung thư không được để trống');
-        return;
-      }
-    }
-
-    let pagesChanged = true;
-    if (!isTextMode && editing && editing.pages?.length === pagesPayload.length) {
-      pagesChanged = pagesPayload.some(
-        (p, i) => p.imageUrl !== editing.pages[i]?.imageUrl,
-      );
-    } else if (isTextMode) {
-      pagesChanged = false;
-    }
-
-    setSaving(true);
-    try {
-      const token = await user.getIdToken();
-      const body = {
-        title: form.title || undefined,
-        isActive: form.isActive,
-        enableAnimation: form.enableAnimation,
-        kind: form.kind,
-      };
-
-      if (isTextMode) {
-        body.font = form.font;
-        body.contentJSON = form.contentJSON;
-      } else {
-        if (!editing || pagesChanged) body.pages = pagesPayload;
-      }
-
-      if (form.code.trim()) body.code = form.code.trim();
-      if (form.password.trim()) body.password = form.password.trim();
-      if (editing && form.removePassword) body.removePassword = true;
-
-      if (editing) {
-        if (!form.code.trim()) delete body.code;
-        const res = await fetch(`${API_URL}/letters/${editing.id}`, {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(body),
-        });
-        if (res.ok) {
-          toast.success('Letter updated');
-          setDialogOpen(false);
-          resetForm();
-          fetchLetters();
-        } else {
-          const data = await readNestJson(res).catch(() => ({}));
-          toast.error(data.message || 'Update failed');
-        }
-      } else {
-        const res = await fetch(`${API_URL}/letters`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(body),
-        });
-        if (res.ok) {
-          toast.success('Letter created');
-          setDialogOpen(false);
-          resetForm();
-          fetchLetters();
-        } else {
-          const data = await readNestJson(res).catch(() => ({}));
-          toast.error(data.message || 'Create failed');
-        }
-      }
-    } catch (e) {
-      console.error(e);
-      toast.error('Network error');
-    } finally {
-      setSaving(false);
-    }
-  };
+  const openCreate = () => router.push('/admin/letters/new');
+  const openEdit = (letter) => router.push(`/admin/letters/${letter.id}`);
 
   const handleDelete = (id) => {
     setDeleteId(id);
@@ -436,7 +200,6 @@ export default function AdminLetters() {
     }
   };
 
-
   const bulkSetStatus = async (isActive) => {
     setBulkLoading(true);
     try {
@@ -563,7 +326,7 @@ export default function AdminLetters() {
                               src={letter.pages[0].imageUrl}
                               alt=""
                               fill
-                              sizes="64px; 64px"
+                              sizes="64px"
                               className="object-cover"
                               unoptimized
                             />
@@ -682,258 +445,6 @@ export default function AdminLetters() {
           </div>
         )}
       </div>
-
-      <Dialog
-        open={dialogOpen}
-        onOpenChange={(open) => {
-          if (!open) {
-            setDialogOpen(false);
-            resetForm();
-          }
-        }}
-      >
-        <DialogContent className="sm:max-w-md max-h-[90vh] flex flex-col p-0 overflow-hidden border-amber-900/20">
-          <DialogHeader className="p-6 pb-2">
-            <div className="flex items-center justify-between pr-8">
-              <DialogTitle className="text-xl font-bold flex items-center gap-2">
-                {editing ? <Edit className="h-5 w-5 text-primary" /> : <Plus className="h-5 w-5 text-primary" />}
-                {editing ? 'Edit letter' : 'New letter'}
-              </DialogTitle>
-            </div>
-            <DialogDescription className="text-xs">
-              {editing
-                ? 'Update details or replace page images to reprocess.'
-                : 'Add 1–3 scanned pages. Leave code empty to auto-generate.'}
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="flex-1 overflow-y-auto px-6 py-2 space-y-5 custom-scrollbar">
-            <div>
-              <label className="block text-sm font-medium mb-1">Code</label>
-              <input
-                type="text"
-                value={form.code}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, code: e.target.value }))
-                }
-                placeholder="auto-generated"
-                className="w-full bg-background border border-border rounded-md px-3 py-2 focus:ring-1 focus:ring-primary outline-none text-sm font-mono"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">Title</label>
-              <input
-                type="text"
-                value={form.title}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, title: e.target.value }))
-                }
-                className="w-full bg-background border border-border rounded-md px-3 py-2 focus:ring-1 focus:ring-primary outline-none text-sm"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">
-                Password (optional)
-              </label>
-              <input
-                type="password"
-                value={form.password}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, password: e.target.value }))
-                }
-                placeholder={
-                  editing ? 'New password (optional)' : 'Protect with password'
-                }
-                className="w-full bg-background border border-border rounded-md px-3 py-2 focus:ring-1 focus:ring-primary outline-none text-sm"
-              />
-              {editing && (
-                <label className="flex items-center gap-2 mt-2 text-sm">
-                  <input
-                    type="checkbox"
-                    checked={form.removePassword}
-                    onChange={(e) =>
-                      setForm((f) => ({
-                        ...f,
-                        removePassword: e.target.checked,
-                      }))
-                    }
-                  />
-                  Remove password (make public)
-                </label>
-              )}
-            </div>
-
-            <label className="flex items-center gap-2 text-sm">
-              <input
-                type="checkbox"
-                checked={form.isActive}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, isActive: e.target.checked }))
-                }
-              />
-              Active
-            </label>
-
-            <label className="flex items-center gap-2 text-sm">
-              <input
-                type="checkbox"
-                checked={form.enableAnimation}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, enableAnimation: e.target.checked }))
-                }
-              />
-              Enable writing animation (reveals strokes instead of static image)
-            </label>
-
-            <div>
-              <label className="block text-sm font-medium mb-1.5">Loại thư</label>
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  type="button"
-                  onClick={() => setForm((f) => ({ ...f, kind: 'scan' }))}
-                  className={cn(
-                    "py-2 rounded-md border text-sm font-medium transition-all",
-                    form.kind === 'scan'
-                      ? "bg-amber-500/10 border-amber-500 text-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.1)]"
-                      : "bg-background border-border text-muted-foreground hover:border-neutral-700"
-                  )}
-                >
-                  Thư quét ảnh (Scan)
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setForm((f) => ({ ...f, kind: 'text' }))}
-                  className={cn(
-                    "py-2 rounded-md border text-sm font-medium transition-all",
-                    form.kind === 'text'
-                      ? "bg-amber-500/10 border-amber-500 text-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.1)]"
-                      : "bg-background border-border text-muted-foreground hover:border-neutral-700"
-                  )}
-                >
-                  Thư viết tay (Write)
-                </button>
-              </div>
-            </div>
-
-            {form.kind === 'text' ? (
-              <LetterEditor
-                value={form.contentJSON}
-                onChange={(contentJSON) => setForm((f) => ({ ...f, contentJSON }))}
-                font={form.font}
-                onFontChange={(font) => setForm((f) => ({ ...f, font }))}
-              />
-            ) : (
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium">Pages (max 3)</span>
-                  {form.pages.length < 3 && (
-                    <Button type="button" variant="outline" size="sm" onClick={addPageSlot}>
-                      Add page
-                    </Button>
-                  )}
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {form.pages.map((page, index) => (
-                    <div
-                      key={page.localKey || index}
-                      className="border border-border/50 rounded-lg p-3 bg-muted/30 relative group"
-                    >
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                          Page {index + 1}
-                        </span>
-                        {form.pages.length > 1 && (
-                          <button
-                            type="button"
-                            className="p-1 rounded-full hover:bg-red-500/10 text-muted-foreground hover:text-red-500 transition-colors"
-                            onClick={() => removePageSlot(index)}
-                          >
-                            <XCircle className="h-3.5 w-3.5" />
-                          </button>
-                        )}
-                      </div>
-
-                      <div className="flex gap-3 items-center">
-                        <div className="relative w-14 h-14 rounded border border-border bg-background shrink-0 overflow-hidden">
-                          {page.imageUrl ? (
-                            <Image src={page.imageUrl} alt="" fill sizes="56px" className="object-cover" unoptimized />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center">
-                              <ImageIcon className="h-5 w-5 text-muted-foreground/30" />
-                            </div>
-                          )}
-                          {uploadingIdx === index && (
-                            <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                              <Loader2 className="h-4 w-4 animate-spin text-white" />
-                            </div>
-                          )}
-                        </div>
-
-                        <div className="flex-1 min-w-0">
-                          <input
-                            ref={(el) => {
-                              fileRefs.current[index] = el;
-                            }}
-                            type="file"
-                            accept="image/*"
-                            className="hidden"
-                            onChange={(e) => {
-                              const f = e.target.files?.[0];
-                              if (f) uploadImageAt(index, f);
-                              e.target.value = '';
-                            }}
-                          />
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            className="w-full h-8 text-[11px] gap-1.5"
-                            disabled={uploadingIdx === index}
-                            onClick={() => fileRefs.current[index]?.click()}
-                          >
-                            {page.imageUrl ? 'Replace' : 'Upload'}
-                          </Button>
-                          {page.imageUrl && (
-                            <p className="text-[10px] text-muted-foreground mt-1 truncate">
-                              {page.imageUrl.split('/').pop()}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-
-          <DialogFooter className="p-6 pt-2 border-t mt-4">
-            <Button
-              variant="outline"
-              onClick={() => {
-                setDialogOpen(false);
-                resetForm();
-              }}
-            >
-              Cancel
-            </Button>
-            <Button onClick={handleSave} disabled={saving}>
-              {saving ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Saving…
-                </>
-              ) : editing ? (
-                'Update'
-              ) : (
-                'Create'
-              )}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
 
       <ConfirmModal
         isOpen={isDeleteModalOpen}
