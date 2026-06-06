@@ -13,6 +13,8 @@ export default function LetterEditor({
     try {
       const doc = typeof value === 'string' ? JSON.parse(value) : value;
       if (doc && Array.isArray(doc.content)) {
+        // Each block is one line; join with a single newline so the textarea
+        // round-trips exactly (blank lines = empty paragraphs).
         return doc.content
           .map((block) => {
             if (block.content && Array.isArray(block.content)) {
@@ -20,7 +22,7 @@ export default function LetterEditor({
             }
             return '';
           })
-          .join('\n\n');
+          .join('\n');
       }
     } catch (e) {
       if (typeof value === 'string') return value;
@@ -30,78 +32,87 @@ export default function LetterEditor({
 
   const handleTextChange = (e) => {
     const text = e.target.value;
-    const paragraphs = text.split(/\n\n+/);
+    // One textarea line = one paragraph block. Blank lines become empty
+    // paragraphs so the tokenizer reproduces every line break exactly.
+    const lines = text.split('\n');
     const json = {
       type: 'doc',
-      content: paragraphs.map((p) => ({
-        type: 'paragraph',
-        content: [{ type: 'text', text: p }],
-      })),
+      content: lines.map((line) =>
+        line === ''
+          ? { type: 'paragraph' }
+          : { type: 'paragraph', content: [{ type: 'text', text: line }] },
+      ),
     };
     onChange(JSON.stringify(json));
   };
 
   return (
-    <div className="space-y-6">
-      <div>
-        <label className="block text-sm font-medium text-neutral-400 mb-2">
-          Kiểu chữ viết tay (Font)
-        </label>
-        <div className="flex gap-4">
-          <button
-            type="button"
-            onClick={() => onFontChange('fz')}
-            className={cn(
-              "px-5 py-3 rounded-lg border text-sm font-medium transition-all duration-200 text-left w-full sm:w-auto",
-              font === 'fz'
-                ? "bg-amber-500/10 border-amber-500 text-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.15)]"
-                : "bg-neutral-900 border-neutral-800 text-neutral-400 hover:border-neutral-700"
-            )}
-          >
-            <span className="font-fz text-lg block mb-1">Cỡ chữ FZ</span>
-            Chữ nghiêng mềm mại
-          </button>
-          <button
-            type="button"
-            onClick={() => onFontChange('reebie')}
-            className={cn(
-              "px-5 py-3 rounded-lg border text-sm font-medium transition-all duration-200 text-left w-full sm:w-auto",
-              font === 'reebie'
-                ? "bg-amber-500/10 border-amber-500 text-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.15)]"
-                : "bg-neutral-900 border-neutral-800 text-neutral-400 hover:border-neutral-700"
-            )}
-          >
-            <span className="font-reebie text-lg block mb-1">Cỡ chữ Reebie</span>
-            Chữ tròn tự nhiên
-          </button>
-        </div>
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-neutral-400 mb-2">
-          Nội dung bức thư
-        </label>
-        <textarea
-          value={plainText}
-          onChange={handleTextChange}
-          placeholder="Viết nội dung thư tại đây...&#10;Xuống dòng 2 lần (double enter) để tạo đoạn văn mới."
-          className="w-full min-h-[300px] bg-neutral-950 border border-neutral-800 rounded-lg p-4 text-neutral-200 placeholder-neutral-600 focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 transition-all font-mono text-sm leading-relaxed"
-        />
-      </div>
-
-      {plainText && (
-        <div className="border border-neutral-800 rounded-lg p-6 bg-neutral-950/40">
-          <h4 className="text-xs font-semibold uppercase tracking-wider text-neutral-500 mb-3 select-none">
-            Xem trước kiểu chữ (Preview)
-          </h4>
-          <div className={cn(
-            "p-4 border border-dashed border-neutral-800 rounded bg-neutral-950 text-neutral-300 leading-relaxed text-xl min-h-[100px] whitespace-pre-wrap",
-            font === 'reebie' ? 'font-reebie' : 'font-fz'
-          )}>
-            {plainText}
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Left: editor */}
+      <div className="space-y-6">
+        <div>
+          <label className="block text-sm font-medium text-muted-foreground mb-2">
+            Handwriting font
+          </label>
+          <div className="grid grid-cols-2 gap-4">
+            <button
+              type="button"
+              onClick={() => onFontChange('fz')}
+              className={cn(
+                "px-5 py-3 rounded-lg border text-sm font-medium transition-all duration-200 text-left",
+                font === 'fz'
+                  ? "bg-amber-500/10 border-amber-500 text-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.15)]"
+                  : "bg-background border-border text-muted-foreground hover:border-neutral-500"
+              )}
+            >
+              <span className="font-fz text-lg block mb-1">FZ font</span>
+              Soft &amp; flowing
+            </button>
+            <button
+              type="button"
+              onClick={() => onFontChange('reebie')}
+              className={cn(
+                "px-5 py-3 rounded-lg border text-sm font-medium transition-all duration-200 text-left",
+                font === 'reebie'
+                  ? "bg-amber-500/10 border-amber-500 text-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.15)]"
+                  : "bg-background border-border text-muted-foreground hover:border-neutral-500"
+              )}
+            >
+              <span className="font-reebie text-lg block mb-1">Reebie font</span>
+              Round &amp; natural
+            </button>
           </div>
         </div>
-      )}
+
+        <div>
+          <label className="block text-sm font-medium text-muted-foreground mb-2">
+            Letter content
+          </label>
+          <textarea
+            value={plainText}
+            onChange={handleTextChange}
+            placeholder="Write your letter here...&#10;Press Enter twice (double enter) to start a new paragraph."
+            className="w-full h-[440px] resize-none bg-background border border-border rounded-lg p-4 text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 transition-all font-mono text-sm leading-relaxed"
+          />
+        </div>
+      </div>
+
+      {/* Right: live preview */}
+      <div>
+        <label className="block text-sm font-medium text-muted-foreground mb-2">
+          Font preview
+        </label>
+        <div className={cn(
+          "p-6 border border-border rounded-lg bg-[#fdfaf5] text-[#2a211a] leading-relaxed text-xl h-full min-h-[440px] overflow-y-auto whitespace-pre-wrap shadow-sm",
+          font === 'reebie' ? 'font-reebie' : 'font-fz'
+        )}>
+          {plainText || (
+            <span className="text-neutral-400 text-base font-sans not-italic">
+              Preview will appear here as you type…
+            </span>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
