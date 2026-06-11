@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { Search, ArrowUpRight, FileText } from 'lucide-react';
@@ -25,20 +24,12 @@ const cardItemVariants = {
     visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] } },
 };
 
-export default function BlogList({ blogs = [] }) {
+export default function BlogList({ blogs = [], initialTag = null }) {
     const [search, setSearch] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 6;
 
-    const [selectedTag, setSelectedTag] = useState(null);
-    const searchParams = useSearchParams();
-
-    useEffect(() => {
-        const tag = searchParams.get('tag');
-        if (tag) {
-            setSelectedTag(tag);
-        }
-    }, [searchParams]);
+    const [selectedTag, setSelectedTag] = useState(initialTag);
 
     const allTags = [...new Set(blogs.flatMap(blog => blog.tags ? blog.tags.split(',').map(t => t.trim()) : []))];
 

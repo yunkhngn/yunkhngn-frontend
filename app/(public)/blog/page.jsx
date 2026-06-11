@@ -1,4 +1,3 @@
-import { Suspense } from 'react';
 import BlogListClient from './BlogListClient';
 import { fetchBlogListData } from '@/lib/fetchBlogListData';
 
@@ -15,12 +14,11 @@ export const metadata = {
   },
 };
 
-export default async function BlogListPage() {
+export default async function BlogListPage({ searchParams }) {
+  const resolvedSearchParams = await searchParams;
+  const tagParam = resolvedSearchParams?.tag;
+  const initialTag = Array.isArray(tagParam) ? tagParam[0] || null : tagParam || null;
   const blogs = await fetchBlogListData();
 
-  return (
-    <Suspense fallback={null}>
-      <BlogListClient blogs={blogs} />
-    </Suspense>
-  );
+  return <BlogListClient blogs={blogs} initialTag={initialTag} />;
 }
