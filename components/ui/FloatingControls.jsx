@@ -3,7 +3,9 @@ import { useTheme } from 'next-themes';
 import { ArrowUp, MessageCircle, Maximize, Minimize, X } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { useFocusMode } from '@/contexts/FocusModeContext';
-import ChatWindow from '@/components/chat/ChatWidget';
+import dynamic from 'next/dynamic';
+
+const ChatWindow = dynamic(() => import('@/components/chat/ChatWidget'), { ssr: false });
 import { AnimatePresence, motion } from 'framer-motion';
 
 import { usePathname } from 'next/navigation';
@@ -14,6 +16,7 @@ export default function FloatingControls() {
     const [showScrollTop, setShowScrollTop] = useState(false);
     const { isFocusMode, toggleFocusMode, setIsFocusMode } = useFocusMode();
     const [isChatOpen, setIsChatOpen] = useState(false);
+    const [chatMounted, setChatMounted] = useState(false);
 
     const shouldShowFocusToggle =
         /^\/blog\/[^/]+$/.test(pathname || '') || /^\/project\/[^/]+$/.test(pathname || '');
@@ -81,7 +84,7 @@ export default function FloatingControls() {
 
                 {/* Chat Toggle */}
                 <Button
-                    onClick={() => setIsChatOpen(!isChatOpen)}
+                    onClick={() => { setChatMounted(true); setIsChatOpen(!isChatOpen); }}
                     size="icon"
                     className={`w-14 h-14 rounded-full shadow-xl transition-all duration-300 ${isChatOpen ? 'bg-destructive text-destructive-foreground rotate-90' : 'bg-primary text-primary-foreground'}`}
                     title="Chat with AI"
@@ -91,8 +94,8 @@ export default function FloatingControls() {
                 </Button>
             </div>
 
-            {/* Chat Window */}
-            <ChatWindow isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
+            {/* Chat Window — mounted on first open so its markdown stack loads on demand */}
+            {chatMounted && <ChatWindow isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />}
         </>
     );
 }
