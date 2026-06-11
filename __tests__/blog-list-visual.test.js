@@ -3,6 +3,7 @@ const path = require('path');
 
 describe('BlogListClient visual polish', () => {
   const filePath = path.join(process.cwd(), 'app', '(public)', 'blog', 'BlogListClient.jsx');
+  const loadingPath = path.join(process.cwd(), 'app', '(public)', 'blog', 'loading.jsx');
 
   test('imports PageHero', () => {
     const source = fs.readFileSync(filePath, 'utf8');
@@ -26,7 +27,7 @@ describe('BlogListClient visual polish', () => {
   });
 
   test('has skeleton loading (animate-pulse)', () => {
-    const source = fs.readFileSync(filePath, 'utf8');
+    const source = fs.readFileSync(loadingPath, 'utf8');
     expect(source).toMatch(/animate-pulse/);
   });
 

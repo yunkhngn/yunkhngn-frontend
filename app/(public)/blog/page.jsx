@@ -1,5 +1,8 @@
 import { Suspense } from 'react';
 import BlogListClient from './BlogListClient';
+import { fetchBlogListData } from '@/lib/fetchBlogListData';
+
+export const revalidate = 120;
 
 export const metadata = {
   title: 'Blog',
@@ -12,10 +15,12 @@ export const metadata = {
   },
 };
 
-export default function BlogListPage() {
+export default async function BlogListPage() {
+  const blogs = await fetchBlogListData();
+
   return (
-    <Suspense fallback={<div className="container mx-auto px-4 py-20 text-center">Loading…</div>}>
-      <BlogListClient />
+    <Suspense fallback={null}>
+      <BlogListClient blogs={blogs} />
     </Suspense>
   );
 }
