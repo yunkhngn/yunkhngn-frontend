@@ -54,10 +54,11 @@ describe('BlogListClient visual polish', () => {
     expect(source).toMatch(/<BlogListClient blogs={blogs} \/>/);
   });
 
-  test('blog list fetch throws on apiFetch errors', () => {
+  test('blog list fetch returns an empty list on apiFetch errors', () => {
     const source = fs.readFileSync(fetchDataPath, 'utf8');
     expect(source).toMatch(/error/);
-    expect(source).toMatch(/throw new Error/);
+    expect(source).toMatch(/console\.warn/);
+    expect(source).toMatch(/return \[\]/);
     expect(source).toMatch(/Array\.isArray\(data\)/);
   });
 });
