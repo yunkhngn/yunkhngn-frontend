@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import { readNestJson } from '@/lib/api/readJson';
-import io from 'socket.io-client';
 import { toast } from 'sonner';
 import { useAuth } from './AuthContext';
 
@@ -25,34 +24,44 @@ export function NotificationProvider({ children }) {
     // and non-admin users so they don't open a persistent connection to the VPS.
     const isAdmin = user?.role === 'ADMIN';
     useEffect(() => {
-        if (!isAdmin) return;
+        if (!isAdmin) return undefined;
 
-        const startUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
-        const socketUrl = startUrl.replace(/\/api$/, '');
+        let socket = null;
+        let cancelled = false;
 
-        const newSocket = io(socketUrl, {
-            reconnection: true,
-            reconnectionDelay: 1000,
-            reconnectionAttempts: 5,
-        });
+        // Dynamic import keeps socket.io-client out of the public bundle;
+        // only admins ever reach this code path.
+        import('socket.io-client').then(({ io }) => {
+            if (cancelled) return;
 
-        newSocket.on('connect_error', (error) => {
-            console.warn('Socket connection error:', error.message);
-        });
+            const startUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+            const socketUrl = startUrl.replace(/\/api$/, '');
 
-        newSocket.on('newNotification', (notification) => {
-            setNotifications((prev) => [notification, ...prev]);
-            setUnreadCount((prev) => prev + 1);
-            toast(notification.message, {
-                action: {
-                    label: 'View',
-                    onClick: () => window.location.href = notification.link || '/admin/notifications',
-                },
+            socket = io(socketUrl, {
+                reconnection: true,
+                reconnectionDelay: 1000,
+                reconnectionAttempts: 5,
+            });
+
+            socket.on('connect_error', (error) => {
+                console.warn('Socket connection error:', error.message);
+            });
+
+            socket.on('newNotification', (notification) => {
+                setNotifications((prev) => [notification, ...prev]);
+                setUnreadCount((prev) => prev + 1);
+                toast(notification.message, {
+                    action: {
+                        label: 'View',
+                        onClick: () => window.location.href = notification.link || '/admin/notifications',
+                    },
+                });
             });
         });
 
         return () => {
-            newSocket.disconnect();
+            cancelled = true;
+            socket?.disconnect();
         };
     }, [isAdmin]);
 
