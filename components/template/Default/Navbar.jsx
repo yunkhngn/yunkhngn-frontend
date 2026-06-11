@@ -2,7 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter, usePathname } from 'next/navigation';
 import { useTheme } from 'next-themes';
-import { motion } from 'framer-motion';
+import { m as motion } from 'framer-motion';
 import { Search, Moon, Sun, Menu, X, LogOut, LayoutDashboard, Settings, Pencil, Activity } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';

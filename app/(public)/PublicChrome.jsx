@@ -11,7 +11,8 @@ import CookieConsent from '@/components/ui/CookieConsent';
 import GoogleAnalytics from '@/components/seo/GoogleAnalytics';
 import { useFocusMode } from '@/contexts/FocusModeContext';
 import ErrorBoundary from '@/components/shared/ErrorBoundary';
-import { AnimatePresence, motion } from 'framer-motion';
+import { LazyMotion } from 'framer-motion';
+import { loadMotionFeatures } from '@/lib/motionFeatures';
 
 export default function PublicChrome({ children }) {
   const pathname = usePathname();
@@ -19,23 +20,25 @@ export default function PublicChrome({ children }) {
 
   return (
     <ErrorBoundary>
-      <GoogleAnalytics />
-      <div className="flex flex-col min-h-screen font-sans bg-background text-foreground relative">
-        {!isFocusMode && (
-          <div className="absolute top-0 left-0 w-full h-screen overflow-hidden z-0">
-            <InteractiveBackground />
-          </div>
-        )}
-        {!isFocusMode && <DefaultNavbar />}
-        <main className="flex-1 relative z-10 flex flex-col">
-          {children}
-        </main>
-        {!isFocusMode && pathname !== '/khoa-ai' && <DefaultFooter />}
-      </div>
-      <FloatingCmdK />
-      <FloatingControls />
-      <CommandMenu />
-      <CookieConsent />
+      <LazyMotion features={loadMotionFeatures}>
+        <GoogleAnalytics />
+        <div className="flex flex-col min-h-screen font-sans bg-background text-foreground relative">
+          {!isFocusMode && (
+            <div className="absolute top-0 left-0 w-full h-screen overflow-hidden z-0">
+              <InteractiveBackground />
+            </div>
+          )}
+          {!isFocusMode && <DefaultNavbar />}
+          <main className="flex-1 relative z-10 flex flex-col">
+            {children}
+          </main>
+          {!isFocusMode && pathname !== '/khoa-ai' && <DefaultFooter />}
+        </div>
+        <FloatingCmdK />
+        <FloatingControls />
+        <CommandMenu />
+        <CookieConsent />
+      </LazyMotion>
     </ErrorBoundary>
   );
 }

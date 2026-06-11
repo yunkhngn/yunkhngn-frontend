@@ -1,7 +1,7 @@
 'use client';
 
 import { useAdminStatus } from '@/hooks/useAdminStatus';
-import { motion } from 'framer-motion';
+import { m as motion } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
 import { useState } from 'react';
 import dynamic from 'next/dynamic';

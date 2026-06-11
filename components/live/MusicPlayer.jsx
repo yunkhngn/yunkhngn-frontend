@@ -1,6 +1,6 @@
 import { Music, Disc3, ExternalLink } from 'lucide-react';
 import Image from 'next/image';
-import { motion } from 'framer-motion';
+import { m as motion } from 'framer-motion';
 import { MarqueeText } from '../ui/MarqueeText';
 
 export default function MusicPlayer({ track, loading }) {

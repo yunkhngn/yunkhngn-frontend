@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef, useEffect, useState } from 'react';
-import { motion, useMotionValue, useTransform } from 'framer-motion';
+import { m as motion, useMotionValue, useTransform } from 'framer-motion';
 
 export default function TiltCard({ children, className = '' }) {
   const ref = useRef(null);
