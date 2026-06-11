@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { Suspense, useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { Search, ArrowUpRight, FileText } from 'lucide-react';
@@ -24,12 +25,23 @@ const cardItemVariants = {
     visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] } },
 };
 
-export default function BlogList({ blogs = [], initialTag = null }) {
+function BlogTagParamSync({ onTagChange }) {
+    const searchParams = useSearchParams();
+
+    useEffect(() => {
+        const tag = searchParams.get('tag');
+        onTagChange(tag || null);
+    }, [searchParams, onTagChange]);
+
+    return null;
+}
+
+export default function BlogList({ blogs = [] }) {
     const [search, setSearch] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 6;
 
-    const [selectedTag, setSelectedTag] = useState(initialTag);
+    const [selectedTag, setSelectedTag] = useState(null);
 
     const allTags = [...new Set(blogs.flatMap(blog => blog.tags ? blog.tags.split(',').map(t => t.trim()) : []))];
 
@@ -79,6 +91,10 @@ export default function BlogList({ blogs = [], initialTag = null }) {
 
     return (
         <div className="container mx-auto px-4 py-12 md:py-20 max-w-7xl">
+            <Suspense fallback={null}>
+                <BlogTagParamSync onTagChange={setSelectedTag} />
+            </Suspense>
+
             {/* Hero Section */}
             <PageHero
                 eyebrow="Curious Blog"

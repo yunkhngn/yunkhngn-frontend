@@ -38,18 +38,20 @@ describe('BlogListClient visual polish', () => {
     expect(source).toMatch(/FileText/);
   });
 
-  test('receives initial tag without useSearchParams', () => {
+  test('syncs tag query param in a tiny Suspense child', () => {
     const source = fs.readFileSync(filePath, 'utf8');
-    expect(source).not.toMatch(/useSearchParams/);
-    expect(source).toMatch(/initialTag = null/);
-    expect(source).toMatch(/useState\(initialTag\)/);
+    expect(source).toMatch(/BlogTagParamSync/);
+    expect(source).toMatch(/useSearchParams/);
+    expect(source).toMatch(/Suspense fallback={null}/);
+    expect(source).toMatch(/onTagChange\(tag \|\| null\)/);
   });
 
-  test('blog page renders client directly with initialTag', () => {
+  test('blog page stays static ISR without searchParams', () => {
     const source = fs.readFileSync(pagePath, 'utf8');
     expect(source).not.toMatch(/Suspense/);
-    expect(source).toMatch(/searchParams/);
-    expect(source).toMatch(/initialTag={initialTag}/);
+    expect(source).not.toMatch(/searchParams/);
+    expect(source).toMatch(/revalidate = 120/);
+    expect(source).toMatch(/<BlogListClient blogs={blogs} \/>/);
   });
 
   test('blog list fetch throws on apiFetch errors', () => {

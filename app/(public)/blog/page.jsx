@@ -14,11 +14,8 @@ export const metadata = {
   },
 };
 
-export default async function BlogListPage({ searchParams }) {
-  const resolvedSearchParams = await searchParams;
-  const tagParam = resolvedSearchParams?.tag;
-  const initialTag = Array.isArray(tagParam) ? tagParam[0] || null : tagParam || null;
+export default async function BlogListPage() {
   const blogs = await fetchBlogListData();
 
-  return <BlogListClient blogs={blogs} initialTag={initialTag} />;
+  return <BlogListClient blogs={blogs} />;
 }
