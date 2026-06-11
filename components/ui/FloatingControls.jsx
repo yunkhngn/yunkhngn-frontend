@@ -3,12 +3,11 @@ import { useTheme } from 'next-themes';
 import { ArrowUp, MessageCircle, Maximize, Minimize, X } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { useFocusMode } from '@/contexts/FocusModeContext';
+import { AnimatePresence, motion } from 'framer-motion';
+import { usePathname } from 'next/navigation';
 import dynamic from 'next/dynamic';
 
 const ChatWindow = dynamic(() => import('@/components/chat/ChatWidget'), { ssr: false });
-import { AnimatePresence, motion } from 'framer-motion';
-
-import { usePathname } from 'next/navigation';
 
 export default function FloatingControls() {
     const { theme, setTheme } = useTheme();
