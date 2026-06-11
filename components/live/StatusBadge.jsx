@@ -4,7 +4,9 @@ import { useAdminStatus } from '@/hooks/useAdminStatus';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
 import { useState } from 'react';
-import EditStatusModal from './EditStatusModal';
+import dynamic from 'next/dynamic';
+
+const EditStatusModal = dynamic(() => import('./EditStatusModal'), { ssr: false });
 import { Edit2, Plus } from 'lucide-react';
 
 export default function StatusBadge() {

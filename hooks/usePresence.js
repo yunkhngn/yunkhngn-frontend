@@ -1,44 +1,46 @@
 import { useState, useEffect } from 'react';
-import { database } from '@/lib/firebase/config';
-import { ref, onValue, onDisconnect, set, push } from 'firebase/database';
+import { loadFirebaseDatabase } from '@/lib/firebase/lazy';
 
 export function usePresence() {
     const [onlineCount, setOnlineCount] = useState(0);
 
     useEffect(() => {
-        if (!database) return;
+        let cancelled = false;
+        let cleanup = () => {};
 
-        // Reference to the connections list
-        const connectionsRef = ref(database, 'presence/connections');
-        // Reference to the special Firebase info/connected path
-        const connectedRef = ref(database, '.info/connected');
+        loadFirebaseDatabase().then(({ database, dbMod }) => {
+            if (cancelled || !database) return;
+            const { ref, onValue, onDisconnect, set, push } = dbMod;
 
-        // Watch for our own connection status
-        const unsubscribeConnected = onValue(connectedRef, (snap) => {
-            if (snap.val() === true) {
-                // We are connected. Add our device to the connections list
-                const conRef = push(connectionsRef);
-                
-                // When we disconnect, remove this device
-                onDisconnect(conRef).remove().then(() => {
-                    // Once the disconnect hook is set, set our initial status
-                    set(conRef, true);
-                });
-            }
-        });
+            const connectionsRef = ref(database, 'presence/connections');
+            const connectedRef = ref(database, '.info/connected');
 
-        // Watch the connections list to get the total count
-        const unsubscribeConnections = onValue(connectionsRef, (snap) => {
-            if (snap.exists()) {
-                setOnlineCount(snap.size);
-            } else {
-                setOnlineCount(0);
-            }
+            const unsubscribeConnected = onValue(connectedRef, (snap) => {
+                if (snap.val() === true) {
+                    const conRef = push(connectionsRef);
+                    onDisconnect(conRef).remove().then(() => {
+                        set(conRef, true);
+                    });
+                }
+            });
+
+            const unsubscribeConnections = onValue(connectionsRef, (snap) => {
+                if (snap.exists()) {
+                    setOnlineCount(snap.size);
+                } else {
+                    setOnlineCount(0);
+                }
+            });
+
+            cleanup = () => {
+                unsubscribeConnected();
+                unsubscribeConnections();
+            };
         });
 
         return () => {
-            unsubscribeConnected();
-            unsubscribeConnections();
+            cancelled = true;
+            cleanup();
         };
     }, []);
 
