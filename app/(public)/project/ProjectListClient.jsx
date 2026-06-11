@@ -1,7 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { readNestJson } from '@/lib/api/readJson';
+import { useState } from 'react';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { Pagination } from '@/components/ui/Pagination';
@@ -9,7 +8,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Search, Github, ExternalLink, Star, GitFork, FolderOpen } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { motion } from 'framer-motion';
+import { m as motion } from 'framer-motion';
 import PageHero from '@/components/shared/PageHero';
 import RevealHeading from '@/components/home/RevealHeading';
 import TiltCard from '@/components/home/TiltCard';
@@ -24,62 +23,11 @@ const cardItemVariants = {
     visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] } },
 };
 
-export default function ProjectList() {
-    const [projects, setProjects] = useState([]);
-    const [repos, setRepos] = useState([]);
-    const [loading, setLoading] = useState(true);
+export default function ProjectList({ projects = [], repos = [] }) {
     const [search, setSearch] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 6;
     const [selectedTag, setSelectedTag] = useState(null);
-
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const [projectsRes, reposRes] = await Promise.all([
-                    fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects`),
-                    fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/github/repos`)
-                ]);
-
-                let parsedProjects = [];
-                if (projectsRes.ok) {
-                    const projectsData = await readNestJson(projectsRes);
-                    parsedProjects = projectsData.map(p => ({
-                        ...p,
-                        techStack: typeof p.techStack === 'string' ? JSON.parse(p.techStack || '[]') : p.techStack,
-                        type: 'project'
-                    }));
-                    setProjects(parsedProjects);
-                }
-
-                let parsedRepos = [];
-                if (reposRes.ok) {
-                    const reposData = await readNestJson(reposRes);
-                    parsedRepos = reposData.map(r => ({
-                        id: `repo-${r.id}`,
-                        title: r.name,
-                        description: r.description || 'No description available.',
-                        cover: null, // Repos don't have covers usually, maybe use a placeholder or language icon
-                        tags: r.language ? `Open Source, ${r.language}` : 'Open Source',
-                        techStack: [r.language].filter(Boolean),
-                        repoLink: r.html_url,
-                        demoLink: r.homepage,
-                        createdAt: r.created_at,
-                        type: 'repo',
-                        stars: r.stargazers_count,
-                        forks: r.forks_count
-                    }));
-                    setRepos(parsedRepos);
-                }
-            } catch (error) {
-                console.error(error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchData();
-    }, []);
 
     const allTags = [...new Set([...projects, ...repos].flatMap(item => item.tags ? item.tags.split(',').map(t => t.trim()) : []))];
 
@@ -101,9 +49,15 @@ export default function ProjectList() {
         currentPage * itemsPerPage
     );
 
-    useEffect(() => {
+    const handleSearchChange = (event) => {
+        setSearch(event.target.value);
         setCurrentPage(1);
-    }, [search, selectedTag]);
+    };
+
+    const handleTagSelect = (tag) => {
+        setSelectedTag(tag);
+        setCurrentPage(1);
+    };
 
     const isFiltering = search.length > 0 || selectedTag !== null;
 
@@ -122,7 +76,7 @@ export default function ProjectList() {
                         <Input
                             placeholder="Search projects and repos..."
                             value={search}
-                            onChange={(e) => setSearch(e.target.value)}
+                            onChange={handleSearchChange}
                             className="pl-10 h-10"
                         />
                     </div>
@@ -136,7 +90,7 @@ export default function ProjectList() {
                     <div className="flex flex-wrap justify-center gap-2 mb-16 max-w-3xl mx-auto">
                         <Button
                             variant={selectedTag === null ? "default" : "outline"}
-                            onClick={() => setSelectedTag(null)}
+                            onClick={() => handleTagSelect(null)}
                             className="rounded-full text-sm h-8"
                         >
                             All
@@ -145,7 +99,7 @@ export default function ProjectList() {
                             <Button
                                 key={tag}
                                 variant={selectedTag === tag ? "default" : "outline"}
-                                onClick={() => setSelectedTag(tag === selectedTag ? null : tag)}
+                                onClick={() => handleTagSelect(tag === selectedTag ? null : tag)}
                                 className="rounded-full text-sm h-8"
                             >
                                 {tag}
@@ -155,25 +109,7 @@ export default function ProjectList() {
                 )
             }
 
-            {loading ? (
-                <div className="space-y-20">
-                    <section>
-                        <div className="h-9 w-48 bg-muted rounded animate-pulse mb-8" />
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-12">
-                            {[...Array(4)].map((_, i) => (
-                                <div key={i} className="flex flex-col gap-4">
-                                    <div className="aspect-video rounded-2xl bg-muted animate-pulse" />
-                                    <div className="space-y-2">
-                                        <div className="h-5 w-3/4 bg-muted rounded animate-pulse" />
-                                        <div className="h-4 w-1/2 bg-muted rounded animate-pulse" />
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </section>
-                </div>
-            ) : (
-                <div className="space-y-20">
+            <div className="space-y-20">
                     {/* Projects Section */}
                     <section>
                         <RevealHeading index={1}>
@@ -321,8 +257,7 @@ export default function ProjectList() {
                             </div>
                         )}
                     </section>
-                </div>
-            )}
+            </div>
         </div>
     );
 }

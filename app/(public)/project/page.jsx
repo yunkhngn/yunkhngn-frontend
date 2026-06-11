@@ -1,4 +1,7 @@
 import ProjectListClient from './ProjectListClient';
+import { fetchProjectListData } from '@/lib/fetchProjectListData';
+
+export const revalidate = 120;
 
 export const metadata = {
   title: 'Projects',
@@ -11,6 +14,7 @@ export const metadata = {
   },
 };
 
-export default function ProjectListPage() {
-  return <ProjectListClient />;
+export default async function ProjectListPage() {
+  const { projects, repos } = await fetchProjectListData();
+  return <ProjectListClient projects={projects} repos={repos} />;
 }
