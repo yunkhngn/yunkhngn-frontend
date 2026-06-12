@@ -1,6 +1,6 @@
 import { GitCommit, GitPullRequest, Star, Loader2, Github, ExternalLink } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
-import { motion } from 'framer-motion';
+import { m as motion } from 'framer-motion';
 
 export default function CodingActivity({ activity, loading, error }) {
     if (loading) {

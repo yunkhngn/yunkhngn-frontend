@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { LazyMotion, domAnimation, m as motion } from 'framer-motion';
+import { LazyMotion, m as motion } from 'framer-motion';
+import { loadMotionFeatures } from '@/lib/motionFeatures';
 import HeroBackground from '@/components/home/HeroBackground';
 import RevealHeading from '@/components/home/RevealHeading';
 import TiltCard from '@/components/home/TiltCard';
@@ -167,7 +168,7 @@ export default function HomeContent({
   };
 
   return (
-    <LazyMotion features={domAnimation}>
+    <LazyMotion features={loadMotionFeatures}>
     <div className="container mx-auto px-4 pb-12 md:pb-24 pt-0 max-w-7xl space-y-32 overflow-x-hidden">
       <HeroBackground />
       <JsonLd data={jsonLdData} />

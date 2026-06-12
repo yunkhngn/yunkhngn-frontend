@@ -1,7 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { readNestJson } from '@/lib/api/readJson';
+import { Suspense, useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
@@ -11,7 +10,7 @@ import Image from 'next/image';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/Badge';
 import { Pagination } from '@/components/ui/Pagination';
-import { motion } from 'framer-motion';
+import { m as motion } from 'framer-motion';
 import PageHero from '@/components/shared/PageHero';
 import RevealHeading from '@/components/home/RevealHeading';
 import TiltCard from '@/components/home/TiltCard';
@@ -26,41 +25,23 @@ const cardItemVariants = {
     visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] } },
 };
 
-export default function BlogList() {
-    const [blogs, setBlogs] = useState([]);
-    const [loading, setLoading] = useState(true);
+function BlogTagParamSync({ onTagChange }) {
+    const searchParams = useSearchParams();
+
+    useEffect(() => {
+        const tag = searchParams.get('tag');
+        onTagChange(tag || null);
+    }, [searchParams, onTagChange]);
+
+    return null;
+}
+
+export default function BlogList({ blogs = [] }) {
     const [search, setSearch] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 6;
 
     const [selectedTag, setSelectedTag] = useState(null);
-    const searchParams = useSearchParams();
-
-    useEffect(() => {
-        const tag = searchParams.get('tag');
-        if (tag) {
-            setSelectedTag(tag);
-        }
-    }, [searchParams]);
-
-    useEffect(() => {
-        const fetchBlogs = async () => {
-            try {
-                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/blogs`);
-                if (!res.ok) throw new Error('Failed to fetch blogs');
-                const data = await readNestJson(res);
-                // Filter only published blogs
-                const publishedBlogs = data.filter(blog => blog.status === 'PUBLISHED');
-                setBlogs(publishedBlogs);
-            } catch (error) {
-                console.error(error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchBlogs();
-    }, []);
 
     const allTags = [...new Set(blogs.flatMap(blog => blog.tags ? blog.tags.split(',').map(t => t.trim()) : []))];
 
@@ -110,6 +91,10 @@ export default function BlogList() {
 
     return (
         <div className="container mx-auto px-4 py-12 md:py-20 max-w-7xl">
+            <Suspense fallback={null}>
+                <BlogTagParamSync onTagChange={setSelectedTag} />
+            </Suspense>
+
             {/* Hero Section */}
             <PageHero
                 eyebrow="Curious Blog"
@@ -153,34 +138,7 @@ export default function BlogList() {
                 </div>
             )}
 
-            {loading ? (
-                <div className="space-y-16">
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
-                        <div className="flex flex-col gap-4">
-                            <div className="aspect-video rounded-3xl bg-muted animate-pulse" />
-                            <div className="space-y-2">
-                                <div className="h-4 w-1/3 bg-muted rounded animate-pulse" />
-                                <div className="h-6 w-3/4 bg-muted rounded animate-pulse" />
-                                <div className="h-4 w-full bg-muted rounded animate-pulse" />
-                            </div>
-                        </div>
-                        <div className="flex flex-col gap-8">
-                            {[...Array(2)].map((_, i) => (
-                                <div key={i} className="flex gap-6 items-start">
-                                    <div className="aspect-[4/3] w-64 rounded-3xl bg-muted animate-pulse flex-shrink-0" />
-                                    <div className="flex-1 space-y-2">
-                                        <div className="h-4 w-1/3 bg-muted rounded animate-pulse" />
-                                        <div className="h-5 w-full bg-muted rounded animate-pulse" />
-                                        <div className="h-4 w-2/3 bg-muted rounded animate-pulse" />
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-            ) : (
-                <>
-                    {filteredBlogs.length > 0 ? (
+            {filteredBlogs.length > 0 ? (
                         <div className="space-y-16">
                             {/* Featured & Recent Section - Only if not filtering */}
                             {!isFiltering && recentBlogs.length > 0 && (
@@ -362,8 +320,6 @@ export default function BlogList() {
                             onPageChange={setCurrentPage}
                         />
                     </div>
-                </>
-            )}
         </div>
     );
 }

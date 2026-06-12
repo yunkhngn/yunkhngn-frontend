@@ -3,7 +3,7 @@ import CodingActivity from './CodingActivity';
 import MusicPlayer from './MusicPlayer';
 import api from '@/lib/api/client';
 import { getCached, setCached } from '@/lib/liveActivityCache';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, m as motion } from 'framer-motion';
 
 export default function LiveActivityContainer({ isStatic = false }) {
     const [codingData, setCodingData] = useState(null);

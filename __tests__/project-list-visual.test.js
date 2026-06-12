@@ -22,8 +22,7 @@ describe('ProjectListClient visual polish', () => {
 
   test('imports motion from framer-motion', () => {
     const source = fs.readFileSync(filePath, 'utf8');
-    expect(source).toMatch(/motion/);
-    expect(source).toMatch(/framer-motion/);
+    expect(source).toMatch(/import\s+\{\s*m\s+as\s+motion\s+\}\s+from ['"]framer-motion['"]/);
   });
 
   test('defines cardContainerVariants with staggerChildren', () => {
@@ -32,10 +31,19 @@ describe('ProjectListClient visual polish', () => {
     expect(source).toMatch(/staggerChildren/);
   });
 
-  test('has skeleton loading (animate-pulse + aspect-video)', () => {
+  test('has a route-level loading state and aspect-video cards', () => {
     const source = fs.readFileSync(filePath, 'utf8');
-    expect(source).toMatch(/animate-pulse/);
     expect(source).toMatch(/aspect-video/);
+    const loadingPath = path.join(process.cwd(), 'app', '(public)', 'project', 'loading.jsx');
+    const loadingSource = fs.readFileSync(loadingPath, 'utf8');
+    expect(loadingSource).toMatch(/animate-/);
+  });
+
+  test('receives project data from the server component', () => {
+    const source = fs.readFileSync(filePath, 'utf8');
+    expect(source).toMatch(/function ProjectList\(\{\s*projects = \[\],\s*repos = \[\]\s*\}\)/);
+    expect(source).not.toMatch(/readNestJson/);
+    expect(source).not.toMatch(/useEffect/);
   });
 
   test('has FolderOpen in empty state', () => {

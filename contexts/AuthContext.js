@@ -1,17 +1,7 @@
 import { createContext, useContext, useEffect, useState, useRef } from 'react';
 import { readNestJson } from '@/lib/api/readJson';
-import { 
-    onAuthStateChanged, 
-    signInAnonymously, 
-    signOut as firebaseSignOut,
-    signInWithEmailAndPassword,
-    signInWithPopup,
-    GoogleAuthProvider,
-    GithubAuthProvider,
-    FacebookAuthProvider,
-    TwitterAuthProvider
-} from 'firebase/auth';
-import { auth } from '../lib/firebase/config';
+import { loadFirebaseAuth } from '@/lib/firebase/lazy';
+import { setApiTokenGetter } from '@/lib/api/tokenGetter';
 import { toast } from 'sonner';
 
 const AuthContext = createContext({
@@ -33,60 +23,76 @@ export const AuthProvider = ({ children }) => {
     const hasLoggedOut = useRef(false);
 
     useEffect(() => {
-        if (!auth) {
-            setLoading(false);
-            return undefined;
-        }
-        const unsubscribe = onAuthStateChanged(auth, async (user) => {
-            if (isLoggingIn.current) return;
+        let unsubscribe = () => {};
+        let cancelled = false;
 
-            if (user) {
-                try {
-                    // Skip database check for anonymous users
-                    if (user.isAnonymous) {
-                        setUser(user);
-                    } else {
-                        const token = await user.getIdToken();
-                        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/me`, {
-                            headers: {
-                                Authorization: `Bearer ${token}`
-                            }
-                        });
-                        if (res.ok) {
-                            const profile = await readNestJson(res);
-                            // Merge profile data
-                            user.avatarUrl = profile.avatarUrl;
-                            if (profile.name) {
-                                user.displayName = profile.name;
-                            }
-                            user.role = profile.role;
+        loadFirebaseAuth().then(({ auth, authMod }) => {
+            if (cancelled) return;
+            if (!auth) {
+                setLoading(false);
+                return;
+            }
+
+            setApiTokenGetter(async () => {
+                const current = auth.currentUser;
+                return current ? current.getIdToken() : null;
+            });
+
+            unsubscribe = authMod.onAuthStateChanged(auth, async (user) => {
+                if (isLoggingIn.current) return;
+
+                if (user) {
+                    try {
+                        // Skip database check for anonymous users
+                        if (user.isAnonymous) {
                             setUser(user);
                         } else {
-                            // User not in DB
-                            console.error('User not found in database');
-                            await firebaseSignOut(auth);
-                            setUser(null);
+                            const token = await user.getIdToken();
+                            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/me`, {
+                                headers: {
+                                    Authorization: `Bearer ${token}`
+                                }
+                            });
+                            if (res.ok) {
+                                const profile = await readNestJson(res);
+                                // Merge profile data
+                                user.avatarUrl = profile.avatarUrl;
+                                if (profile.name) {
+                                    user.displayName = profile.name;
+                                }
+                                user.role = profile.role;
+                                setUser(user);
+                            } else {
+                                // User not in DB
+                                console.error('User not found in database');
+                                await authMod.signOut(auth);
+                                setUser(null);
+                            }
                         }
+                    } catch (error) {
+                        console.error('Failed to fetch user profile:', error);
+                        setUser(null);
                     }
-                } catch (error) {
-                    console.error('Failed to fetch user profile:', error);
+                } else {
                     setUser(null);
                 }
-            } else {
-                setUser(null);
-            }
-            setLoading(false);
+                setLoading(false);
+            });
         });
 
-        return () => unsubscribe();
+        return () => {
+            cancelled = true;
+            unsubscribe();
+        };
     }, []);
 
     const signInAnon = async () => {
+        const { auth, authMod } = await loadFirebaseAuth();
         if (!auth) {
             throw new Error('Firebase is not configured');
         }
         try {
-            const result = await signInAnonymously(auth);
+            const result = await authMod.signInAnonymously(auth);
             hasLoggedOut.current = false;
             return result;
         } catch (error) {
@@ -95,21 +101,23 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    const login = (email, password) => {
+    const login = async (email, password) => {
+        const { auth, authMod } = await loadFirebaseAuth();
         if (!auth) {
-            return Promise.reject(new Error('Firebase is not configured'));
+            throw new Error('Firebase is not configured');
         }
-        return signInWithEmailAndPassword(auth, email, password);
+        return authMod.signInWithEmailAndPassword(auth, email, password);
     };
 
-    const loginWithGoogle = async () => {
+    // Shared popup flow for providers that require an existing ADMIN account.
+    const loginWithValidatedProvider = async (createProvider) => {
+        const { auth, authMod } = await loadFirebaseAuth();
         if (!auth) {
             throw new Error('Firebase is not configured');
         }
         isLoggingIn.current = true;
-        const provider = new GoogleAuthProvider();
         try {
-            const result = await signInWithPopup(auth, provider);
+            const result = await authMod.signInWithPopup(auth, createProvider(authMod));
             const user = result.user;
             const token = await user.getIdToken();
 
@@ -138,101 +146,57 @@ export const AuthProvider = ({ children }) => {
             return result;
         } catch (error) {
             console.error("Login validation failed:", error);
-            if (auth?.currentUser) await firebaseSignOut(auth);
+            if (auth?.currentUser) await authMod.signOut(auth);
             throw error;
         } finally {
             isLoggingIn.current = false;
         }
     };
 
-    const loginWithGithub = async () => {
+    const loginWithGoogle = () =>
+        loginWithValidatedProvider((authMod) => new authMod.GoogleAuthProvider());
+
+    const loginWithGithub = () =>
+        loginWithValidatedProvider((authMod) => new authMod.GithubAuthProvider());
+
+    const loginWithFacebook = async () => {
+        const { auth, authMod } = await loadFirebaseAuth();
         if (!auth) {
             throw new Error('Firebase is not configured');
         }
-        isLoggingIn.current = true;
-        const provider = new GithubAuthProvider();
-        try {
-            const result = await signInWithPopup(auth, provider);
-            const user = result.user;
-            const token = await user.getIdToken();
-
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/me`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-
-            if (!res.ok) {
-                await user.delete();
-                toast.error('Unauthorized: Account not found in system.');
-                throw new Error('Unauthorized: Account deleted');
-            }
-
-            const profile = await readNestJson(res);
-            if (profile.role !== 'ADMIN') {
-                await user.delete();
-                toast.error('Unauthorized: Access restricted to Admins.');
-                throw new Error('Access Denied: Account deleted');
-            }
-
-            user.avatarUrl = profile.avatarUrl;
-            if (profile.name) user.displayName = profile.name;
-            user.role = profile.role;
-            setUser(user);
-
-            return result;
-        } catch (error) {
-            console.error("Login validation failed:", error);
-            if (auth?.currentUser) await firebaseSignOut(auth);
-            throw error;
-        } finally {
-            isLoggingIn.current = false;
-        }
+        return authMod.signInWithPopup(auth, new authMod.FacebookAuthProvider());
     };
 
-    const loginWithFacebook = () => {
+    const loginWithTwitter = async () => {
+        const { auth, authMod } = await loadFirebaseAuth();
         if (!auth) {
-            return Promise.reject(new Error('Firebase is not configured'));
+            throw new Error('Firebase is not configured');
         }
-        const provider = new FacebookAuthProvider();
-        return signInWithPopup(auth, provider);
-    };
-
-    const loginWithTwitter = () => {
-        if (!auth) {
-            return Promise.reject(new Error('Firebase is not configured'));
-        }
-        const provider = new TwitterAuthProvider();
-        return signInWithPopup(auth, provider);
+        return authMod.signInWithPopup(auth, new authMod.TwitterAuthProvider());
     };
 
     const signOut = async () => {
+        const { auth, authMod } = await loadFirebaseAuth();
         if (!auth) return;
         try {
             hasLoggedOut.current = true;
-            await firebaseSignOut(auth);
+            await authMod.signOut(auth);
         } catch (error) {
             console.error('Error signing out:', error);
         }
     };
 
-    // Auto sign-in anonymously if not logged in (for visitors)
-    // DISABLED: Only sign in when user performs an action (like commenting)
-    // useEffect(() => {
-    //     if (!loading && !user && !hasLoggedOut.current) {
-    //         signInAnon();
-    //     }
-    // }, [loading, user]);
-
     return (
-        <AuthContext.Provider value={{ 
-            user, 
-            loading, 
-            signInAnonymously: signInAnon, 
+        <AuthContext.Provider value={{
+            user,
+            loading,
+            signInAnonymously: signInAnon,
             login,
             loginWithGoogle,
             loginWithGithub,
             loginWithFacebook,
             loginWithTwitter,
-            signOut 
+            signOut
         }}>
             {children}
         </AuthContext.Provider>

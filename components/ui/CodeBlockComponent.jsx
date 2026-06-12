@@ -1,8 +1,43 @@
 import { NodeViewContent, NodeViewWrapper } from '@tiptap/react';
-import React, { useState } from 'react';
-import SyntaxHighlighter from 'react-syntax-highlighter/dist/cjs/prism';
-import { atomDark } from 'react-syntax-highlighter/dist/cjs/styles/prism';
+import React, { useMemo, useState } from 'react';
+import { common, createLowlight } from 'lowlight';
 import { Copy, Check } from 'lucide-react';
+
+const lowlight = createLowlight(common);
+
+const LANGUAGE_ALIASES = { html: 'xml', text: 'plaintext' };
+
+function hastToReact(nodes, keyPrefix) {
+    return nodes.map((node, index) => {
+        if (node.type === 'text') return node.value;
+        if (node.type !== 'element') return null;
+        const key = `${keyPrefix}-${index}`;
+        const className = Array.isArray(node.properties?.className)
+            ? node.properties.className.join(' ')
+            : undefined;
+        return React.createElement(
+            node.tagName,
+            { key, className },
+            hastToReact(node.children || [], key),
+        );
+    });
+}
+
+function HighlightedCode({ code, language }) {
+    const children = useMemo(() => {
+        const lang = LANGUAGE_ALIASES[language] || language;
+        try {
+            const tree = lang && lang !== 'null' && lowlight.registered(lang)
+                ? lowlight.highlight(lang, code)
+                : lowlight.highlightAuto(code);
+            return hastToReact(tree.children, 'hl');
+        } catch {
+            return code;
+        }
+    }, [code, language]);
+
+    return <code className="hljs">{children}</code>;
+}
 
 export default function CodeBlockComponent({ node, updateAttributes, extension, editor }) {
     const { attrs: { language: defaultLanguage } } = node;
@@ -11,12 +46,11 @@ export default function CodeBlockComponent({ node, updateAttributes, extension, 
 
     return (
         <NodeViewWrapper className="code-block relative my-4 rounded-lg overflow-hidden border border-border bg-[#282c34] shadow-sm">
-            {/* macOS-style Header */}
             <div className="flex items-center justify-between px-4 py-2 bg-[#21252b] border-b border-[#181a1f]">
                 <div className="flex items-center gap-2 w-16">
-                    <div className="w-3 h-3 rounded-full bg-[#ff5f56]" /> {/* Red */}
-                    <div className="w-3 h-3 rounded-full bg-[#ffbd2e]" /> {/* Yellow */}
-                    <div className="w-3 h-3 rounded-full bg-[#27c93f]" /> {/* Green */}
+                    <div className="w-3 h-3 rounded-full bg-[#ff5f56]" />
+                    <div className="w-3 h-3 rounded-full bg-[#ffbd2e]" />
+                    <div className="w-3 h-3 rounded-full bg-[#27c93f]" />
                 </div>
                 <div className="relative group flex-1 flex justify-center">
                     <select
@@ -63,18 +97,11 @@ export default function CodeBlockComponent({ node, updateAttributes, extension, 
                 </div>
             </div>
 
-            {/* Code Content */}
             <div className="relative">
                 {!isEditable ? (
-                    <SyntaxHighlighter
-                        language={defaultLanguage || 'text'}
-                        style={atomDark}
-                        customStyle={{ margin: 0, padding: '1rem', background: 'transparent', fontSize: '0.875rem', fontWeight: 600 }}
-                        wrapLines={true}
-                        wrapLongLines={true}
-                    >
-                        {node.textContent}
-                    </SyntaxHighlighter>
+                    <pre className="m-0 p-4 overflow-x-auto bg-[#282c34] text-sm font-mono font-semibold text-[#abb2bf] whitespace-pre-wrap break-words">
+                        <HighlightedCode code={node.textContent} language={defaultLanguage} />
+                    </pre>
                 ) : (
                     <pre className="m-0 p-4 overflow-x-auto bg-[#282c34] text-sm font-mono font-semibold text-[#abb2bf]">
                         <NodeViewContent as="code" className={`language-${defaultLanguage}`} />
