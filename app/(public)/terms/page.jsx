@@ -1,15 +1,12 @@
 import TermsClient from './TermsClient';
+import { createMetadata } from '@/lib/seo/createMetadata';
 
-export const metadata = {
+export const metadata = createMetadata({
   title: 'Terms of Service',
   description: 'Terms of service for yunkhngn.dev.',
-  alternates: { canonical: 'https://yunkhngn.dev/terms' },
-  openGraph: {
-    title: 'Terms of Service — Khoa Nguyễn',
-    description: 'Terms of service for yunkhngn.dev.',
-    url: 'https://yunkhngn.dev/terms',
-  },
-};
+  path: '/terms',
+  ogType: 'page',
+});
 
 export default function TermsPage() {
   return <TermsClient />;

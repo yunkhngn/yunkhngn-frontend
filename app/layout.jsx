@@ -78,6 +78,12 @@ export const metadata = {
   },
   twitter: {
     card: 'summary_large_image',
+    title: 'Khoa Nguyễn - Software Engineer',
+    description:
+      "I'm Khoa Nguyen (yun.khngn) - a talented software engineering student, self-taught creator, graphic designer, and guitarist/musician.",
+    images: [
+      'https://yunkhngn.dev/api/og?title=Khoa%20Nguy%E1%BB%85n&type=page&description=Software%20Engineer%20%E2%80%A2%20Designer%20%E2%80%A2%20Guitarist',
+    ],
   },
   icons: {
     icon: '/favicon.ico',

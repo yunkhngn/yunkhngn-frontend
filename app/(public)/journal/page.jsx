@@ -1,15 +1,12 @@
 import JournalClient from './JournalClient';
+import { createMetadata } from '@/lib/seo/createMetadata';
 
-export const metadata = {
+export const metadata = createMetadata({
   title: 'Journal',
   description: "Daily reflections, moods, and personal notes — Khoa Nguyễn's digital journal.",
-  alternates: { canonical: 'https://yunkhngn.dev/journal' },
-  openGraph: {
-    title: 'Journal — Khoa Nguyễn',
-    description: "Daily reflections, moods, and personal notes — Khoa Nguyễn's digital journal.",
-    url: 'https://yunkhngn.dev/journal',
-  },
-};
+  path: '/journal',
+  ogType: 'journal',
+});
 
 export default function JournalPage() {
   return <JournalClient />;

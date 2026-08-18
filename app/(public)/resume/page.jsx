@@ -1,15 +1,12 @@
 import ResumeClient from './ResumeClient';
+import { createMetadata } from '@/lib/seo/createMetadata';
 
-export const metadata = {
+export const metadata = createMetadata({
   title: 'Resume',
   description: 'Software Engineer résumé — skills, experience, and education of Khoa Nguyễn.',
-  alternates: { canonical: 'https://yunkhngn.dev/resume' },
-  openGraph: {
-    title: 'Resume — Khoa Nguyễn',
-    description: 'Software Engineer résumé — skills, experience, and education of Khoa Nguyễn.',
-    url: 'https://yunkhngn.dev/resume',
-  },
-};
+  path: '/resume',
+  ogType: 'page',
+});
 
 export default function ResumePage() {
   return <ResumeClient />;

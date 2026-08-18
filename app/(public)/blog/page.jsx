@@ -1,18 +1,15 @@
 import BlogListClient from './BlogListClient';
 import { fetchBlogListData } from '@/lib/fetchBlogListData';
+import { createMetadata } from '@/lib/seo/createMetadata';
 
 export const revalidate = 120;
 
-export const metadata = {
+export const metadata = createMetadata({
   title: 'Blog',
   description: 'Thoughts on web development, design, and the creative process — by Khoa Nguyễn.',
-  alternates: { canonical: 'https://yunkhngn.dev/blog' },
-  openGraph: {
-    title: 'Blog — Khoa Nguyễn',
-    description: 'Thoughts on web development, design, and the creative process — by Khoa Nguyễn.',
-    url: 'https://yunkhngn.dev/blog',
-  },
-};
+  path: '/blog',
+  ogType: 'blog',
+});
 
 export default async function BlogListPage() {
   const blogs = await fetchBlogListData();

@@ -1,15 +1,12 @@
 import PrivacyClient from './PrivacyClient';
+import { createMetadata } from '@/lib/seo/createMetadata';
 
-export const metadata = {
+export const metadata = createMetadata({
   title: 'Privacy Policy',
   description: 'Privacy policy for yunkhngn.dev — how your data is handled.',
-  alternates: { canonical: 'https://yunkhngn.dev/privacy' },
-  openGraph: {
-    title: 'Privacy Policy — Khoa Nguyễn',
-    description: 'Privacy policy for yunkhngn.dev — how your data is handled.',
-    url: 'https://yunkhngn.dev/privacy',
-  },
-};
+  path: '/privacy',
+  ogType: 'page',
+});
 
 export default function PrivacyPage() {
   return <PrivacyClient />;
