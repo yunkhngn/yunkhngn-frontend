@@ -6,8 +6,7 @@ WORKDIR /app
 # Enable corepack for Yarn 4 Berry
 RUN corepack enable
 
-COPY package.json yarn.lock .yarnrc.yml ./
-COPY .yarn ./.yarn
+COPY package.json yarn.lock .yarnrc.yml* ./
 
 RUN yarn install --immutable
 
