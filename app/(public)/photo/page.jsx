@@ -1,15 +1,12 @@
 import PhotoClient from './PhotoClient';
+import { createMetadata } from '@/lib/seo/createMetadata';
 
-export const metadata = {
+export const metadata = createMetadata({
   title: 'Photo',
   description: 'A collection of photography and visual moments captured by Khoa Nguyễn.',
-  alternates: { canonical: 'https://yunkhngn.dev/photo' },
-  openGraph: {
-    title: 'Photo — Khoa Nguyễn',
-    description: 'A collection of photography and visual moments captured by Khoa Nguyễn.',
-    url: 'https://yunkhngn.dev/photo',
-  },
-};
+  path: '/photo',
+  ogType: 'page',
+});
 
 export default function PhotoPage() {
   return <PhotoClient />;

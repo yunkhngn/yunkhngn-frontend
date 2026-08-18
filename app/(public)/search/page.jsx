@@ -1,16 +1,13 @@
 import { Suspense } from 'react';
 import SearchClient from './SearchClient';
+import { createMetadata } from '@/lib/seo/createMetadata';
 
-export const metadata = {
+export const metadata = createMetadata({
   title: 'Search',
   description: 'Search blogs, projects, photos, and more on yunkhngn.dev.',
-  alternates: { canonical: 'https://yunkhngn.dev/search' },
-  openGraph: {
-    title: 'Search — Khoa Nguyễn',
-    description: 'Search blogs, projects, photos, and more on yunkhngn.dev.',
-    url: 'https://yunkhngn.dev/search',
-  },
-};
+  path: '/search',
+  ogType: 'page',
+});
 
 export default function SearchPage() {
   return (
